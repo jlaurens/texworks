@@ -113,7 +113,7 @@ void FindDialog::init(QTextEdit *document)
 	checkBox_findAll->setChecked(findAll);
 
 	bool allFiles = settings.value(QString::fromLatin1("searchAllFiles")).toBool();
-	checkBox_allFiles->setEnabled(TeXDocumentWindow::documentList().count() > 1);
+	checkBox_allFiles->setEnabled(TeXDocumentWindow::windowList().count() > 1);
 	checkBox_allFiles->setChecked(allFiles && checkBox_allFiles->isEnabled());
 
 	bool selectionOption = settings.value(QString::fromLatin1("searchSelection")).toBool();
@@ -267,7 +267,7 @@ void ReplaceDialog::init(QTextEdit *document)
 	checkBox_words->setEnabled(!regexOption);
 
 	bool allFiles = settings.value(QString::fromLatin1("searchAllFiles")).toBool();
-	checkBox_allFiles->setEnabled(TeXDocumentWindow::documentList().count() > 1);
+	checkBox_allFiles->setEnabled(TeXDocumentWindow::windowList().count() > 1);
 	checkBox_allFiles->setChecked(allFiles && checkBox_allFiles->isEnabled());
 
 	bool selectionOption = settings.value(QString::fromLatin1("searchSelection")).toBool();

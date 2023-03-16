@@ -46,7 +46,7 @@ Q_DECLARE_METATYPE(TWSynchronizer::TeXSyncPoint)
 Q_DECLARE_METATYPE(TWSynchronizer::PDFSyncPoint)
 Q_DECLARE_METATYPE(TWSynchronizer::Resolution)
 
-void NonblockingSyntaxHighlighter::setDocument(QTextDocument * doc) { Q_UNUSED(doc) }
+void NonblockingSyntaxHighlighter::setTextDocument(QTextDocument * doc) { Q_UNUSED(doc) }
 void NonblockingSyntaxHighlighter::rehighlight() { }
 void NonblockingSyntaxHighlighter::rehighlightBlock(const QTextBlock & block) { Q_UNUSED(block) }
 void NonblockingSyntaxHighlighter::maybeRehighlightText(int position, int charsRemoved, int charsAdded) { Q_UNUSED(position) Q_UNUSED(charsRemoved) Q_UNUSED(charsAdded) }
@@ -131,7 +131,7 @@ const QStringList ResourcesLibrary::getLibraryPaths(const QString & subdir, cons
 namespace Tw {
 namespace Document {
 
-bool operator==(const TextDocument::Tag & t1, const TextDocument::Tag & t2) {
+bool operator==(const Tag & t1, const Tag & t2) {
 	return (t1.cursor == t2.cursor && t1.level == t2.level && t1.text == t2.text);
 }
 
@@ -230,10 +230,10 @@ void TestDocument::tags()
 	QSignalSpy spy(&doc, &Tw::Document::TextDocument::tagsChanged);
 #endif
 
-	Tw::Document::TextDocument::Tag tag1{QTextCursor(&doc), 0, QStringLiteral("tag1")};
+	Tw::Document::Tag tag1{QTextCursor(&doc), 0, QStringLiteral("tag1")};
 	tag1.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 2);
 
-	Tw::Document::TextDocument::Tag tag2{QTextCursor(&doc), 0, QStringLiteral("tag2")};
+	Tw::Document::Tag tag2{QTextCursor(&doc), 0, QStringLiteral("tag2")};
 	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, 2);
 	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1);
 
@@ -243,8 +243,8 @@ void TestDocument::tags()
 	doc.addTag(tag1.cursor, tag1.level, tag1.text);
 	QCOMPARE(spy.count(), 2);
 
-	QList<Tw::Document::TextDocument::Tag> tags = doc.getTags();
-	QCOMPARE(tags, QList<Tw::Document::TextDocument::Tag>() << tag1 << tag2);
+	QVector<Tw::Document::Tag> tags = doc.getTags();
+	QCOMPARE(tags, QVector<Tw::Document::Tag>() << tag1 << tag2);
 
 	spy.clear();
 	QCOMPARE(doc.removeTags(3, 5), 0u);

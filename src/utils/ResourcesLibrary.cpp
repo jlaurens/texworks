@@ -146,6 +146,13 @@ const QString ResourcesLibrary::getLibraryPath(const QString& subdir, const bool
 }
 
 // static
+const QString Tw::Utils::ResourcesLibrary::getTagPatternsPath()
+{
+    QDir dir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
+    return dir.filePath(QString::fromLatin1("tag-patterns.txt"));
+}
+
+// static
 const QStringList ResourcesLibrary::getLibraryPaths(const QString & subdir, const bool updateOnDisk)
 {
 	return getLibraryPath(subdir, updateOnDisk).split(QStringLiteral(PATH_LIST_SEP));

@@ -25,10 +25,144 @@
 #include "utils/ResourcesLibrary.h"
 
 #include <QTextCursor>
+#include <QDebug>
 #include <climits> // for INT_MAX
 
-QList<TeXHighlighter::HighlightingSpec> *TeXHighlighter::syntaxRules = nullptr;
-QList<TeXHighlighter::TagPattern> *TeXHighlighter::tagPatterns = nullptr;
+struct TagPattern {
+    QRegularExpression pattern;
+    int type;
+    int level;
+};
+
+static QList<TagPattern> *listTagPattern_p()
+{
+    static QList<TagPattern> * list_p = nullptr;
+    if (!list_p) {
+        // read tag-recognition patterns
+        list_p = new QList<TagPattern>;
+        QFile file(Tw::Utils::ResourcesLibrary::getTagPatternsPath());
+        if (file.open(QIODevice::ReadOnly)) {
+            QRegularExpression whitespace(QStringLiteral("\\s+"));
+            while (true) {
+                QByteArray ba = file.readLine();
+                if (ba.size() == 0)
+                    break;
+                if (ba[0] == '#' || ba[0] == '\n')
+                    continue;
+                QString line = QString::fromUtf8(ba.data(), ba.size());
+                QStringList parts = line.split(whitespace, Qt::SkipEmptyParts);
+                if (parts.size() != 3)
+                    continue;
+                TagPattern tagPattern;
+                bool ok{false};
+                tagPattern.type = parts[0].toInt(&ok);
+                if (ok) {
+                    tagPattern.level = parts[1].toInt(&ok);
+                    if (ok) {
+                        tagPattern.pattern = QRegularExpression(parts[2]);
+                        if (tagPattern.pattern.isValid()) {
+                            list_p->append(tagPattern);
+                        } else {
+                            qWarning() << "Wrong tag pattern:" << parts[2];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return list_p;
+}
+
+struct HilightRule  {
+    QRegularExpression pattern;
+    QTextCharFormat    format;
+    QTextCharFormat    spellFormat;
+    bool               spellCheck;
+};
+struct SyntaxHilight {
+    QString            name;
+    QList<HilightRule> ruleList;
+};
+QList<SyntaxHilight> syntaxHilightList;
+
+void loadSyntaxPatterns()
+{
+    if (syntaxHilightList.count())
+        return;
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
+#else
+    constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
+#endif
+    QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
+    QRegularExpression whitespace(QStringLiteral("\\s+"));
+
+    QFile syntaxFile(configDir.filePath(QString::fromLatin1("syntax-patterns.txt")));
+    QRegularExpression sectionRE(QStringLiteral("^\\[([^\\]]+)\\]"));
+    if (syntaxFile.open(QIODevice::ReadOnly)) {
+        SyntaxHilight syntax;
+        syntax.name = QObject::tr("default");
+        while (true) {
+            QByteArray ba = syntaxFile.readLine();
+            if (ba.size() == 0)
+                break;
+            if (ba[0] == '#' || ba[0] == '\n')
+                continue;
+            QString line = QString::fromUtf8(ba.data(), ba.size());
+            QRegularExpressionMatch sectionMatch = sectionRE.match(line);
+            if (sectionMatch.capturedStart() == 0) {
+                if (syntax.ruleList.count() > 0)
+                    syntaxHilightList.append(syntax);
+                syntax.ruleList.clear();
+                syntax.name = sectionMatch.captured(1);
+                continue;
+            }
+            QStringList parts = line.split(whitespace, SkipEmptyParts);
+            if (parts.size() != 3)
+                continue;
+            QStringList styles = parts[0].split(QChar::fromLatin1(';'));
+            QStringList colors = styles[0].split(QChar::fromLatin1('/'));
+            QColor fg, bg;
+            if (colors.size() <= 2) {
+                if (colors.size() == 2)
+                    bg = QColor(colors[1]);
+                fg = QColor(colors[0]);
+            }
+            HilightRule rule;
+            if (fg.isValid())
+                rule.format.setForeground(fg);
+            if (bg.isValid())
+                rule.format.setBackground(bg);
+            if (styles.size() > 1) {
+                if (styles[1].contains(QChar::fromLatin1('B')))
+                    rule.format.setFontWeight(QFont::Bold);
+                if (styles[1].contains(QChar::fromLatin1('I')))
+                    rule.format.setFontItalic(true);
+                if (styles[1].contains(QChar::fromLatin1('U')))
+                    rule.format.setFontUnderline(true);
+            }
+            if (parts[1].compare(QChar::fromLatin1('Y'), Qt::CaseInsensitive) == 0) {
+                rule.spellCheck = true;
+                rule.spellFormat = rule.format;
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+                // Using QTextCharFormat::SpellCheckUnderline causes
+                // problems for some fonts/font sizes (QTBUG-50499)
+                rule.spellFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+#else
+                rule.spellFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+#endif
+                rule.spellFormat.setUnderlineColor(Qt::red);
+            }
+            else
+                rule.spellCheck = false;
+            rule.pattern = QRegularExpression(parts[2]);
+            if (rule.pattern.isValid())
+                syntax.ruleList.append(rule);
+        }
+        if (syntax.ruleList.count() > 0)
+            syntaxHilightList.append(syntax);
+    }
+}
 
 TeXHighlighter::TeXHighlighter(Tw::Document::TeXDocument * parent)
 	: NonblockingSyntaxHighlighter(parent)
@@ -37,7 +171,7 @@ TeXHighlighter::TeXHighlighter(Tw::Document::TeXDocument * parent)
 	, _dictionary(nullptr)
 	, texDoc(parent)
 {
-	loadPatterns();
+	loadSyntaxPatterns();
 #if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
 	// Using QTextCharFormat::SpellCheckUnderline causes problems for some
 	// fonts/font sizes (QTBUG-50499)
@@ -69,17 +203,17 @@ void TeXHighlighter::spellCheckRange(const QString &text, QString::size_type ind
 void TeXHighlighter::highlightBlock(const QString &text)
 {
 	QString::size_type charPos = 0;
-	if (highlightIndex >= 0 && highlightIndex < syntaxRules->count()) {
-		QList<HighlightingRule>& highlightingRules = (*syntaxRules)[highlightIndex].rules;
+	if (highlightIndex >= 0 && highlightIndex < syntaxHilightList.count()) {
+		QList<HilightRule>& highlightingRules = syntaxHilightList[highlightIndex].ruleList;
 		// Go through the whole text...
 		while (charPos < text.length()) {
 			// ... and find the highlight pattern that matches closest to the
 			// current character index
 			QString::size_type firstIndex{std::numeric_limits<QString::size_type>::max()}, len{0};
-			const HighlightingRule* firstRule = nullptr;
+			const HilightRule* firstRule = nullptr;
 			QRegularExpressionMatch firstMatch;
 			for (int i = 0; i < highlightingRules.size(); ++i) {
-				HighlightingRule &rule = highlightingRules[i];
+				HilightRule &rule = highlightingRules[i];
 				QRegularExpressionMatch m = rule.pattern.match(text, charPos);
 				if (m.capturedStart() >= 0 && m.capturedStart() < firstIndex) {
 					firstIndex = m.capturedStart();
@@ -113,6 +247,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 				QString::size_type firstIndex{std::numeric_limits<QString::size_type>::max()}, len{0};
 				TagPattern* firstPatt = nullptr;
 				QRegularExpressionMatch firstMatch;
+                auto tagPatterns = listTagPattern_p();
 				for (int i = 0; i < tagPatterns->count(); ++i) {
 					TagPattern& patt = (*tagPatterns)[i];
 					QRegularExpressionMatch m = patt.pattern.match(text, index);
@@ -123,14 +258,9 @@ void TeXHighlighter::highlightBlock(const QString &text)
 					}
 				}
 				if (firstPatt && firstMatch.hasMatch() && (len = firstMatch.capturedLength()) > 0) {
-					QTextCursor	cursor(document());
-					using pos_type = decltype(cursor.position());
-					cursor.setPosition(currentBlock().position() + static_cast<pos_type>(firstIndex));
-					cursor.setPosition(currentBlock().position() + static_cast<pos_type>(firstIndex + len), QTextCursor::KeepAnchor);
-					QString tagText = firstMatch.captured(1);
-					if (tagText.isEmpty())
-						tagText = firstMatch.captured(0);
-					texDoc->addTag(cursor, firstPatt->level, tagText);
+                    texDoc->addTag(firstPatt->type, firstPatt->level,
+                                   currentBlock().position() + firstIndex, len,
+                                   firstMatch);
 					index = firstIndex + len;
 				}
 				else
@@ -143,7 +273,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 void TeXHighlighter::setActiveIndex(int index)
 {
 	int oldIndex = highlightIndex;
-	highlightIndex = (index >= 0 && index < syntaxRules->count()) ? index : -1;
+	highlightIndex = (index >= 0 && index < syntaxHilightList.count()) ? index : -1;
 	if (oldIndex != highlightIndex)
 		rehighlight();
 }
@@ -158,154 +288,40 @@ void TeXHighlighter::setSpellChecker(Tw::Document::SpellChecker::Dictionary * di
 
 QStringList TeXHighlighter::syntaxOptions()
 {
-	loadPatterns();
-
-	QStringList options;
-	if (syntaxRules) {
-		foreach (const HighlightingSpec& spec, *syntaxRules) {
-			options << spec.name;
-		}
-	}
-	return options;
-}
-
-void TeXHighlighter::loadPatterns()
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
-	if (syntaxRules)
-		return;
-
-	QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
-	QRegularExpression whitespace(QStringLiteral("\\s+"));
-
-	if (!syntaxRules) {
-		syntaxRules = new QList<HighlightingSpec>;
-		QFile syntaxFile(configDir.filePath(QString::fromLatin1("syntax-patterns.txt")));
-		QRegularExpression sectionRE(QStringLiteral("^\\[([^\\]]+)\\]"));
-		if (syntaxFile.open(QIODevice::ReadOnly)) {
-			HighlightingSpec spec;
-			spec.name = tr("default");
-			while (true) {
-				QByteArray ba = syntaxFile.readLine();
-				if (ba.size() == 0)
-					break;
-				if (ba[0] == '#' || ba[0] == '\n')
-					continue;
-				QString line = QString::fromUtf8(ba.data(), ba.size());
-				QRegularExpressionMatch sectionMatch = sectionRE.match(line);
-				if (sectionMatch.capturedStart() == 0) {
-					if (spec.rules.count() > 0)
-						syntaxRules->append(spec);
-					spec.rules.clear();
-					spec.name = sectionMatch.captured(1);
-					continue;
-				}
-				QStringList parts = line.split(whitespace, SkipEmptyParts);
-				if (parts.size() != 3)
-					continue;
-				QStringList styles = parts[0].split(QChar::fromLatin1(';'));
-				QStringList colors = styles[0].split(QChar::fromLatin1('/'));
-				QColor fg, bg;
-				if (colors.size() <= 2) {
-					if (colors.size() == 2)
-						bg = QColor(colors[1]);
-					fg = QColor(colors[0]);
-				}
-				HighlightingRule rule;
-				if (fg.isValid())
-					rule.format.setForeground(fg);
-				if (bg.isValid())
-					rule.format.setBackground(bg);
-				if (styles.size() > 1) {
-					if (styles[1].contains(QChar::fromLatin1('B')))
-						rule.format.setFontWeight(QFont::Bold);
-					if (styles[1].contains(QChar::fromLatin1('I')))
-						rule.format.setFontItalic(true);
-					if (styles[1].contains(QChar::fromLatin1('U')))
-						rule.format.setFontUnderline(true);
-				}
-				if (parts[1].compare(QChar::fromLatin1('Y'), Qt::CaseInsensitive) == 0) {
-					rule.spellCheck = true;
-					rule.spellFormat = rule.format;
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-					// Using QTextCharFormat::SpellCheckUnderline causes
-					// problems for some fonts/font sizes (QTBUG-50499)
-					rule.spellFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-#else
-					rule.spellFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
-#endif
-					rule.spellFormat.setUnderlineColor(Qt::red);
-				}
-				else
-					rule.spellCheck = false;
-				rule.pattern = QRegularExpression(parts[2]);
-				if (rule.pattern.isValid())
-					spec.rules.append(rule);
-			}
-			if (spec.rules.count() > 0)
-				syntaxRules->append(spec);
-		}
-	}
-
-	if (!tagPatterns) {
-		// read tag-recognition patterns
-		tagPatterns = new QList<TagPattern>;
-		QFile tagPatternFile(configDir.filePath(QString::fromLatin1("tag-patterns.txt")));
-		if (tagPatternFile.open(QIODevice::ReadOnly)) {
-			while (true) {
-				QByteArray ba = tagPatternFile.readLine();
-				if (ba.size() == 0)
-					break;
-				if (ba[0] == '#' || ba[0] == '\n')
-					continue;
-				QString line = QString::fromUtf8(ba.data(), ba.size());
-				QStringList parts = line.split(whitespace, SkipEmptyParts);
-				if (parts.size() != 2)
-					continue;
-				TagPattern patt;
-				bool ok{false};
-				patt.level = parts[0].toUInt(&ok);
-				if (ok) {
-					patt.pattern = QRegularExpression(parts[1]);
-					if (patt.pattern.isValid())
-						tagPatterns->append(patt);
-				}
-			}
-		}
-	}
+    loadSyntaxPatterns();
+    QStringList options;
+    for (const auto &rule: syntaxHilightList) {
+        options << rule.name;
+    }
+    return options;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// NonblockingSyntaxHighlighter
 ///////////////////////////////////////////////////////////////////////////////
 
-void NonblockingSyntaxHighlighter::setDocument(QTextDocument * doc)
+void NonblockingSyntaxHighlighter::setTextDocument(QTextDocument * doc)
 {
-	if (_parent)
-		disconnect(_parent);
-	_parent = doc;
+	if (_textDocument)
+		disconnect(_textDocument);
+	_textDocument = doc;
 	_highlightRanges.clear();
 	_dirtyRanges.clear();
-	if (_parent) {
-		connect(_parent, &QTextDocument::destroyed, this, &NonblockingSyntaxHighlighter::unlinkFromDocument);
-		connect(_parent, &QTextDocument::contentsChange, this, &NonblockingSyntaxHighlighter::maybeRehighlightText);
+	if (_textDocument) {
+		connect(_textDocument, &QTextDocument::destroyed, this, &NonblockingSyntaxHighlighter::unlinkFromDocument);
+		connect(_textDocument, &QTextDocument::contentsChange, this, &NonblockingSyntaxHighlighter::maybeRehighlightText);
 		rehighlight();
 	}
 }
 
 void NonblockingSyntaxHighlighter::rehighlight()
 {
-	if (!_parent)
+	if (!_textDocument)
 		return;
-
 	_highlightRanges.clear();
-	range r;
+	Range r;
 	r.from = 0;
-	r.to = _parent->characterCount();
+	r.to = _textDocument->characterCount();
 	_highlightRanges.push_back(r);
 	processWhenIdle();
 }
@@ -318,7 +334,7 @@ void NonblockingSyntaxHighlighter::rehighlightBlock(const QTextBlock & block)
 
 void NonblockingSyntaxHighlighter::maybeRehighlightText(int position, int charsRemoved, int charsAdded)
 {
-	if (!_parent)
+	if (!_textDocument)
 		return;
 
 	// Adjust ranges already present in _highlightRanges
@@ -356,7 +372,7 @@ void NonblockingSyntaxHighlighter::maybeRehighlightText(int position, int charsR
 void NonblockingSyntaxHighlighter::sanitizeHighlightRanges()
 {
 	// 1) clip ranges
-	int n = (_parent ? _parent->characterCount() : 0);
+	int n = (_textDocument ? _textDocument->characterCount() : 0);
 	for (int i = 0; i < _highlightRanges.size(); ++i) {
 		if (_highlightRanges[i].from < 0) _highlightRanges[i].from = 0;
 		if (_highlightRanges[i].to > n) _highlightRanges[i].to = n;
@@ -385,7 +401,7 @@ void NonblockingSyntaxHighlighter::sanitizeHighlightRanges()
 void NonblockingSyntaxHighlighter::process()
 {
 	_processingPending = false;
-	if (!_parent)
+	if (!_textDocument)
 		return;
 
 	QTime start = QTime::currentTime();
@@ -429,7 +445,7 @@ void NonblockingSyntaxHighlighter::pushHighlightBlock(const QTextBlock & block)
 void NonblockingSyntaxHighlighter::pushHighlightRange(const int from, const int to)
 {
 	int i{0};
-	range r;
+	Range r;
 	r.from = from;
 	r.to = to;
 
@@ -461,7 +477,7 @@ void NonblockingSyntaxHighlighter::popHighlightRange(const int from, const int t
 		// Case 2: crop the middle
 		else if (from > _highlightRanges[i].from) {
 			// Split the range into two
-			range r = _highlightRanges[i];
+			Range r = _highlightRanges[i];
 			_highlightRanges[i].from = to;
 			r.to = from;
 			_highlightRanges.insert(i, r);
@@ -484,8 +500,8 @@ void NonblockingSyntaxHighlighter::blockHighlighted(const QTextBlock &block)
 
 const QTextBlock NonblockingSyntaxHighlighter::nextBlockToHighlight() const
 {
-	if (!_parent || _highlightRanges.empty()) return QTextBlock();
-	return _parent->findBlock(_highlightRanges[0].from);
+	if (!_textDocument || _highlightRanges.empty()) return QTextBlock();
+	return _textDocument->findBlock(_highlightRanges[0].from);
 }
 
 void NonblockingSyntaxHighlighter::pushDirtyRange(const int from, const int length)
@@ -498,7 +514,7 @@ void NonblockingSyntaxHighlighter::pushDirtyRange(const int from, const int leng
 
 	int to = from + length;
 	if (_dirtyRanges.empty()) {
-		range r;
+		Range r;
 		r.from = from;
 		r.to = to;
 		_dirtyRanges.push_back(r);
@@ -511,11 +527,11 @@ void NonblockingSyntaxHighlighter::pushDirtyRange(const int from, const int leng
 
 void NonblockingSyntaxHighlighter::markDirtyContent()
 {
-	if (!_parent)
+	if (!_textDocument)
 		return;
 
-	foreach(range r, _dirtyRanges)
-		_parent->markContentsDirty(r.from, r.to - r.from);
+	foreach(Range r, _dirtyRanges)
+		_textDocument->markContentsDirty(r.from, r.to - r.from);
 	_dirtyRanges.clear();
 }
 
@@ -531,8 +547,8 @@ void NonblockingSyntaxHighlighter::setFormat(const QString::size_type start, con
 
 void NonblockingSyntaxHighlighter::processWhenIdle()
 {
-	if (!_processingPending) {
-		_processingPending = true;
-		QTimer::singleShot(IDLE_DELAY_TIME, this, SLOT(process()));
-	}
+    if (!_processingPending) {
+        _processingPending = true;
+        QTimer::singleShot(IDLE_DELAY_TIME, this, SLOT(process()));
+    }
 }

@@ -19,8 +19,8 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#ifndef utils_WindowManager_H
-#define utils_WindowManager_H
+#ifndef TW_WINDOW_MANAGER_H
+#define TW_WINDOW_MANAGER_H
 
 #include <QMenu>
 #include <QString>
@@ -64,4 +64,4 @@ public:
 
 } // namespace Tw
 
-#endif // !defined(utils_WindowManager_H)
+#endif // TW_WINDOW_MANAGER_H

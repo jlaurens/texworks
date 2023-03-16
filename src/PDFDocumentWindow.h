@@ -69,10 +69,7 @@ public:
 	~PDFDocumentWindow() override;
 
 	static PDFDocumentWindow *findDocument(const QString &fileName);
-	static QList<PDFDocumentWindow*> documentList()
-		{
-			return docList;
-		}
+    static QList<PDFDocumentWindow*> windowList();
 
 	QString fileName() const
 		{ return curFile; }
@@ -161,7 +158,7 @@ private:
 	QScrollArea	*scrollArea;
 	QButtonGroup	*toolButtonGroup;
 
-	QList<TeXDocumentWindow*> sourceDocList;
+	QList<TeXDocumentWindow*> sourceWindowList;
 
 	Tw::UI::ClickableLabel *pageLabel;
 	Tw::UI::ClickableLabel *scaleLabel;
@@ -177,8 +174,6 @@ private:
 	QTimer _searchResultHighlightRemover;
 
 	bool openedManually;
-
-	static QList<PDFDocumentWindow*> docList;
 
 	std::unique_ptr<TWSyncTeXSynchronizer> _synchronizer;
 };

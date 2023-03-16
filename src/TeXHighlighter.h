@@ -44,16 +44,25 @@ class TeXDocument;
 // processes them in small chunks that take no longer than MAX_TIME_MSECS
 // before returning control to the main event loop to keep the UI responsive.
 // Inspired by http://enki-editor.org/2014/08/22/Syntax_highlighting.html
+
 class NonblockingSyntaxHighlighter : public QObject
 {
 	Q_OBJECT
 
 public:
-	NonblockingSyntaxHighlighter(QTextDocument * parent) : QObject(parent), _processingPending(false), _parent(nullptr), MAX_TIME_MSECS(5), IDLE_DELAY_TIME(40) { setDocument(parent); }
-	~NonblockingSyntaxHighlighter() override { setDocument(nullptr); }
-
-	QTextDocument * document() const { return _parent; }
-	void setDocument(QTextDocument * doc);
+	NonblockingSyntaxHighlighter(QTextDocument * textDoc) :
+        QObject(textDoc),
+        _processingPending(false),
+        _textDocument(nullptr),
+        MAX_TIME_MSECS(5),
+        IDLE_DELAY_TIME(40) {
+            setTextDocument(textDoc);
+        }
+	~NonblockingSyntaxHighlighter() override {
+        setTextDocument(nullptr);
+    }
+	QTextDocument * textDocument() const { return _textDocument; }
+	void setTextDocument(QTextDocument * doc);
 
 public slots:
 	void rehighlight();
@@ -81,25 +90,26 @@ private slots:
 	void maybeRehighlightText(int position, int charsRemoved, int charsAdded);
 	void process();
 	void processWhenIdle();
-	void unlinkFromDocument() { setDocument(nullptr); }
+    //TODO: remove this one shot slot
+	void unlinkFromDocument() { setTextDocument(nullptr); }
 
 private:
 	bool _processingPending;
-	QTextDocument * _parent;
+	QTextDocument * _textDocument;
 	int MAX_TIME_MSECS;
 	int IDLE_DELAY_TIME;
 
-	struct range {
+	struct Range {
 		int from, to; // character ranges
 	};
-	QVector<range> _highlightRanges;
-	QVector<range> _dirtyRanges;
+	QVector<Range> _highlightRanges;
+	QVector<Range> _dirtyRanges;
 
 	QTextBlock _currentBlock;
 	QVector<QTextLayout::FormatRange> _currentFormatRanges;
 };
 
-class TeXHighlighter : public NonblockingSyntaxHighlighter
+class TeXHighlighter: public NonblockingSyntaxHighlighter
 {
 	Q_OBJECT
 
@@ -123,28 +133,7 @@ protected:
 	void spellCheckRange(const QString &text, QString::size_type index, QString::size_type limit, const QTextCharFormat &spellFormat);
 
 private:
-	static void loadPatterns();
-
-	struct HighlightingRule {
-		QRegularExpression pattern;
-		QTextCharFormat format;
-		QTextCharFormat	spellFormat;
-		bool spellCheck;
-	};
-	typedef QList<HighlightingRule> HighlightingRules;
-	struct HighlightingSpec {
-		QString				name;
-		HighlightingRules	rules;
-	};
-	static QList<HighlightingSpec> *syntaxRules;
-
 	QTextCharFormat spellFormat;
-
-	struct TagPattern {
-		QRegularExpression pattern;
-		unsigned int level;
-	};
-	static QList<TagPattern> *tagPatterns;
 
 	int highlightIndex;
 	bool isTagging;

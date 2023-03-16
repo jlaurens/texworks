@@ -423,7 +423,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../src/PDFDocumentWindow.ui" line="101"/>
         <source>Show</source>
-        <translation>Visualisation</translation>
+        <translation>Afficher</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.ui" line="484"/>
@@ -1042,7 +1042,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../src/PrefsDialog.ui" line="315"/>
         <source>Wrap lines</source>
-        <translation>Passage à la ligne</translation>
+        <translation>Passer à la ligne</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="331"/>
@@ -2425,7 +2425,7 @@ Si vous continuez, ils seront remplacés par des codes par défaut. Comme autre 
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="657"/>
         <source>Copy to Find</source>
-        <translation>Copier vers Rechercher</translation>
+        <translation>Rechercher la sélection</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="660"/>
@@ -2435,7 +2435,7 @@ Si vous continuez, ils seront remplacés par des codes par défaut. Comme autre 
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="668"/>
         <source>Copy to Replace</source>
-        <translation>Copier vers Remplacer</translation>
+        <translation>Remplacer par la sélection</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="671"/>
@@ -2520,7 +2520,7 @@ Si vous continuez, ils seront remplacés par des codes par défaut. Comme autre 
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="776"/>
         <source>Wrap Lines</source>
-        <translation>Passage à lal ligne</translation>
+        <translation>Passer à la ligne</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="798"/>
@@ -2681,12 +2681,22 @@ Si vous continuez, ils seront remplacés par des codes par défaut. Comme autre 
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1118"/>
         <source>Insert Citations...</source>
-        <translation>Insérer des Citations...</translation>
+        <translation>Insérer des citations...</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1121"/>
         <source>Ctrl+Shift+C</source>
         <translation>Ctrl+Maj+C</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Bookmark</source>
+        <translation>Insérer un signet</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="698"/>

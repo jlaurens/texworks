@@ -32,8 +32,11 @@ class ResourcesLibrary
 {
 	static QString m_portableLibPath;
 public:
-	// return the path to our "library" folder for resources like templates, completion lists, etc
-	static const QString getLibraryPath(const QString& subdir, const bool updateOnDisk = true);
+    // return the path to our "library" folder for resources like templates, completion lists, etc
+    static const QString getLibraryPath(const QString& subdir, const bool updateOnDisk = true);
+
+    // return the path to our "library" folder for resources like templates, completion lists, etc
+    static const QString getTagPatternsPath();
 
 	// same as getLibraryPath(), but splits the return value by PATH_LIST_SEP
 	static const QStringList getLibraryPaths(const QString& subdir, const bool updateOnDisk = true);

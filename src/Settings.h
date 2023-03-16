@@ -25,14 +25,49 @@
 
 namespace Tw {
 
+namespace Key {
+
+struct Editor
+{
+    static const QString lineTimerInterval;
+    static const QString highlightCurrentLine;
+    static const QString cursorWidth;
+};
+
+} // namespace Key
+
 class Settings : public QSettings
 {
 	Q_OBJECT
 public:
-	Settings() = default;
+    Settings();
 
 	using QSettings::defaultFormat;
 	using QSettings::setDefaultFormat;
+    
+    int getInt(const QString & key);
+    int getInt(const QString & key, int defaultValue);
+    
+    static void setValueDefault(QString key, QVariant defaultValue);
+    static void registerEditorDefaults();
+    static void restoreEditorDefaults();
+};
+
+class SettingsObserver: public QObject
+{
+    Q_OBJECT
+public:
+    SettingsObserver() = default;
+    static SettingsObserver *instance();
+signals:
+    void settingsChanged();
+};
+
+class RWSettings: public Settings
+{
+public:
+    RWSettings() = default;
+    ~RWSettings();
 };
 
 } // namespace Tw

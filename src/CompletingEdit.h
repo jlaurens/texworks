@@ -25,6 +25,7 @@
 #include "document/SpellChecker.h"
 #include "ui/LineNumberWidget.h"
 #include "ui_CompletingEdit.h"
+#include "Settings.h"
 
 #include <QDrag>
 #include <QHash>
@@ -78,6 +79,12 @@ public:
 	void prefixLines(const QString &prefix);
 	void unPrefixLines(const QString &prefix);
 
+    void hilightLine(const QTextCursor & cursor);
+    void unhilightLine();
+
+private:
+    QTimer _lineTimer;
+    
 public slots:
 	void setAutoIndentMode(int index);
 	void setSmartQuotesMode(int index);
@@ -88,6 +95,8 @@ public slots:
 	void setFontItalic(bool italic);
 	void setFontPointSize(qreal s);
 	void setFontWeight(int weight);
+    void readSettings();
+    void verticalScrollToCursorPosition(const QTextCursor & c);
 
 signals:
 	void syncClick(int line, int col);
@@ -119,7 +128,7 @@ private slots:
 	void correction(const QString& suggestion);
 	void addToDictionary();
 	void ignoreWord();
-	void resetExtraSelections();
+    void resetExtraSelections();
 	void jumpToPdf(QTextCursor pos = {});
 	void jumpToPdfFromContextMenu();
 	void updateLineNumberArea(const QRect&, int);
@@ -197,16 +206,17 @@ private:
 	int prevRow{-1};
 
 	QTextCursor currentWord;
+    QTextCursor currentCompletionRange;
+    QTextCursor hilightLineRange;
 
-	QTextCursor	currentCompletionRange;
+	Tw::UI::LineNumberWidget *lineNumberArea;
 
-	Tw::UI::LineNumberWidget * lineNumberArea;
+	static QTextCharFormat *currentCompletionFormat;
+	static QTextCharFormat *braceMatchingFormat;
+    static QTextCharFormat *currentLineFormat;
+    static QTextCharFormat *currentTagFormat;
 
-	static QTextCharFormat	*currentCompletionFormat;
-	static QTextCharFormat	*braceMatchingFormat;
-	static QTextCharFormat	*currentLineFormat;
-
-	static QCompleter	*sharedCompleter;
+	QCompleter *sharedCompleter();
 
 	static bool highlightCurrentLine;
 	static bool autocompleteEnabled;

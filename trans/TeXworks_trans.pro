@@ -22,6 +22,7 @@ SOURCES = \
   "../src/TWScriptManager.cpp" \
   "../src/TWScriptableWindow.cpp" \
   "../src/TWSynchronizer.cpp" \
+  "../src/TWString.cpp" \
   "../src/TWUtils.cpp" \
   "../src/TeXDocks.cpp" \
   "../src/TeXDocumentWindow.cpp" \
@@ -76,6 +77,7 @@ HEADERS = \
   "../src/TWScriptManager.h" \
   "../src/TWScriptableWindow.h" \
   "../src/TWSynchronizer.h" \
+  "../src/TWString.h" \
   "../src/TWUtils.h" \
   "../src/TWVersion.h" \
   "../src/TeXDocks.h" \

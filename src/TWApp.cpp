@@ -721,7 +721,7 @@ void TWApp::launchAction()
 {
 	scriptManager->runHooks(QString::fromLatin1("TeXworksLaunched"));
 
-	if (!TeXDocumentWindow::documentList().empty() || !PDFDocumentWindow::documentList().empty())
+	if (!TeXDocumentWindow::windowList().empty() || !PDFDocumentWindow::windowList().empty())
 		return;
 
 	Tw::Settings settings;
@@ -740,9 +740,9 @@ void TWApp::launchAction()
 #if !defined(Q_OS_DARWIN)
 	// on Mac OS, it's OK to end up with no document (we still have the app menu bar)
 	// but on W32 and X11 we need a window otherwise the user can't interact at all
-	if (TeXDocumentWindow::documentList().empty() && PDFDocumentWindow::documentList().empty()) {
+	if (TeXDocumentWindow::windowList().empty() && PDFDocumentWindow::windowList().empty()) {
 		newFile();
-		if (TeXDocumentWindow::documentList().empty()) {
+		if (TeXDocumentWindow::windowList().empty()) {
 			// something went wrong, give up!
 			(void)QMessageBox::critical(nullptr, tr("Unable to create window"),
 					tr("Something is badly wrong; %1 was unable to create a document window. "
@@ -888,7 +888,7 @@ void TWApp::updateRecentFileActions()
 
 void TWApp::updateWindowMenus()
 {
-	Tw::Utils::WindowManager::updateWindowList(TeXDocumentWindow::documentList(), PDFDocumentWindow::documentList());
+	Tw::Utils::WindowManager::updateWindowList(TeXDocumentWindow::windowList(), PDFDocumentWindow::windowList());
 	emit windowListChanged();
 }
 
@@ -908,11 +908,11 @@ void TWApp::arrangeWindows(WindowArrangementFunction func)
 		QWidgetList windows;
 		// All windows we iterate over here are top-level windows, so
 		// windowHandle() should return a valid pointer
-		foreach (TeXDocumentWindow* texDoc, TeXDocumentWindow::documentList()) {
+		foreach (TeXDocumentWindow* texDoc, TeXDocumentWindow::windowList()) {
 			if (texDoc->windowHandle()->screen() == screen)
 				windows << texDoc;
 		}
-		foreach (PDFDocumentWindow* pdfDoc, PDFDocumentWindow::documentList()) {
+		foreach (PDFDocumentWindow* pdfDoc, PDFDocumentWindow::windowList()) {
 			if (pdfDoc->windowHandle()->screen() == screen)
 				windows << pdfDoc;
 		}

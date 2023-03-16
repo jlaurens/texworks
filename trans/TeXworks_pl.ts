@@ -2955,6 +2955,16 @@ Czy chcesz zrezygnować ze wszystkich wprowadzonych zmian i załadować ponownie
         <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Bookmark</source>
+        <translation type="unfinished">Wstaw zakładkę</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished">Ctrl+Shift+T</translation>
+    </message>
+    <message>
         <location filename="../src/TeXDocumentWindow.ui" line="73"/>
         <source>Console output</source>
         <translation>Informacje diagnostyczne</translation>

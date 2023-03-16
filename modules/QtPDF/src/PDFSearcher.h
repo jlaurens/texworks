@@ -23,7 +23,7 @@ namespace QtPDF {
 
 class PDFSearcher : public QThread
 {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
   using size_type = Backend::Document::size_type;

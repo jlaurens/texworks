@@ -68,8 +68,11 @@ const int kPDFHighlightDuration = 2000;
 
 
 
-// TODO: This is seemingly unused---verify && remove
-QList<PDFDocumentWindow*> PDFDocumentWindow::docList;
+static QList<PDFDocumentWindow*> winList;
+QList<PDFDocumentWindow*> PDFDocumentWindow::windowList()
+{
+    return winList;
+}
 
 PDFDocumentWindow::PDFDocumentWindow(const QString &fileName, TeXDocumentWindow *texDoc)
 	: pdfWidget(nullptr)
@@ -110,7 +113,7 @@ PDFDocumentWindow::PDFDocumentWindow(const QString &fileName, TeXDocumentWindow 
 		stackUnder(texDoc);
 		actionSide_by_Side->setEnabled(true);
 		actionGo_to_Source->setEnabled(true);
-		sourceDocList.append(texDoc);
+		sourceWindowList.append(texDoc);
 	}
 }
 
@@ -121,7 +124,7 @@ PDFDocumentWindow::~PDFDocumentWindow()
 	// QObject is destroyed, in which case the system wouldn't know what to do
 	// with the signal)
 	disconnect(TWApp::instance(), &TWApp::windowListChanged, this, nullptr);
-	docList.removeAll(this);
+	winList.removeAll(this);
 #if defined(Q_OS_DARWIN)
 	// Work around QTBUG-17941
 	QTimer::singleShot(0, TWApp::instance(), &TWApp::recreateSpecialMenuItems);
@@ -130,9 +133,10 @@ PDFDocumentWindow::~PDFDocumentWindow()
 
 void PDFDocumentWindow::init()
 {
-	docList.append(this);
+    if (winList.contains(this))
+        return;
 
-	setupUi(this);
+    setupUi(this);
 
 	setAttribute(Qt::WA_DeleteOnClose, true);
 
@@ -350,6 +354,8 @@ void PDFDocumentWindow::init()
 
 	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &PDFDocumentWindow::updateTypesettingAction);
 	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &PDFDocumentWindow::updateTypesettingAction);
+ 
+    winList.append(this);
 }
 
 void PDFDocumentWindow::changeEvent(QEvent *event)
@@ -367,8 +373,8 @@ void PDFDocumentWindow::changeEvent(QEvent *event)
 void PDFDocumentWindow::linkToSource(TeXDocumentWindow *texDoc)
 {
 	if (texDoc) {
-		if (!sourceDocList.contains(texDoc))
-			sourceDocList.append(texDoc);
+		if (!sourceWindowList.contains(texDoc))
+			sourceWindowList.append(texDoc);
 		actionGo_to_Source->setEnabled(true);
 	}
 }
@@ -378,8 +384,8 @@ void PDFDocumentWindow::texClosed(QObject *obj)
 	TeXDocumentWindow *texDoc = reinterpret_cast<TeXDocumentWindow*>(obj);
 	// can't use qobject_cast here as the object's metadata is already gone!
 	if (texDoc) {
-		sourceDocList.removeAll(texDoc);
-		if (sourceDocList.empty())
+		sourceWindowList.removeAll(texDoc);
+		if (sourceWindowList.empty())
 			close();
 	}
 }
@@ -388,9 +394,9 @@ void PDFDocumentWindow::texActivated(TeXDocumentWindow * texDoc)
 {
 	// A source file was activated. Make sure it is the first in the list of
 	// source docs so that future "Goto Source" actions point there.
-	if (sourceDocList.first() != texDoc) {
-		sourceDocList.removeAll(texDoc);
-		sourceDocList.prepend(texDoc);
+	if (sourceWindowList.first() != texDoc) {
+		sourceWindowList.removeAll(texDoc);
+		sourceWindowList.prepend(texDoc);
 	}
 }
 
@@ -411,9 +417,9 @@ void PDFDocumentWindow::updateWindowMenu()
 
 void PDFDocumentWindow::sideBySide()
 {
-	if (sourceDocList.count() > 0) {
-		Tw::Utils::WindowManager::sideBySide(sourceDocList.first(), this);
-		sourceDocList.first()->selectWindow(false);
+	if (sourceWindowList.count() > 0) {
+		Tw::Utils::WindowManager::sideBySide(sourceWindowList.first(), this);
+		sourceWindowList.first()->selectWindow(false);
 		selectWindow();
 	}
 	else
@@ -455,7 +461,7 @@ void PDFDocumentWindow::saveRecentFileInfo()
 QString PDFDocumentWindow::getMainSourceFilename() const
 {
 	// If there are any open source documents, use their root path
-	for (TeXDocumentWindow * const win : sourceDocList) {
+	for (TeXDocumentWindow * const win : sourceWindowList) {
 		if (win == nullptr) {
 			continue;
 		}
@@ -494,7 +500,7 @@ QString PDFDocumentWindow::getMainSourceFilename() const
 
 TeXDocumentWindow * PDFDocumentWindow::getFirstTeXDocumentWindow(const bool openIfNecessary)
 {
-	for (TeXDocumentWindow * const src : sourceDocList) {
+	for (TeXDocumentWindow * const src : sourceWindowList) {
 		if (src != nullptr) {
 			return src;
 		}
@@ -801,7 +807,7 @@ void PDFDocumentWindow::retypeset()
 
 void PDFDocumentWindow::interrupt()
 {
-	Q_FOREACH(TeXDocumentWindow * win, sourceDocList) {
+	Q_FOREACH(TeXDocumentWindow * win, sourceWindowList) {
 		if (win->isTypesetting()) {
 			win->interrupt();
 		}
@@ -810,8 +816,8 @@ void PDFDocumentWindow::interrupt()
 
 void PDFDocumentWindow::goToSource()
 {
-	if (sourceDocList.count() > 0)
-		sourceDocList.first()->selectWindow();
+	if (sourceWindowList.count() > 0)
+		sourceWindowList.first()->selectWindow();
 	else
 		// should not occur, the action is supposed to be disabled
 		actionGo_to_Source->setEnabled(false);
@@ -895,7 +901,7 @@ void PDFDocumentWindow::enableTypesetAction(bool enabled)
 void PDFDocumentWindow::updateTypesettingAction()
 {
 	const bool isSourceTypesetting = [&]() {
-		Q_FOREACH(TeXDocumentWindow * const win, sourceDocList) {
+		Q_FOREACH(TeXDocumentWindow * const win, sourceWindowList) {
 			if (win->isTypesetting()) {
 				return true;
 			}

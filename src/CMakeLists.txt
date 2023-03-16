@@ -29,6 +29,8 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   TWScriptableWindow.cpp
                   TWScriptManager.cpp
                   TWSynchronizer.cpp
+                  TWIcon.cpp
+                  TWString.cpp
                   TWUtils.cpp
                   document/Document.cpp
                   document/SpellChecker.cpp
@@ -80,6 +82,8 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   TWScriptableWindow.h
                   TWScriptManager.h
                   TWSynchronizer.h
+                  TWIcon.h
+                  TWString.h
                   TWUtils.h
                   TWVersion.h
                   InterProcessCommunicator.h

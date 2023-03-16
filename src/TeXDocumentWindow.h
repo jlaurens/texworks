@@ -75,10 +75,7 @@ public:
 	~TeXDocumentWindow() override;
 
 	static TeXDocumentWindow *findDocument(const QString &fileName);
-	static QList<TeXDocumentWindow*> documentList()
-		{
-			return docList;
-		}
+    static QList<TeXDocumentWindow*> windowList();
 	static TeXDocumentWindow *openDocument(const QString &fileName, bool activate = true, bool raiseWindow = true,
 									 int lineNo = 0, int selStart = -1, int selEnd = -1);
 
@@ -90,6 +87,7 @@ public:
 		{ return textDoc()->getFileInfo().filePath(); }
 	QTextCursor textCursor() const
 		{ return textEdit->textCursor(); }
+    void setTextCursor(QTextCursor const &textCursor);
 	Tw::Document::TeXDocument* textDoc()
 		{ return _texDoc; }
 	const Tw::Document::TeXDocument* textDoc() const
@@ -109,7 +107,7 @@ public:
 		{ return pdfDoc; }
 
 	void goToLine(int lineNo, int selStart = -1, int selEnd = -1);
-	void goToTag(int index);
+    void ensureCursorVisible(const QTextCursor & cursor);
 
 	bool isModified() const { return textEdit->document()->isModified(); }
 	void setModified(const bool m = true) { textEdit->document()->setModified(m); }
@@ -175,7 +173,8 @@ public slots:
 	void toggleCase();
 	void balanceDelimiters();
 	void doHardWrapDialog();
-	void doInsertCitationsDialog();
+  void doInsertCitationsDialog();
+  void doInsertBookmark();
 	void setLineNumbers(bool displayNumbers);
 	void setLineSpacing(qreal percent);
 	void setWrapLines(bool wrap);
@@ -294,8 +293,6 @@ private:
 	QFileSystemWatcher * watcher{nullptr};
 
 	QTextCursor	dragSavedCursor;
-
-	static QList<TeXDocumentWindow*> docList;
 };
 
 #endif // !defined(TeXDocumentWindow_H)
