@@ -2942,12 +2942,24 @@ We are sorry for the inconvenience.</source>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1118"/>
         <source>Insert Citations...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+        درج نقل قول...</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1121"/>
         <source>Ctrl+Shift+C</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Tag</source>
+        <translation type="unfinished">
+        درج برچسب</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished">Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="552"/>

@@ -64,7 +64,7 @@ void TagsDock::fillInfo()
 	tree->clear();
 	const QList<Tw::Document::TextDocument::Tag> & tags = document->textDoc()->getTags();
 	if (!tags.empty()) {
-		QTreeWidgetItem *item = nullptr, *bmItem = nullptr;
+		QTreeWidgetItem *olItem = nullptr, *bmItem = nullptr;
 		QTreeWidgetItem *bookmarks = new QTreeWidgetItem(tree);
 		bookmarks->setText(0, tr("Bookmarks"));
 		bookmarks->setFlags(Qt::ItemIsEnabled);
@@ -77,21 +77,25 @@ void TagsDock::fillInfo()
 		tree->expandItem(outline);
 		for (int index = 0; index < tags.size(); ++index) {
 			const Tw::Document::TextDocument::Tag & bm = tags[index];
+            auto new_item = [this, index, bm] (QTreeWidgetItem *root,
+                                               QTreeWidgetItem *item,
+                                               const int level) {
+                while (item && item->type() >= level)
+                    item = item->parent();
+                if (!item)
+                    item = new QTreeWidgetItem(root, level);
+                else
+                    item = new QTreeWidgetItem(item, level);
+                item->setText(0, bm.text);
+                item->setText(1, QString::number(index));
+                tree->expandItem(item);
+                return item;
+            };
 			if (bm.level < 1) {
-				bmItem = new QTreeWidgetItem(bookmarks, QTreeWidgetItem::UserType);
-				bmItem->setText(0, bm.text);
-				bmItem->setText(1, QString::number(index));
+                bmItem = new_item(bookmarks, bmItem, QTreeWidgetItem::UserType + 1 - bm.level);
 			}
 			else  {
-				while (item && item->type() >= QTreeWidgetItem::UserType + static_cast<int>(bm.level))
-					item = item->parent();
-				if (!item)
-					item = new QTreeWidgetItem(outline, QTreeWidgetItem::UserType + static_cast<int>(bm.level));
-				else
-					item = new QTreeWidgetItem(item, QTreeWidgetItem::UserType + static_cast<int>(bm.level));
-				item->setText(0, bm.text);
-				item->setText(1, QString::number(index));
-				tree->expandItem(item);
+                olItem = new_item(outline, olItem, QTreeWidgetItem::UserType + bm.level);
 			}
 		}
 		if (bookmarks->childCount() == 0)

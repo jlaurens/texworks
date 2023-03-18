@@ -2623,6 +2623,16 @@ Wollen Sie diese Änderungen verwerfen und die Datei unter Verwendung der Kodier
         <translation></translation>
     </message>
     <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Tag</source>
+        <translation type="unfinished">Tag einfügen</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished">Ctrl+Shift+T</translation>
+    </message>
+    <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1053"/>
         <source>Manage Scripts</source>
         <translation>Skripte verwalten</translation>

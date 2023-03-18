@@ -3103,6 +3103,16 @@ Do you want to discard your current changes, and reload the file from disk with 
         <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Tag</source>
+        <translation type="unfinished">Vstavi oznako</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished">Ctrl+Shift+T</translation>
+    </message>
+    <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1053"/>
         <source>Manage Scripts</source>
         <translation>Uredi skripte</translation>

@@ -233,6 +233,7 @@
     <addaction name="actionPaste"/>
     <addaction name="actionClear"/>
     <addaction name="actionInsert_Citations"/>
+    <addaction name="actionInsert_Tag"/>
     <addaction name="separator"/>
     <addaction name="actionSelect_All"/>
     <addaction name="actionBalance_Delimiters"/>
@@ -1120,6 +1121,14 @@
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>
    </property>
+  </action>
+  <action name="actionInsert_Tag">
+    <property name="text">
+      <string>Insert Tag</string>
+    </property>
+    <property name="shortcut">
+      <string>Ctrl+Shift+T</string>
+    </property>
   </action>
  </widget>
  <customwidgets>

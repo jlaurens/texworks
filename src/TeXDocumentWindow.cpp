@@ -204,7 +204,8 @@ void TeXDocumentWindow::init()
 	connect(actionUncomment, &QAction::triggered, this, &TeXDocumentWindow::doUncomment);
 
 	connect(actionHard_Wrap, &QAction::triggered, this, &TeXDocumentWindow::doHardWrapDialog);
-	connect(actionInsert_Citations, &QAction::triggered, this, &TeXDocumentWindow::doInsertCitationsDialog);
+    connect(actionInsert_Citations, &QAction::triggered, this, &TeXDocumentWindow::doInsertCitationsDialog);
+    connect(actionInsert_Tag, &QAction::triggered, this, &TeXDocumentWindow::doInsertTag);
 
 	connect(actionTo_Uppercase, &QAction::triggered, this, &TeXDocumentWindow::toUppercase);
 	connect(actionTo_Lowercase, &QAction::triggered, this, &TeXDocumentWindow::toLowercase);
@@ -2081,6 +2082,39 @@ void TeXDocumentWindow::doInsertCitationsDialog()
 			curs.endEditBlock();
 		}
 	}
+}
+
+///
+/// \brief Action to instert a tag
+/// Insert a new line just before the current cursor position.
+/// The new line content is "%^^A:" for .dtx files, "%:" otherwise.
+/// \author Jérôme L
+/// \date 2023/03/17
+///
+void TeXDocumentWindow::doInsertTag()
+{
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    QString first = cursor.selectedText();
+    cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+    QString s = QLatin1String("%:");
+    if ( first == QLatin1String("%")) {
+        QFileInfo fi = QFileInfo(textDoc()->absoluteFilePath());
+        QString ext = fi.suffix();
+        if (ext == QLatin1String("dtx")) {
+            s = QLatin1String("%^^A:");
+        }
+    }
+    cursor.insertText(s);
+    int l = cursor.position();
+    cursor.insertText(tr("Tag"));
+    int r = cursor.position();
+    cursor.insertText(QLatin1String("\n"));
+    cursor.setPosition(l, QTextCursor::MoveAnchor);
+    cursor.setPosition(r, QTextCursor::KeepAnchor);
+    cursor.endEditBlock();
 }
 
 void TeXDocumentWindow::doHardWrap(int mode, int lineWidth, bool rewrap)

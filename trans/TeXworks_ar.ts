@@ -2884,12 +2884,22 @@ Do you want to discard your current changes, and reload the file from disk with 
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1118"/>
         <source>Insert Citations...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">إدراج اقتباس</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1121"/>
         <source>Ctrl+Shift+C</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Shift+C</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Tag</source>
+        <translation type="unfinished">Voeg Merker</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/TeXDocumentWindow.cpp" line="2350"/>

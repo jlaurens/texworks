@@ -2689,6 +2689,16 @@ Si vous continuez, ils seront remplacés par des codes par défaut. Comme autre 
         <translation>Ctrl+Maj+C</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Tag</source>
+        <translation>Insérer une étiquette</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation>Ctrl+Shift+T</translation>
+    </message>
+    <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="698"/>
         <source>Abort typesetting?</source>
         <translation>Annuler la composition?</translation>

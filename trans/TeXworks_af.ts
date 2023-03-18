@@ -2994,6 +2994,16 @@ Wil jy jou huidige veranderings ignoreer en die lêer vanaf die skyf lees met en
         <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Tag</source>
+        <translation type="unfinished">Voeg Merker</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished">Ctrl+Shift+T</translation>
+    </message>
+    <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1053"/>
         <source>Manage Scripts</source>
         <translation>Behartig skrippe</translation>
