@@ -20,7 +20,7 @@ namespace QtPDF {
 
 class PDFDocumentWidget : public PDFDocumentView
 {
-	Q_OBJECT
+  Q_OBJECT
 public:
   PDFDocumentWidget(QWidget * parent = nullptr, const double dpi = -1);
 

@@ -109,7 +109,6 @@ void TeXDocument::maybeUpdateModeLines(int position, int charsRemoved, int chars
 		parseModeLines();
 }
 
-// static
 bool TeXDocument::findNextWord(const QString & text, const QString::size_type index, QString::size_type & start, QString::size_type & end)
 {
 	// try to do a sensible "word" selection for TeX documents, taking into

@@ -22,4 +22,70 @@
 
 namespace Tw {
 
+namespace Key {
+
+const QString Editor::highlightCurrentLine =  QStringLiteral("highlightCurrentLine");
+const QString Editor::cursorWidth          =  QStringLiteral("cursorWidth");
+const QString Editor::lineTimerInterval    =  QStringLiteral("Edit/lineTimerInterval");
+
+} // namespace Key
+
 } // namespace Tw
+
+/// \author JL
+Tw::Settings::Settings()
+{
+    registerEditorDefaults();
+}
+
+QMap<QString, QVariant> __defaults;
+
+/// \author JL
+void Tw::Settings::registerEditorDefaults()
+{
+    setValueDefault(Key::Editor::lineTimerInterval, 3000);
+}
+/// \author JL
+void Tw::Settings::restoreEditorDefaults()
+{
+    Settings settings;
+    settings.remove(Key::Editor::lineTimerInterval);
+}
+
+/// \author JL
+void Tw::Settings::setValueDefault(QString key, QVariant value)
+{
+    __defaults.insert(key, value);
+}
+
+/// \author JL
+int Tw::Settings::getInt(const QString & key)
+{
+    auto ans = value(key);
+    if (ans.isNull()) {
+        ans = __defaults.value(key);
+        Q_ASSERT(!ans.isNull());
+    }
+    return ans.toInt();
+}
+/// \author JL
+int Tw::Settings::getInt(const QString & key, int defaultValue)
+{
+    auto ans = value(key);
+    return ans.isNull() ? defaultValue : ans.toInt();
+}
+
+/// \author JL
+Tw::SettingsObserver *Tw::SettingsObserver::instance() {
+    static Tw::SettingsObserver * ans = nullptr;
+    if (!ans) {
+        ans = new Tw::SettingsObserver();
+    }
+    return ans;
+}
+
+/// \author JL
+Tw::RWSettings::~RWSettings()
+{
+    emit Tw::SettingsObserver::instance()->settingsChanged();
+}

@@ -28,11 +28,11 @@ TextDocument::TextDocument(QObject * parent) : QTextDocument(parent) { }
 
 TextDocument::TextDocument(const QString & text, QObject * parent) : QTextDocument(text, parent) { }
 
-void TextDocument::addTag(const QTextCursor & cursor, const unsigned int level, const QString & text)
+void TextDocument::addTag(const QTextCursor & cursor, const int level, const QString & text)
 {
 	QList<Tag>::iterator it;
-
-	for (it = _tags.begin(); it != _tags.end(); ++it) {
+    cursor.movePosition(QTextCursor::StartOfBlock);
+    for (it = _tags.begin(); it != _tags.end(); ++it) {
 		if (it->cursor.selectionStart() > cursor.selectionStart())
 			break;
 	}

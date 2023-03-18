@@ -204,7 +204,8 @@ void TeXDocumentWindow::init()
 	connect(actionUncomment, &QAction::triggered, this, &TeXDocumentWindow::doUncomment);
 
 	connect(actionHard_Wrap, &QAction::triggered, this, &TeXDocumentWindow::doHardWrapDialog);
-	connect(actionInsert_Citations, &QAction::triggered, this, &TeXDocumentWindow::doInsertCitationsDialog);
+    connect(actionInsert_Citations, &QAction::triggered, this, &TeXDocumentWindow::doInsertCitationsDialog);
+    connect(actionInsertBookmark, &QAction::triggered, this, &TeXDocumentWindow::doInsertBookmark);
 
 	connect(actionTo_Uppercase, &QAction::triggered, this, &TeXDocumentWindow::toUppercase);
 	connect(actionTo_Lowercase, &QAction::triggered, this, &TeXDocumentWindow::toLowercase);
@@ -1167,7 +1168,7 @@ void TeXDocumentWindow::loadFile(const QFileInfo & fileInfo, bool asTemplate, bo
 			QTextCursor c(textEdit->document());
 			c.setPosition(properties.value(QString::fromLatin1("selStart")).toInt());
 			c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, properties.value(QString::fromLatin1("selLength"), 0).toInt());
-			textEdit->setTextCursor(c);
+            setTextCursor(c);
 		}
 
 		if (properties.contains(QString::fromLatin1("quotesMode")))
@@ -1344,7 +1345,7 @@ void TeXDocumentWindow::reloadIfChangedOnDisk()
 	if (cur.selectedText() != oldSel)
 		cur.setPosition(cur.selectionStart());
 
-	textEdit->setTextCursor(cur);
+    setTextCursor(cur);
 
 	// restore the view
 	if (textEdit->horizontalScrollBar())
@@ -1808,7 +1809,7 @@ void TeXDocumentWindow::goToLine(int lineNo, int selStart, int selEnd)
 	}
 	else
 		cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-	textEdit->setTextCursor(cursor);
+    setTextCursor(cursor);
 	maybeCenterSelection(oldScrollValue);
 }
 
@@ -1920,7 +1921,7 @@ void TeXDocumentWindow::replaceSelection(const QString& newText)
 	int end = cursor.selectionEnd();
 	cursor.setPosition(start);
 	cursor.setPosition(end, QTextCursor::KeepAnchor);
-	textEdit->setTextCursor(cursor);
+    setTextCursor(cursor);
 }
 
 void TeXDocumentWindow::selectRange(int start, int length)
@@ -1928,7 +1929,7 @@ void TeXDocumentWindow::selectRange(int start, int length)
 	QTextCursor c = textCursor();
 	c.setPosition(start);
 	c.setPosition(start + length, QTextCursor::KeepAnchor);
-	editor()->setTextCursor(c);
+	setTextCursor(c);
 }
 
 void TeXDocumentWindow::insertText(const QString& text)
@@ -1956,7 +1957,7 @@ void TeXDocumentWindow::balanceDelimiters()
 			if (closePos >= cursor.selectionEnd()) {
 				cursor.setPosition(static_cast<pos_type>(openPos));
 				cursor.setPosition(static_cast<pos_type>(closePos + 1), QTextCursor::KeepAnchor);
-				textEdit->setTextCursor(cursor);
+                setTextCursor(cursor);
 				return;
 			}
 			if (openPos > 0)
@@ -2083,6 +2084,41 @@ void TeXDocumentWindow::doInsertCitationsDialog()
 	}
 }
 
+///
+/// \brief Action to instert a tag
+/// Insert a new line just before the current cursor position.
+/// The new line content is "%^^A:" for .dtx files, "%:" otherwise.
+/// \author Jérôme L
+/// \date 2023/03/17
+///
+void TeXDocumentWindow::doInsertBookmark()
+{
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    QString first = cursor.selectedText();
+    cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+    QString s = QLatin1String("%:");
+    if ( first == QLatin1String("%")) {
+        QFileInfo fi = QFileInfo(textDoc()->absoluteFilePath());
+        QString ext = fi.suffix();
+        if (ext == QLatin1String("dtx")) {
+            s = QLatin1String("%^^A:");
+        }
+    }
+    cursor.insertText(s);
+    int l = cursor.position();
+    cursor.insertText(tr("Tag"));
+    int r = cursor.position();
+    cursor.insertText(QLatin1String("\n"));
+    cursor.setPosition(l, QTextCursor::MoveAnchor);
+    cursor.setPosition(r, QTextCursor::KeepAnchor);
+    cursor.endEditBlock();
+    setTextCursor(cursor); // change hilighted text
+    showSelection();
+}
+
 void TeXDocumentWindow::doHardWrap(int mode, int lineWidth, bool rewrap)
 {
 	if (mode == kHardWrapMode_Window) {
@@ -2185,7 +2221,7 @@ void TeXDocumentWindow::doHardWrap(int mode, int lineWidth, bool rewrap)
 	selEnd = cur.position();
 	cur.setPosition(selStart);
 	cur.setPosition(selEnd, QTextCursor::KeepAnchor);
-	textEdit->setTextCursor(cur);
+    setTextCursor(cur);
 }
 
 
@@ -2386,7 +2422,7 @@ void TeXDocumentWindow::doFindAgain(bool fromDialog)
 			statusBar()->showMessage(tr("Not found"), kStatusMessageDuration);
 		}
 		else
-			textEdit->setTextCursor(curs);
+            setTextCursor(curs);
 	}
 
 	delete regex;
@@ -2510,7 +2546,7 @@ void TeXDocumentWindow::doReplace(ReplaceDialog::DialogCode mode)
 			else
 				target = replacement;
 			curs.insertText(target);
-			textEdit->setTextCursor(curs);
+            setTextCursor(curs);
 		}
 	}
 	else if (mode == ReplaceDialog::ReplaceAll) {
@@ -2583,7 +2619,7 @@ int TeXDocumentWindow::doReplaceAll(const QString& searchText, QRegularExpressio
 	}
 	if (!first) {
 		searchRange.setPosition(rangeStart);
-		textEdit->setTextCursor(searchRange);
+        setTextCursor(searchRange);
 	}
 	return replacements;
 }
@@ -2707,6 +2743,11 @@ void TeXDocumentWindow::findSelection()
 {
 	copyToFind();
 	doFindAgain();
+}
+
+void TeXDocumentWindow::setTextCursor(QTextCursor const &textCursor)
+{
+    textEdit->setTextCursor(textCursor);
 }
 
 void TeXDocumentWindow::showSelection()
@@ -3138,12 +3179,19 @@ void TeXDocumentWindow::handleModelineChange(QStringList changedKeys, QStringLis
 	}
 }
 
-void TeXDocumentWindow::goToTag(int index)
+const QList<Tw::Document::TeXDocument::Tag> & TeXDocumentWindow::getTags() {
+    return _texDoc->getTags();
+}
+
+void TeXDocumentWindow::ensureVisibleTagAtIndex(int index)
 {
-	if (_texDoc && index < _texDoc->getTags().count()) {
-		textEdit->setTextCursor(_texDoc->getTags()[index].cursor);
-		textEdit->setFocus(Qt::OtherFocusReason);
-	}
+    Q_ASSERT(_texDoc);
+    const QList<Tw::Document::TeXDocument::Tag> & tags = getTags();
+    if (index < tags.count()) {
+        QTextCursor cursor = tags[index].cursor;
+        editor()->hilightLine(cursor);
+        editor()->verticalScrollToCursorPosition(cursor);
+    }
 }
 
 bool TeXDocumentWindow::isTypesetting() const
@@ -3210,11 +3258,11 @@ void TeXDocumentWindow::dragMoveEvent(QDragMoveEvent *event)
 #else
 		QTextCursor curs = textEdit->cursorForPosition(textEdit->mapFromGlobal(mapToGlobal(event->position().toPoint())));
 #endif
-		textEdit->setTextCursor(curs);
+        setTextCursor(curs);
 	}
 	else {
 		if (!dragSavedCursor.isNull()) {
-			textEdit->setTextCursor(dragSavedCursor);
+            setTextCursor(dragSavedCursor);
 			dragSavedCursor = QTextCursor();
 		}
 	}
@@ -3224,7 +3272,7 @@ void TeXDocumentWindow::dragMoveEvent(QDragMoveEvent *event)
 void TeXDocumentWindow::dragLeaveEvent(QDragLeaveEvent *event)
 {
 	if (!dragSavedCursor.isNull()) {
-		textEdit->setTextCursor(dragSavedCursor);
+        setTextCursor(dragSavedCursor);
 		dragSavedCursor = QTextCursor();
 	}
 	event->accept();
@@ -3264,7 +3312,7 @@ void TeXDocumentWindow::dropEvent(QDropEvent *event)
 									curs.beginEditBlock();
 									editBlockStarted = true;
 								}
-								textEdit->setTextCursor(curs);
+                                setTextCursor(curs);
 								curs.insertText(text);
 							}
 							break;
@@ -3277,7 +3325,7 @@ void TeXDocumentWindow::dropEvent(QDropEvent *event)
 							curs.beginEditBlock();
 							editBlockStarted = true;
 						}
-						textEdit->setTextCursor(curs);
+                        setTextCursor(curs);
 						if (Tw::Document::isPDFfile(fileName))
 							text = TWUtils::includePdfCommand();
 						else if (Tw::Document::isImageFile(fileName))

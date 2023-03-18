@@ -16,3 +16,12 @@ CMakeLists.txt.user*
 
 # Files created by Inno Setup
 /win32/Output/
+
+# MacOS X files
+.DS_Store
+
+# CMake files
+CMakeUserPresets.json
+
+# vscode files
+settings.json

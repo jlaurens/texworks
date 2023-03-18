@@ -268,7 +268,7 @@ void TeXHighlighter::loadPatterns()
 					continue;
 				TagPattern patt;
 				bool ok{false};
-				patt.level = parts[0].toUInt(&ok);
+				patt.level = parts[0].toInt(&ok);
 				if (ok) {
 					patt.pattern = QRegularExpression(parts[1]);
 					if (patt.pattern.isValid())
