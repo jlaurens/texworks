@@ -2115,6 +2115,8 @@ void TeXDocumentWindow::doInsertTag()
     cursor.setPosition(l, QTextCursor::MoveAnchor);
     cursor.setPosition(r, QTextCursor::KeepAnchor);
     cursor.endEditBlock();
+    textEdit->setTextCursor(cursor);
+    textEdit->ensureCursorVisible();
 }
 
 void TeXDocumentWindow::doHardWrap(int mode, int lineWidth, bool rewrap)
