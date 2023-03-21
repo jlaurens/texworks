@@ -2885,6 +2885,7 @@ Do you want to discard your current changes, and reload the file from disk with 
         <location filename="../src/TeXDocumentWindow.ui" line="1118"/>
         <source>Insert Citations...</source>
         <translation type="unfinished">إدراج اقتباس</translation>
+        <translation type="unfinished">إدراج اقتباس</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1121"/>

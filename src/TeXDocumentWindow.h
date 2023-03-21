@@ -177,8 +177,8 @@ public slots:
 	void toggleCase();
 	void balanceDelimiters();
 	void doHardWrapDialog();
-    void doInsertCitationsDialog();
-    void doInsertBookmark();
+  void doInsertCitationsDialog();
+  void doInsertBookmark();
 	void setLineNumbers(bool displayNumbers);
 	void setLineSpacing(qreal percent);
 	void setWrapLines(bool wrap);

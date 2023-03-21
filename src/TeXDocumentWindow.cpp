@@ -2085,7 +2085,7 @@ void TeXDocumentWindow::doInsertCitationsDialog()
 }
 
 ///
-/// \brief Action to instert a tag
+/// \brief Action to instert a bookmark
 /// Insert a new line just before the current cursor position.
 /// The new line content is "%^^A:" for .dtx files, "%:" otherwise.
 /// \author Jérôme L
