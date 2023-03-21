@@ -17,6 +17,10 @@
 5    ^%?\s*\\subsubsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
 
 # Patterns for dtx files:
+-4    ^%\^\^A:::::\s*(.*?)\s*$
+-3    ^%\^\^A::::\s*(.*?)\s*$
+-2    ^%\^\^A:::\s*(.*?)\s*$
+-1    ^%\^\^A::\s*(.*?)\s*$
 0    ^%\^\^A:\s*(.*?)\s*$
 0    ^%<\*(readme|driver|install)>
 0    ^%?\s*\\begin\*?\{(documentation)\}
@@ -24,12 +28,16 @@
 
 # Patterns for ConTeXt sectioning commands (unnumbered):
 # (numbered sections are similar to LaTeX)
-2	^\s*\\title\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-3	^\s*\\subject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-4	^\s*\\subsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-5	^\s*\\subsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-6	^\s*\\subsubsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+2    ^\s*\\title\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+3    ^\s*\\subject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+4    ^\s*\\subsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+5    ^\s*\\subsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+6    ^\s*\\subsubsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
 
 # Tags with level = 0 are special bookmarks that are separate from the hierarchy
 # and collected in a separate flat list.
-0	^%:\s*(.+)
+-4    ^%:::::\s*(.+)
+-3    ^%::::\s*(.+)
+-2    ^%:::\s*(.+)
+-1    ^%::\s*(.+)
+0    ^%:\s*(.+)

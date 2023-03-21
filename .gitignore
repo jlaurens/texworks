@@ -22,3 +22,6 @@ CMakeLists.txt.user*
 
 # CMake files
 CMakeUserPresets.json
+
+# vscode files
+settings.json

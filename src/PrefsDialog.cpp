@@ -279,6 +279,7 @@ void PrefsDialog::buttonClicked(QAbstractButton *whichButton)
 
 void PrefsDialog::restoreDefaults()
 {
+    Tw::Settings settings;
 	switch (tabWidget->currentIndex()) {
 		case 0:
 			// General
@@ -330,6 +331,7 @@ void PrefsDialog::restoreDefaults()
 			cursorWidth->setValue(kDefault_CursorWidth);
 			autocompleteEnabled->setChecked(kDefault_AutocompleteEnabled);
 			autoFollowFocusEnabled->setChecked(kDefault_AutoFollowFocusEnabled);
+            settings.restoreEditorDefaults();
 			break;
 
 		case 2:
@@ -507,7 +509,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	foreach (const DictPair& dict, dictList)
 		dlg.language->addItem(dict.first, dict.second);
 
-	Tw::Settings settings;
+	Tw::RWSettings settings;
 	// initialize controls based on the current settings
 
 	// General
@@ -778,10 +780,8 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		else
 			settings.setValue(QString::fromLatin1("language"), QString::fromLatin1("None"));
 		bool highlightLine = dlg.highlightCurrentLine->isChecked();
-		settings.setValue(QString::fromLatin1("highlightCurrentLine"), highlightLine);
-		CompletingEdit::setHighlightCurrentLine(highlightLine);
-
-		settings.setValue(QStringLiteral("cursorWidth"), dlg.cursorWidth->value());
+        settings.setValue(Tw::Key::Editor::highlightCurrentLine, highlightLine);
+		settings.setValue(Tw::Key::Editor::cursorWidth, dlg.cursorWidth->value());
 
 		bool autocompleteEnabled = dlg.autocompleteEnabled->isChecked();
 		settings.setValue(QString::fromLatin1("autocompleteEnabled"), autocompleteEnabled);

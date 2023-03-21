@@ -2411,6 +2411,16 @@ Brúka kontekstmenuina fyri at broyta eindirnar.</translation>
         <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Bookmark</source>
+        <translation type="unfinished">Settu inn bókamerki</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished">Ctrl+Shift+T</translation>
+    </message>
+    <message>
         <location filename="../src/TeXDocumentWindow.ui" line="190"/>
         <source>Open Recent</source>
         <translation>Lat nýggjastu upp</translation>

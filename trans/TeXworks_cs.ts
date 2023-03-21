@@ -3001,12 +3001,22 @@ Chcete stávající změny zahodit a obnovit soubor z disku za použití kódov�
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1118"/>
         <source>Insert Citations...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vložit citaci...</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1121"/>
         <source>Ctrl+Shift+C</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Bookmark</source>
+        <translation type="unfinished">Vložit záložku</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished">Ctrl+Shift+T</translation>
     </message>
 </context>
 <context>

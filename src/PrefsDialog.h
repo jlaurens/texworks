@@ -19,8 +19,8 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#ifndef PrefsDialog_H
-#define PrefsDialog_H
+#ifndef TW_PREFS_DIALOG_H
+#define TW_PREFS_DIALOG_H
 
 #include "Engine.h"
 #include "ui_PrefsDialog.h"
@@ -93,4 +93,4 @@ private:
 	void init();
 };
 
-#endif
+#endif // TW_PREFS_DIALOG_H

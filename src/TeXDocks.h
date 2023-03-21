@@ -19,8 +19,8 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#ifndef TEXDOCKS_H
-#define TEXDOCKS_H
+#ifndef TW_TEXDOCKS_H
+#define TW_TEXDOCKS_H
 
 #include <QDockWidget>
 #include <QListWidget>
@@ -32,7 +32,7 @@ class QListWidget;
 class QTableWidget;
 class QTreeWidgetItem;
 
-class TeXDock : public QDockWidget
+class TeXDock: public QDockWidget
 {
 	Q_OBJECT
 
@@ -41,40 +41,43 @@ public:
 	~TeXDock() override = default;
 
 protected:
-	virtual void fillInfo() = 0;
+	virtual void update(bool force) = 0;
 
-	TeXDocumentWindow *document;
+	TeXDocumentWindow *documentWindow;
 
-	bool filled;
+	bool updated;
 
 private slots:
-	void myVisibilityChanged(bool visible);
+	void onVisibilityChanged(bool visible);
 };
 
 
-class TagsDock : public TeXDock
+class TagsDock: public TeXDock
 {
 	Q_OBJECT
 
 public:
-	TagsDock(TeXDocumentWindow *doc = nullptr);
+	TagsDock(TeXDocumentWindow *documentWindow = nullptr);
 	~TagsDock() override = default;
 
 public slots:
 	virtual void listChanged();
+    void activateTagFollowCursorPosition(bool yorn);
 
 protected:
-	void fillInfo() override;
+	void update(bool force) override;
 
 private slots:
 	void followTagSelection();
+    void onCursorPositionChanged();
 
 private:
 	QTreeWidget *tree;
-	int saveScrollValue;
+    int saveScrollValue;
+    bool dontFollowTagSelection;
 };
 
-class TeXDockTreeWidget : public QTreeWidget
+class TeXDockTreeWidget: public QTreeWidget
 {
 	Q_OBJECT
 
@@ -85,4 +88,4 @@ public:
 	QSize sizeHint() const override;
 };
 
-#endif
+#endif // TW_TEXDOCKS_H

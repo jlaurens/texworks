@@ -2983,6 +2983,16 @@ Rahatsızlık için üzgünüz.</translation>
         <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1126"/>
+        <source>Insert Bookmark</source>
+        <translation type="unfinished">Yer imi ekle</translation>
+    </message>
+    <message>
+        <location filename="../src/TeXDocumentWindow.ui" line="1129"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished">Ctrl+Shift+T</translation>
+    </message>
+    <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="552"/>
         <source>%1 - %2 (%3)</source>
         <extracomment>Format to display spell-checking dictionaries (ex. &quot;English - UnitedStates (en_US)&quot;)</extracomment>

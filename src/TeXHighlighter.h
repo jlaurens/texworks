@@ -142,7 +142,7 @@ private:
 
 	struct TagPattern {
 		QRegularExpression pattern;
-		unsigned int level;
+		int level;
 	};
 	static QList<TagPattern> *tagPatterns;
 
