@@ -1,6 +1,6 @@
 /*
     This is part of TeXworks, an environment for working with TeX documents
-    Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+    Copyright (C) 2007_2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,13 +35,13 @@ namespace Tw {
 /*! \brief Only known icons .
  */
 namespace Icon {
+// categories
+const QIcon preferences_system();
+// actions
+const QIcon document_new();
+const QIcon document_open();
+const QIcon document_save();
 
-const QIcon edit_find();
-const QIcon edit_paste();
-const QIcon edit_redo();
-const QIcon edit_undo();
-const QIcon format_indent_less();
-const QIcon format_indent_more();
 const QIcon go_down();
 const QIcon go_first();
 const QIcon go_jump();
@@ -49,10 +49,23 @@ const QIcon go_last();
 const QIcon go_next();
 const QIcon go_previous();
 const QIcon go_up();
+
 const QIcon list_add();
 const QIcon list_remove();
+
 const QIcon process_start();
 const QIcon process_stop();
+
+const QIcon edit_find();
+const QIcon edit_find_replace();
+const QIcon edit_cut();
+const QIcon edit_copy();
+const QIcon edit_paste();
+const QIcon edit_undo();
+const QIcon edit_redo();
+
+const QIcon format_indent_less();
+const QIcon format_indent_more();
 
 }
 

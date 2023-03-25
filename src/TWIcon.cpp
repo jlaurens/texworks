@@ -26,9 +26,37 @@
 
 using namespace Tw;
 
+const QIcon Icon::preferences_system()
+{
+    return QIcon::fromTheme(QStringLiteral("preferences-system"));
+}
+
+const QIcon Icon::document_new()
+{
+    return QIcon::fromTheme(QStringLiteral("document-new("));
+}
+const QIcon Icon::document_open()
+{
+    return QIcon::fromTheme(QStringLiteral("document-open"));
+}
+const QIcon Icon::document_save()
+{
+    return QIcon::fromTheme(QStringLiteral("document-save"));
+}
+
 const QIcon Icon::edit_find()
 {
     return QIcon::fromTheme(QStringLiteral("edit-find"));
+}
+
+const QIcon Icon::edit_find_replace()
+{
+    return QIcon::fromTheme(QStringLiteral("edit-find-replace"));
+}
+
+const QIcon Icon::edit_copy()
+{
+    return QIcon::fromTheme(QStringLiteral("edit-copy"));
 }
 
 const QIcon Icon::edit_paste()
@@ -36,14 +64,14 @@ const QIcon Icon::edit_paste()
     return QIcon::fromTheme(QStringLiteral("edit-paste"));
 }
 
-const QIcon Icon::edit_redo()
-{
-    return QIcon::fromTheme(QStringLiteral("edit-redo"));
-}
-
 const QIcon Icon::edit_undo()
 {
     return QIcon::fromTheme(QStringLiteral("edit-undo"));
+}
+
+const QIcon Icon::edit_redo()
+{
+    return QIcon::fromTheme(QStringLiteral("edit-redo"));
 }
 
 const QIcon Icon::format_indent_less()
