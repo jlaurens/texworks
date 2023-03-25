@@ -2027,6 +2027,16 @@ Użyj menu kontekstowego żeby zmienić jednostki.</translation>
         <source>No tags</source>
         <translation>Brak etykiet</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Brak zakładki</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Bez konspekt</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

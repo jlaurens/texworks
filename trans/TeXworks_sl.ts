@@ -2061,6 +2061,16 @@ Uporabite kontekstni meni za spremembo enot.</translation>
         <translatorcomment>Kje se to uporablja?</translatorcomment>
         <translation>Ni značk</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Brez zaznamka</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Brez oris poglavij</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

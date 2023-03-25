@@ -2021,6 +2021,16 @@ Verwenden Sie das Kontextmenü, um die Längeneinheit zu ändern.</translation>
         <source>No tags</source>
         <translation>Keine Tags</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Kein lesezeichen</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Keine gliederung</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

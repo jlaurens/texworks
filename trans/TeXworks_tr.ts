@@ -2027,6 +2027,16 @@ Birimleri değiştirmek için menüyü kullanın.</translation>
         <source>No tags</source>
         <translation>Etiket yok</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Yer imi yok</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Bölüm taslağı yok</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

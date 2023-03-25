@@ -663,7 +663,7 @@ void TeXDockBookmark::initUI()
 
 /// \author JL
 TeXDockOutline::TeXDockOutline(TeXDocumentWindow * win)
-    : TeXDockTree(tr("Outlines"), win)
+    : TeXDockTree(tr("Outline"), win)
 {
     setObjectName(Tw::Name::Outlines);
     connect(&(getTagArray()), &Tw::Document::TagArray::changed, this, &TeXDockOutline::onTagArrayChanged);

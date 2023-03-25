@@ -2028,6 +2028,16 @@ Use o menu de contexto para mudar as unidades.</translation>
         <source>No tags</source>
         <translation>Sem etiquetas</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Sem marcador</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Sem esquema</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

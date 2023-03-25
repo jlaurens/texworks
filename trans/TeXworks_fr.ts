@@ -2021,6 +2021,16 @@ Utilisez le menu contextuel pour changer les unités.</translation>
         <source>No tags</source>
         <translation>Pas de balises</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Pas de signet</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Pas de plan</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

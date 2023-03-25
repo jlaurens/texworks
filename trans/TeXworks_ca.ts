@@ -2023,12 +2023,22 @@ Usi el menú de context per canviar les unitats.</translation>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>
-        <translation>Esbós</translation>
+        <translation>Estructura</translation>
     </message>
     <message>
         <location filename="../src/TeXDocks.cpp" line="110"/>
         <source>No tags</source>
         <translation>Cap etiqueta</translation>
+    </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Sense marcador</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Sense estructura</translation>
     </message>
 </context>
 <context>

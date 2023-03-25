@@ -2032,6 +2032,16 @@ Use the context menu to change the units.</source>
         <source>No tags</source>
         <translation>タグがありません</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">ブックマークなし</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">アウトラインなし</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

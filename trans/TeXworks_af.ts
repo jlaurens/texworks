@@ -2018,6 +2018,16 @@ Gebruik die kontekskeuseskerm om die eenhede te verander.</translation>
         <source>No tags</source>
         <translation>Geen merkers</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Geen boekmerk nie</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Geen struktuur nie</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

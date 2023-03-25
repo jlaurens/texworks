@@ -1990,6 +1990,16 @@ Do you want to continue?</source>
         <source>No tags</source>
         <translation>没有标签</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">No bookmark</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">No outline</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>

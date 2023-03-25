@@ -2016,6 +2016,16 @@ Gebruik het contextmenu om de eenheden te wijzigen.</translation>
         <source>No tags</source>
         <translation>Geen tags</translation>
     </message>
+    <message>
+        <source>No bookmark</source>
+        <comment>From the boormarks dock widget</comment>
+        <translation type="unfinished">Geen bladwijzer</translation>
+    </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Geen overzicht</translation>
+    </message>
 </context>
 <context>
     <name>TeXDocumentWindow</name>
