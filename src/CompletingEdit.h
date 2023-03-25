@@ -220,6 +220,9 @@ private:
 
 	static bool highlightCurrentLine;
 	static bool autocompleteEnabled;
+
+public:
+    void ensureVisibleTagAtIndex(int index);
 };
 
 #endif // COMPLETING_EDIT_H

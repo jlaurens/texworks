@@ -214,6 +214,8 @@ void TeXDocumentWindow::init()
 	connect(actionHard_Wrap, &QAction::triggered, this, &TeXDocumentWindow::doHardWrapDialog);
     connect(actionInsert_Citations, &QAction::triggered, this, &TeXDocumentWindow::doInsertCitationsDialog);
     connect(actionInsertBookmark, &QAction::triggered, this, &TeXDocumentWindow::doInsertBookmark);
+    connect(actionInsert_Citations, &QAction::triggered, this, &TeXDocumentWindow::doInsertCitationsDialog);
+    connect(actionInsertBookmark, &QAction::triggered, this, &TeXDocumentWindow::doInsertBookmark);
 
 	connect(actionTo_Uppercase, &QAction::triggered, this, &TeXDocumentWindow::toUppercase);
 	connect(actionTo_Lowercase, &QAction::triggered, this, &TeXDocumentWindow::toLowercase);

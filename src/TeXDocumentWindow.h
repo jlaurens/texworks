@@ -88,6 +88,7 @@ public:
 	QTextCursor textCursor() const
 		{ return textEdit->textCursor(); }
     void setTextCursor(QTextCursor const &textCursor);
+    void setTextCursor(QTextCursor const &textCursor);
 	Tw::Document::TeXDocument* textDoc()
 		{ return _texDoc; }
 	const Tw::Document::TeXDocument* textDoc() const
