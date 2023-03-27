@@ -2039,24 +2039,30 @@ Use the context menu to change the units.</source>
         <translation>Теги</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocks.cpp" line="110"/>
+        <source>No tags</source>
+        <translation>Нет тегов</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockBookmark</name>
+    <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
         <translation>Закладки</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocks.cpp" line="74"/>
-        <source>Outline</source>
-        <translation>Структура</translation>
-    </message>
-    <message>
-        <location filename="../src/TeXDocks.cpp" line="110"/>
-        <source>No tags</source>
-        <translation>Нет тегов</translation>
-    </message>
-    <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Нет закладки</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockOutline</name>
+    <message>
+        <location filename="../src/TeXDocks.cpp" line="74"/>
+        <source>Outline</source>
+        <translation>Структура</translation>
     </message>
     <message>
         <source>No outline</source>

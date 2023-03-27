@@ -2014,24 +2014,30 @@ Use o menu de contexto para mudar as unidades.</translation>
         <translation>Etiquetas</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocks.cpp" line="110"/>
+        <source>No tags</source>
+        <translation>Sem etiquetas</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockBookmark</name>
+    <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
         <translation>Marcadores</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocks.cpp" line="74"/>
-        <source>Outline</source>
-        <translation>Esquema</translation>
-    </message>
-    <message>
-        <location filename="../src/TeXDocks.cpp" line="110"/>
-        <source>No tags</source>
-        <translation>Sem etiquetas</translation>
-    </message>
-    <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Sem marcador</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockOutline</name>
+    <message>
+        <location filename="../src/TeXDocks.cpp" line="74"/>
+        <source>Outline</source>
+        <translation>Esquema</translation>
     </message>
     <message>
         <source>No outline</source>

@@ -2005,24 +2005,30 @@ Usa il menù constestuale per cambiare le unità.</translation>
         <translation>Tag</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocks.cpp" line="110"/>
+        <source>No tags</source>
+        <translation>Nessun tag</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockBookmark</name>
+    <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
         <translation>Segnalibri</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocks.cpp" line="74"/>
-        <source>Outline</source>
-        <translation>Struttura</translation>
-    </message>
-    <message>
-        <location filename="../src/TeXDocks.cpp" line="110"/>
-        <source>No tags</source>
-        <translation>Nessun tag</translation>
-    </message>
-    <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Nessun segnalibro</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockOutline</name>
+    <message>
+        <location filename="../src/TeXDocks.cpp" line="74"/>
+        <source>Outline</source>
+        <translation>Struttura</translation>
     </message>
     <message>
         <source>No outline</source>

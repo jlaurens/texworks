@@ -1884,24 +1884,30 @@ Er du sikker på at du vil halda fram?</translation>
         <translation>Merkelappar</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocks.cpp" line="110"/>
+        <source>No tags</source>
+        <translation>Ingen merkelappar</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockBookmark</name>
+    <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
         <translation>Bokmerke</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocks.cpp" line="74"/>
-        <source>Outline</source>
-        <translation>Disposisjon</translation>
-    </message>
-    <message>
-        <location filename="../src/TeXDocks.cpp" line="110"/>
-        <source>No tags</source>
-        <translation>Ingen merkelappar</translation>
-    </message>
-    <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Ingen bokmerke</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockOutline</name>
+    <message>
+        <location filename="../src/TeXDocks.cpp" line="74"/>
+        <source>Outline</source>
+        <translation>Disposisjon</translation>
     </message>
     <message>
         <source>No outline</source>

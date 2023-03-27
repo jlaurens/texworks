@@ -2018,24 +2018,30 @@ Use the context menu to change the units.</source>
         <translation>タグ</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocks.cpp" line="110"/>
+        <source>No tags</source>
+        <translation>タグがありません</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockBookmark</name>
+    <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
         <translation>ブックマーク</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocks.cpp" line="74"/>
-        <source>Outline</source>
-        <translation>文書のアウトライン</translation>
-    </message>
-    <message>
-        <location filename="../src/TeXDocks.cpp" line="110"/>
-        <source>No tags</source>
-        <translation>タグがありません</translation>
-    </message>
-    <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">ブックマークなし</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockOutline</name>
+    <message>
+        <location filename="../src/TeXDocks.cpp" line="74"/>
+        <source>Outline</source>
+        <translation>文書のアウトライン</translation>
     </message>
     <message>
         <source>No outline</source>

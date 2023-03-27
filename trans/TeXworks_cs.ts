@@ -1975,29 +1975,35 @@ Do you want to continue?</source>
         <translation>Značky</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocks.cpp" line="110"/>
+        <source>No tags</source>
+        <translation>Žádné značky</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockBookmark</name>
+    <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
         <translation>Záložky</translation>
     </message>
+    <message>
+        <source>No outline</source>
+        <comment>From the outline dock widget</comment>
+        <translation type="unfinished">Žádný obrys</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>
         <translation>Struktura</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocks.cpp" line="110"/>
-        <source>No tags</source>
-        <translation>Žádné značky</translation>
-    </message>
-    <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Žádná záložka</translation>
-    </message>
-    <message>
-        <source>No outline</source>
-        <comment>From the outline dock widget</comment>
-        <translation type="unfinished">Žádný obrys</translation>
     </message>
 </context>
 <context>

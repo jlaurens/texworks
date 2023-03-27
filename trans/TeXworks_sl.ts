@@ -2045,26 +2045,32 @@ Uporabite kontekstni meni za spremembo enot.</translation>
         <translation>Značke</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocks.cpp" line="69"/>
-        <source>Bookmarks</source>
-        <translation>Zaznamki</translation>
-    </message>
-    <message>
-        <location filename="../src/TeXDocks.cpp" line="74"/>
-        <source>Outline</source>
-        <translatorcomment>??? delitev po poglavjih</translatorcomment>
-        <translation>Oris poglavij</translation>
-    </message>
-    <message>
         <location filename="../src/TeXDocks.cpp" line="110"/>
         <source>No tags</source>
         <translatorcomment>Kje se to uporablja?</translatorcomment>
         <translation>Ni značk</translation>
     </message>
+</context>
+<context>
+    <name>TeXDockBookmark</name>
+    <message>
+        <location filename="../src/TeXDocks.cpp" line="69"/>
+        <source>Bookmarks</source>
+        <translation>Zaznamki</translation>
+    </message>
     <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Brez zaznamka</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockOutline</name>
+    <message>
+        <location filename="../src/TeXDocks.cpp" line="74"/>
+        <source>Outline</source>
+        <translatorcomment>??? delitev po poglavjih</translatorcomment>
+        <translation>Oris poglavij</translation>
     </message>
     <message>
         <source>No outline</source>

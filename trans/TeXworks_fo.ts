@@ -2011,24 +2011,30 @@ Brúka kontekstmenuina fyri at broyta eindirnar.</translation>
         <translation>Merki</translation>
     </message>
     <message>
+        <location filename="../src/TeXDocks.cpp" line="110"/>
+        <source>No tags</source>
+        <translation>Eingi merki</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockBookmark</name>
+        <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
         <translation>Bókamerki</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocks.cpp" line="74"/>
-        <source>Outline</source>
-        <translation>Yvirlit</translation>
-    </message>
-    <message>
-        <location filename="../src/TeXDocks.cpp" line="110"/>
-        <source>No tags</source>
-        <translation>Eingi merki</translation>
-    </message>
-    <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Ekkert bókamerki</translation>
+    </message>
+</context>
+<context>
+    <name>TeXDockOutline</name>
+        <message>
+        <location filename="../src/TeXDocks.cpp" line="74"/>
+        <source>Outline</source>
+        <translation>Yvirlit</translation>
     </message>
     <message>
         <source>No outline</source>
