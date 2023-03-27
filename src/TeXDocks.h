@@ -21,8 +21,6 @@
 
 #ifndef TW_TEXDOCKS_H
 #define TW_TEXDOCKS_H
-#ifndef TW_TEXDOCKS_H
-#define TW_TEXDOCKS_H
 
 #include <QDockWidget>
 #include <QListWidget>
