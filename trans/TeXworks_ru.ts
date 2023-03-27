@@ -2056,12 +2056,12 @@ Use the context menu to change the units.</source>
     <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
-        <translation type="unfinished">No bookmark</translation>
+        <translation type="unfinished">Нет закладки</translation>
     </message>
     <message>
         <source>No outline</source>
         <comment>From the outline dock widget</comment>
-        <translation type="unfinished">No outline</translation>
+        <translation type="unfinished">Нет контура</translation>
     </message>
 </context>
 <context>

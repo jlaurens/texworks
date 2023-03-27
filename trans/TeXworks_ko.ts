@@ -2004,12 +2004,12 @@ Use the context menu to change the units.</source>
     <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
-        <translation type="unfinished">No bookmark</translation>
+        <translation type="unfinished">북마크 없음</translation>
     </message>
     <message>
         <source>No outline</source>
         <comment>From the outline dock widget</comment>
-        <translation type="unfinished">No outline</translation>
+        <translation type="unfinished">개요 없음</translation>
     </message>
 </context>
 <context>

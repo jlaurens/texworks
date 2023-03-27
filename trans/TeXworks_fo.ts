@@ -2028,12 +2028,12 @@ Brúka kontekstmenuina fyri at broyta eindirnar.</translation>
     <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
-        <translation type="unfinished">No bookmark</translation>
+        <translation type="unfinished">Ekkert bókamerki</translation>
     </message>
     <message>
         <source>No outline</source>
         <comment>From the outline dock widget</comment>
-        <translation type="unfinished">No outline</translation>
+        <translation type="unfinished">Engar útlínur</translation>
     </message>
 </context>
 <context>

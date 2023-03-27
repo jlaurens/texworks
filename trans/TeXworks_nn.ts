@@ -1901,12 +1901,12 @@ Er du sikker på at du vil halda fram?</translation>
     <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
-        <translation type="unfinished">No bookmark</translation>
+        <translation type="unfinished">Ingen bokmerke</translation>
     </message>
     <message>
         <source>No outline</source>
         <comment>From the outline dock widget</comment>
-        <translation type="unfinished">No outline</translation>
+        <translation type="unfinished">Ingen disposisjon</translation>
     </message>
 </context>
 <context>

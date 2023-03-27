@@ -1985,12 +1985,12 @@ Do you want to continue?</source>
     <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
-        <translation type="unfinished">No bookmark</translation>
+        <translation type="unfinished">لا توجد إشارة مرجعية</translation>
     </message>
     <message>
         <source>No outline</source>
         <comment>From the outline dock widget</comment>
-        <translation type="unfinished">No outline</translation>
+        <translation type="unfinished">لا مخطط تفصيلي</translation>
     </message>
 </context>
 <context>

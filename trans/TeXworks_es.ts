@@ -2018,12 +2018,12 @@ necesarios. ¿Quiere abrirlo de todos modos?</translation>
     <message>
         <source>No bookmark</source>
         <comment>From the boormarks dock widget</comment>
-        <translation type="unfinished">No bookmark</translation>
+        <translation type="unfinished">Sin marcador</translation>
     </message>
     <message>
         <source>No outline</source>
         <comment>From the outline dock widget</comment>
-        <translation type="unfinished">No outline</translation>
+        <translation type="unfinished">Sin esquema outline</translation>
     </message>
 </context>
 <context>
