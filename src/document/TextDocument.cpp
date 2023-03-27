@@ -39,7 +39,7 @@ const Tag * TagArray::get_p(const int index) const
     return 0 <= index && index < __tags.count() ? &(__tags[index]) : nullptr;
 }
 
-void TagArray::add(const QTextCursor & c, const int level, const QString & text)
+void TagArray::add(const QTextCursor & c, const int level, const QString & text, const QString & tooltip)
 {
     QTextCursor cursor = QTextCursor(c);
     cursor.movePosition(QTextCursor::StartOfBlock);
@@ -48,7 +48,7 @@ void TagArray::add(const QTextCursor & c, const int level, const QString & text)
     while(it != __tags.rend() && it->cursor.position() > position) {
         ++it;
     }
-    __tags.insert(it.base(), {cursor, level, text});
+    __tags.insert(it.base(), {cursor, level, text, tooltip});
     emit changed();
 }
 
@@ -123,29 +123,32 @@ const QVector<Tag> & TextDocument::getTags() const
 
 void TextDocument::addTag(const QTextCursor & c, const int level, const QString & text)
 {
-    _tagArray.add(c, level, text);
+    _tagArray.add(c, level, text, QString());
     emit tagsChanged();
 }
 
 void TextDocument::addTag(const int type, const int level, const int index, const int length, const QRegularExpressionMatch & match)
 {
+    QString tooltip = QString();
     QString tagText = match.captured(constKeyContent);
     if (tagText.isEmpty()) {
         tagText = match.captured(1);
-        if (tagText.isEmpty()) {
-            tagText = match.captured(0);
-        }
+    }
+    if (tagText.isEmpty()) {
+        tagText = match.captured(0);
+    } else {
+        tooltip = match.captured(0);
     }
     // QString typeText = match.captured(constKeyType);
     QTextCursor cursor(this);
     cursor.setPosition(index);
     cursor.setPosition(index + length, QTextCursor::KeepAnchor);
     cursor.movePosition(QTextCursor::StartOfBlock);
-    _tagArray.add(cursor, level, tagText);
+    _tagArray.add(cursor, level, tagText, tooltip);
     if (type > 0) {
-        _bookmarkArray.add(cursor, level, tagText);
+        _bookmarkArray.add(cursor, level, tagText, tooltip);
     } else {
-        _outlineArray.add(cursor, level, tagText);
+        _outlineArray.add(cursor, level, tagText, tooltip);
     }
     emit tagsChanged();
 }

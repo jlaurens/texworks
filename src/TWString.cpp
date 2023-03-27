@@ -28,5 +28,6 @@ using namespace Tw;
 const QString Name::toolbar     = QStringLiteral("Tw.toolbar");
 const QString Name::list_add    = QStringLiteral("Tw.list_add");
 const QString Name::list_remove = QStringLiteral("Tw.list_remove");
+const QString Name::Tags        = QStringLiteral("Tw.Tags");
 const QString Name::Bookmarks   = QStringLiteral("Tw.Bookmarks");
 const QString Name::Outlines    = QStringLiteral("Tw.Outlines");

@@ -2006,7 +2006,7 @@ Birimleri değiştirmek için menüyü kullanın.</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2017,9 +2017,6 @@ Birimleri değiştirmek için menüyü kullanın.</translation>
         <source>No tags</source>
         <translation>Etiket yok</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2030,9 +2027,6 @@ Birimleri değiştirmek için menüyü kullanın.</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Yer imi yok</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

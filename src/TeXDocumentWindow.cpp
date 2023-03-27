@@ -420,7 +420,7 @@ void TeXDocumentWindow::init()
 
 	Tw::Utils::WindowManager::zoomToHalfScreen(this);
 
-	QDockWidget *dw = new TagsDock(this);
+	QDockWidget *dw = new TeXDockTag(this);
 	dw->hide();
 	addDockWidget(Qt::LeftDockWidgetArea, dw);
 	menuShow->addAction(dw->toggleViewAction());

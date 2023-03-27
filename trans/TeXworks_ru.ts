@@ -2032,7 +2032,7 @@ Use the context menu to change the units.</source>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2043,9 +2043,6 @@ Use the context menu to change the units.</source>
         <source>No tags</source>
         <translation>Нет тегов</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2056,9 +2053,6 @@ Use the context menu to change the units.</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Нет закладки</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

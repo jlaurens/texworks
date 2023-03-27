@@ -2000,7 +2000,7 @@ Verwenden Sie das Kontextmenü, um die Längeneinheit zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2011,9 +2011,6 @@ Verwenden Sie das Kontextmenü, um die Längeneinheit zu ändern.</translation>
         <source>No tags</source>
         <translation>Keine Tags</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2024,9 +2021,6 @@ Verwenden Sie das Kontextmenü, um die Längeneinheit zu ändern.</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Kein lesezeichen</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

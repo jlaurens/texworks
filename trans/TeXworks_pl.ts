@@ -2006,7 +2006,7 @@ Użyj menu kontekstowego żeby zmienić jednostki.</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2017,9 +2017,6 @@ Użyj menu kontekstowego żeby zmienić jednostki.</translation>
         <source>No tags</source>
         <translation>Brak etykiet</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2030,9 +2027,6 @@ Użyj menu kontekstowego żeby zmienić jednostki.</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Brak zakładki</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

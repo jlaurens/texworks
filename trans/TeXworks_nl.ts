@@ -1995,7 +1995,7 @@ Gebruik het contextmenu om de eenheden te wijzigen.</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2006,9 +2006,6 @@ Gebruik het contextmenu om de eenheden te wijzigen.</translation>
         <source>No tags</source>
         <translation>Geen tags</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2019,9 +2016,6 @@ Gebruik het contextmenu om de eenheden te wijzigen.</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Geen bladwijzer</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

@@ -51,6 +51,7 @@ namespace Name {
 extern const QString toolbar;
 extern const QString list_add;
 extern const QString list_remove;
+extern const QString Tags;
 extern const QString Bookmarks;
 extern const QString Outlines;
 

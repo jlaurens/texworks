@@ -2037,7 +2037,7 @@ Uporabite kontekstni meni za spremembo enot.</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2050,9 +2050,6 @@ Uporabite kontekstni meni za spremembo enot.</translation>
         <translatorcomment>Kje se to uporablja?</translatorcomment>
         <translation>Ni značk</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2063,9 +2060,6 @@ Uporabite kontekstni meni za spremembo enot.</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Brez zaznamka</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

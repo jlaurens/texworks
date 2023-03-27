@@ -34,12 +34,11 @@ struct TagPattern {
     int level;
 };
 
-static QList<TagPattern> *listTagPattern_p()
+static QVector<TagPattern> &tagPatternArray()
 {
-    static QList<TagPattern> * list_p = nullptr;
-    if (!list_p) {
+    static QVector<TagPattern> array;
+    if (array.empty()) {
         // read tag-recognition patterns
-        list_p = new QList<TagPattern>;
         QFile file(Tw::Utils::ResourcesLibrary::getTagPatternsPath());
         if (file.open(QIODevice::ReadOnly)) {
             QRegularExpression whitespace(QStringLiteral("\\s+"));
@@ -61,7 +60,7 @@ static QList<TagPattern> *listTagPattern_p()
                     if (ok) {
                         tagPattern.pattern = QRegularExpression(parts[2]);
                         if (tagPattern.pattern.isValid()) {
-                            list_p->append(tagPattern);
+                            array.append(tagPattern);
                         } else {
                             qWarning() << "Wrong tag pattern:" << parts[2];
                         }
@@ -70,7 +69,7 @@ static QList<TagPattern> *listTagPattern_p()
             }
         }
     }
-    return list_p;
+    return array;
 }
 
 struct HilightRule  {
@@ -247,9 +246,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 				QString::size_type firstIndex{std::numeric_limits<QString::size_type>::max()}, len{0};
 				TagPattern* firstPatt = nullptr;
 				QRegularExpressionMatch firstMatch;
-                auto tagPatterns = listTagPattern_p();
-				for (int i = 0; i < tagPatterns->count(); ++i) {
-					TagPattern& patt = (*tagPatterns)[i];
+                for (auto patt: tagPatternArray()) {
 					QRegularExpressionMatch m = patt.pattern.match(text, index);
 					if (m.capturedStart() >= 0 && m.capturedStart() < firstIndex) {
 						firstIndex = m.capturedStart();
@@ -258,8 +255,10 @@ void TeXHighlighter::highlightBlock(const QString &text)
 					}
 				}
 				if (firstPatt && firstMatch.hasMatch() && (len = firstMatch.capturedLength()) > 0) {
-                    texDoc->addTag(firstPatt->type, firstPatt->level,
-                                   currentBlock().position() + firstIndex, len,
+                    texDoc->addTag(firstPatt->type,
+                                   firstPatt->level,
+                                   currentBlock().position() + firstIndex,
+                                   len,
                                    firstMatch);
 					index = firstIndex + len;
 				}

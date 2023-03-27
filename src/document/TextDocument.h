@@ -34,6 +34,7 @@ struct Tag {
     QTextCursor cursor;
     int level;
     QString text;
+    QString tooltip;
 };
 
 class TagArray: public QObject {
@@ -47,7 +48,7 @@ public:
     int getCurrentIndex() const;
     void setCurrent(const int index);
     void setCurrent(const Tag &tag);
-    void add(const QTextCursor & cursor, const int level, const QString & text);
+    void add(const QTextCursor & cursor, const int level, const QString & text, const QString & tooltip);
     unsigned int remove(int offset, int len);
     const QVector<Tag> & getTags() const;
     QVector<Tag>::const_iterator begin() const;

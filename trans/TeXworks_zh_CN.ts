@@ -1969,7 +1969,7 @@ Do you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -1980,9 +1980,6 @@ Do you want to continue?</source>
         <source>No tags</source>
         <translation>没有标签</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -1993,9 +1990,6 @@ Do you want to continue?</source>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">没有书签</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

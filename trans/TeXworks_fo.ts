@@ -2004,7 +2004,7 @@ Brúka kontekstmenuina fyri at broyta eindirnar.</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2015,9 +2015,6 @@ Brúka kontekstmenuina fyri at broyta eindirnar.</translation>
         <source>No tags</source>
         <translation>Eingi merki</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
         <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2028,9 +2025,6 @@ Brúka kontekstmenuina fyri at broyta eindirnar.</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Ekkert bókamerki</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
         <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

@@ -1877,7 +1877,7 @@ Er du sikker på at du vil halda fram?</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -1888,9 +1888,6 @@ Er du sikker på at du vil halda fram?</translation>
         <source>No tags</source>
         <translation>Ingen merkelappar</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -1901,9 +1898,6 @@ Er du sikker på at du vil halda fram?</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Ingen bokmerke</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

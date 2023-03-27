@@ -1994,7 +1994,7 @@ necesarios. ¿Quiere abrirlo de todos modos?</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2005,9 +2005,6 @@ necesarios. ¿Quiere abrirlo de todos modos?</translation>
         <source>No tags</source>
         <translation>Sin etiquetas</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2018,9 +2015,6 @@ necesarios. ¿Quiere abrirlo de todos modos?</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Sin marcador</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>

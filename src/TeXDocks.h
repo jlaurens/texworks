@@ -59,33 +59,6 @@ private slots:
 	void onVisibilityChanged(bool visible);
 };
 
-
-class TagsDock: public TeXDock
-{
-    Q_OBJECT
-
-public:
-    TagsDock(TeXDocumentWindow *documentWindow_p = nullptr);
-    ~TagsDock() override = default;
-
-public slots:
-    virtual void listChanged();
-    void observeCursorPositionChanged(bool yorn);
-
-protected:
-    void update(bool force) override;
-
-private slots:
-    void followTagSelection();
-    void onCursorPositionChanged();
-
-private:
-    QTreeWidget *tree;
-    int saveScrollValue;
-    bool __dontFollowTagSelection;
-    bool __lastSelectionIsOutline;
-};
-
 /// \author JL
 class TeXDockTree: public TeXDock
 {
@@ -119,6 +92,23 @@ protected:
     QTreeWidgetItem *getItemForCursor(const QTextCursor &cursor);
     void selectItem(QTreeWidgetItem *item_p, bool dontFollowItemSelection);
     void selectItemForCursor(const QTextCursor &cursor, bool dontFollowItemSelection);
+};
+
+class TeXDockTag: public TeXDockTree
+{
+    Q_OBJECT
+
+    using Super = TeXDockTree;
+    
+public:
+    TeXDockTag(TeXDocumentWindow *documentWindow_p = nullptr);
+    ~TeXDockTag() override = default;
+    Tw::Document::TagArray & getMutableTagArray() override;
+    const Tw::Document::TagArray & getTagArray() const override;
+
+protected:
+    void updateVoid() override;
+    void initUI() override;
 };
 
 class TeXDockBookmark: public TeXDockTree

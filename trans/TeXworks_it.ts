@@ -1998,7 +1998,7 @@ Usa il menù constestuale per cambiare le unità.</translation>
     </message>
 </context>
 <context>
-    <name>TagsDock</name>
+    <name>TeXDockTree</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="47"/>
         <source>Tags</source>
@@ -2009,9 +2009,6 @@ Usa il menù constestuale per cambiare le unità.</translation>
         <source>No tags</source>
         <translation>Nessun tag</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockBookmark</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="69"/>
         <source>Bookmarks</source>
@@ -2022,9 +2019,6 @@ Usa il menù constestuale per cambiare le unità.</translation>
         <comment>From the boormarks dock widget</comment>
         <translation type="unfinished">Nessun segnalibro</translation>
     </message>
-</context>
-<context>
-    <name>TeXDockOutline</name>
     <message>
         <location filename="../src/TeXDocks.cpp" line="74"/>
         <source>Outline</source>
