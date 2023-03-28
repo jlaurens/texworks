@@ -3,44 +3,44 @@
 # Each entry consists of two whitespaces separated fields:
 # <type>__<level>__<regex>
 
-# <type> is 0 for outlines, 1 for boorkmarks.
+# <type> is "Outline" for outlines, "Bookmark" for boorkmarks.
 # <level> is the position in the document structure hierarchy, with 1 being the top level.
 # <regex> is the regular expression to match.
 
 # If there is a (?<content>...) named capture group in the regex, this is the fragment that will be used
 # as the actual tag text. If there is no such named group, but there is a capture group, the match
-# will bu used as actual text tag. Otherwise, the whole match is used.
-# The (?<type>...)
+# will be used as actual text tag. Otherwise, the whole match is used.
+# The (?<type>...) named capture is reserved for further use.
 
 # Either outlines and bookmarks are displayed separately, or interlaced.
 
 # Patterns for LaTeX sectioning commands:
-0  0  ^%?\s*\\part\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-0  1  ^%?\s*\\chapter\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-0  2  ^%?\s*\\section\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-0  3  ^%?\s*\\subsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-0  4  ^%?\s*\\subsubsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  0  ^%?\s*\\part\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  1  ^%?\s*\\chapter\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  2  ^%?\s*\\section\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  3  ^%?\s*\\subsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  4  ^%?\s*\\subsubsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
 
 # Patterns for dtx files:
-1  4  ^%\^\^A:::::\s*(.*?)\s*$
-1  3  ^%\^\^A::::\s*(.*?)\s*$
-1  2  ^%\^\^A:::\s*(.*?)\s*$
-1  1  ^%\^\^A::\s*(.*?)\s*$
-1  0  ^%\^\^A(?<type>MARK|TODO)?:\s*(?<content>.*?)\s*$
-1  0  ^%<\*(readme|driver|install)>
-1  0  ^%?\s*\\begin\*?\{(documentation)\}
-1  0  ^%?\s*\\begin\*?\{(implementation)\}
+Bookmark  4  ^%\^\^A:::::\s*(.*?)\s*$
+Bookmark  3  ^%\^\^A::::\s*(.*?)\s*$
+Bookmark  2  ^%\^\^A:::\s*(.*?)\s*$
+Bookmark  1  ^%\^\^A::\s*(.*?)\s*$
+Bookmark  0  ^%\^\^A(?<type>MARK|TODO)?:\s*(?<content>.*?)\s*$
+Bookmark  0  ^%<\*(readme|driver|install)>
+Bookmark  0  ^%?\s*\\begin\*?\{(documentation)\}
+Bookmark  0  ^%?\s*\\begin\*?\{(implementation)\}
 
 # Patterns for ConTeXt sectioning commands (unnumbered):
 # (numbered sections are similar to LaTeX)
-0  0  ^\s*\\title\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-0  1  ^\s*\\subject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-0  2  ^\s*\\subsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-0  3  ^\s*\\subsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
-0  4  ^\s*\\subsubsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  0  ^\s*\\title\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  1  ^\s*\\subject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  2  ^\s*\\subsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  3  ^\s*\\subsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+Outline  4  ^\s*\\subsubsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
 
-1  4  ^%:::::\s*(.+)
-1  3  ^%::::\s*(.+)
-1  2  ^%:::\s*(.+)
-1  1  ^%::\s*(.+)
-1  0  ^%(?<type>MARK|TODO)?:\s*(?<content>.+)
+Bookmark  4  ^%:::::\s*(.+)
+Bookmark  3  ^%::::\s*(.+)
+Bookmark  2  ^%:::\s*(.+)
+Bookmark  1  ^%::\s*(.+)
+Bookmark  0  ^%(?<type>MARK|TODO)?:\s*(?<content>.+)

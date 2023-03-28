@@ -230,10 +230,10 @@ void TestDocument::tags()
 	QSignalSpy spy(&doc, &Tw::Document::TextDocument::tagsChanged);
 #endif
 
-	Tw::Document::Tag tag1{QTextCursor(&doc), 0, QStringLiteral("tag1"), QStringLiteral("tooltip1")};
+	Tw::Document::Tag tag1{Tw::Document::Tag::Type::Bookmark, 0, QTextCursor(&doc), QStringLiteral("tag1"), QStringLiteral("tooltip1")};
 	tag1.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 2);
 
-	Tw::Document::Tag tag2{QTextCursor(&doc), 0, QStringLiteral("tag2"), QStringLiteral("tooltip2")};
+	Tw::Document::Tag tag2{Tw::Document::Tag::Type::Bookmark, 0, QTextCursor(&doc), QStringLiteral("tag2"), QStringLiteral("tooltip2")};
 	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, 2);
 	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1);
 

@@ -31,10 +31,19 @@ namespace Tw {
 namespace Document {
 
 struct Tag {
-    QTextCursor cursor;
+    enum class Type {Unknown, Bookmark, Outline};
+    struct TypeName {
+        static const QString Unknown;
+        static const QString Bookmark;
+        static const QString Outline;
+    };
+    static const QString nameForType(Type type);
+    Type type;
     int level;
+    QTextCursor cursor;
     QString text;
     QString tooltip;
+    static Type typeForName(const QString &name);
 };
 
 class TagArray: public QObject {
@@ -48,7 +57,7 @@ public:
     int getCurrentIndex() const;
     void setCurrent(const int index);
     void setCurrent(const Tag &tag);
-    void add(const QTextCursor & cursor, const int level, const QString & text, const QString & tooltip);
+    void add(const Tag::Type type, const int level, const QTextCursor & cursor, const QString & text, const QString & tooltip);
     unsigned int remove(int offset, int len);
     const QVector<Tag> & getTags() const;
     QVector<Tag>::const_iterator begin() const;
@@ -67,7 +76,7 @@ public:
 
     const QVector<Tag> & getTags() const;
     void addTag(const QTextCursor & c, const int level, const QString & text);
-    void addTag(const int type, const int level, const int index, const int length, const QRegularExpressionMatch & match);
+    void addTag(const Tag::Type type, const int level, const int index, const int length, const QRegularExpressionMatch & match);
     unsigned int removeTags(int offset, int len);
     const TagArray & getTagArray()      const { return _tagArray;      }
     const TagArray & getBookmarkArray() const { return _bookmarkArray; }
@@ -89,5 +98,7 @@ protected:
 
 } // namespace Document
 } // namespace Tw
+
+Q_DECLARE_METATYPE(Tw::Document::Tag)
 
 #endif // !defined(Document_TextDocument_H)

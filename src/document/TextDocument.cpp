@@ -19,11 +19,37 @@
 	see <http://www.tug.org/texworks/>.
 */
 
+#include "TWString.h"
 #include "document/TextDocument.h"
 #include <QDebug>
 
 namespace Tw {
 namespace Document {
+
+//TODO: Next should move to TWString. (linker problem)
+const QString Tag::TypeName::Unknown = QStringLiteral("Unknown");//
+const QString Tag::TypeName::Bookmark = QStringLiteral("Bookmark");
+const QString Tag::TypeName::Outline = QStringLiteral("Outline");
+
+Tag::Type Tag::typeForName(const QString &name) {
+    if (name == Tag::TypeName::Outline) {
+        return Tag::Type::Outline;
+    }
+    if (name == Tag::TypeName::Bookmark) {
+        return Tag::Type::Bookmark;
+    }
+    return Type::Unknown;
+}
+
+const QString Tag::nameForType(Tag::Type type) {
+    if (type == Tag::Type::Outline) {
+        return Tag::TypeName::Outline;
+    }
+    if (type == Tag::Type::Bookmark) {
+        return Tag::TypeName::Bookmark;
+    }
+    return Tag::TypeName::Unknown;
+}
 
 // name of a capture group
 static const QString constKeyContent = QStringLiteral("content");
@@ -39,7 +65,7 @@ const Tag * TagArray::get_p(const int index) const
     return 0 <= index && index < __tags.count() ? &(__tags[index]) : nullptr;
 }
 
-void TagArray::add(const QTextCursor & c, const int level, const QString & text, const QString & tooltip)
+void TagArray::add(const Tag::Type type, const int level, const QTextCursor & c, const QString & text, const QString & tooltip)
 {
     QTextCursor cursor = QTextCursor(c);
     cursor.movePosition(QTextCursor::StartOfBlock);
@@ -48,7 +74,7 @@ void TagArray::add(const QTextCursor & c, const int level, const QString & text,
     while(it != __tags.rend() && it->cursor.position() > position) {
         ++it;
     }
-    __tags.insert(it.base(), {cursor, level, text, tooltip});
+    __tags.insert(it.base(), {type, level, cursor, text, tooltip});
     emit changed();
 }
 
@@ -123,11 +149,11 @@ const QVector<Tag> & TextDocument::getTags() const
 
 void TextDocument::addTag(const QTextCursor & c, const int level, const QString & text)
 {
-    _tagArray.add(c, level, text, QString());
+    _tagArray.add(Tag::Type::Bookmark, level, c, text, QString());
     emit tagsChanged();
 }
 
-void TextDocument::addTag(const int type, const int level, const int index, const int length, const QRegularExpressionMatch & match)
+void TextDocument::addTag(const Tag::Type type, const int level, const int index, const int length, const QRegularExpressionMatch & match)
 {
     QString tooltip = QString();
     QString tagText = match.captured(constKeyContent);
@@ -144,11 +170,11 @@ void TextDocument::addTag(const int type, const int level, const int index, cons
     cursor.setPosition(index);
     cursor.setPosition(index + length, QTextCursor::KeepAnchor);
     cursor.movePosition(QTextCursor::StartOfBlock);
-    _tagArray.add(cursor, level, tagText, tooltip);
-    if (type > 0) {
-        _bookmarkArray.add(cursor, level, tagText, tooltip);
+    _tagArray.add(type, level, cursor, tagText, tooltip);
+    if (type == Tag::Type::Bookmark) {
+        _bookmarkArray.add(type, level, cursor, tagText, tooltip);
     } else {
-        _outlineArray.add(cursor, level, tagText, tooltip);
+        _outlineArray.add(type, level, cursor, tagText, tooltip);
     }
     emit tagsChanged();
 }

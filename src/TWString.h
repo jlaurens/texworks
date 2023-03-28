@@ -38,13 +38,7 @@ namespace String {
 
 }
 
-/*! \brief Keys in maps and similar usage.
- */
-namespace Key {
-
-}
-
-/*! \brief QWidget object names.
+/*! \brief QWidget object names, type display names.
  */
 namespace Name {
 
@@ -54,6 +48,23 @@ extern const QString list_remove;
 extern const QString Tags;
 extern const QString Bookmarks;
 extern const QString Outlines;
+
+}
+
+/*! \brief Type display names.
+ */
+struct TypeName {
+
+    static const QString Bookmark;
+    static const QString Outline;
+    static const QString Unknown;
+
+};
+
+/*! \brief Keys in maps and similar usage.
+ */
+namespace Key {
+
 
 }
 

@@ -23,7 +23,11 @@
 
 /// \author JL
 
-using namespace Tw;
+namespace Tw {
+
+const QString TypeName::Bookmark = QStringLiteral("Bookmark");
+const QString TypeName::Outline  = QStringLiteral("Outline");
+const QString TypeName::Unknown  = QStringLiteral("Unknown");
 
 const QString Name::toolbar     = QStringLiteral("Tw.toolbar");
 const QString Name::list_add    = QStringLiteral("Tw.list_add");
@@ -31,3 +35,5 @@ const QString Name::list_remove = QStringLiteral("Tw.list_remove");
 const QString Name::Tags        = QStringLiteral("Tw.Tags");
 const QString Name::Bookmarks   = QStringLiteral("Tw.Bookmarks");
 const QString Name::Outlines    = QStringLiteral("Tw.Outlines");
+
+}

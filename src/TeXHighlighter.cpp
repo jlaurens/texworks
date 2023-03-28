@@ -30,7 +30,7 @@
 
 struct TagPattern {
     QRegularExpression pattern;
-    int type;
+    Tw::Document::Tag::Type type;
     int level;
 };
 
@@ -54,8 +54,8 @@ static QVector<TagPattern> &tagPatternArray()
                     continue;
                 TagPattern tagPattern;
                 bool ok{false};
-                tagPattern.type = parts[0].toInt(&ok);
-                if (ok) {
+                tagPattern.type = Tw::Document::Tag::typeForName(parts[0]);
+                if (tagPattern.type != Tw::Document::Tag::Type::Unknown) {
                     tagPattern.level = parts[1].toInt(&ok);
                     if (ok) {
                         tagPattern.pattern = QRegularExpression(parts[2]);
@@ -244,19 +244,21 @@ void TeXHighlighter::highlightBlock(const QString &text)
 			QString::size_type index = 0;
 			while (index < text.length()) {
 				QString::size_type firstIndex{std::numeric_limits<QString::size_type>::max()}, len{0};
-				TagPattern* firstPatt = nullptr;
+                auto type = Tw::Document::Tag::Type::Unknown;
+                int level = 0;
 				QRegularExpressionMatch firstMatch;
                 for (auto patt: tagPatternArray()) {
 					QRegularExpressionMatch m = patt.pattern.match(text, index);
 					if (m.capturedStart() >= 0 && m.capturedStart() < firstIndex) {
 						firstIndex = m.capturedStart();
 						firstMatch = m;
-						firstPatt = &patt;
+                        type = patt.type;
+                        level = patt.level;
 					}
 				}
-				if (firstPatt && firstMatch.hasMatch() && (len = firstMatch.capturedLength()) > 0) {
-                    texDoc->addTag(firstPatt->type,
-                                   firstPatt->level,
+				if (firstMatch.hasMatch() && (len = firstMatch.capturedLength()) > 0) {
+                    texDoc->addTag(type,
+                                   level,
                                    currentBlock().position() + firstIndex,
                                    len,
                                    firstMatch);

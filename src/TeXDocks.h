@@ -37,6 +37,7 @@ class TeXDocumentWindow;
 namespace Tw {
 namespace Document {
 class TagArray;
+struct Tag;
 }
 }
 
@@ -84,11 +85,13 @@ private slots:
 
 protected:
     virtual void initUI();
+    virtual void makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag);
     int _lastScrollValue;
     bool _dontFollowItemSelection;
     virtual void updateVoid() = 0;
     void hilightTagAt(const QTextCursor & cursor);
     QTreeWidgetItem *getItemAtIndex(const int tagIndex);
+    const Tw::Document::Tag *getTagForItem_p(const QTreeWidgetItem *item_p);
     QTreeWidgetItem *getItemForCursor(const QTextCursor &cursor);
     void selectItem(QTreeWidgetItem *item_p, bool dontFollowItemSelection);
     void selectItemForCursor(const QTextCursor &cursor, bool dontFollowItemSelection);
@@ -109,6 +112,7 @@ public:
 protected:
     void updateVoid() override;
     void initUI() override;
+    void makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag) override;
 };
 
 class TeXDockBookmark: public TeXDockTree
