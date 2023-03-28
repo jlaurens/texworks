@@ -24,7 +24,7 @@
 
 /// \author JL
 
-using namespace Tw;
+namespace Tw {
 
 const QIcon Icon::preferences_system()
 {
@@ -138,3 +138,21 @@ const QIcon Icon::process_stop()
 {
     return QIcon::fromTheme(QStringLiteral("process-stop"));
 }
+
+const QIcon Icon::Outline()
+{
+    return QIcon::fromTheme(QStringLiteral("Outline"));
+}
+
+const QIcon Icon::TODO()
+{
+    return QIcon::fromTheme(QStringLiteral("TODO"));
+}
+
+const QIcon Icon::MARK()
+{
+    return QIcon::fromTheme(QStringLiteral("MARK"));
+}
+
+}
+

@@ -34,40 +34,44 @@ namespace Tw {
 
 /*! \brief Only known icons .
  */
-namespace Icon {
+struct Icon {
 // categories
-const QIcon preferences_system();
+    static const QIcon preferences_system();
 // actions
-const QIcon document_new();
-const QIcon document_open();
-const QIcon document_save();
+    static const QIcon document_new();
+    static const QIcon document_open();
+    static const QIcon document_save();
 
-const QIcon go_down();
-const QIcon go_first();
-const QIcon go_jump();
-const QIcon go_last();
-const QIcon go_next();
-const QIcon go_previous();
-const QIcon go_up();
+    static const QIcon go_down();
+    static const QIcon go_first();
+    static const QIcon go_jump();
+    static const QIcon go_last();
+    static const QIcon go_next();
+    static const QIcon go_previous();
+    static const QIcon go_up();
 
-const QIcon list_add();
-const QIcon list_remove();
+    static const QIcon list_add();
+    static const QIcon list_remove();
 
-const QIcon process_start();
-const QIcon process_stop();
+    static const QIcon process_start();
+    static const QIcon process_stop();
 
-const QIcon edit_find();
-const QIcon edit_find_replace();
-const QIcon edit_cut();
-const QIcon edit_copy();
-const QIcon edit_paste();
-const QIcon edit_undo();
-const QIcon edit_redo();
+    static const QIcon edit_find();
+    static const QIcon edit_find_replace();
+    static const QIcon edit_cut();
+    static const QIcon edit_copy();
+    static const QIcon edit_paste();
+    static const QIcon edit_undo();
+    static const QIcon edit_redo();
 
-const QIcon format_indent_less();
-const QIcon format_indent_more();
+    static const QIcon format_indent_less();
+    static const QIcon format_indent_more();
 
-}
+    static const QIcon TODO();
+    static const QIcon MARK();
+    static const QIcon Outline();
+
+};
 
 }
 #endif // TW_ICON_H

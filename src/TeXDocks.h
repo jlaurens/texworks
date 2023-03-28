@@ -130,6 +130,7 @@ public:
 protected:
     void updateVoid() override;
     void initUI() override;
+    void makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag) override;
 };
 
 class TeXDockOutline: public TeXDockTree

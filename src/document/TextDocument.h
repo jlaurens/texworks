@@ -37,13 +37,22 @@ struct Tag {
         static const QString Bookmark;
         static const QString Outline;
     };
+    static Type typeForName(const QString &name);
     static const QString nameForType(Type type);
+    enum class Subtype {Unknown, MARK, TODO};
+    struct SubtypeName {
+        static const QString Unknown;
+        static const QString MARK;
+        static const QString TODO;
+    };
+    static Subtype subtypeForName(const QString &name);
+    static const QString nameForSubtype(Subtype type);
     Type type;
+    Subtype subtype;
     int level;
     QTextCursor cursor;
     QString text;
     QString tooltip;
-    static Type typeForName(const QString &name);
 };
 
 class TagArray: public QObject {
@@ -57,7 +66,7 @@ public:
     int getCurrentIndex() const;
     void setCurrent(const int index);
     void setCurrent(const Tag &tag);
-    void add(const Tag::Type type, const int level, const QTextCursor & cursor, const QString & text, const QString & tooltip);
+    void add(const Tag::Type type, const Tag::Subtype subype, const int level, const QTextCursor & cursor, const QString & text, const QString & tooltip);
     unsigned int remove(int offset, int len);
     const QVector<Tag> & getTags() const;
     QVector<Tag>::const_iterator begin() const;

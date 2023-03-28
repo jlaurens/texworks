@@ -27,9 +27,13 @@ namespace Tw {
 namespace Document {
 
 //TODO: Next should move to TWString. (linker problem)
-const QString Tag::TypeName::Unknown = QStringLiteral("Unknown");//
+const QString Tag::TypeName::Unknown  = QStringLiteral("Unknown");//
 const QString Tag::TypeName::Bookmark = QStringLiteral("Bookmark");
-const QString Tag::TypeName::Outline = QStringLiteral("Outline");
+const QString Tag::TypeName::Outline  = QStringLiteral("Outline");
+
+const QString Tag::SubtypeName::Unknown = QStringLiteral("Unknown");//
+const QString Tag::SubtypeName::MARK    = QStringLiteral("MARK");
+const QString Tag::SubtypeName::TODO    = QStringLiteral("TODO");
 
 Tag::Type Tag::typeForName(const QString &name) {
     if (name == Tag::TypeName::Outline) {
@@ -51,6 +55,26 @@ const QString Tag::nameForType(Tag::Type type) {
     return Tag::TypeName::Unknown;
 }
 
+Tag::Subtype Tag::subtypeForName(const QString &name) {
+    if (name == Tag::SubtypeName::MARK) {
+        return Tag::Subtype::MARK;
+    }
+    if (name == Tag::SubtypeName::TODO) {
+        return Tag::Subtype::TODO;
+    }
+    return Subtype::Unknown;
+}
+
+const QString Tag::nameForSubtype(Tag::Subtype subtype) {
+    if (subtype == Tag::Subtype::MARK) {
+        return Tag::SubtypeName::MARK;
+    }
+    if (subtype == Tag::Subtype::TODO) {
+        return Tag::SubtypeName::TODO;
+    }
+    return Tag::SubtypeName::Unknown;
+}
+
 // name of a capture group
 static const QString constKeyContent = QStringLiteral("content");
 static const QString constKeyType = QStringLiteral("type");
@@ -65,7 +89,7 @@ const Tag * TagArray::get_p(const int index) const
     return 0 <= index && index < __tags.count() ? &(__tags[index]) : nullptr;
 }
 
-void TagArray::add(const Tag::Type type, const int level, const QTextCursor & c, const QString & text, const QString & tooltip)
+void TagArray::add(const Tag::Type type, const Tag::Subtype subtype, const int level, const QTextCursor & c, const QString & text, const QString & tooltip)
 {
     QTextCursor cursor = QTextCursor(c);
     cursor.movePosition(QTextCursor::StartOfBlock);
@@ -74,7 +98,7 @@ void TagArray::add(const Tag::Type type, const int level, const QTextCursor & c,
     while(it != __tags.rend() && it->cursor.position() > position) {
         ++it;
     }
-    __tags.insert(it.base(), {type, level, cursor, text, tooltip});
+    __tags.insert(it.base(), {type, subtype, level, cursor, text, tooltip});
     emit changed();
 }
 
@@ -149,7 +173,7 @@ const QVector<Tag> & TextDocument::getTags() const
 
 void TextDocument::addTag(const QTextCursor & c, const int level, const QString & text)
 {
-    _tagArray.add(Tag::Type::Bookmark, level, c, text, QString());
+    _tagArray.add(Tag::Type::Bookmark, Tag::Subtype::Unknown, level, c, text, QString());
     emit tagsChanged();
 }
 
@@ -165,16 +189,17 @@ void TextDocument::addTag(const Tag::Type type, const int level, const int index
     } else {
         tooltip = match.captured(0);
     }
-    // QString typeText = match.captured(constKeyType);
     QTextCursor cursor(this);
     cursor.setPosition(index);
     cursor.setPosition(index + length, QTextCursor::KeepAnchor);
     cursor.movePosition(QTextCursor::StartOfBlock);
-    _tagArray.add(type, level, cursor, tagText, tooltip);
+    QString subtypeText = match.captured(constKeyType);
+    auto const subtype = Tag::subtypeForName(subtypeText);
+    _tagArray.add(type, subtype, level, cursor, tagText, tooltip);
     if (type == Tag::Type::Bookmark) {
-        _bookmarkArray.add(type, level, cursor, tagText, tooltip);
+        _bookmarkArray.add(type, subtype, level, cursor, tagText, tooltip);
     } else {
-        _outlineArray.add(type, level, cursor, tagText, tooltip);
+        _outlineArray.add(type, subtype, level, cursor, tagText, tooltip);
     }
     emit tagsChanged();
 }

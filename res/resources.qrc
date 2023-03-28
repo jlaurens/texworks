@@ -47,8 +47,14 @@
 		<file>icons/tango-texworks/actions/32x32@2/list-remove.png</file>
 		<file>icons/tango-texworks/actions/32x32@2/process-start.png</file>
 		<file>icons/tango-texworks/actions/32x32@2/process-stop.png</file>
-		<file>icons/tango-texworks/categories/32x32/preferences-system.png</file>
-		<file>icons/tango-texworks/categories/32x32@2/preferences-system.png</file>
+        <file>icons/tango-texworks/categories/32x32/preferences-system.png</file>
+        <file>icons/tango-texworks/categories/32x32@2/preferences-system.png</file>
+        <file>icons/tango-texworks/actions/32x32/Outline.png</file>
+        <file>icons/tango-texworks/actions/32x32/TODO.png</file>
+        <file>icons/tango-texworks/actions/32x32/MARK.png</file>
+        <file>icons/tango-texworks/actions/32x32@2/Outline.png</file>
+        <file>icons/tango-texworks/actions/32x32@2/TODO.png</file>
+        <file>icons/tango-texworks/actions/32x32@2/MARK.png</file>
 	</qresource>
 	<qresource prefix="/images">
 		<file>images/TeXworks.png</file>
