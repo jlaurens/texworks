@@ -44,8 +44,14 @@ mediumorchid	N	\\usepackage\s*(?:\[[^\]]*\]\s*)?\{[^\}]*\}
 # control sequences
 royalblue	N	\\(?:[\p{L}@]+|.)
 
+# TODO comments
+orange;B        Y    ^%TODO:.*
+
+# MARK comments
+green;B        Y    ^%MARK:.*
+
 # comments
-gray		Y	%.*
+gray        Y    %.*
 
 [ConTeXt]
 # special characters
