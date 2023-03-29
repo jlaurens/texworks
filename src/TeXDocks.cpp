@@ -467,7 +467,7 @@ void TeXDockTree::makeNewItem(QTreeWidgetItem * &item_p,
     __::setItemLevel(item_p, level);
     item_p->setText(0, tag_p->text);
     if (!tag_p->tooltip.isEmpty()) {
-        item_p->setData(0, Qt::ToolTipRole, tag_p->tooltip);
+        item_p->setToolTip(0, tag_p->tooltip);
     }
 }
 
@@ -710,8 +710,8 @@ void TeXDockTag::makeNewItem(QTreeWidgetItem * &item_p,
         item_p->setIcon(1, Tw::Icon::MARK());
     }
     if (!tag_p->tooltip.isEmpty()) {
-        item_p->setData(0, Qt::ToolTipRole, tag_p->tooltip);
-        item_p->setData(1, Qt::ToolTipRole, tag_p->tooltip);
+        item_p->setToolTip(0, tag_p->tooltip);
+        item_p->setToolTip(1, tag_p->tooltip);
     }
 }
 
@@ -839,8 +839,8 @@ void TeXDockBookmark::makeNewItem(QTreeWidgetItem * &item_p,
     __::setItemOutlineLevel(item_p, __::kMinLevel);
     item_p->setText(0, tag_p->text);
     if (!tag_p->tooltip.isEmpty()) {
-        item_p->setData(0, Qt::ToolTipRole, tag_p->tooltip);
-        item_p->setData(1, Qt::ToolTipRole, tag_p->tooltip);
+        item_p->setToolTip(0, tag_p->tooltip);
+        item_p->setToolTip(1, tag_p->tooltip);
     }
     if (tag_p->subtype == Tw::Document::Tag::Subtype::TODO) {
         item_p->setIcon(1, Tw::Icon::TODO());
