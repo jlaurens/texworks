@@ -75,6 +75,12 @@ const QString Tag::nameForSubtype(Tag::Subtype subtype) {
     return Tag::SubtypeName::Unknown;
 }
 
+bool Tag::operator==(Tag &rhs)
+{
+    return cursor == rhs.cursor;
+}
+
+//MARK: TagArray
 // name of a capture group
 static const QString constKeyContent = QStringLiteral("content");
 static const QString constKeyType = QStringLiteral("type");
@@ -93,9 +99,8 @@ void TagArray::add(const Tag::Type type, const Tag::Subtype subtype, const int l
 {
     QTextCursor cursor = QTextCursor(c);
     cursor.movePosition(QTextCursor::StartOfBlock);
-    int position = cursor.position();
     auto it = __tags.rbegin();
-    while(it != __tags.rend() && it->cursor.position() > position) {
+    while(it != __tags.rend() && it->cursor > cursor) {
         ++it;
     }
     __tags.insert(it.base(), {type, subtype, level, cursor, text, tooltip});
@@ -162,6 +167,7 @@ bool TagArray::empty() const
     return __tags.empty();
 }
 
+//MARK: TextDocument
 TextDocument::TextDocument(QObject * parent) : QTextDocument(parent) { }
 
 TextDocument::TextDocument(const QString & text, QObject * parent) : QTextDocument(text, parent) { }

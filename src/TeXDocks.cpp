@@ -31,78 +31,92 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QDebug>
+#include <QProxyStyle>
+
+/// \note all static material is gathered here
+namespace __ {
 
 static int kMinLevel = std::numeric_limits<int>::min();
 
 enum Role {
-    kTagIndexRole = Qt::UserRole,
+    kTagRole = Qt::UserRole,
+    kTagIndexRole,
     kLevelRole,
     kBookmarkLevelRole,
     kOutlineLevelRole,
 };
+static const Tw::Document::Tag *getItemTag_p(const QTreeWidgetItem *item_p) {
+    if (item_p) {
+        QVariant v = item_p->data(0, __::kTagRole);
+        if (v.isValid()) {
+            return static_cast<const Tw::Document::Tag *>(v.value<const void *>());
+        }
+    }
+    return nullptr;
+}
+static void setItemTag(QTreeWidgetItem *item_p, const Tw::Document::Tag *tag_p) {
+    if (item_p) {
+        QVariant v = QVariant::fromValue(static_cast<const void*>(tag_p));
+        item_p->setData(0, __::kTagRole, v);
+    }
+}
 static int getItemTagIndex(const QTreeWidgetItem * item_p) {
     if (item_p) {
-        QVariant v = item_p->data(0, kTagIndexRole);
+        QVariant v = item_p->data(0, __::kTagIndexRole);
         if (v.isValid()) {
             return v.toInt();
         }
     }
     return -1;
 }
-static void setItemTagIndex(QTreeWidgetItem * item_p, int &tagIndex) {
+static void setItemTagIndex(QTreeWidgetItem * item_p, int tagIndex) {
     if (item_p) {
-        item_p->setData(0, kTagIndexRole, tagIndex);
+        item_p->setData(0, __::kTagIndexRole, tagIndex);
     }
 }
-/*
-static Tw::Document::Tag::Type getItemType(QTreeWidgetItem * item_p) {
-    auto *tag_p = getItemTag_p(item_p);
-    return tag_p? tag_p->type : Tw::Document::Tag::Type::Unknown;
-}
- */
 static int getItemLevel(const QTreeWidgetItem * item_p) {
     if (item_p) {
-        QVariant v = item_p->data(0, kLevelRole);
-        return v.isValid() ? v.toInt() : kMinLevel; // safer with explicit isValid
+        QVariant v = item_p->data(0, __::kLevelRole);
+        return v.isValid() ? v.toInt() : __::kMinLevel; // safer with explicit isValid
     }
-    return kMinLevel;
+    return __::kMinLevel;
 }
 static bool setItemLevel(QTreeWidgetItem * item_p, const int level) {
     if (item_p) {
-        item_p->setData(0, kLevelRole, level);
+        item_p->setData(0, __::kLevelRole, level);
         return true;
     }
     return false;
 }
 static int getItemBookmarkLevel(const QTreeWidgetItem * item_p) {
     if (item_p) {
-        QVariant v = item_p->data(0, kBookmarkLevelRole);
-        return v.isValid() ? v.toInt() : kMinLevel; // safer with explicit isValid
+        QVariant v = item_p->data(0, __::kBookmarkLevelRole);
+        return v.isValid() ? v.toInt() : __::kMinLevel; // safer with explicit isValid
     }
-    return kMinLevel;
+    return __::kMinLevel;
 }
 static bool setItemBookmarkLevel(QTreeWidgetItem * item_p, const int level) {
     if (item_p) {
-        item_p->setData(0, kBookmarkLevelRole, level);
+        item_p->setData(0, __::kBookmarkLevelRole, level);
         return true;
     }
     return false;
 }
 static int getItemOutlineLevel(const QTreeWidgetItem * item_p) {
     if (item_p) {
-        QVariant v = item_p->data(0, kOutlineLevelRole);
-        return v.isValid() ? v.toInt() : kMinLevel; // safer with explicit isValid
+        QVariant v = item_p->data(0, __::kOutlineLevelRole);
+        return v.isValid() ? v.toInt() : __::kMinLevel; // safer with explicit isValid
     }
-    return kMinLevel;
+    return __::kMinLevel;
 }
 static bool setItemOutlineLevel(QTreeWidgetItem * item_p, const int level) {
     if (item_p) {
-        item_p->setData(0, kOutlineLevelRole, level);
+        item_p->setData(0, __::kOutlineLevelRole, level);
         return true;
     }
     return false;
 }
-
+} // namespace __
 TeXDock::TeXDock(const QString &title, TeXDocumentWindow * documentWindow_p)
 	: QDockWidget(title, documentWindow_p), documentWindow_p(documentWindow_p), updated(false)
 {
@@ -113,11 +127,56 @@ void TeXDock::onVisibilityChanged(bool visible)
 {
 	update(visible);
 }
+ //MARK: TeXDockTreeWidget
 
-TeXDockTreeWidget::TeXDockTreeWidget(QWidget* parent)
-	: QTreeWidget(parent)
+// See https://stackoverflow.com/questions/7596584/qtreeview-draw-drop-indicator
+class TeXDockTreeWidgetStyle: public QProxyStyle
+{
+    using Super = QProxyStyle;
+    
+public:
+    TeXDockTreeWidgetStyle(QStyle *style = nullptr);
+
+    void drawPrimitive(PrimitiveElement element,
+                       const QStyleOption *option,
+                       QPainter *painter,
+                       const QWidget *widget = nullptr ) const;
+};
+
+TeXDockTreeWidgetStyle::TeXDockTreeWidgetStyle(QStyle *style)
+     :QProxyStyle(style)
+{}
+//TODO: draw a thicker indicator
+void TeXDockTreeWidgetStyle::drawPrimitive(QStyle::PrimitiveElement element,
+                                           const QStyleOption *option_p,
+                                           QPainter *painter_p,
+                                           const QWidget *widget_p) const
+{
+    if (element == QStyle::PE_IndicatorItemViewItemDrop
+            && !option_p->rect.isNull()) {
+        if (option_p->rect.height() == 0) {
+            QStyleOption option(*option_p);
+            option.rect.setLeft(0);
+            if (widget_p) option.rect.setRight(widget_p->width());
+            QProxyStyle::drawPrimitive(element, &option, painter_p, widget_p);
+        }
+        return;
+    }
+    Super::drawPrimitive(element, option_p, painter_p, widget_p);
+}
+
+
+TeXDockTreeWidget::TeXDockTreeWidget(QWidget *parent_p)
+	: QTreeWidget(parent_p)
 {
 	setIndentation(10);
+    QStyle *oldStyle = style();
+    QObject *oldOwner = oldStyle ? oldStyle->parent() : nullptr;
+    QStyle *newStyle = new TeXDockTreeWidgetStyle(oldStyle);
+    // oldStyle is now owned by newStyle
+    newStyle->setParent(oldOwner ? oldOwner : this);
+    // newStyle has an owner now
+    setStyle(newStyle);
 }
 
 QSize TeXDockTreeWidget::sizeHint() const
@@ -125,7 +184,98 @@ QSize TeXDockTreeWidget::sizeHint() const
 	return QSize(180, 300);
 }
 
-// Bookmarks
+/*
+void TeXDockTreeWidget::dragMoveEvent(QDragMoveEvent *event_p)
+{
+    // QT5: After setDropIndicatorShown(false);
+    // dropIndicatorPosition() is always QAbstractItemView::InView
+    Super::dragMoveEvent(event_p);
+    return;
+ }
+*/
+
+void TeXDockTreeWidget::dropEvent(QDropEvent *event_p)
+{
+    // What
+    qDebug() << "DROP";
+    QModelIndex index = selectedIndexes().first();
+    if (!index.isValid()) {
+hell:
+        event_p->setDropAction(Qt::IgnoreAction);
+        Super::dropEvent(event_p);
+        return;
+    }
+    QTreeWidgetItem *fromItem_p = itemFromIndex(index);
+    if (!fromItem_p) {
+        goto hell;
+    }
+    index = indexAt(event_p->pos());
+    if (!index.isValid()) {  // just in case
+        goto hell;
+    }
+    QTreeWidgetItem *toItem_p = itemFromIndex(index);
+    if (!toItem_p) {
+        goto hell;
+    }
+    auto *sourceTag_p = __::getItemTag_p(fromItem_p);
+    if (!sourceTag_p || sourceTag_p->type != Tw::Document::Tag::Type::Outline) {
+        goto hell;
+    }
+    // source cursor
+    QTextCursor fromCursor(sourceTag_p->cursor);
+    auto document_p = static_cast<Tw::Document::TextDocument *>(fromCursor.document());
+    auto const &oulineArray = document_p->getOutlineArray();
+    fromCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    int tagIndex = __::getItemTagIndex(fromItem_p);
+    const Tw::Document::Tag *tag_p = nullptr;
+    while ((tag_p = oulineArray.get_p(++tagIndex))) {
+        if (tag_p->type == sourceTag_p->type && tag_p->level <= sourceTag_p->level) {
+            fromCursor.setPosition(tag_p->cursor.position(), QTextCursor::KeepAnchor);
+            break;
+        }
+    }
+    QTextCursor toCursor(fromCursor);
+    toCursor.beginEditBlock();
+    QRect R = visualItemRect(toItem_p);
+    QPoint C = R.center();
+    if (event_p->pos().y() > C.y()) {
+        if ((toItem_p = itemBelow(toItem_p))) {
+            if (!(tag_p = __::getItemTag_p(toItem_p))) {
+                toCursor.endEditBlock();
+                goto hell;
+            }
+            toCursor.setPosition(tag_p->cursor.position(), QTextCursor::MoveAnchor);
+        } else {
+            toCursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+            toCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+            if (toCursor.position() < toCursor.anchor()) {
+                toCursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+                toCursor.insertText(QString(QChar::LineFeed));
+                toCursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+            }
+        }
+    } else {
+        if (!(tag_p = __::getItemTag_p(toItem_p))) {
+            toCursor.endEditBlock();
+            goto hell;
+        }
+        toCursor.setPosition(tag_p->cursor.position(), QTextCursor::MoveAnchor);
+    }
+    if (toCursor.position() < fromCursor.anchor() || toCursor > fromCursor ) {
+        qDebug() << fromCursor.anchor() << fromCursor.position() << toCursor.position();
+        toCursor.insertText(fromCursor.selectedText());
+        fromCursor.removeSelectedText();
+        // Insert a new line ?
+        toCursor.endEditBlock();
+        Super::dropEvent(event_p);
+        return;
+    } else {
+        toCursor.endEditBlock();
+        goto hell;
+    }
+}
+
+//MARK: TeXDockTree
 
 /// \author JL
 TeXDockTree::TeXDockTree(const QString &title, TeXDocumentWindow * win)
@@ -176,7 +326,7 @@ void TeXDockTree::initUI()
 
 const Tw::Document::Tag *TeXDockTree::getTagForItem_p(const QTreeWidgetItem *item_p) {
     auto const &tagArray = getTagArray();
-    auto tagIndex = getItemTagIndex(item_p);
+    auto tagIndex = __::getItemTagIndex(item_p);
     return tagArray.get_p(tagIndex);
 }
 
@@ -207,7 +357,7 @@ void TeXDockTree::itemGainedFocus()
 {
     if (_dontFollowItemSelection) return;
     auto *treeWidget_p = findChild<TeXDockTreeWidget *>();
-    Q_ASSERT(!treeWidget_p);
+    Q_ASSERT(treeWidget_p);
     auto items = treeWidget_p->selectedItems();
     if (items.count() > 0) {
         auto item_p = items.first();
@@ -230,7 +380,7 @@ QTreeWidgetItem *TeXDockTree::getItemAtIndex(const int tagIndex)
         while (i--) {
             items.prepend(item_p->child(i));
         }
-        if (getItemTagIndex(item_p) == tagIndex) {
+        if (__::getItemTagIndex(item_p) == tagIndex) {
             return item_p;
         }
     }
@@ -305,20 +455,22 @@ void TeXDockTree::onCursorPositionChanged()
     }
 }
 
-void TeXDockTree::makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag)
+void TeXDockTree::makeNewItem(QTreeWidgetItem * &item_p,
+                              QTreeWidget *treeWidget_p,
+                              const Tw::Document::Tag *tag_p)
 {
-    const int level = tag.level;
-    while (item_p && getItemLevel(item_p) >= level)
+    const int level = tag_p->level;
+    while (item_p && __::getItemLevel(item_p) >= level)
         item_p = item_p->parent();
     if (item_p) {
         item_p = new QTreeWidgetItem(item_p, QTreeWidgetItem::UserType);
     } else {
         item_p = new QTreeWidgetItem(treeWidget_p, QTreeWidgetItem::UserType);
     }
-    setItemLevel(item_p, level);
-    item_p->setText(0, tag.text);
-    if (!tag.tooltip.isEmpty()) {
-        item_p->setData(0, Qt::ToolTipRole, tag.tooltip);
+    __::setItemLevel(item_p, level);
+    item_p->setText(0, tag_p->text);
+    if (!tag_p->tooltip.isEmpty()) {
+        item_p->setData(0, Qt::ToolTipRole, tag_p->tooltip);
     }
 }
 
@@ -337,9 +489,11 @@ void TeXDockTree::update(bool force)
     } else {
         QTreeWidgetItem *item_p = nullptr;
         int index = 0;
-        for (auto tag: tagArray) {
-            makeNewItem(item_p, treeWidget_p, tag);
-            setItemTagIndex(item_p, index);
+        const Tw::Document::Tag *tag_p;
+        while((tag_p = tagArray.get_p(index))) {
+            makeNewItem(item_p, treeWidget_p, tag_p);
+            __::setItemTag(item_p, tag_p);
+            __::setItemTagIndex(item_p, index);
             item_p->setSelected(index == tagArray.getCurrentIndex());
             treeWidget_p->expandItem(item_p);
             ++index;
@@ -374,18 +528,6 @@ void TeXDockTree::find(const QString &find)
         } else {
             anchor = documentWindow_p->editor()->textCursor().selectionEnd();
         }
-//        if (dest.isEmpty()) {
-//            anchor = documentWindow_p->editor()->textCursor().selectionEnd();
-//        } else {
-//            auto *tag_p = getTagArray().get_p(dest.toInt());
-//            if (tag_p) {
-//                QTextCursor c(tag_p->cursor);
-//                c.movePosition(QTextCursor::EndOfBlock);
-//                anchor = c.position();
-//            } else {
-//                anchor = documentWindow_p->editor()->textCursor().selectionEnd();
-//            }
-//        }
     } else {
         anchor = documentWindow_p->editor()->textCursor().selectionEnd();
     }
@@ -468,7 +610,7 @@ void TeXDockTag::initUI()
 {
     Super::initUI();
     auto *treeWidget_p = findChild<TeXDockTreeWidget *>();
-    Q_ASSERT(!treeWidget_p);
+    Q_ASSERT(treeWidget_p);
     treeWidget_p->setColumnCount(2);
     treeWidget_p->header()->setStretchLastSection(false);
     treeWidget_p->header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -515,7 +657,7 @@ void TeXDockTag::initUI()
                     cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
                     cursor.insertText(QString());
                     if (currentTagIndex < 0) {
-                        currentTagIndex = getItemTagIndex(item_p);
+                        currentTagIndex = __::getItemTagIndex(item_p);
                     }
                 }
             }
@@ -536,40 +678,43 @@ void TeXDockTag::initUI()
 /// Each item has both an outline level and a bookmark level.
 /// The bookmark level of an outline item is always kMinLevel.
 /// The outline level of a boorkmark item is its parent's one or kMinLevel whan at top.
-void TeXDockTag::makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag)
+void TeXDockTag::makeNewItem(QTreeWidgetItem * &item_p,
+                             QTreeWidget *treeWidget_p,
+                             const Tw::Document::Tag *tag_p)
 {
-    int outlineLevel = tag.level;
-    Q_ASSERT(outlineLevel > kMinLevel);
-    int bookmarkLevel = kMinLevel;
-    if (tag.type == Tw::Document::Tag::Type::Outline) {
-        while (getItemOutlineLevel(item_p) >= outlineLevel || getItemBookmarkLevel(item_p) > bookmarkLevel) {
+    Q_ASSERT(tag_p);
+    int outlineLevel = tag_p->level;
+    Q_ASSERT(outlineLevel > __::kMinLevel);
+    int bookmarkLevel = __::kMinLevel;
+    if (tag_p->type == Tw::Document::Tag::Type::Outline) {
+        while (__::getItemOutlineLevel(item_p) >= outlineLevel || __::getItemBookmarkLevel(item_p) > bookmarkLevel) {
             item_p = item_p->parent();
         }
     } else {
         bookmarkLevel = outlineLevel;
-        while (getItemBookmarkLevel(item_p) >= bookmarkLevel) {
+        while (__::getItemBookmarkLevel(item_p) >= bookmarkLevel) {
             item_p = item_p->parent();
         }
-        outlineLevel = getItemOutlineLevel(item_p);
+        outlineLevel = __::getItemOutlineLevel(item_p);
     }
     if (item_p) {
         item_p = new QTreeWidgetItem(item_p, QTreeWidgetItem::UserType);
     } else {
         item_p = new QTreeWidgetItem(treeWidget_p, QTreeWidgetItem::UserType);
     }
-    setItemOutlineLevel(item_p, outlineLevel);
-    setItemBookmarkLevel(item_p, bookmarkLevel);
-    item_p->setText(0, tag.text);
-    if (tag.type == Tw::Document::Tag::Type::Outline) {
+    __::setItemOutlineLevel(item_p, outlineLevel);
+    __::setItemBookmarkLevel(item_p, bookmarkLevel);
+    item_p->setText(0, tag_p->text);
+    if (tag_p->type == Tw::Document::Tag::Type::Outline) {
         item_p->setIcon(1, Tw::Icon::Outline());
-    } else if (tag.subtype == Tw::Document::Tag::Subtype::TODO) {
+    } else if (tag_p->subtype == Tw::Document::Tag::Subtype::TODO) {
         item_p->setIcon(1, Tw::Icon::TODO());
-    } else if (tag.subtype == Tw::Document::Tag::Subtype::MARK) {
+    } else if (tag_p->subtype == Tw::Document::Tag::Subtype::MARK) {
         item_p->setIcon(1, Tw::Icon::MARK());
     }
-    if (!tag.tooltip.isEmpty()) {
-        item_p->setData(0, Qt::ToolTipRole, tag.tooltip);
-        item_p->setData(1, Qt::ToolTipRole, tag.tooltip);
+    if (!tag_p->tooltip.isEmpty()) {
+        item_p->setData(0, Qt::ToolTipRole, tag_p->tooltip);
+        item_p->setData(1, Qt::ToolTipRole, tag_p->tooltip);
     }
 }
 
@@ -610,7 +755,7 @@ void TeXDockBookmark::initUI()
 {
     Super::initUI();
     auto *treeWidget_p = findChild<TeXDockTreeWidget *>();
-    Q_ASSERT(!treeWidget_p);
+    Q_ASSERT(treeWidget_p);
     treeWidget_p->setColumnCount(2);
     treeWidget_p->header()->setStretchLastSection(false);
     treeWidget_p->header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -665,7 +810,7 @@ void TeXDockBookmark::initUI()
                     cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
                     cursor.insertText(QString());
                     if (currentTagIndex<0)
-                        currentTagIndex = getItemTagIndex(item_p);
+                        currentTagIndex = __::getItemTagIndex(item_p);
                 }
             }
             tagList.setCurrent(currentTagIndex);
@@ -680,25 +825,29 @@ void TeXDockBookmark::initUI()
     }
 }
 
-void TeXDockBookmark::makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag)
+void TeXDockBookmark::makeNewItem(QTreeWidgetItem * &item_p,
+                                  QTreeWidget *treeWidget_p,
+                                  const Tw::Document::Tag *tag_p)
 {
-    const int level = tag.level;
-    while (item_p && getItemLevel(item_p) >= level)
+    const int level = tag_p->level;
+    while (item_p && __::getItemLevel(item_p) >= level)
         item_p = item_p->parent();
     if (item_p) {
         item_p = new QTreeWidgetItem(item_p, QTreeWidgetItem::UserType);
     } else {
         item_p = new QTreeWidgetItem(treeWidget_p, QTreeWidgetItem::UserType);
     }
-    setItemLevel(item_p, level);
-    item_p->setText(0, tag.text);
-    if (!tag.tooltip.isEmpty()) {
-        item_p->setData(0, Qt::ToolTipRole, tag.tooltip);
-        item_p->setData(1, Qt::ToolTipRole, tag.tooltip);
+    __::setItemLevel(item_p, level);
+    __::setItemBookmarkLevel(item_p, level);
+    __::setItemOutlineLevel(item_p, __::kMinLevel);
+    item_p->setText(0, tag_p->text);
+    if (!tag_p->tooltip.isEmpty()) {
+        item_p->setData(0, Qt::ToolTipRole, tag_p->tooltip);
+        item_p->setData(1, Qt::ToolTipRole, tag_p->tooltip);
     }
-    if (tag.subtype == Tw::Document::Tag::Subtype::TODO) {
+    if (tag_p->subtype == Tw::Document::Tag::Subtype::TODO) {
         item_p->setIcon(1, Tw::Icon::TODO());
-    } else if (tag.subtype == Tw::Document::Tag::Subtype::MARK) {
+    } else if (tag_p->subtype == Tw::Document::Tag::Subtype::MARK) {
         item_p->setIcon(1, Tw::Icon::MARK());
     }
 }
@@ -712,6 +861,12 @@ TeXDockOutline::TeXDockOutline(TeXDocumentWindow * win)
     setObjectName(Tw::Name::Outlines);
     connect(&(getTagArray()), &Tw::Document::TagArray::changed, this, &TeXDockOutline::onTagArrayChanged);
     initUI();
+    auto *treeWidget_p = findChild<TeXDockTreeWidget *>();
+    Q_ASSERT(treeWidget_p);
+    treeWidget_p->setDragEnabled(true);
+    treeWidget_p->viewport()->setAcceptDrops(true);
+    treeWidget_p->setDropIndicatorShown(true);
+    treeWidget_p->setDragDropMode(QAbstractItemView::InternalMove);
 }
 
 Tw::Document::TagArray &TeXDockOutline::getMutableTagArray()
@@ -736,3 +891,15 @@ void TeXDockOutline::updateVoid()
     treeWidget_p->addTopLevelItem(item_p);
 }
 
+void TeXDockOutline::makeNewItem(QTreeWidgetItem * &item_p,
+                                 QTreeWidget *treeWidget_p,
+                                 const Tw::Document::Tag *tag_p)
+{
+    Super::makeNewItem(item_p, treeWidget_p, tag_p);
+    item_p->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsDragEnabled);
+    __::setItemBookmarkLevel(item_p, __::kMinLevel);
+    __::setItemOutlineLevel(item_p, __::getItemLevel(item_p));
+    if (item_p->parent()) {
+        item_p->parent()->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsDragEnabled|Qt::ItemIsDropEnabled);
+    }
+}

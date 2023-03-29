@@ -60,6 +60,22 @@ private slots:
 	void onVisibilityChanged(bool visible);
 };
 
+class TeXDockTreeWidget: public QTreeWidget
+{
+    Q_OBJECT
+
+    using Super = QTreeWidget;
+    
+public:
+    explicit TeXDockTreeWidget(QWidget * parent = nullptr);
+    ~TeXDockTreeWidget() override = default;
+
+    QSize sizeHint() const override;
+
+protected:
+    void dropEvent(QDropEvent *) override;
+};
+
 /// \author JL
 class TeXDockTree: public TeXDock
 {
@@ -85,7 +101,7 @@ private slots:
 
 protected:
     virtual void initUI();
-    virtual void makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag);
+    virtual void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *);
     int _lastScrollValue;
     bool _dontFollowItemSelection;
     virtual void updateVoid() = 0;
@@ -112,7 +128,7 @@ public:
 protected:
     void updateVoid() override;
     void initUI() override;
-    void makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag) override;
+    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) override;
 };
 
 class TeXDockBookmark: public TeXDockTree
@@ -130,13 +146,15 @@ public:
 protected:
     void updateVoid() override;
     void initUI() override;
-    void makeNewItem(QTreeWidgetItem * &item_p, QTreeWidget *treeWidget_p, Tw::Document::Tag &tag) override;
+    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) override;
 };
 
 class TeXDockOutline: public TeXDockTree
 {
     Q_OBJECT
 
+    using Super = TeXDockTree;
+    
 public:
     TeXDockOutline(TeXDocumentWindow *documentWindow_p = nullptr);
     ~TeXDockOutline() override = default;
@@ -145,17 +163,7 @@ public:
 
 protected:
     void updateVoid() override;
-};
-
-class TeXDockTreeWidget: public QTreeWidget
-{
-	Q_OBJECT
-
-public:
-	explicit TeXDockTreeWidget(QWidget * parent = nullptr);
-	~TeXDockTreeWidget() override = default;
-
-	QSize sizeHint() const override;
+    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) override;
 };
 
 #endif // TW_TEXDOCKS_H
