@@ -197,7 +197,6 @@ void TeXDockTreeWidget::dragMoveEvent(QDragMoveEvent *event_p)
 void TeXDockTreeWidget::dropEvent(QDropEvent *event_p)
 {
     // What
-    qDebug() << "DROP";
     QModelIndex index = selectedIndexes().first();
     if (!index.isValid()) {
 hell:
@@ -262,10 +261,8 @@ hell:
         toCursor.setPosition(tag_p->cursor.position(), QTextCursor::MoveAnchor);
     }
     if (toCursor.position() < fromCursor.anchor() || toCursor > fromCursor ) {
-        qDebug() << fromCursor.anchor() << fromCursor.position() << toCursor.position();
         toCursor.insertText(fromCursor.selectedText());
         fromCursor.removeSelectedText();
-        // Insert a new line ?
         toCursor.endEditBlock();
         Super::dropEvent(event_p);
         return;

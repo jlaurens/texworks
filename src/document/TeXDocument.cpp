@@ -102,12 +102,7 @@ QString TeXDocument::getRootFilePath() const
 }
 
 void TeXDocument::maybeUpdateModeLines(int position, int charsRemoved, int charsAdded)
-{
-    qDebug() << "UPDATE";
-    qDebug() << characterCount();
-    qDebug() << lastBlock().position() + lastBlock().length();
-    qDebug() << toPlainText().length();
-    
+{    
 	Q_UNUSED(charsRemoved)
 	Q_UNUSED(charsAdded)
 
