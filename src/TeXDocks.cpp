@@ -695,7 +695,16 @@ void TeXDockTag::makeNewItem(QTreeWidgetItem * &item_p,
         outlineLevel = __::getItemOutlineLevel(item_p);
     }
     if (item_p) {
+        bool bigStep = __::getItemOutlineLevel(item_p) + 1 < outlineLevel;
         item_p = new QTreeWidgetItem(item_p, QTreeWidgetItem::UserType);
+        //TODO: Next does not work on OSX Ventura.
+        if (bigStep) {
+            QFont font(item_p->font(1));
+            font.setBold(true);
+            QBrush b(Qt::red);
+            item_p->setForeground(0, b);
+            item_p->setFont(0, font);
+        }
     } else {
         item_p = new QTreeWidgetItem(treeWidget_p, QTreeWidgetItem::UserType);
     }
