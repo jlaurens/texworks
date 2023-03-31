@@ -84,7 +84,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   TWScriptManager.h
                   TWSynchronizer.h
                   TWIcon.h
-                  String.h
+                  TWString.h
                   TWUtils.h
                   TWVersion.h
                   InterProcessCommunicator.h
