@@ -19,7 +19,7 @@
     see <http://www.tug.org/texworks/>.
 */
 
-#include "TWString.h"
+#include "String.h"
 
 /// \author JL
 

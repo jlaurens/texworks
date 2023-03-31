@@ -230,10 +230,19 @@ void TestDocument::tags()
 	QSignalSpy spy(&doc, &Tw::Document::TextDocument::tagsChanged);
 #endif
 
-	Tw::Document::Tag tag1(Tw::Document::Tag::Type::Bookmark, Tw::Document::Tag::Subtype::Any, 0, QTextCursor(&doc), QStringLiteral("tag1"), QStringLiteral("tooltip1"));
+	Tw::Document::Tag tag1(Tw::Document::Tag::Type::Bookmark,
+                           Tw::Document::Tag::Subtype::Any,
+                           0,
+                           QTextCursor(&doc),
+                           QStringLiteral("tag1"),
+                           QStringLiteral("tooltip1"));
 	tag1.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 2);
 
-	Tw::Document::Tag tag2(Tw::Document::Tag::Type::Bookmark, Tw::Document::Tag::Subtype::Any, 0, QTextCursor(&doc), QStringLiteral("tag2"), QStringLiteral("tooltip2"));
+	Tw::Document::Tag tag2(Tw::Document::Tag::Type::Bookmark,
+                           Tw::Document::Tag::Subtype::Any,
+                           0, QTextCursor(&doc),
+                           QStringLiteral("tag2"),
+                           QStringLiteral("tooltip2"));
 	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, 2);
 	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1);
 
@@ -243,8 +252,8 @@ void TestDocument::tags()
 	doc.addTag(tag1.cursor, tag1.level, tag1.text);
 	QCOMPARE(spy.count(), 2);
 
-	QVector<Tw::Document::Tag> tags = doc.getTags();
-	QCOMPARE(tags, QVector<Tw::Document::Tag>() << tag1 << tag2);
+	QList<Tw::Document::Tag *> tagPs = doc.getTagPs();
+	QCOMPARE(tagPs, QList<Tw::Document::Tag *>() << &tag1 << &tag2);
 
 	spy.clear();
 	QCOMPARE(doc.removeTags(3, 5), 0u);

@@ -20,14 +20,13 @@
 */
 
 #include "String.h"
-#include "document/TextDocument.h"
 #include "document/Tag.h"
 #include <QDebug>
 
 namespace Tw {
 namespace Document {
 
-//TODO: Next should move to Tw::String. (linker problem)
+//TODO: Next should move to TWString. (linker problem)
 const QString Tag::TypeName::Any      = QStringLiteral("Any");
 const QString Tag::TypeName::Bookmark = QStringLiteral("Bookmark");
 const QString Tag::TypeName::Outline  = QStringLiteral("Outline");

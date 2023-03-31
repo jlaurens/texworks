@@ -18,8 +18,8 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef Document_TextDocument_H
-#define Document_TextDocument_H
+#ifndef TW_DOCUMENT_TAG_H
+#define TW_DOCUMENT_TAG_H
 
 #include "document/Document.h"
 
@@ -28,10 +28,11 @@
 #include <QTextDocument>
 #include <QRegularExpressionMatch>
 
+/// \brief
+
 namespace Tw {
 namespace Document {
 
-class ArrayTagP;
 class TextDocument;
 
 class Tag: public QObject {
@@ -71,17 +72,14 @@ public:
         const int,
         const QTextCursor &,
         const QString& text,
-        const QString& tooltip,
-        QObject *parent_p = nullptr);
+        const QString& tooltip);
     Tag(const Type,
         const int,
         const QTextCursor &,
-        const QRegularExpressionMatch &,
-        QObject *parent_p = nullptr);
+        const QRegularExpressionMatch);
     Tag(const QTextCursor &,
         const int level,
-        const QString &,
-        QObject *parent_p = nullptr);
+        const QString &);
     int  selectionStart() const { return __cursor.selectionStart();  };
     bool isOfType(Type t) const { return __type == t;                };
     bool isBookmark()     const { return __type == Type::Bookmark;   };
@@ -91,7 +89,7 @@ public:
     bool operator==(Tag &rhs)   { return __cursor == rhs.__cursor;   };
 };
 
-class ArrayTagP: QObject {
+class TagSuite: QObject {
     Q_OBJECT
     using Filter = std::function<bool(const Tag *)>; // to pick up only some tags
 private:
@@ -101,7 +99,7 @@ private:
     QTextCursor        __cursor; // selection
     Filter             __filter;
 public:
-    ArrayTagP(TextDocument *, Filter);
+    TagSuite(TextDocument *, Filter);
     bool isEmpty() const { return __tagPs.isEmpty(); };
     QList<const Tag *> getTagPs();
     void update(bool activate = false);
@@ -113,13 +111,12 @@ signals:
     void changed() const;
 };
 
-class TextDocument: public QTextDocument, public Document
+class TagBank: public QObject
 {
 	Q_OBJECT
 public:
-	explicit TextDocument(QObject * parent = nullptr);
-	explicit TextDocument(const QString & text, QObject * parent = nullptr);
-    QList<const Tag *> getListTag() const { return _listTagP; };
+	explicit TagBank(TextDocument * parent);
+    QList<const Tag *> getListTag() const { return _listTag; };
     void addTag(const Tag &);
     void addTag(const QTextCursor & c, const int level, const QString & text);
     void addTag(const Tag::Type type,
@@ -128,9 +125,9 @@ public:
                 const int length,
                 const QRegularExpressionMatch & match);
     unsigned int removeTags(int offset, int len);
-    ArrayTagP getArrayTagP()      const { return _arrayTagP; };
-    ArrayTagP getArrayBookmarkP() const { return _arrayBookmarkP; };
-    ArrayTagP getArrayOutlineP()  const { return _arrayOutlineP; };
+    TagSuite getSuiteTag()      const { return _suiteTag;      };
+    TagSuite getSuiteBookmark() const { return _suiteBookmark; };
+    TagSuite getSuiteOutline()  const { return _suiteOutline;  };
 
 signals:
     void tagsChanged() const;
@@ -138,10 +135,10 @@ signals:
     void outlinesChanged() const;
 
 protected:
-    QList<Tag *> _listTagPs;
-    ArrayTagP    _arrayTagP;
-    ArrayTagP    _arrayBookmarkP;
-    ArrayTagP    _arrayOutlineP;
+    QList<Tag *> _listTag;
+    TagSuite     _suiteTag;
+    TagSuite     _suiteBookmark;
+    TagSuite     _suiteOutline;
 };
 
 } // namespace Document
@@ -150,4 +147,4 @@ protected:
 Q_DECLARE_METATYPE(Tw::Document::Tag *) // for QVariant usage
 Q_DECLARE_METATYPE(const void *) // for QVariant usage
 
-#endif // !defined(Document_TextDocument_H)
+#endif // ifndef TW_DOCUMENT_TAG_H

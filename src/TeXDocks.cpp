@@ -22,8 +22,8 @@
 #include "TeXDocks.h"
 
 #include "TeXDocumentWindow.h"
-#include "TWString.h"
-#include "TWIcon.h"
+#include "String.h"
+#include "Icon.h"
 
 #include <QHeaderView>
 #include <QScrollBar>
