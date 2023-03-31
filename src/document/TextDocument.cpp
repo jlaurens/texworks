@@ -19,9 +19,9 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "String.h"
+#include "TWString.h"
 #include "document/TextDocument.h"
-#include "document/Tag.h"
+#include "document/TWTag.h"
 #include <QDebug>
 
 namespace Tw {

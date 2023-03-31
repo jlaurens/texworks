@@ -22,8 +22,8 @@
 #include "TeXDocks.h"
 
 #include "TeXDocumentWindow.h"
-#include "String.h"
-#include "Icon.h"
+#include "TWString.h"
+#include "TWIcon.h"
 
 #include <QHeaderView>
 #include <QScrollBar>
@@ -163,7 +163,7 @@ void TeXDockTree::initUI()
     topWidget_p->setLayout(topLayout_p);
     // the toolbar
     auto *toolbarWidget_p = new QWidget;
-    toolbarWidget_p->setObjectName(Tw::Name::toolbar);
+    toolbarWidget_p->setObjectName(Tw::ObjectName::toolbar);
     auto *toolbarLayout_p = new QHBoxLayout;
     toolbarLayout_p->setSpacing(0);
     toolbarLayout_p->setContentsMargins(0,0,0,0);
@@ -452,7 +452,7 @@ void TeXDockTag::initUI()
     treeWidget_p->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeWidget_p->header()->setSectionResizeMode(1, QHeaderView::Fixed);
     treeWidget_p->header()->resizeSection(1, 24);
-    auto *toolbarWidget_p = findChild<QWidget*>(Tw::Name::toolbar);
+    auto *toolbarWidget_p = findChild<QWidget*>(Tw::ObjectName::toolbar);
     Q_ASSERT(!toolbarWidget_p);
 //TODO: Edit tags in place
     auto *layout_p = static_cast<QBoxLayout *>(toolbarWidget_p->layout());
@@ -604,7 +604,7 @@ void TeXDockBookmark::initUI()
     treeWidget_p->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeWidget_p->header()->setSectionResizeMode(1, QHeaderView::Fixed);
     treeWidget_p->header()->resizeSection(1, 24);
-    auto *toolbarWidget_p = findChild<QWidget*>(Tw::Name::toolbar);
+    auto *toolbarWidget_p = findChild<QWidget*>(Tw::ObjectName::toolbar);
     Q_ASSERT(!toolbarWidget_p);
 //TODO: Edit tags in place
     /*

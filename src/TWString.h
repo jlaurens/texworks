@@ -19,21 +19,54 @@
     see <http://www.tug.org/texworks/>.
 */
 
-#include "String.h"
+/*! \brief Collection of static strings.
+ *
+ *  Literal strings are used only once in definitions to avoid typos.
+ *
+ */
 
-/// \author JL
+#ifndef TW_STRING_H
+#define TW_STRING_H
+
+#include <QString>
 
 namespace Tw {
 
-const QString TypeName::Bookmark = QStringLiteral("Bookmark");
-const QString TypeName::Outline  = QStringLiteral("Outline");
-const QString TypeName::Unknown  = QStringLiteral("Unknown");
-
-const QString Name::toolbar     = QStringLiteral("Tw.toolbar");
-const QString Name::list_add    = QStringLiteral("Tw.list_add");
-const QString Name::list_remove = QStringLiteral("Tw.list_remove");
-const QString Name::Tags        = QStringLiteral("Tw.Tags");
-const QString Name::Bookmarks   = QStringLiteral("Tw.Bookmarks");
-const QString Name::Outlines    = QStringLiteral("Tw.Outlines");
+/*! \brief For general purpose strings.
+ */
+namespace String {
 
 }
+
+/*! \brief QWidget object names.
+ */
+namespace ObjectName {
+
+extern const QString toolbar;
+extern const QString list_add;
+extern const QString list_remove;
+extern const QString Tags;
+extern const QString Bookmarks;
+extern const QString Outlines;
+
+}
+
+/*! \brief Type display names.
+ */
+struct TypeName {
+
+    static const QString Bookmark;
+    static const QString Outline;
+    static const QString Unknown;
+
+};
+
+/*! \brief Keys in maps and similar usage.
+ */
+namespace Key {
+
+
+}
+
+}
+#endif // TW_STRING_H

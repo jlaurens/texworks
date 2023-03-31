@@ -22,8 +22,8 @@ SOURCES = \
   "../src/TWScriptManager.cpp" \
   "../src/TWScriptableWindow.cpp" \
   "../src/TWSynchronizer.cpp" \
-  "../src/String.cpp" \
-  "../src/Icon.cpp" \
+  "../src/TWString.cpp" \
+  "../src/TWIcon.cpp" \
   "../src/TWUtils.cpp" \
   "../src/TeXDocks.cpp" \
   "../src/TeXDocumentWindow.cpp" \
@@ -33,7 +33,7 @@ SOURCES = \
   "../src/document/SpellChecker.cpp" \
   "../src/document/TeXDocument.cpp" \
   "../src/document/TextDocument.cpp" \
-  "../src/document/Tag.cpp" \
+  "../src/document/TWTag.cpp" \
   "../src/main.cpp" \
   "../src/scripting/ECMAScript.cpp" \
   "../src/scripting/ECMAScriptInterface.cpp" \
@@ -79,8 +79,8 @@ HEADERS = \
   "../src/TWScriptManager.h" \
   "../src/TWScriptableWindow.h" \
   "../src/TWSynchronizer.h" \
-  "../src/Icon.h" \
-  "../src/String.h" \
+  "../src/TWIcon.h" \
+  "../src/TWString.h" \
   "../src/TWUtils.h" \
   "../src/TWVersion.h" \
   "../src/TeXDocks.h" \
@@ -91,7 +91,7 @@ HEADERS = \
   "../src/document/SpellChecker.h" \
   "../src/document/TeXDocument.h" \
   "../src/document/TextDocument.h" \
-  "../src/document/Tag.h" \
+  "../src/document/TWTag.h" \
   "../src/scripting/JSScript.h" \
   "../src/scripting/JSScriptInterface.h" \
   "../src/scripting/Script.h" \

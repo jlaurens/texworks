@@ -29,14 +29,14 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   TWScriptableWindow.cpp
                   TWScriptManager.cpp
                   TWSynchronizer.cpp
-                  Icon.cpp
-                  String.cpp
+                  TWIcon.cpp
+                  TWString.cpp
                   TWUtils.cpp
                   document/Document.cpp
                   document/SpellChecker.cpp
                   document/TextDocument.cpp
                   document/TeXDocument.cpp
-                  document/Tag.cpp
+                  document/TWTag.cpp
                   scripting/ECMAScriptInterface.cpp
                   scripting/ECMAScript.cpp
                   scripting/ScriptAPI.cpp
@@ -83,7 +83,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   TWScriptableWindow.h
                   TWScriptManager.h
                   TWSynchronizer.h
-                  Icon.h
+                  TWIcon.h
                   String.h
                   TWUtils.h
                   TWVersion.h
@@ -92,7 +92,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   document/SpellChecker.h
                   document/TextDocument.h
                   document/TeXDocument.h
-                  document/Tag.h
+                  document/TWTag.h
                   scripting/ScriptAPIInterface.h
                   scripting/ScriptLanguageInterface.h
                   scripting/ScriptAPI.h
