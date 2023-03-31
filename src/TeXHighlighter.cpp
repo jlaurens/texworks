@@ -55,7 +55,7 @@ static QVector<TagPattern> &tagPatternArray()
                 TagPattern tagPattern;
                 bool ok{false};
                 tagPattern.type = Tw::Document::Tag::typeForName(parts[0]);
-                if (tagPattern.type != Tw::Document::Tag::Type::Unknown) {
+                if (tagPattern.type != Tw::Document::Tag::Type::Any) {
                     tagPattern.level = parts[1].toInt(&ok);
                     if (ok) {
                         tagPattern.pattern = QRegularExpression(parts[2]);
@@ -119,44 +119,45 @@ void loadSyntaxPatterns()
             QStringList parts = line.split(whitespace, SkipEmptyParts);
             if (parts.size() != 3)
                 continue;
-            QStringList styles = parts[0].split(QChar::fromLatin1(';'));
-            QStringList colors = styles[0].split(QChar::fromLatin1('/'));
-            QColor fg, bg;
-            if (colors.size() <= 2) {
-                if (colors.size() == 2)
-                    bg = QColor(colors[1]);
-                fg = QColor(colors[0]);
-            }
             HilightRule rule;
-            if (fg.isValid())
-                rule.format.setForeground(fg);
-            if (bg.isValid())
-                rule.format.setBackground(bg);
-            if (styles.size() > 1) {
-                if (styles[1].contains(QChar::fromLatin1('B')))
-                    rule.format.setFontWeight(QFont::Bold);
-                if (styles[1].contains(QChar::fromLatin1('I')))
-                    rule.format.setFontItalic(true);
-                if (styles[1].contains(QChar::fromLatin1('U')))
-                    rule.format.setFontUnderline(true);
-            }
-            if (parts[1].compare(QChar::fromLatin1('Y'), Qt::CaseInsensitive) == 0) {
-                rule.spellCheck = true;
-                rule.spellFormat = rule.format;
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-                // Using QTextCharFormat::SpellCheckUnderline causes
-                // problems for some fonts/font sizes (QTBUG-50499)
-                rule.spellFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-#else
-                rule.spellFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
-#endif
-                rule.spellFormat.setUnderlineColor(Qt::red);
-            }
-            else
-                rule.spellCheck = false;
             rule.pattern = QRegularExpression(parts[2]);
-            if (rule.pattern.isValid())
+            if (rule.pattern.isValid()) {
+                QStringList styles = parts[0].split(QChar::fromLatin1(';'));
+                QStringList colors = styles[0].split(QChar::fromLatin1('/'));
+                QColor fg, bg;
+                if (colors.size() <= 2) {
+                    if (colors.size() == 2)
+                        bg = QColor(colors[1]);
+                    fg = QColor(colors[0]);
+                }
+                if (fg.isValid())
+                    rule.format.setForeground(fg);
+                if (bg.isValid())
+                    rule.format.setBackground(bg);
+                if (styles.size() > 1) {
+                    if (styles[1].contains(QChar::fromLatin1('B')))
+                        rule.format.setFontWeight(QFont::Bold);
+                    if (styles[1].contains(QChar::fromLatin1('I')))
+                        rule.format.setFontItalic(true);
+                    if (styles[1].contains(QChar::fromLatin1('U')))
+                        rule.format.setFontUnderline(true);
+                }
+                if (parts[1].compare(QChar::fromLatin1('Y'), Qt::CaseInsensitive) == 0) {
+                    rule.spellCheck = true;
+                    rule.spellFormat = rule.format;
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+                    // Using QTextCharFormat::SpellCheckUnderline causes
+                    // problems for some fonts/font sizes (QTBUG-50499)
+                    rule.spellFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+#else
+                    rule.spellFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+#endif
+                    rule.spellFormat.setUnderlineColor(Qt::red);
+                }
+                else
+                    rule.spellCheck = false;
                 syntax.ruleList.append(rule);
+            }
         }
         if (syntax.ruleList.count() > 0)
             syntaxHilightList.append(syntax);

@@ -36,8 +36,8 @@ class TeXDocumentWindow;
 
 namespace Tw {
 namespace Document {
-class TagArray;
-struct Tag;
+class ArrayTagP;
+class Tag;
 }
 }
 
@@ -46,15 +46,15 @@ class TeXDock: public QDockWidget
 	Q_OBJECT
 
 public:
-	TeXDock(const QString & title, TeXDocumentWindow *documentWindow_p = nullptr);
+	TeXDock(const QString & title, TeXDocumentWindow *window_p = nullptr);
 	~TeXDock() override = default;
 
 protected:
 	virtual void update(bool force) = 0;
 
-	TeXDocumentWindow *documentWindow_p;
+	TeXDocumentWindow *_window_p;
 
-	bool updated;
+	bool _updated;
 
 private slots:
 	void onVisibilityChanged(bool visible);
@@ -82,14 +82,13 @@ class TeXDockTree: public TeXDock
     Q_OBJECT
 
 public:
-    TeXDockTree(const QString & title, TeXDocumentWindow *documentWindow_p = nullptr);
+    TeXDockTree(const QString & title, TeXDocumentWindow *window_p = nullptr);
     ~TeXDockTree() override = default;
-    virtual Tw::Document::TagArray &getMutableTagArray() = 0;
-    virtual const Tw::Document::TagArray &getTagArray() const = 0;
+    virtual Tw::Document::ArrayTagP &getArrayTagP() const = 0;
 
 public slots:
     void observeCursorPositionChanged(bool yorn);
-    void onTagArrayChanged();
+    void onListTagPChanged();
 
 protected slots:
     void itemGainedFocus();
@@ -101,16 +100,14 @@ private slots:
 
 protected:
     virtual void initUI();
-    virtual void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *);
+    virtual TeXDockTreeWidget *newTreeWidget(QWidget *parent_p);
+    virtual void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) const;
     int _lastScrollValue;
     bool _dontFollowItemSelection;
     virtual void updateVoid() = 0;
     void hilightTagAt(const QTextCursor & cursor);
     QTreeWidgetItem *getItemAtIndex(const int tagIndex);
-    const Tw::Document::Tag *getTagForItem_p(const QTreeWidgetItem *item_p);
-    QTreeWidgetItem *getItemForCursor(const QTextCursor &cursor);
-    void selectItem(QTreeWidgetItem *item_p, bool dontFollowItemSelection);
-    void selectItemForCursor(const QTextCursor &cursor, bool dontFollowItemSelection);
+    void selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection);
 };
 
 class TeXDockTag: public TeXDockTree
@@ -120,15 +117,15 @@ class TeXDockTag: public TeXDockTree
     using Super = TeXDockTree;
     
 public:
-    TeXDockTag(TeXDocumentWindow *documentWindow_p = nullptr);
+    TeXDockTag(TeXDocumentWindow *window_p = nullptr);
     ~TeXDockTag() override = default;
-    Tw::Document::TagArray & getMutableTagArray() override;
-    const Tw::Document::TagArray & getTagArray() const override;
+    Tw::Document::ArrayTagP & getMutableListTagP() override;
+    Tw::Document::ArrayTagP & getArrayTagP() const override;
 
 protected:
     void updateVoid() override;
     void initUI() override;
-    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) override;
+    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) const override;
 };
 
 class TeXDockBookmark: public TeXDockTree
@@ -138,15 +135,28 @@ class TeXDockBookmark: public TeXDockTree
     using Super = TeXDockTree;
     
 public:
-    TeXDockBookmark(TeXDocumentWindow *documentWindow_p = nullptr);
+    TeXDockBookmark(TeXDocumentWindow *window_p = nullptr);
     ~TeXDockBookmark() override = default;
-    Tw::Document::TagArray & getMutableTagArray() override;
-    const Tw::Document::TagArray & getTagArray() const override;
+    Tw::Document::ArrayTagP & getArrayTagP() const override;
 
 protected:
     void updateVoid() override;
     void initUI() override;
-    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) override;
+    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) const override;
+};
+
+class TeXDockOutlineWidget: public TeXDockTreeWidget
+{
+    Q_OBJECT
+
+    using Super = TeXDockTreeWidget;
+    
+public:
+    explicit TeXDockOutlineWidget(QWidget * parent = nullptr);
+    ~TeXDockOutlineWidget() override = default;
+
+protected:
+    void dropEvent(QDropEvent *) override;
 };
 
 class TeXDockOutline: public TeXDockTree
@@ -156,14 +166,14 @@ class TeXDockOutline: public TeXDockTree
     using Super = TeXDockTree;
     
 public:
-    TeXDockOutline(TeXDocumentWindow *documentWindow_p = nullptr);
+    TeXDockOutline(TeXDocumentWindow *window_p = nullptr);
     ~TeXDockOutline() override = default;
-    Tw::Document::TagArray &getMutableTagArray() override;
-    const Tw::Document::TagArray &getTagArray() const override;
+    Tw::Document::ArrayTagP &getArrayTagP() const override;
 
 protected:
     void updateVoid() override;
-    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) override;
+    TeXDockTreeWidget *newTreeWidget(QWidget *parent_p) override;
+    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) const override;
 };
 
 #endif // TW_TEXDOCKS_H

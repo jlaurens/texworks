@@ -132,7 +132,7 @@ namespace Tw {
 namespace Document {
 
 bool operator==(const Tag & t1, const Tag & t2) {
-	return (t1.cursor == t2.cursor && t1.level == t2.level && t1.text == t2.text);
+	return (t1.cursor() == t2.cursor() && t1.level() == t2.level() && t1.text() == t2.text() && t1.tooltip() == tooltip.text());
 }
 
 } // namespace Document
@@ -230,10 +230,10 @@ void TestDocument::tags()
 	QSignalSpy spy(&doc, &Tw::Document::TextDocument::tagsChanged);
 #endif
 
-	Tw::Document::Tag tag1{Tw::Document::Tag::Type::Bookmark, Tw::Document::Tag::Subtype::Unknown, 0, QTextCursor(&doc), QStringLiteral("tag1"), QStringLiteral("tooltip1")};
+	Tw::Document::Tag tag1(Tw::Document::Tag::Type::Bookmark, Tw::Document::Tag::Subtype::Any, 0, QTextCursor(&doc), QStringLiteral("tag1"), QStringLiteral("tooltip1"));
 	tag1.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 2);
 
-	Tw::Document::Tag tag2{Tw::Document::Tag::Type::Bookmark, Tw::Document::Tag::Subtype::Unknown, 0, QTextCursor(&doc), QStringLiteral("tag2"), QStringLiteral("tooltip2")};
+	Tw::Document::Tag tag2(Tw::Document::Tag::Type::Bookmark, Tw::Document::Tag::Subtype::Any, 0, QTextCursor(&doc), QStringLiteral("tag2"), QStringLiteral("tooltip2"));
 	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, 2);
 	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1);
 
