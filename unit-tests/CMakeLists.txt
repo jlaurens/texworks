@@ -90,16 +90,17 @@ endif (APPLE)
 
 # Document
 add_executable(test_Document
-	Document_test.cpp
-	Document_test.h
-	"${CMAKE_SOURCE_DIR}/src/document/Document.cpp"
-	"${CMAKE_SOURCE_DIR}/src/document/SpellChecker.cpp"
-	"${CMAKE_SOURCE_DIR}/src/document/TeXDocument.cpp"
-	"${CMAKE_SOURCE_DIR}/src/document/TeXDocument.h"
-	"${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"
-	"${CMAKE_SOURCE_DIR}/src/TWSynchronizer.cpp"
-	"${CMAKE_SOURCE_DIR}/src/TWSynchronizer.h"
-	"${CMAKE_SOURCE_DIR}/src/TeXHighlighter.h"
+    Document_test.cpp
+    Document_test.h
+    "${CMAKE_SOURCE_DIR}/src/document/Document.cpp"
+    "${CMAKE_SOURCE_DIR}/src/document/SpellChecker.cpp"
+    "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.cpp"
+    "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.h"
+    "${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"
+    "${CMAKE_SOURCE_DIR}/src/document/TWTag.cpp"
+    "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.cpp"
+    "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.h"
+    "${CMAKE_SOURCE_DIR}/src/TeXHighlighter.h"
 )
 target_compile_options(test_Document PRIVATE ${WARNING_OPTIONS})
 if (WITH_POPPLERQT)

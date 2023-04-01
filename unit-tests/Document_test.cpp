@@ -128,16 +128,6 @@ const QStringList ResourcesLibrary::getLibraryPaths(const QString & subdir, cons
 } // namespace Utils
 } // namespace Tw
 
-namespace Tw {
-namespace Document {
-
-bool operator==(const Tag & t1, const Tag & t2) {
-	return (t1.cursor() == t2.cursor() && t1.level() == t2.level() && t1.text() == t2.text() && t1.tooltip() == tooltip.text());
-}
-
-} // namespace Document
-} // namespace Tw
-
 namespace UnitTest {
 
 void TestDocument::isPDFfile_data()
@@ -219,48 +209,6 @@ void TestDocument::absoluteFilePath()
 	QCOMPARE(doc.absoluteFilePath(), QString());
 	doc.setFileInfo(fi);
 	QCOMPARE(doc.absoluteFilePath(), fi.absoluteFilePath());
-}
-
-void TestDocument::tags()
-{
-	Tw::Document::TextDocument doc(QStringLiteral("Hello World"));
-#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
-	QSignalSpy spy(&doc, SIGNAL(tagsChanged()));
-#else
-	QSignalSpy spy(&doc, &Tw::Document::TextDocument::tagsChanged);
-#endif
-
-	Tw::Document::Tag tag1(Tw::Document::Tag::Type::Bookmark,
-                           Tw::Document::Tag::Subtype::Any,
-                           0,
-                           QTextCursor(&doc),
-                           QStringLiteral("tag1"),
-                           QStringLiteral("tooltip1"));
-	tag1.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 2);
-
-	Tw::Document::Tag tag2(Tw::Document::Tag::Type::Bookmark,
-                           Tw::Document::Tag::Subtype::Any,
-                           0, QTextCursor(&doc),
-                           QStringLiteral("tag2"),
-                           QStringLiteral("tooltip2"));
-	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, 2);
-	tag2.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1);
-
-	QVERIFY(spy.isValid());
-	QVERIFY(doc.getTags().isEmpty());
-	doc.addTag(tag2.cursor, tag2.level, tag2.text);
-	doc.addTag(tag1.cursor, tag1.level, tag1.text);
-	QCOMPARE(spy.count(), 2);
-
-	QList<Tw::Document::Tag *> tagPs = doc.getTagPs();
-	QCOMPARE(tagPs, QList<Tw::Document::Tag *>() << &tag1 << &tag2);
-
-	spy.clear();
-	QCOMPARE(doc.removeTags(3, 5), 0u);
-	QCOMPARE(spy.count(), 0);
-
-	QCOMPARE(doc.removeTags(0, 1), 1u);
-	QCOMPARE(spy.count(), 1);
 }
 
 void TestDocument::getHighlighter()

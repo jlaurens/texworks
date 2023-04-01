@@ -240,12 +240,12 @@ void TeXHighlighter::highlightBlock(const QString &text)
 		spellCheckRange(text, charPos, text.length(), spellFormat);
 
 	if (texDoc) {
-		texDoc->removeTags(currentBlock().position(), currentBlock().length());
+		texDoc->tagBank()->removeTags(currentBlock().position(), currentBlock().length());
 		if (isTagging) {
 			QString::size_type index = 0;
 			while (index < text.length()) {
 				QString::size_type firstIndex{std::numeric_limits<QString::size_type>::max()}, len{0};
-                auto type = Tw::Document::Tag::Type::Unknown;
+                auto type = Tw::Document::Tag::Type::Any;
                 int level = 0;
 				QRegularExpressionMatch firstMatch;
                 for (auto patt: tagPatternArray()) {
@@ -258,11 +258,11 @@ void TeXHighlighter::highlightBlock(const QString &text)
 					}
 				}
 				if (firstMatch.hasMatch() && (len = firstMatch.capturedLength()) > 0) {
-                    texDoc->addTag(type,
-                                   level,
-                                   currentBlock().position() + firstIndex,
-                                   len,
-                                   firstMatch);
+                    texDoc->tagBank()->addTag(type,
+                                              level,
+                                              currentBlock().position() + firstIndex,
+                                              len,
+                                              firstMatch);
 					index = firstIndex + len;
 				}
 				else

@@ -27,6 +27,7 @@ Bookmark  3  ^%\^\^A::::\s*(.*?)\s*$
 Bookmark  2  ^%\^\^A:::\s*(.*?)\s*$
 Bookmark  1  ^%\^\^A::\s*(.*?)\s*$
 Bookmark  0  ^%\^\^A(?<type>MARK|TODO)?:\s*(?<content>.*?)\s*$
+Bookmark  0  ^%\^\^A(?<type>(?:BEGIN|START|END|STOP)_CONTENT)\s*$
 Bookmark  0  ^%<\*(readme|driver|install)>
 Bookmark  0  ^%?\s*\\begin\*?\{(documentation)\}
 Bookmark  0  ^%?\s*\\begin\*?\{(implementation)\}

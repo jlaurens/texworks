@@ -22,6 +22,7 @@
 #define Document_TextDocument_H
 
 #include "document/Document.h"
+#include "document/TWTag.h"
 
 #include <QVariant>
 #include <QTextCursor>
@@ -31,87 +32,7 @@
 namespace Tw {
 namespace Document {
 
-class ArrayTagP;
 class TextDocument;
-
-class Tag: public QObject {
-    Q_OBJECT
-public:
-    enum class Type {Any, Bookmark, Outline};
-    struct TypeName {
-        static const QString Any;
-        static const QString Bookmark;
-        static const QString Outline;
-    };
-    static Type typeForName(const QString &name);
-    static const QString nameForType(Type type);
-    enum class Subtype {Any, MARK, TODO};
-    struct SubtypeName {
-        static const QString Any;
-        static const QString MARK;
-        static const QString TODO;
-    };
-    static Subtype subtypeForName(const QString &name);
-    static const QString nameForSubtype(Subtype type);
-private:
-    Type        __type;
-    Subtype     __subtype;
-    int         __level;
-    QTextCursor __cursor;
-    QString     __text;
-    QString     __tooltip;
-public:
-    int level()             const { return __level;               };
-    const QString text()    const { return __text;                };
-    const QString tooltip() const { return __tooltip;             };
-    QTextCursor   cursor()  const { return QTextCursor(__cursor); };
-public:
-    Tag(const Type,
-        const Subtype,
-        const int,
-        const QTextCursor &,
-        const QString& text,
-        const QString& tooltip,
-        QObject *parent_p = nullptr);
-    Tag(const Type,
-        const int,
-        const QTextCursor &,
-        const QRegularExpressionMatch &,
-        QObject *parent_p = nullptr);
-    Tag(const QTextCursor &,
-        const int level,
-        const QString &,
-        QObject *parent_p = nullptr);
-    int  selectionStart() const { return __cursor.selectionStart();  };
-    bool isOfType(Type t) const { return __type == t;                };
-    bool isBookmark()     const { return __type == Type::Bookmark;   };
-    bool isOutline()      const { return __type == Type::Outline;    };
-    bool isMARK()         const { return __subtype == Subtype::MARK; };
-    bool isTODO()         const { return __subtype == Subtype::TODO; };
-    bool operator==(Tag &rhs)   { return __cursor == rhs.__cursor;   };
-};
-
-class ArrayTagP: QObject {
-    Q_OBJECT
-    using Filter = std::function<bool(const Tag *)>; // to pick up only some tags
-private:
-    TextDocument      *__document_p;
-    bool               __active;
-    QList<const Tag *> __tagPs;
-    QTextCursor        __cursor; // selection
-    Filter             __filter;
-public:
-    ArrayTagP(TextDocument *, Filter);
-    bool isEmpty() const { return __tagPs.isEmpty(); };
-    QList<const Tag *> getTagPs();
-    void update(bool activate = false);
-    void clear() { __tagPs.clear(); };
-    const Tag *get_p(const int);
-    void select(bool, const QTextCursor &c = QTextCursor());
-    bool isSelected(const Tag *) const;
-signals:
-    void changed() const;
-};
 
 class TextDocument: public QTextDocument, public Document
 {
@@ -119,35 +40,13 @@ class TextDocument: public QTextDocument, public Document
 public:
 	explicit TextDocument(QObject * parent = nullptr);
 	explicit TextDocument(const QString & text, QObject * parent = nullptr);
-    QList<const Tag *> getListTag() const { return _listTagP; };
-    void addTag(const Tag &);
-    void addTag(const QTextCursor & c, const int level, const QString & text);
-    void addTag(const Tag::Type type,
-                const int level,
-                const int index,
-                const int length,
-                const QRegularExpressionMatch & match);
-    unsigned int removeTags(int offset, int len);
-    ArrayTagP getArrayTagP()      const { return _arrayTagP; };
-    ArrayTagP getArrayBookmarkP() const { return _arrayBookmarkP; };
-    ArrayTagP getArrayOutlineP()  const { return _arrayOutlineP; };
-
-signals:
-    void tagsChanged() const;
-    void bookmarksChanged() const;
-    void outlinesChanged() const;
+    TagBank *tagBank() const { return _tagBank; };
 
 protected:
-    QList<Tag *> _listTagPs;
-    ArrayTagP    _arrayTagP;
-    ArrayTagP    _arrayBookmarkP;
-    ArrayTagP    _arrayOutlineP;
+    TagBank *_tagBank;
 };
 
 } // namespace Document
 } // namespace Tw
-
-Q_DECLARE_METATYPE(Tw::Document::Tag *) // for QVariant usage
-Q_DECLARE_METATYPE(const void *) // for QVariant usage
 
 #endif // !defined(Document_TextDocument_H)

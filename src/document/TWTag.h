@@ -32,10 +32,14 @@
 
 namespace Tw {
 namespace Document {
-
+namespace UnitTest {
+class TestTag;
+}
 class TextDocument;
+class TagBank;
 
 class Tag: public QObject {
+    friend UnitTest::TestTag;
     Q_OBJECT
 public:
     enum class Type {Any, Bookmark, Outline};
@@ -46,11 +50,15 @@ public:
     };
     static Type typeForName(const QString &name);
     static const QString nameForType(Type type);
-    enum class Subtype {Any, MARK, TODO};
+    enum class Subtype {Any, MARK, TODO, BEGIN_CONTENT, END_CONTENT};
     struct SubtypeName {
         static const QString Any;
         static const QString MARK;
         static const QString TODO;
+        static const QString BEGIN_CONTENT;
+        static const QString START_CONTENT;
+        static const QString END_CONTENT;
+        static const QString STOP_CONTENT;
     };
     static Subtype subtypeForName(const QString &name);
     static const QString nameForSubtype(Subtype type);
@@ -61,6 +69,7 @@ private:
     QTextCursor __cursor;
     QString     __text;
     QString     __tooltip;
+    bool        __error;
 public:
     int level()             const { return __level;               };
     const QString text()    const { return __text;                };
@@ -72,39 +81,53 @@ public:
         const int,
         const QTextCursor &,
         const QString& text,
-        const QString& tooltip);
+        const QString& tooltip,
+        TagBank *parent);
     Tag(const Type,
         const int,
         const QTextCursor &,
-        const QRegularExpressionMatch);
+        const QRegularExpressionMatch &,
+        TagBank *parent);
     Tag(const QTextCursor &,
         const int level,
-        const QString &);
-    int  selectionStart() const { return __cursor.selectionStart();  };
-    bool isOfType(Type t) const { return __type == t;                };
-    bool isBookmark()     const { return __type == Type::Bookmark;   };
-    bool isOutline()      const { return __type == Type::Outline;    };
-    bool isMARK()         const { return __subtype == Subtype::MARK; };
-    bool isTODO()         const { return __subtype == Subtype::TODO; };
-    bool operator==(Tag &rhs)   { return __cursor == rhs.__cursor;   };
+        const QString &,
+        TagBank *parent);
+    const TagBank *bank() const;
+    TextDocument *document() const;
+    int  selectionStart()  const { return __cursor.selectionStart();  };
+    bool isOfType(Type t)  const { return __type == t;                };
+    bool isBookmark()      const { return __type == Type::Bookmark;   };
+    bool isOutline()       const { return __type == Type::Outline;    };
+    bool isMARK()          const { return __subtype == Subtype::MARK; };
+    bool isTODO()          const { return __subtype == Subtype::TODO; };
+    bool isCONTENT()       const {
+        return __subtype == Subtype::BEGIN_CONTENT
+            || __subtype == Subtype::END_CONTENT; };
+    bool isBEGIN_CONTENT() const { return __subtype == Subtype::BEGIN_CONTENT; };
+    bool isEND_CONTENT()   const { return __subtype == Subtype::END_CONTENT; };
+    bool hasError()        const { return __error;                    };
+    void setError(bool yorn)     { __error = yorn;                    };
+    bool operator==(Tag &rhs)    { return __cursor == rhs.__cursor;   };
 };
 
 class TagSuite: QObject {
+    friend UnitTest::TestTag;
     Q_OBJECT
     using Filter = std::function<bool(const Tag *)>; // to pick up only some tags
 private:
-    TextDocument      *__document_p;
     bool               __active;
-    QList<const Tag *> __tagPs;
+    QList<const Tag *> __tags;
     QTextCursor        __cursor; // selection
     Filter             __filter;
 public:
-    TagSuite(TextDocument *, Filter);
-    bool isEmpty() const { return __tagPs.isEmpty(); };
-    QList<const Tag *> getTagPs();
+    TagSuite(TagBank *, Filter);
+    const TagBank *bank() const;
+    TextDocument * document() const;
+    bool isEmpty() const { return __tags.isEmpty(); };
+    QList<const Tag *> tags();
     void update(bool activate = false);
-    void clear() { __tagPs.clear(); };
-    const Tag *get_p(const int);
+    void clear() { __tags.clear(); };
+    const Tag *get(const int);
     void select(bool, const QTextCursor &c = QTextCursor());
     bool isSelected(const Tag *) const;
 signals:
@@ -113,32 +136,34 @@ signals:
 
 class TagBank: public QObject
 {
+    friend UnitTest::TestTag;
 	Q_OBJECT
 public:
-	explicit TagBank(TextDocument * parent);
-    QList<const Tag *> getListTag() const { return _listTag; };
-    void addTag(const Tag &);
-    void addTag(const QTextCursor & c, const int level, const QString & text);
+	explicit TagBank(TextDocument *parent);
+    TextDocument *document() const;
+    const QList<const Tag *> tags() const { return _tags; };
+    void addTag(Tag *);
+    bool addTag(const QTextCursor & c, const int level, const QString & text);
     void addTag(const Tag::Type type,
                 const int level,
                 const int index,
                 const int length,
                 const QRegularExpressionMatch & match);
     unsigned int removeTags(int offset, int len);
-    TagSuite getSuiteTag()      const { return _suiteTag;      };
-    TagSuite getSuiteBookmark() const { return _suiteBookmark; };
-    TagSuite getSuiteOutline()  const { return _suiteOutline;  };
+    TagSuite *suiteTag()      const { return _suiteTag;      };
+    TagSuite *suiteBookmark() const { return _suiteBookmark; };
+    TagSuite *suiteOutline()  const { return _suiteOutline;  };
+    TagSuite *suiteCONTENT()  const { return _suiteCONTENT;  };
 
 signals:
-    void tagsChanged() const;
-    void bookmarksChanged() const;
-    void outlinesChanged() const;
+    void changed() const;
 
 protected:
-    QList<Tag *> _listTag;
-    TagSuite     _suiteTag;
-    TagSuite     _suiteBookmark;
-    TagSuite     _suiteOutline;
+    QList<const Tag *> _tags;
+    TagSuite *_suiteTag;
+    TagSuite *_suiteBookmark;
+    TagSuite *_suiteOutline;
+    TagSuite *_suiteCONTENT;
 };
 
 } // namespace Document

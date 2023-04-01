@@ -42,8 +42,6 @@ private slots:
 	void storedInFilesystem();
 	void absoluteFilePath();
 
-	void tags();
-
 	void getHighlighter();
 	void modelines();
 	void findNextWord_data();

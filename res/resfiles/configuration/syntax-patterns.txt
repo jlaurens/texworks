@@ -44,11 +44,18 @@ mediumorchid	N	\\usepackage\s*(?:\[[^\]]*\]\s*)?\{[^\}]*\}
 # control sequences
 royalblue	N	\\(?:[\p{L}@]+|.)
 
-# TODO comments
-orange;B        Y    ^%TODO:.*
+# Anchors
+# TODO anchor
+orange;B        Y    ^%(?:\^\^A)?TODO:.*
 
-# MARK comments
-green;B        Y    ^%MARK:.*
+# MARK anchor
+green;B        Y    ^%(?:\^\^A)?MARK:.*
+
+# BEGIN_CONTENT anchor
+darkgreen;B        Y    ^%(?:\^\^A)?(?:START|BEGIN)_CONTENT
+
+# END_CONTENT anchor
+darkgreen;B        Y    ^%(?:\^\^A)?(?:STOP|END)__CONTENT
 
 # comments
 gray        Y    %.*

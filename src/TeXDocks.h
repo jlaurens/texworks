@@ -36,8 +36,9 @@ class TeXDocumentWindow;
 
 namespace Tw {
 namespace Document {
-class ArrayTagP;
 class Tag;
+class TagSuite;
+class TagBank;
 }
 }
 
@@ -46,13 +47,13 @@ class TeXDock: public QDockWidget
 	Q_OBJECT
 
 public:
-	TeXDock(const QString & title, TeXDocumentWindow *window_p = nullptr);
+	TeXDock(const QString & title, TeXDocumentWindow *window = nullptr);
 	~TeXDock() override = default;
 
 protected:
 	virtual void update(bool force) = 0;
 
-	TeXDocumentWindow *_window_p;
+	TeXDocumentWindow *_window;
 
 	bool _updated;
 
@@ -82,13 +83,14 @@ class TeXDockTree: public TeXDock
     Q_OBJECT
 
 public:
-    TeXDockTree(const QString & title, TeXDocumentWindow *window_p = nullptr);
+    TeXDockTree(const QString & title, TeXDocumentWindow *window = nullptr);
     ~TeXDockTree() override = default;
-    virtual Tw::Document::ArrayTagP &getArrayTagP() const = 0;
+    virtual Tw::Document::TagSuite *tagSuite() = 0;
 
 public slots:
     void observeCursorPositionChanged(bool yorn);
-    void onListTagPChanged();
+    void onTagBankChanged();
+    void onTagSuiteChanged();
 
 protected slots:
     void itemGainedFocus();
@@ -100,12 +102,11 @@ private slots:
 
 protected:
     virtual void initUI();
-    virtual TeXDockTreeWidget *newTreeWidget(QWidget *parent_p);
-    virtual void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) const;
+    virtual TeXDockTreeWidget *newTreeWidget(QWidget *parent);
+    virtual void makeNewItem(QTreeWidgetItem *, QTreeWidget *, const Tw::Document::Tag *) const;
     int _lastScrollValue;
     bool _dontFollowItemSelection;
     virtual void updateVoid() = 0;
-    void hilightTagAt(const QTextCursor & cursor);
     QTreeWidgetItem *getItemAtIndex(const int tagIndex);
     void selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection);
 };
@@ -117,15 +118,14 @@ class TeXDockTag: public TeXDockTree
     using Super = TeXDockTree;
     
 public:
-    TeXDockTag(TeXDocumentWindow *window_p = nullptr);
+    TeXDockTag(TeXDocumentWindow *window = nullptr);
     ~TeXDockTag() override = default;
-    Tw::Document::ArrayTagP & getMutableListTagP() override;
-    Tw::Document::ArrayTagP & getArrayTagP() const override;
+    Tw::Document::TagSuite *tagSuite() override;
 
 protected:
     void updateVoid() override;
     void initUI() override;
-    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) const override;
+    void makeNewItem(QTreeWidgetItem *, QTreeWidget *, const Tw::Document::Tag *) const override;
 };
 
 class TeXDockBookmark: public TeXDockTree
@@ -135,14 +135,14 @@ class TeXDockBookmark: public TeXDockTree
     using Super = TeXDockTree;
     
 public:
-    TeXDockBookmark(TeXDocumentWindow *window_p = nullptr);
+    TeXDockBookmark(TeXDocumentWindow *window = nullptr);
     ~TeXDockBookmark() override = default;
-    Tw::Document::ArrayTagP & getArrayTagP() const override;
+    Tw::Document::TagSuite *tagSuite() override;
 
 protected:
     void updateVoid() override;
     void initUI() override;
-    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) const override;
+    void makeNewItem(QTreeWidgetItem *, QTreeWidget *, const Tw::Document::Tag *) const override;
 };
 
 class TeXDockOutlineWidget: public TeXDockTreeWidget
@@ -166,14 +166,14 @@ class TeXDockOutline: public TeXDockTree
     using Super = TeXDockTree;
     
 public:
-    TeXDockOutline(TeXDocumentWindow *window_p = nullptr);
+    TeXDockOutline(TeXDocumentWindow *window = nullptr);
     ~TeXDockOutline() override = default;
-    Tw::Document::ArrayTagP &getArrayTagP() const override;
+    Tw::Document::TagSuite *tagSuite() override;
 
 protected:
     void updateVoid() override;
-    TeXDockTreeWidget *newTreeWidget(QWidget *parent_p) override;
-    void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tw::Document::Tag *) const override;
+    TeXDockTreeWidget *newTreeWidget(QWidget *parent) override;
+    void makeNewItem(QTreeWidgetItem *, QTreeWidget *, const Tw::Document::Tag *) const override;
 };
 
 #endif // TW_TEXDOCKS_H

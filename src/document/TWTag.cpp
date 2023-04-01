@@ -1,11 +1,11 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019  Stefan Löffler
+	Copyright (C) 2019-2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	( at your option ) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,309 +20,352 @@
 */
 
 #include "TWString.h"
+#include "document/TextDocument.h"
 #include "document/TWTag.h"
 #include <QDebug>
 
 namespace Tw {
 namespace Document {
 
-//TODO: Next should move to TWString. (linker problem)
-const QString Tag::TypeName::Any      = QStringLiteral("Any");
-const QString Tag::TypeName::Bookmark = QStringLiteral("Bookmark");
-const QString Tag::TypeName::Outline  = QStringLiteral("Outline");
+const QString Tag::TypeName::Any      = QStringLiteral( "Any" );
+const QString Tag::TypeName::Bookmark = QStringLiteral( "Bookmark" );
+const QString Tag::TypeName::Outline  = QStringLiteral( "Outline" );
 
-const QString Tag::SubtypeName::Any     = QStringLiteral("Any");
-const QString Tag::SubtypeName::MARK    = QStringLiteral("MARK");
-const QString Tag::SubtypeName::TODO    = QStringLiteral("TODO");
+const QString Tag::SubtypeName::Any           = QStringLiteral( "Any" );
+// This is the list of recognized anchor subtypes
+const QString Tag::SubtypeName::MARK          = QStringLiteral( "MARK" );
+const QString Tag::SubtypeName::TODO          = QStringLiteral( "TODO" );
+const QString Tag::SubtypeName::BEGIN_CONTENT = QStringLiteral( "BEGIN_CONTENT" );
+const QString Tag::SubtypeName::START_CONTENT = QStringLiteral( "START_CONTENT" );
+const QString Tag::SubtypeName::END_CONTENT   = QStringLiteral( "END_CONTENT" );
+const QString Tag::SubtypeName::STOP_CONTENT  = QStringLiteral( "STOP_CONTENT" );
 
-// name of a capture group
+// name of a capture group, should be defined more globally because file "tag-patterns.txt" relies on it.
 namespace __ {
-static const QString kKeyContent = QStringLiteral("content");
-static const QString kKeyType = QStringLiteral("type");
+static const QString kKeyContent = QStringLiteral( "content" );
+static const QString kKeyType = QStringLiteral( "type" );
 }
 
 //MARK: Tag
-Tag::Type Tag::typeForName(const QString &name) {
-    if (name == Tag::TypeName::Outline) {
-        return Tag::Type::Outline;
+Tag::Type Tag::typeForName( const QString &name ) {
+    if ( name == TypeName::Outline ) {
+        return Type::Outline;
     }
-    if (name == Tag::TypeName::Bookmark) {
-        return Tag::Type::Bookmark;
+    if ( name == TypeName::Bookmark ) {
+        return Type::Bookmark;
     }
     return Type::Any;
 }
 
-const QString Tag::nameForType(Tag::Type type) {
-    if (type == Tag::Type::Outline) {
-        return Tag::TypeName::Outline;
+const QString Tag::nameForType( Tag::Type type ) {
+    if ( type == Type::Outline ) {
+        return TypeName::Outline;
     }
-    if (type == Tag::Type::Bookmark) {
-        return Tag::TypeName::Bookmark;
+    if ( type == Type::Bookmark ) {
+        return TypeName::Bookmark;
     }
-    return Tag::TypeName::Any;
+    return TypeName::Any;
 }
 
-Tag::Subtype Tag::subtypeForName(const QString &name) {
-    if (name == Tag::SubtypeName::MARK) {
-        return Tag::Subtype::MARK;
+Tag::Subtype Tag::subtypeForName( const QString &name ) {
+    if ( name == SubtypeName::MARK ) {
+        return Subtype::MARK;
     }
-    if (name == Tag::SubtypeName::TODO) {
-        return Tag::Subtype::TODO;
+    if ( name == SubtypeName::TODO ) {
+        return Subtype::TODO;
+    }
+    if ( name == SubtypeName::BEGIN_CONTENT ) {
+        return Subtype::BEGIN_CONTENT;
+    }
+    if ( name == SubtypeName::END_CONTENT ) {
+        return Subtype::END_CONTENT;
+    }
+    if ( name == SubtypeName::START_CONTENT ) {
+        return Subtype::BEGIN_CONTENT;
+    }
+    if ( name == SubtypeName::STOP_CONTENT ) {
+        return Subtype::END_CONTENT;
     }
     return Subtype::Any;
 }
 
-const QString Tag::nameForSubtype(Tag::Subtype subtype) {
-    if (subtype == Tag::Subtype::MARK) {
-        return Tag::SubtypeName::MARK;
+const QString Tag::nameForSubtype( Tag::Subtype subtype ) {
+    if ( subtype == Subtype::MARK ) {
+        return SubtypeName::MARK;
     }
-    if (subtype == Tag::Subtype::TODO) {
-        return Tag::SubtypeName::TODO;
+    if ( subtype == Subtype::TODO ) {
+        return SubtypeName::TODO;
     }
-    return Tag::SubtypeName::Any;
+    if ( subtype == Subtype::BEGIN_CONTENT ) {
+        return SubtypeName::BEGIN_CONTENT;
+    }
+    if ( subtype == Subtype::END_CONTENT ) {
+        return SubtypeName::END_CONTENT;
+    }
+    return SubtypeName::Any;
 }
 
-Tag::Tag(const Type     type,
+Tag::Tag( const Type     type,
          const Subtype  subtype,
          const int      level,
          const QTextCursor & cursor,
          const QString& text,
          const QString& tooltip,
-         QObject *parent_p /* = nullptr */):
-QObject(parent_p),
-__type(type),
-__subtype(subtype),
-__level(level),
-__cursor(cursor),
-__text(text),
-__tooltip(tooltip)
+         TagBank *parent /* = nullptr */ ):
+QObject( parent ),
+__type( type ),
+__subtype( subtype ),
+__level( level ),
+__cursor( cursor ),
+__text( text ),
+__tooltip( tooltip )
 {
-    Q_ASSERT(!__cursor.isNull());
+    Q_ASSERT( !__cursor.isNull() );
 }
 
-Tag::Tag(const QTextCursor &cursor,
+Tag::Tag( const QTextCursor &cursor,
          const int level,
          const QString &text,
-         QObject *parent_p /* = nullptr */):
-QObject(parent_p),
-__type(Type::Any),
-__subtype(Subtype::Any),
-__level(level),
-__cursor(cursor),
-__text(text),
-__tooltip(QString())
+         TagBank *parent /* = nullptr */ ):
+QObject( parent ),
+__type( Type::Any ),
+__subtype( Subtype::Any ),
+__level( level ),
+__cursor( cursor ),
+__text( text ),
+__tooltip( QString() )
 {
-    Q_ASSERT(!cursor.isNull());
+    Q_ASSERT( !cursor.isNull() );
 }
 
-Tag::Tag(const Tag::Type type,
+Tag::Tag( const Tag::Type type,
          const int level,
          const QTextCursor &cursor,
          const QRegularExpressionMatch & match,
-         QObject *parent_p /* = nullptr */):
-QObject(parent_p),
-__type(type),
-__level(level),
-__cursor(cursor)
+         TagBank *parent /* = nullptr */ ):
+QObject( parent ),
+__type( type ),
+__level( level ),
+__cursor( cursor )
 {
-    Q_ASSERT(!cursor.isNull());
-    QString s = match.captured(__::kKeyType);
-    __subtype = Tag::subtypeForName(s);
+    Q_ASSERT( !cursor.isNull() );
+    QString s = match.captured( __::kKeyType );
+    __subtype = Tag::subtypeForName( s );
     int end = __cursor.selectionEnd();
-    __cursor.movePosition(QTextCursor::StartOfBlock);
-    __cursor.setPosition(end, QTextCursor::KeepAnchor);
-    __cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-    s = match.captured(__::kKeyContent);
-    if (s.isEmpty()) {
-        s = match.captured(1);
+    __cursor.movePosition( QTextCursor::StartOfBlock );
+    __cursor.setPosition( end, QTextCursor::KeepAnchor );
+    __cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
+    s = match.captured( __::kKeyContent );
+    if ( s.isEmpty() ) {
+        s = match.captured( 1 );
     }
-    if (s.isEmpty()) {
-        __text = match.captured(0);
+    if ( s.isEmpty() ) {
+        __text = match.captured( 0 );
         __tooltip = QString();
     } else {
         __text = s;
-        __tooltip = match.captured(0);
+        __tooltip = match.captured( 0 );
     }
 }
 
-//MARK: ArrayTagP
-
-ArrayTagP::ArrayTagP(TextDocument    *p,
-                   ArrayTagP::Filter f): QObject(p), __filter(f)
+const TagBank *Tag::bank() const
 {
-    __document_p = p;
+    return static_cast<TagBank *>( parent() );
+}
+
+TextDocument *Tag::document() const
+{
+    return bank()->document();
+}
+
+//MARK: TagSuite
+
+TagSuite::TagSuite( TagBank *bank, Filter f ): QObject( bank ), __filter( f )
+{
+    Q_ASSERT( bank );
     __active     = false;
 }
 
-QList<const Tag *> ArrayTagP::getTagPs()
+const TagBank *TagSuite::bank() const
 {
-    update(true);
-    return QList<const Tag *>(__tagPs);
+    return static_cast<TagBank *>( parent() );
+}
+
+TextDocument *TagSuite::document() const
+{
+    return bank()->document();
+}
+
+QList<const Tag *> TagSuite::tags()
+{
+    update( true );
+    return QList<const Tag *>( __tags );
 }
 
 /// \note
-void ArrayTagP::update(bool activate/* = false */)
+void TagSuite::update( bool activate/* = false */ )
 {
-    if (!__document_p)
-        return;
-    if (activate)
+    if ( activate )
         __active = true;
-    if (__active) {
-        const QList<const Tag *> &tagPs = __document_p->getTagPs();
-        foreach(const Tag *tag_p, tagPs) {
-            if (tag_p && __filter(tag_p))
-                __tagPs << tag_p;
+    if ( __active ) {
+        const QList<const Tag *> tags = bank()->tags();
+        foreach( const Tag *tag, tags ) {
+            if ( tag && __filter( tag ) )
+                __tags << tag;
         }
         emit changed();
     }
 }
 
-const Tag * ArrayTagP::get_p(const int i)
+const Tag *TagSuite::get( const int i )
 {
-    update(true);
-    return 0 <= i && i < __tagPs.count() ? __tagPs[i] : nullptr;
+    update( true );
+    return 0 <= i && i < __tags.count() ? __tags[i] : nullptr;
 }
 
 /// \brief manage the cursor for a contiguous selection
 /// \param yorn select when true , deselect when false
 /// \param cursor
-void ArrayTagP::select(bool yorn, const QTextCursor &cursor)
+void TagSuite::select( bool yorn, const QTextCursor &cursor )
 {
-    if (cursor.isNull()) {
-        if (yorn) {
-            if (!__document_p)
-                return;
-            __cursor = QTextCursor(__document_p);
-            __cursor.movePosition(QTextCursor::Start);
-            __cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    if ( cursor.isNull() ) {
+        if ( yorn ) {
+            __cursor = QTextCursor( document() );
+            __cursor.movePosition( QTextCursor::Start );
+            __cursor.movePosition( QTextCursor::End, QTextCursor::KeepAnchor );
         }
         return;
     }
     int start =  0;
     int end   = -1;
-    if (yorn) {
-        if (__cursor.isNull()) {
+    if ( yorn ) {
+        if ( __cursor.isNull() ) {
             __cursor = cursor;
             start = __cursor.selectionStart();
             end   = __cursor.selectionEnd();
 heaven:
-            if (start < end) {
-                __cursor.setPosition(start);
-                __cursor.movePosition(QTextCursor::StartOfBlock);
-                __cursor.setPosition(end, QTextCursor::KeepAnchor);
-                __cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+            if ( start < end ) {
+                __cursor.setPosition( start );
+                __cursor.movePosition( QTextCursor::StartOfBlock );
+                __cursor.setPosition( end, QTextCursor::KeepAnchor );
+                __cursor.movePosition( QTextCursor::EndOfBlock, QTextCursor::KeepAnchor );
                 return;
             }
             __cursor = QTextCursor();
             return;
         }
         // expand the selection
-        start = std::min(cursor.selectionStart(), __cursor.selectionStart());
-        end =   std::max(cursor.selectionEnd(),   __cursor.selectionEnd());
+        start = std::min( cursor.selectionStart(), __cursor.selectionStart() );
+        end =   std::max( cursor.selectionEnd(),   __cursor.selectionEnd() );
         goto heaven;
     }
-    if (__cursor.isNull()) {
+    if ( __cursor.isNull() ) {
         return;
     }
     // cut off the selection
-    if (cursor.selectionStart()>=__cursor.selectionEnd()) {
+    if ( cursor.selectionStart()>=__cursor.selectionEnd() ) {
         __cursor = QTextCursor();
         return;
     }
-    if (__cursor.selectionStart()>=cursor.selectionEnd()) {
+    if ( __cursor.selectionStart()>=cursor.selectionEnd() ) {
         __cursor = QTextCursor();
         return;
     }
     start = __cursor.selectionStart();
     end   =   cursor.selectionStart();
-    if (start < end) {
+    if ( start < end ) {
         goto heaven;
     }
     start =   cursor.selectionEnd();
     end   = __cursor.selectionEnd();
-    if (start < end) {
+    if ( start < end ) {
         goto heaven;
     }
     __cursor = QTextCursor();
 }
-bool ArrayTagP::isSelected(const Tag *tag_p) const
+bool TagSuite::isSelected( const Tag *tag ) const
 {
-    if (__cursor.isNull() || !tag_p) return false;
-    int i = tag_p->selectionStart();
+    if ( __cursor.isNull() || !tag ) return false;
+    int i = tag->selectionStart();
     return __cursor.selectionStart() <= i && i <= __cursor.selectionEnd();
 }
 
-//MARK: TextDocument
-TextDocument::TextDocument(const QString & text, QObject * parent) : QTextDocument(text, parent),
-_arrayTagP     (this, [](const Tag *p) { return p;                    }),
-_arrayBookmarkP(this, [](const Tag *p) { return p && p->isBookmark(); }),
-_arrayOutlineP (this, [](const Tag *p) { return p && p->isOutline();  })
+//MARK: TagBank
+TagBank::TagBank( TextDocument *parent ) : QObject( parent )
 {
+    _suiteTag      = new TagSuite( this, []( const Tag *tag ) {
+        return tag;
+    } );
+    _suiteBookmark = new TagSuite( this, []( const Tag *tag ) {
+        return tag && ( tag->isBookmark() || tag->isCONTENT() );
+    } );
+    _suiteOutline  = new TagSuite( this, []( const Tag *tag ) {
+        return tag && ( tag->isOutline() || tag->isCONTENT() );
+    } );
 }
 
-QList<const Tag *> TextDocument::getTagPs() const
+TextDocument *TagBank::document() const
 {
-    QList<const Tag *> ans;
-    for(const auto &tag: _tags) {
-        ans << &tag;
-    }
-    return ans;
+    return static_cast<TextDocument *>( parent() );
 }
 
-void TextDocument::addTag(const Tag *tag_p)
+bool TagBank::addTag( Tag *tag )
 {
-    if (!tag_p) return;
-    auto index = tag_p->selectionStart();
+    if ( !tag ) return false;
+    tag->setParent( this ); // take ownership
+    auto index = tag->selectionStart();
     auto it = _tags.rbegin();
-    while(it != _tags.rend() && it->selectionStart() > index) {
+    while( it != _tags.rend() && ( *it )->selectionStart() > index ) {
         ++it;
     }
-    _tags.insert(it.base(), tag_p);
-    tag_p->setParent(this);
-    emit tagsChanged();
-    _arrayTagP.update();
-    _arrayBookmarkP.update();
-    _arrayOutlineP.update();
+    _tags.insert( it.base(), tag );
+    tag->setParent( this );
+    emit changed();
+    _suiteTag->update();
+    _suiteBookmark->update();
+    _suiteOutline->update();
+    return true;
 }
 
-void TextDocument::addTag(const QTextCursor & c, const int level, const QString & text)
+void TagBank::addTag( const QTextCursor & c, const int level, const QString & text )
 {
-    addTag(new Tag(c, level, text));
+    Tag *tag = new Tag( c, level, text, this )
+    if ( ! addTag( tag ) ) delete tag;
 }
 
-void TextDocument::addTag(const Tag::Type type,
-                          const int level,
-                          const int index,
-                          const int length,
-                          const QRegularExpressionMatch & match)
+void TagBank::addTag( const Tag::Type type,
+                     const int level,
+                     const int index,
+                     const int length,
+                     const QRegularExpressionMatch & match )
 {
-    QTextCursor c = QTextCursor(this);
-    c.setPosition(index);
-    c.setPosition(index+length, QTextCursor::KeepAnchor);
-    c.movePosition(QTextCursor::StartOfBlock);
-    addTag(new Tag(type, level, c, match));
+    QTextCursor c = QTextCursor( document() );
+    c.setPosition( index );
+    c.setPosition( index+length, QTextCursor::KeepAnchor );
+    c.movePosition( QTextCursor::StartOfBlock );
+    Tag *tag = new Tag( type, level, c, match, this )
+    if ( ! addTag( tag ) ) delete tag;
 }
-unsigned int TextDocument::removeTags(int offset, int len)
+unsigned int TagBank::removeTags( int offset, int len )
 {
     unsigned int removed = 0;
     auto start = _tags.begin();
-    while(start != _tags.end() && start->selectionStart() < offset) {
+    while( start != _tags.end() && ( *start )->selectionStart() < offset ) {
         ++start;
     }
     auto end = start;
     offset += len;
-    while(end != _tags.end() && end->selectionStart() < offset) {
-        (*end)->setParent(nullptr); // no more ownership.
+    while( end != _tags.end() && ( *end )->selectionStart() < offset ) {
         delete *end;
         ++removed;
         ++end;
     }
-    if (removed > 0) {
-        _tags.erase(start, end);
-        emit tagsChanged();
-        _arrayTagP.update();
-        _arrayBookmarkP.update();
-        _arrayOutlineP.update();
+    if ( removed > 0 ) {
+        _tags.erase( start, end );
+        emit changed();
+        _suiteTag->update();
+        _suiteBookmark->update();
+        _suiteOutline->update();
     }
     return removed;
 }
