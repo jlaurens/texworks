@@ -72,9 +72,6 @@ public:
     ~TeXDockTreeWidget() override = default;
 
     QSize sizeHint() const override;
-
-protected:
-    void dropEvent(QDropEvent *) override;
 };
 
 /// \author JL
@@ -156,6 +153,7 @@ public:
     ~TeXDockOutlineWidget() override = default;
 
 protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *) override;
 };
 

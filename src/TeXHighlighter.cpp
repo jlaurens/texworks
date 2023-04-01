@@ -261,7 +261,6 @@ void TeXHighlighter::highlightBlock(const QString &text)
                     texDoc->tagBank()->addTag(type,
                                               level,
                                               currentBlock().position() + firstIndex,
-                                              len,
                                               firstMatch);
 					index = firstIndex + len;
 				}
