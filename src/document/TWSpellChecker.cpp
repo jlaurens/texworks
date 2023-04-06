@@ -41,18 +41,19 @@ SpellChecker * SpellChecker::instance_m = new SpellChecker();
 // static
 SpellChecker::DictionaryList * SpellChecker::getDictionaryList(const bool forceReload /* = false */)
 {
+#warning TO BE REMOVED
     qDebug() << "getDictionaryList" << forceReload << __::dictionaryList;
 	if (__::dictionaryList) {
 		if (!forceReload)
 			return __::dictionaryList;
         delete __::dictionaryList;
 	}
-    qDebug() << "CREATE";
+    qDebug() << "CREATE" << QDir::current();
     __::dictionaryList = new DictionaryList();
 	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
     qDebug() << "dirs:";
     for (auto dir: dirs) {
-        qDebug() << dir;
+        qDebug() << "->" << dir;
     }
 	foreach (QDir dicDir, dirs) {
 		foreach (QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QStringLiteral("*.dic")),

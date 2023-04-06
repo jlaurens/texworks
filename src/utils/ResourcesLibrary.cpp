@@ -120,11 +120,16 @@ void ResourcesLibrary::migrateLegacyLibrary()
 // static
 const QString ResourcesLibrary::getLibraryPath(const QString& subdir, const bool updateOnDisk /* = true */)
 {
+#warning TO BE REMOVED
+    qDebug() << "ResourcesLibrary::getLibraryPath" << subdir << updateOnDisk;
+    
 	QString libRootPath, libPath;
 
 	libRootPath = getPortableLibPath();
+    qDebug() << "libRootPath" << libRootPath;
 	if (libRootPath.isEmpty()) {
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
+#warning Is TW_DICPATH properly defined ?
 		if (subdir == QLatin1String("dictionaries")) {
 			libPath = QString::fromLatin1(TW_DICPATH);
 			QString dicPath = QString::fromLocal8Bit(getenv("TW_DICPATH"));
@@ -134,11 +139,13 @@ const QString ResourcesLibrary::getLibraryPath(const QString& subdir, const bool
 		}
 #endif
 		libRootPath = getLibraryRootPath();
+        qDebug() << "libRootPath" << libRootPath;
 		if (shouldMigrateLegacyLibrary()) {
 			migrateLegacyLibrary();
 		}
 	}
 	libPath = QDir(libRootPath).absolutePath() + QStringLiteral("/") + subdir;
+    qDebug() << "libPath" << libPath;
 
 	if(updateOnDisk)
 		updateLibraryResources(QDir(QString::fromLatin1(":/resfiles")), libRootPath, subdir);

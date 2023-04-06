@@ -32,6 +32,15 @@
 
 namespace Tw {
 
+/*!
+ \brief Path related
+ */
+namespace Path {
+
+extern const QString setup_ini;
+
+}
+
 /*! \brief For general purpose strings.
  */
 namespace String {

@@ -119,25 +119,11 @@ add_test(NAME test_Document COMMAND test_Document WORKING_DIRECTORY "${CMAKE_SOU
 add_executable(test_DocumentX
     DocumentX_test.cpp
     DocumentX_test.h
-    "${CMAKE_SOURCE_DIR}/src/document/Document.cpp"
-    "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.cpp"
-    "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.h"
-    "${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TWSpellChecker.cpp"
-    "${CMAKE_SOURCE_DIR}/src/document/TWTag.cpp"
     "${CMAKE_SOURCE_DIR}/src/utils/ResourcesLibrary.cpp"
     "${CMAKE_SOURCE_DIR}/src/utils/FileVersionDatabase.cpp"
     "${CMAKE_SOURCE_DIR}/src/utils/VersionInfo.cpp"
-    "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.cpp"
-    "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.h"
-    "${CMAKE_SOURCE_DIR}/src/TeXHighlighter.h"
 )
 target_compile_options(test_DocumentX PRIVATE ${WARNING_OPTIONS})
-if (WITH_POPPLERQT)
-    target_compile_definitions(test_DocumentX PRIVATE WITH_POPPLERQT)
-    if (POPPLER_HAS_RUNTIME_VERSION)
-        target_compile_definitions(test_Document PRIVATE POPPLER_HAS_RUNTIME_VERSION)
-    endif (POPPLER_HAS_RUNTIME_VERSION)
-endif (WITH_POPPLERQT)
-target_link_libraries(test_DocumentX QtPDF::qtpdf SyncTeX::synctex Hunspell::hunspell ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
+target_link_libraries(test_DocumentX Hunspell::hunspell ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
 add_test(NAME test_DocumentX COMMAND test_DocumentX WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")

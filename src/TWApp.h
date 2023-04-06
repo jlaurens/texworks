@@ -64,8 +64,7 @@ class TWApp : public QApplication
 	Q_OBJECT
 
 	// window positioning utilities
-	typedef void (WindowArrangementFunction)(const QWidgetList& windows, const QRect& bounds);
-
+    using WindowArrangementFunction = void(const QWidgetList& windows, const QRect& bounds);
 	// FIXME: Required for functor-access to private slot openRecentFile()
 	friend class TWUtils;
 
@@ -73,6 +72,9 @@ public:
 	TWApp(int &argc, char **argv);
 	~TWApp() override;
 
+    QString portableDirPath();
+    QString portableFilePath();
+    
 	int maxRecentFiles() const;
 	void setMaxRecentFiles(int value);
 	void addToRecentFiles(const QMap<QString,QVariant>& fileProperties);

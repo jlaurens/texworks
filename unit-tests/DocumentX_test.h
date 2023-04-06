@@ -19,8 +19,6 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include <QTemporaryDir>
-
 #include <QtTest/QtTest>
 
 namespace Tw {
@@ -33,9 +31,9 @@ class SpellCheckerTest : public QObject
 
 	QTemporaryDir m_tempDir;
 private slots:
-    void SpellChecker_getDictionaryList();
-    void SpellChecker_getDictionary();
-    void SpellChecker_ignoreWord();
+    void test_getDictionaryList();
+    void test_getDictionary();
+    void test_ignoreWord();
 
 };
 

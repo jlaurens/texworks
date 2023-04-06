@@ -28,6 +28,7 @@
 #include "ResourcesDialog.h"
 #include "Settings.h"
 #include "TWUtils.h"
+#include "TWString.h"
 #include "TeXDocumentWindow.h"
 #include "TemplateDialog.h"
 #include "document/TWSpellChecker.h"
@@ -142,6 +143,24 @@ TWApp::~TWApp()
 	}
 }
 
+QString TWApp::portableDirPath()
+{
+#if defined(Q_OS_DARWIN)
+    return QDir(applicationDirPath() + QStringLiteral("/../../..")).path(); // move up to dir containing the .app bundle
+#else
+    return applicationDirPath();
+#endif
+}
+
+QString TWApp::portableFilePath()
+{
+#if defined(Q_OS_DARWIN)
+    return QDir(applicationDirPath() + QStringLiteral("/../..")).path(); // move up to the .app bundle
+#else
+    return applicationFileName();
+#endif
+}
+
 void TWApp::init()
 {
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
@@ -165,39 +184,35 @@ void TWApp::init()
 	setApplicationName(QStringLiteral("TeXworks"));
 
 	// <Check for portable mode>
-#if defined(Q_OS_DARWIN)
-	QDir appDir(applicationDirPath() + QLatin1String("/../../..")); // move up to dir containing the .app package
-#else
-	QDir appDir(applicationDirPath());
-#endif
-	QDir iniPath(appDir.absolutePath());
-	QDir libPath(appDir.absolutePath());
-	if (appDir.exists(QString::fromLatin1(SETUP_FILE_NAME))) {
-		QSettings portable(appDir.filePath(QString::fromLatin1(SETUP_FILE_NAME)), QSettings::IniFormat);
-		if (portable.contains(QString::fromLatin1("inipath"))) {
-			if (iniPath.cd(portable.value(QString::fromLatin1("inipath")).toString())) {
+	QDir appDir(portableDirPath());
+	QDir iniDir(appDir.absolutePath());
+	QDir libDir(appDir.absolutePath());
+	if (appDir.exists(Tw::Path::setup_ini)) {
+		QSettings portable(appDir.filePath(Tw::Path::setup_ini), QSettings::IniFormat);
+		if (portable.contains(QStringLiteral("inipath"))) {
+			if (iniDir.cd(portable.value(QStringLiteral("inipath")).toString())) {
 				Tw::Settings::setDefaultFormat(QSettings::IniFormat);
-				Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniPath.absolutePath());
+				Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniDir.absolutePath());
 			}
 		}
-		if (portable.contains(QString::fromLatin1("libpath"))) {
-			if (libPath.cd(portable.value(QString::fromLatin1("libpath")).toString())) {
-				Tw::Utils::ResourcesLibrary::setPortableLibPath(libPath.absolutePath());
+		if (portable.contains(QStringLiteral("libpath"))) {
+			if (libDir.cd(portable.value(QStringLiteral("libpath")).toString())) {
+				Tw::Utils::ResourcesLibrary::setPortableLibPath(libDir.absolutePath());
 			}
 		}
-		if (portable.contains(QString::fromLatin1("defaultbinpaths"))) {
+		if (portable.contains(QStringLiteral("defaultbinpaths"))) {
 			defaultBinPaths = std::unique_ptr<QStringList>(new QStringList);
 			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts);
 		}
 	}
 	QString envPath = QString::fromLocal8Bit(getenv("TW_INIPATH"));
-	if (!envPath.isNull() && iniPath.cd(envPath)) {
+	if (!envPath.isNull() && iniDir.cd(envPath)) {
 		Tw::Settings::setDefaultFormat(QSettings::IniFormat);
-		Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniPath.absolutePath());
+		Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniDir.absolutePath());
 	}
 	envPath = QString::fromLocal8Bit(getenv("TW_LIBPATH"));
-	if (!envPath.isNull() && libPath.cd(envPath)) {
-		Tw::Utils::ResourcesLibrary::setPortableLibPath(libPath.absolutePath());
+	if (!envPath.isNull() && libDir.cd(envPath)) {
+		Tw::Utils::ResourcesLibrary::setPortableLibPath(libDir.absolutePath());
 	}
 	// </Check for portable mode>
 
@@ -660,12 +675,12 @@ QString TWApp::findProgram(const QString& program, const QStringList& binPaths)
 void TWApp::writeToMailingList()
 {
 	// The strings here are deliberately NOT localizable!
-	QString address(QLatin1String("texworks@tug.org"));
-	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
+	QString address(QStringLiteral("texworks@tug.org"));
+	QString body(QStringLiteral("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
 
 	body += QStringLiteral("TeXworks version : %1\n").arg(Tw::Utils::VersionInfo::fullVersionString());
 #if defined(Q_OS_DARWIN)
-	body += QLatin1String("Install location : ") + QDir(applicationDirPath() + QLatin1String("/../..")).absolutePath() + QChar::fromLatin1('\n');
+	body += QStringLiteral("Install location : ") + QDir(applicationDirPath() + QLatin1String("/../..")).absolutePath() + QChar::fromLatin1('\n');
 #else
 	body += QLatin1String("Install location : ") + applicationFilePath() + QChar::fromLatin1('\n');
 #endif

@@ -25,6 +25,11 @@
 
 namespace Tw {
 
+namespace Path {
+
+const QString setup_ini = QStringLiteral("texworks_setup.ini");
+
+}
 namespace String {
 
 #if defined(Q_OS_WIN)
