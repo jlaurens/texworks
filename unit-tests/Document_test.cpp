@@ -121,6 +121,18 @@ VersionNumber popplerRuntimeVersion() {
 #endif // WITH_POPPLERQT
 
 namespace Tw {
+namespace Utils {
+
+// Referenced in Tw::Document::SpellChecker
+const QStringList ResourcesLibrary::getLibraryPaths(const QString & subdir, const bool updateOnDisk) { Q_UNUSED(subdir) Q_UNUSED(updateOnDisk) return QStringList(QDir::currentPath()); }
+
+const QString ResourcesLibrary::getTagPatternsPath()
+{
+    return QDir::currentPath()+QStringLiteral("/tag-patterns.txt");
+}
+
+} //namespace Utils
+
 namespace Document {
 namespace UnitTest {
 

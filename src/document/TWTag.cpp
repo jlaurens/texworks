@@ -150,32 +150,32 @@ const QList<const Tag::Rule *> Tag::rules()
 
 
 //MARK: Tag
-Tag::Tag(const Type    type,
+Tag::Tag(TagBank *bank,
+         const Type    type,
          const Subtype subtype,
          const int     level,
          const QTextCursor &cursor,
          const QString     &text,
-         const QString     &tooltip,
-         TagBank           *bank):
-type_m   (type),
-subtype_m(subtype),
-level_m  (level),
-cursor_m (cursor),
-text_m   (text),
-tooltip_m(tooltip),
-bank_m   (bank)
+         const QString     &tooltip)
+    : Super(bank)
+    , type_m   (type)
+    , subtype_m(subtype)
+    , level_m  (level)
+    , cursor_m (cursor)
+    , text_m   (text)
+    , tooltip_m(tooltip)
 {
     Q_ASSERT(bank);
 }
 
 const TagBank *Tag::bank() const
 {
-    return bank_m;
+    return static_cast<TagBank *>(parent());
 }
 
 TextDocument *Tag::document() const
 {
-    return bank_m->document();
+    return bank()->document();
 }
 
 int Tag::level() const
@@ -258,20 +258,9 @@ pattern_m(pattern)
 {}
 
 //MARK: TagBank
-TagBank::TagBank(TextDocument *parent): Super(parent)
-{
-    // no destructor available, install a signal listener instead
-    connect(this, &QObject::destroyed, this, [=]() {
-        for (auto *suite: suites_m) {
-            delete suite;
-        }
-        suites_m.clear();
-        for (auto *tag: tags_m) {
-            delete tag;
-        }
-        tags_m.clear();
-    });
-}
+TagBank::TagBank(TextDocument *parent)
+    : Super(parent)
+{}
 
 TagSuite *TagBank::makeSuite(Tag::Filter filter)
 {
@@ -308,18 +297,18 @@ void TagBank::didChange()
     }
 }
 
-//MARK: Tag::BankHelper
-Tag::BankHelper::BankHelper(TextDocument *document): document_m(document)
+//MARK: Tag::Banker
+Tag::Banker::Banker(TextDocument *document): document_m(document)
 {
     Q_ASSERT(document_m);
     document_m->tagBank()->willChange();
 }
 
-Tag::BankHelper::~BankHelper() {
+Tag::Banker::~Banker() {
     document_m->tagBank()->didChange();
 }
 
-void Tag::BankHelper::addTag(const Tag::Rule *rule,
+void Tag::Banker::addTag(const Tag::Rule *rule,
                              const int position,
                              const QRegularExpressionMatch &match)
 {
@@ -343,13 +332,13 @@ void Tag::BankHelper::addTag(const Tag::Rule *rule,
         tooltip = match.captured(0);
     }
     auto *bank = document_m->tagBank();
-    auto *tag = new Tag(rule->type(),
+    auto *tag = new Tag(bank,
+                        rule->type(),
                         subtype,
                         rule->level(),
                         cursor,
                         text,
-                        tooltip,
-                        bank
+                        tooltip
                         );
     auto tags = bank->tags_m;
     int i = tags.size();
@@ -370,7 +359,7 @@ void Tag::BankHelper::addTag(const Tag::Rule *rule,
     }
 }
 
-unsigned int Tag::BankHelper::removeTags(int offset, int len)
+unsigned int Tag::Banker::removeTags(int offset, int len)
 {
     unsigned int removed = 0;
     auto *bank = document_m->tagBank();

@@ -27,13 +27,12 @@ namespace Tw {
 namespace Document {
 namespace UnitTest {
 
-class TagAll : public QObject
+class TagTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-
-    void main();
+    void test_main();
 
 };
 

@@ -28,6 +28,13 @@
 #include <limits>
 
 namespace Tw {
+namespace Utils {
+
+// Referenced in Tw::Document::SpellChecker
+const QStringList ResourcesLibrary::getLibraryPaths(const QString & subdir, const bool updateOnDisk) { Q_UNUSED(subdir) Q_UNUSED(updateOnDisk) return QStringList(QDir::currentPath()); }
+
+} //namespace Utils
+
 namespace Document {
 namespace UnitTest {
 
@@ -94,26 +101,20 @@ void SpellCheckerTest::test_ignoreWord()
     Q_ASSERT(sc != nullptr);
     {
         auto * d = sc->getDictionary(lang);
-        if (d) {
-#warning This test is FAKE
-            Q_ASSERT(d != nullptr);
-            
-            QCOMPARE(d->isWordCorrect(wrongWord), false);
-            d->ignoreWord(wrongWord);
-            QCOMPARE(d->isWordCorrect(wrongWord), true);
-        }
+        Q_ASSERT(d != nullptr);
+        
+        QCOMPARE(d->isWordCorrect(wrongWord), false);
+        d->ignoreWord(wrongWord);
+        QCOMPARE(d->isWordCorrect(wrongWord), true);
     }
     {
         // Check that ignoring is not persistent
         sc->clearDictionaries();
 
         auto * d = sc->getDictionary(lang);
-        if (d) {
-#warning This test is FAKE
-            Q_ASSERT(d != nullptr);
+        Q_ASSERT(d != nullptr);
 
-            QCOMPARE(d->isWordCorrect(wrongWord), false);
-        }
+        QCOMPARE(d->isWordCorrect(wrongWord), false);
     }
 }
 

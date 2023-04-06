@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2022  Stefan Löffler
+	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,23 +19,20 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include <QTemporaryDir>
-
 #include <QtTest/QtTest>
 
 namespace Tw {
 namespace Document {
 namespace UnitTest {
 
-class SpellCheckerTest : public QObject
+class SpellCheckerTest: public QObject
 {
 	Q_OBJECT
 
-	QTemporaryDir m_tempDir;
 private slots:
-	void SpellChecker_getDictionaryList();
-	void SpellChecker_getDictionary();
-	void SpellChecker_ignoreWord();
+    void test_getDictionaryList();
+    void test_getDictionary();
+    void test_ignoreWord();
 };
 
 } // namespace UnitTest

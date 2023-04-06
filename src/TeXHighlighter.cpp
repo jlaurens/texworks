@@ -158,6 +158,9 @@ void TeXHighlighter::spellCheckRange(const QString &text, QString::size_type ind
 }
 using Tag = Tw::Document::Tag;
 
+//TODO: do not refer to the currentBlock
+// We assume that `text` == currentBlock().text()
+// The argument should definitely be a block?
 void TeXHighlighter::highlightBlock(const QString &text)
 {
 	QString::size_type charPos = 0;
@@ -198,7 +201,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 		spellCheckRange(text, charPos, text.length(), spellFormat);
 
 	if (texDoc) {
-        Tag::BankHelper tagHelper(texDoc);
+        Tag::Banker tagHelper(texDoc);
         tagHelper.removeTags(currentBlock().position(), currentBlock().length());
 		if (isTagging) {
 			QString::size_type index = 0;

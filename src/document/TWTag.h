@@ -36,8 +36,8 @@
  In order to keep the corresponding items expanded or selected, we store supplemental information
  based on the cursor.
  */
-#ifndef TW_DOCUMENT_TAG_H
-#define TW_DOCUMENT_TAG_H
+#ifndef Tw_Document_Tag_H
+#define Tw_Document_Tag_H
 
 #include "document/Document.h"
 
@@ -61,8 +61,10 @@ class Tag;
 class TagBank;
 class TagSuite;
 
-class Tag
+class Tag: public QObject
 {
+    using Super = QObject;
+    
 public:
     enum class Type {Any, Magic, Bookmark, Outline};
     struct TypeName {
@@ -96,7 +98,7 @@ public:
         const QRegularExpression &pattern() const { return pattern_m; };
     };
     
-    class BankHelper;
+    class Banker;
     
     using Filter = std::function<bool(const Tag *)>; // to pick up only some tags
     
@@ -115,17 +117,16 @@ private:
     QTextCursor  cursor_m;
     QString      text_m;
     QString      tooltip_m;
-    TagBank     *bank_m;
     /**
      Private constructorc only available to `TagBank::makeTag` method.
      */
-    Tag(const Type,
+    Tag(TagBank *,
+        const Type,
         const Subtype,
         const int,
-        const QTextCursor&,
+        const QTextCursor &,
         const QString& text,
-        const QString& tooltip,
-        TagBank *bank);
+        const QString& tooltip);
 public:
     TextDocument *document() const;
     const TagBank *bank() const;
@@ -145,16 +146,16 @@ public:
     bool operator==(Tag &rhs);
 public:
     /**
-     The `BankHelper` makes the changes to the `TagBank` but let the `TagBank` emit its `changed`
+     The `Banker` makes the changes to the `TagBank` but let the `TagBank` emit its `changed`
      signal only once all expected modifications are performed.
      Scoped instance are created on the stack.
      */
-    class BankHelper
+    class Banker
     {
         TextDocument *document_m;
     public:
-        BankHelper(TextDocument *document);
-        ~BankHelper();
+        Banker(TextDocument *document);
+        ~Banker();
         void addTag(const Rule *rule,
                     const int position,
                     const QRegularExpressionMatch &match);/*!< The only public way to create a new Tag. */
@@ -164,7 +165,7 @@ public:
     };
     
 public:
-    friend void BankHelper::addTag(const Rule *,
+    friend void Banker::addTag(const Rule *,
                                    const int,
                                    const QRegularExpressionMatch &);
     
@@ -177,7 +178,7 @@ class TagBank: public QObject
     Q_OBJECT
     using Super = QObject;
     QList<const Tag *> tags_m;
-    QList<TagSuite *>  suites_m;
+    QList<TagSuite *> suites_m;
 public:
     explicit TagBank(TextDocument *parent); /*!< The parent may not be null. */
     TextDocument *document() const; /*!< The owner is the parent. */
@@ -187,7 +188,7 @@ public:
 signals:
     void changed() const;
 public:
-    friend class Tag::BankHelper; /*!< Management of Tag's is delegated to a `Tagger` instance. */
+    friend class Tag::Banker; /*!< Management of Tag's is delegated to a `Tagger` instance. */
     TagSuite *makeSuite(Tag::Filter); /*!< Create a new suite owned by the receiver. */
 
     friend class UnitTest::TagTest;
@@ -202,7 +203,6 @@ class TagSuite: public QObject
     using Super = QObject;
     QList<const Tag *> tags_m; /*!< List of chosen tags. */
     Tag::Filter        filter_m;
-    TagBank           *bank_m;
     TagSuite(TagBank *, Tag::Filter);
 public:
     friend TagSuite *TagBank::makeSuite(Tag::Filter);
@@ -227,4 +227,4 @@ signals:
 Q_DECLARE_METATYPE(Tw::Document::Tag *) // for QVariant usage
 Q_DECLARE_METATYPE(const void *) // for QVariant usage
 
-#endif // ifndef TW_DOCUMENT_TAG_H
+#endif // ifndef Tw_Document_Tag_H

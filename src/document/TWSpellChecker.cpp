@@ -41,27 +41,18 @@ SpellChecker * SpellChecker::instance_m = new SpellChecker();
 // static
 SpellChecker::DictionaryList * SpellChecker::getDictionaryList(const bool forceReload /* = false */)
 {
-#warning TO BE REMOVED
-    qDebug() << "getDictionaryList" << forceReload << __::dictionaryList;
 	if (__::dictionaryList) {
 		if (!forceReload)
 			return __::dictionaryList;
         delete __::dictionaryList;
 	}
-    qDebug() << "CREATE" << QDir::current();
     __::dictionaryList = new DictionaryList();
 	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
-    qDebug() << "dirs:";
-    for (auto dir: dirs) {
-        qDebug() << "->" << dir;
-    }
 	foreach (QDir dicDir, dirs) {
 		foreach (QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QStringLiteral("*.dic")),
 					QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase)) {
-            qDebug() << "QFileInfo" << dicFileInfo.dir() << dicFileInfo.completeBaseName();
 			QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QStringLiteral(".aff"));
             if (affFileInfo.isReadable()) {
-                qDebug() << "INSERTING" << dicFileInfo.canonicalFilePath() << dicFileInfo.completeBaseName();
                 __::dictionaryList->insert(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
             }
 		}

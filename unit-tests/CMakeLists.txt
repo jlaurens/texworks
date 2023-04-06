@@ -98,9 +98,6 @@ add_executable(test_Document
     "${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TWSpellChecker.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TWTag.cpp"
-    "${CMAKE_SOURCE_DIR}/src/utils/ResourcesLibrary.cpp"
-    "${CMAKE_SOURCE_DIR}/src/utils/FileVersionDatabase.cpp"
-    "${CMAKE_SOURCE_DIR}/src/utils/VersionInfo.cpp"
     "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.cpp"
     "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.h"
     "${CMAKE_SOURCE_DIR}/src/TeXHighlighter.h"
@@ -115,15 +112,23 @@ endif (WITH_POPPLERQT)
 target_link_libraries(test_Document QtPDF::qtpdf SyncTeX::synctex Hunspell::hunspell ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
 add_test(NAME test_Document COMMAND test_Document WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
 
-# DocumentX
-add_executable(test_DocumentX
-    DocumentX_test.cpp
-    DocumentX_test.h
+# SpellChecker
+add_executable(test_document_TWSpellChecker
+    document/TWSpellChecker_test.cpp
+    document/TWSpellChecker_test.h
     "${CMAKE_SOURCE_DIR}/src/document/TWSpellChecker.cpp"
-    "${CMAKE_SOURCE_DIR}/src/utils/ResourcesLibrary.cpp"
-    "${CMAKE_SOURCE_DIR}/src/utils/FileVersionDatabase.cpp"
-    "${CMAKE_SOURCE_DIR}/src/utils/VersionInfo.cpp"
 )
-target_compile_options(test_DocumentX PRIVATE ${WARNING_OPTIONS})
-target_link_libraries(test_DocumentX Hunspell::hunspell ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
-add_test(NAME test_DocumentX COMMAND test_DocumentX WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
+target_compile_options(test_document_TWSpellChecker PRIVATE ${WARNING_OPTIONS})
+target_link_libraries(test_document_TWSpellChecker Hunspell::hunspell ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
+add_test(NAME test_document_TWSpellChecker COMMAND test_document_TWSpellChecker WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases/document")
+
+# Tags
+add_executable(test_document_TWTag
+    document/TWTag_test.cpp
+    document/TWTag_test.h
+    "${CMAKE_SOURCE_DIR}/src/document/TWTag.cpp"
+    "${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"
+)
+target_compile_options(test_document_TWTag PRIVATE ${WARNING_OPTIONS})
+target_link_libraries(test_document_TWTag ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
+add_test(NAME test_document_TWTag COMMAND test_document_TWTag WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases/document")
