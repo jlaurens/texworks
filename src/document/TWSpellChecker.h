@@ -63,8 +63,9 @@ public:
     
     static SpellChecker * instance() { return instance_m; }
     
+    using DictionaryList = QMultiHash<QString, QString>;
     // get list of available dictionaries
-    static QMultiHash<QString, QString> * getDictionaryList(const bool forceReload = false);
+    static DictionaryList * getDictionaryList(const bool forceReload = false);
     
     // get dictionary for a given language
     static Dictionary * getDictionary(const QString& language);

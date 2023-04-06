@@ -26,32 +26,43 @@
 
 #include <hunspell.h>
 
+#include <QDebug>
+
 namespace Tw {
 namespace Document {
 
 namespace __ {
 static QMultiHash<QString, QString> * dictionaryList = nullptr;
-static QHash<const QString,SpellChecker::Dictionary*> * dictionaries = nullptr;
+static QHash<const QString, SpellChecker::Dictionary*> * dictionaries = nullptr;
 }
 
 SpellChecker * SpellChecker::instance_m = new SpellChecker();
 
 // static
-QMultiHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceReload /* = false */)
+SpellChecker::DictionaryList * SpellChecker::getDictionaryList(const bool forceReload /* = false */)
 {
+    qDebug() << "getDictionaryList" << forceReload << __::dictionaryList;
 	if (__::dictionaryList) {
 		if (!forceReload)
 			return __::dictionaryList;
         delete __::dictionaryList;
 	}
-    __::dictionaryList = new QMultiHash<QString, QString>();
+    qDebug() << "CREATE";
+    __::dictionaryList = new DictionaryList();
 	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
+    qDebug() << "dirs:";
+    for (auto dir: dirs) {
+        qDebug() << dir;
+    }
 	foreach (QDir dicDir, dirs) {
 		foreach (QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QStringLiteral("*.dic")),
 					QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase)) {
+            qDebug() << "QFileInfo" << dicFileInfo.dir() << dicFileInfo.completeBaseName();
 			QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QStringLiteral(".aff"));
-			if (affFileInfo.isReadable())
-				__::dictionaryList->insert(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
+            if (affFileInfo.isReadable()) {
+                qDebug() << "INSERTING" << dicFileInfo.canonicalFilePath() << dicFileInfo.completeBaseName();
+                __::dictionaryList->insert(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
+            }
 		}
 	}
 

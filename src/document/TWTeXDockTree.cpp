@@ -56,7 +56,7 @@ static const Tag *getItemTag(const QTreeWidgetItem *item) {
             return static_cast<const Tag *>(v.value<const void *>());
         }
     }
-    return nullptr;
+    return nullptr; // this happens for void Tag suites.
 }
 static void setItemTag(QTreeWidgetItem *item, const Tag *tag) {
     if (item) {
@@ -138,7 +138,8 @@ QSize TeXDockTreeWidget::sizeHint() const
 //MARK: TeXDockTree
 
 /// \author JL
-TeXDockTree::TeXDockTree(const QString &title, TeXDocumentWindow * window): Super(title, window)
+TeXDockTree::TeXDockTree(const QString &title, TeXDocumentWindow * window)
+    : Super(title, window)
 {
     connect(this,
             &TeXDockTree::visibilityChanged,
@@ -162,6 +163,20 @@ QTextEdit *TeXDockTree::editor()
     return window()->editor();
 }
 
+//MARK: TeXDockTree::Extra[::State]
+// People don't need to know what is in there.
+struct TeXDockTree::Extra
+{
+    int lastScrollValue_m = 0;
+    struct State
+    {
+        bool isSelected;
+        bool isExpanded;
+    };
+    using States = QHash<int, State>;
+    States states_m;
+};
+
 void TeXDockTree::setTagSuite(TagSuite * tagSuite)
 {
     if (tagSuite_m) {
@@ -174,39 +189,52 @@ void TeXDockTree::setTagSuite(TagSuite * tagSuite)
     }
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
     Q_ASSERT(treeWidget);
-    struct State
-    {
-        bool isSelected;
-        bool isExpanded;
-    };
-    QMap<int, State> states;
-    int lastScrollValue = 0;
-    connect(tagSuite_m, &TagSuite::willChange, this, [&]() {
+    qDebug() << "TeXDockTree::setTagSuite" << treeWidget;
+    connect(tagSuite_m, &TagSuite::willChange, this, [=]() {
+        qDebug() << "&TagSuite::willChange";
+        qDebug() << treeWidget;
         treeWidget->blockSignals(true);
-        lastScrollValue = treeWidget->verticalScrollBar()->value();
-        QList<QTreeWidgetItem *> items = { treeWidget->invisibleRootItem() };
-        while (! items.isEmpty()) {
-            const auto *item = items.takeFirst();
-            int i = item->childCount();
-            while (i--) {
-                items.prepend(item->child(i));
+        if (!extra_m) {
+            extra_m = new Extra();
+            connect(this, &Self::destroyed, this, [=]() { delete extra_m; });
+        }
+        extra_m->lastScrollValue_m = treeWidget->verticalScrollBar()->value();
+        if (tagSuite_m->isEmpty()) {
+            treeWidget->clear();
+            updateVoid();
+        } else {
+            // We save the state
+            QList<QTreeWidgetItem *> items = { treeWidget->invisibleRootItem() };
+            while (! items.isEmpty()) {
+                const auto *item = items.takeFirst();
+                int i = item->childCount();
+                while (i--) {
+                    items.prepend(item->child(i));
+                }
+                const auto *tag = __::getItemTag(item);
+                Extra::State state{item->isSelected(), item->childCount() == 0 || item->isExpanded()};
+                extra_m->states_m.insert(tag->position(), state);
             }
-            const auto *tag = __::getItemTag(item);
-            State state{item->isSelected(), item->childCount() == 0 || item->isExpanded()};
-            states.insert(tag->position(), state);
         }
     });
-    connect(tagSuite_m, &TagSuite::didChange, this, [&]() {
+    connect(tagSuite_m, &TagSuite::didChange, this, [=]() {
+        qDebug() << "&TagSuite::didChange";
+        qDebug() << treeWidget;
         treeWidget->clear();
+        if (tagSuite_m->isEmpty()) {
+            updateVoid();
+            treeWidget->blockSignals(false);
+            return;
+        }
         QTreeWidgetItem *item = nullptr;
         int i = 0;
-        State defaultState{false, true};
+        Extra::State defaultState{false, true};
         const Tag *tag = nullptr;
         while((tag = tagSuite_m->at(i))) {
             makeNewItem(item, treeWidget, tag);
             __::setItemTag(item, tag);
             __::setItemTagIndex(item, i);
-            auto state = states.value(tag->position(), defaultState);
+            auto state = extra_m->states_m.value(tag->position(), defaultState);
             item->setSelected(state.isSelected);
             if (state.isExpanded) {
                 treeWidget->expandItem(item);
@@ -215,12 +243,11 @@ void TeXDockTree::setTagSuite(TagSuite * tagSuite)
             }
             ++i;
         }
-        if (lastScrollValue > 0) {
-            treeWidget->verticalScrollBar()->setValue(lastScrollValue);
+        if (extra_m->lastScrollValue_m > 0) {
+            treeWidget->verticalScrollBar()->setValue(extra_m->lastScrollValue_m);
         }
         treeWidget->blockSignals(false);
     });
-    
 }
 /// \note must be called by subclassers.
 void TeXDockTree::initUI()
@@ -284,6 +311,9 @@ QTreeWidgetItem *TeXDockTree::getItemAtIndex(const int tagIndex)
 
 void TeXDockTree::selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection)
 {
+    if (tagSuite_m.empty()) {
+        return;
+    }
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
     Q_ASSERT(treeWidget);
     treeWidget->blockSignals(dontFollowItemSelection);
@@ -302,6 +332,7 @@ void TeXDockTree::selectItemsForCursor(const QTextCursor &cursor, bool dontFollo
             items.prepend(item->child(i));
         }
         const auto *tag = __::getItemTag(item);
+        Q_ASSERT(tag);
         i = tag->position();
         if (start <= i) {
             if (end <= i)
@@ -354,62 +385,17 @@ void TeXDockTree::makeNewItem(QTreeWidgetItem *&item,
 
 void TeXDockTree::update(bool force)
 {
-    if ((! isVisible() || _updated) && ! force) return;
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
-    Q_ASSERT(treeWidget);
-    treeWidget->blockSignals(true);
-    if (tagSuite_m->isEmpty()) {
-        treeWidget->clear();
-        updateVoid();
-    } else {
-        // We save the state
-        struct State
-        {
-            bool isSelected;
-            bool isExpanded;
-        };
-        State defaultState{false, true};
-        QMap<int, State> states;
-        QList<QTreeWidgetItem *> items = { treeWidget->invisibleRootItem() };
-        QTreeWidgetItem *item = nullptr;
-        const Tag *tag = nullptr;
-        while (! items.isEmpty()) {
-            item = items.takeFirst();
-            int i = item->childCount();
-            while (i--) {
-                items.prepend(item->child(i));
-            }
-            tag = __::getItemTag(item);
-            State state{item->isSelected(), item->isExpanded()};
-            states.insert(tag->position(), state);
-        }
-        treeWidget->clear();
-        item = nullptr;
-        int i = 0;
-        while((tag = tagSuite_m->at(i))) {
-            makeNewItem(item, treeWidget, tag);
-            __::setItemTag(item, tag);
-            __::setItemTagIndex(item, i);
-            auto state = states.value(tag->position(), defaultState);
-            item->setSelected(state.isSelected);
-            if (state.isExpanded) {
-                treeWidget->expandItem(item);
-            } else {
-                treeWidget->collapseItem(item);
-            }
-            ++i;
-        }
-        if (lastScrollValue_m > 0) {
-            treeWidget->verticalScrollBar()->setValue(lastScrollValue_m);
-            lastScrollValue_m = 0;
-        }
-    }
-    treeWidget->blockSignals(false);
-    _updated = true;
+    if ((! isVisible() || updated_m) && ! force) return;
+    emit tagSuite_m->willChange();
+    emit tagSuite_m->didChange();
+    updated_m = true;
 }
 
 void TeXDockTree::find(const QString &find)
 {
+    if (tagSuitep.empty()) {
+        return;
+    }
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
     Q_ASSERT(treeWidget);
     QList<const Tag *> next;
@@ -478,11 +464,11 @@ TeXDockTag::TeXDockTag(TeXDocumentWindow *window)
 {
     Q_ASSERT(window);
     setObjectName(ObjectName::Tags);
+    initUI();
     setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
         Q_UNUSED(tag);
         return true;
     }));
-    initUI();
 }
 
 void TeXDockTag::updateVoid()
@@ -491,6 +477,7 @@ void TeXDockTag::updateVoid()
     Q_ASSERT(treeWidget);
     auto *item = new QTreeWidgetItem();
     item->setText(0, TeXDockTree::tr("No bookmark"));
+    // This item MUST NOT be selectable
     item->setFlags(item->flags() &~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
     treeWidget->addTopLevelItem(item);
 }
@@ -535,6 +522,9 @@ void TeXDockTag::initUI()
         button->setObjectName(ObjectName::list_remove);
         button->setEnabled(false);
         connect(button, &QPushButton::clicked, [=]() {
+            if (tagSuite_m.empty()) {
+                return;
+            }
             auto items = treeWidget->selectedItems();
             for (auto *item: treeWidget->selectedItems()) {
                 auto const *tag = __::getItemTag(item);
@@ -618,10 +608,10 @@ TeXDockBookmark::TeXDockBookmark(TeXDocumentWindow * window)
 : TeXDockTree(TeXDockTree::tr("Bookmarks"), window)
 {
     setObjectName(ObjectName::Bookmarks);
+    initUI();
     setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
         return tag && ! tag->isOutline();
     }));
-    initUI();
 }
 
 void TeXDockBookmark::updateVoid()
@@ -682,6 +672,9 @@ void TeXDockBookmark::initUI()
         button->setObjectName(ObjectName::list_remove);
         button->setEnabled(false);
         connect(button, &QPushButton::clicked, [=]() {
+            if (tagSuite_m.empty()) {
+                return;
+            }
             auto items = treeWidget->selectedItems();
             for (auto *item: treeWidget->selectedItems()) {
                 auto const *tag = __::getItemTag(item);
@@ -773,10 +766,10 @@ TeXDockOutline::TeXDockOutline(TeXDocumentWindow * window)
 : TeXDockTree(TeXDockTree::tr("Outline"), window)
 {
     setObjectName(ObjectName::Outlines);
+    initUI();
     setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
         return tag && (tag->isOutline() || tag->isBoundary());
     }));
-    initUI();
 }
 
 TeXDockTreeWidget *TeXDockOutline::newTreeWidget()
@@ -913,16 +906,21 @@ select_tail:
 }
 
 ///MARK: TeXDockOutlineWidget
-TeXDockOutlineWidget::TeXDockOutlineWidget(TeXDockOutline *parent): Super(parent) {}
+TeXDockOutlineWidget::TeXDockOutlineWidget(TeXDockOutline *parent)
+    : Super(parent) {}
 
 void TeXDockOutlineWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     // If one of the selected items is a boundary, we abort the drag
-    for (const auto *item: selectedItems()) {
-        const auto *tag = __::getItemTag(item);
-        if (tag->isBoundary()) {
-            event->ignore();
-            break;
+    if (tagSuite_m.empty()) {
+        event->ignore();
+    } else {
+        for (const auto *item: selectedItems()) {
+            const auto *tag = __::getItemTag(item);
+            if (tag->isBoundary()) {
+                event->ignore();
+                break;
+            }
         }
     }
     Super::dragEnterEvent(event);
@@ -930,25 +928,27 @@ void TeXDockOutlineWidget::dragEnterEvent(QDragEnterEvent *event)
 
 void TeXDockOutlineWidget::dropEvent(QDropEvent *event)
 {
-    // We share the logic with the parent for better testing
-    
-    QTextCursor fromCursor, toCursor;
-    // we start by the drop location setting up toCursor
-    auto index = indexAt(event->pos());
-    if (! index.isValid()) {  // just in case
+    if (tagSuite_m.empty()) {
     theBeach:
         event->ignore();
         Super::dropEvent(event);
         return;
+    }
+    // We share the logic with the parent for better testing
+    QTextCursor fromCursor, toCursor;
+    // we start by the drop location setting up toCursor
+    auto index = indexAt(event->pos());
+    if (! index.isValid()) {  // just in case
+        goto theBeach;
     }
     QTreeWidgetItem *item = itemFromIndex(index);
     if (! item) {
         goto theBeach;
     }
     const auto *tag = __::getItemTag(item);
-    Q_ASSERT(tag && tag->isOutline());
+    Q_ASSERT(tag);
     if (! tag || ! tag->isOutline()) {
-        goto theBeach; // Unlikely to happen in theory
+        goto theBeach; // Only for boundary tags
     }
     // Ready to setup toCursor
     toCursor = tag->cursor();
@@ -956,7 +956,7 @@ void TeXDockOutlineWidget::dropEvent(QDropEvent *event)
     if (event->pos().y() > R.center().y()) {
         if ((item = itemBelow(item))) {
             if (! (tag = __::getItemTag(item))) {
-                goto theBeach;
+                goto theBeach; // Logically unreachable
             }
             toCursor.setPosition(tag->position());
         } else {

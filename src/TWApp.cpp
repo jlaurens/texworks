@@ -56,6 +56,8 @@
 #include <QTextCodec>
 #include <QTranslator>
 #include <QUrl>
+// THIS SHOULD BE REMOVED
+#include <QThread>
 
 #if defined(Q_OS_DARWIN)
 extern QString GetMacOSVersionString();
@@ -112,6 +114,7 @@ QString replaceEnvironmentVariables(const QString & s)
 TWApp::TWApp(int &argc, char **argv)
 	: QApplication(argc, argv)
 {
+    QThread::sleep(15); // JLDEBUG THIS SHOULD BE REMOVED
 	init();
 	CommandLineData cld = processCommandLine();
 	if (!cld.shouldContinue) {

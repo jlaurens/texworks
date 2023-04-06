@@ -33,9 +33,10 @@ class SpellCheckerTest : public QObject
 
 	QTemporaryDir m_tempDir;
 private slots:
-	void SpellChecker_getDictionaryList();
-	void SpellChecker_getDictionary();
-	void SpellChecker_ignoreWord();
+    void SpellChecker_getDictionaryList();
+    void SpellChecker_getDictionary();
+    void SpellChecker_ignoreWord();
+
 };
 
 } // namespace UnitTest

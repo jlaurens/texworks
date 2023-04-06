@@ -61,6 +61,7 @@
 #include <QTextBrowser>
 #include <QTextCodec>
 #include <QUrl>
+#include <QDebug>
 
 #if defined(Q_OS_WIN)
 #include <windows.h>
@@ -493,6 +494,7 @@ void TeXDocumentWindow::setLangInternal(const QString& lang)
 
 void TeXDocumentWindow::setSpellcheckLanguage(const QString& lang)
 {
+    qDebug() << "TeXDocumentWindow::setSpellcheckLanguage";
 	// this is called by the %!TEX spellcheck... line, or by scripts;
 	// it searches the menu for the given language code, and triggers it if available
 

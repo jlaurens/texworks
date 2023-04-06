@@ -40,14 +40,18 @@ class TagBank;
 
 class TeXDockTreeWidget;
 
+class TeXDockTreeAux;
+
 /// \author JL
 class TeXDockTree: public QDockWidget
 {
     Q_OBJECT
     using Super = QDockWidget;
+    using Self  = TeXDockTree;
+    struct Extra;
     TagSuite *tagSuite_m;
 protected:
-    bool _updated;
+    bool updated_m;
     void setTagSuite(TagSuite *);
 public:
     TeXDockTree(const QString & title, TeXDocumentWindow *window);
@@ -66,10 +70,10 @@ public:
 protected:
     virtual TeXDockTreeWidget *newTreeWidget();
     virtual void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tag *) const;
-    int lastScrollValue_m;
     virtual void updateVoid() = 0;
     QTreeWidgetItem *getItemAtIndex(const int tagIndex);
     void selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection);
+    Extra *extra_m;
 };
 
 class TeXDockTreeWidget: public QTreeWidget
