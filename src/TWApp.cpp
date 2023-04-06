@@ -30,7 +30,7 @@
 #include "TWUtils.h"
 #include "TeXDocumentWindow.h"
 #include "TemplateDialog.h"
-#include "document/SpellChecker.h"
+#include "document/TWSpellChecker.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/CommandlineParser.h"
 #include "utils/ResourcesLibrary.h"

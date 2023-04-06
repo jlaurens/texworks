@@ -93,11 +93,14 @@ add_executable(test_Document
     Document_test.cpp
     Document_test.h
     "${CMAKE_SOURCE_DIR}/src/document/Document.cpp"
-    "${CMAKE_SOURCE_DIR}/src/document/SpellChecker.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.h"
     "${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"
+    "${CMAKE_SOURCE_DIR}/src/document/TWSpellChecker.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TWTag.cpp"
+    "${CMAKE_SOURCE_DIR}/src/utils/ResourcesLibrary.cpp"
+    "${CMAKE_SOURCE_DIR}/src/utils/FileVersionDatabase.cpp"
+    "${CMAKE_SOURCE_DIR}/src/utils/VersionInfo.cpp"
     "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.cpp"
     "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.h"
     "${CMAKE_SOURCE_DIR}/src/TeXHighlighter.h"
@@ -111,4 +114,3 @@ if (WITH_POPPLERQT)
 endif (WITH_POPPLERQT)
 target_link_libraries(test_Document QtPDF::qtpdf SyncTeX::synctex Hunspell::hunspell ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
 add_test(NAME test_Document COMMAND test_Document WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
-

@@ -15,7 +15,7 @@
 # Either outlines and bookmarks are displayed separately, or interlaced.
 
 # Magic comments
-Magic  0  ^%(\^\^A)?\s!(?:TEX|TeX)
+Magic  0  ^%(?:\^\^A)?\s!((?:TEX|TeX)\s*(.*?)\s*$
 
 # Patterns for LaTeX sectioning commands:
 Outline  0  ^%?\s*\\part\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}

@@ -36,12 +36,16 @@ namespace Tw {
  */
 namespace String {
 
+extern const QString pathListSeparator;
+extern const QString exeExtension;
+
 }
 
 /*! \brief QWidget object names.
  */
 namespace ObjectName {
 
+extern const QString treeWidget;
 extern const QString toolbar;
 extern const QString list_add;
 extern const QString list_remove;

@@ -30,9 +30,9 @@
 #include "Settings.h"
 #include "TWApp.h"
 #include "TWUtils.h"
-#include "TeXDocks.h"
 #include "TeXHighlighter.h"
 #include "TemplateDialog.h"
+#include "document/TWTeXDockTree.h"
 #include "scripting/ScriptAPI.h"
 #include "ui/ClickableLabel.h"
 #include "ui/RemoveAuxFilesDialog.h"
@@ -420,15 +420,15 @@ void TeXDocumentWindow::init()
 
 	Tw::Utils::WindowManager::zoomToHalfScreen(this);
 
-	QDockWidget *dw = new TeXDockTag(this);
+	QDockWidget *dw = new Tw::Document::TeXDockTag(this);
 	dw->hide();
 	addDockWidget(Qt::LeftDockWidgetArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
-    dw = new TeXDockOutline(this);
+    dw = new Tw::Document::TeXDockOutline(this);
     dw->hide();
     addDockWidget(Qt::LeftDockWidgetArea, dw);
     menuShow->addAction(dw->toggleViewAction());
-    dw = new TeXDockBookmark(this);
+    dw = new Tw::Document::TeXDockBookmark(this);
     dw->hide();
     addDockWidget(Qt::LeftDockWidgetArea, dw);
     menuShow->addAction(dw->toggleViewAction());

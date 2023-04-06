@@ -22,11 +22,20 @@
 #include "TWString.h"
 #include "document/TextDocument.h"
 #include "document/TWTag.h"
+#include "TWUtils.h"
+#include "utils/ResourcesLibrary.h"
+
+#include <QString>
 #include <QDebug>
+#include <QTreeWidgetItem>
 
 namespace Tw {
 namespace Document {
 
+/// \file Tag model
+/// \author JL
+
+// types declared in the pattern-tags.txt file
 const QString Tag::TypeName::Any       = QStringLiteral("Any");
 const QString Tag::TypeName::Magic     = QStringLiteral("Magic");
 const QString Tag::TypeName::Bookmark  = QStringLiteral("Bookmark");
@@ -44,7 +53,7 @@ static const QString kKeyContent = QStringLiteral("content");
 static const QString kKeyType    = QStringLiteral("type");
 }
 
-//MARK: Tag
+//MARK: Tag static
 Tag::Type Tag::typeForName(const QString &name) {
     if (name == TypeName::Magic) {
         return Type::Magic;
@@ -84,6 +93,10 @@ Tag::Subtype Tag::subtypeForName(const QString &name) {
     return Subtype::Any;
 }
 
+Tag::Subtype Tag::subtypeForMatch(const QRegularExpressionMatch &match) {
+    return subtypeForName(match.captured(__::kKeyType));
+}
+
 const QString Tag::nameForSubtype(Tag::Subtype subtype) {
     if (subtype == Subtype::MARK) {
         return SubtypeName::MARK;
@@ -97,103 +110,294 @@ const QString Tag::nameForSubtype(Tag::Subtype subtype) {
     return SubtypeName::Any;
 }
 
-Tag::Tag(const Type     type,
-         const Subtype  subtype,
-         const int      level,
-         const QTextCursor & cursor,
-         const QString& text,
-         const QString& tooltip,
-         TagBank *parent /* = nullptr */):
-QObject  (parent  ),
-__type   (type    ),
-__subtype(subtype ),
-__level  (level   ),
-__cursor (cursor  ),
-__text   (text    ),
-__tooltip(tooltip )
+const QList<const Tag::Rule *> Tag::rules()
 {
-    Q_ASSERT(!__cursor.isNull());
+    static QList<const Rule *> rules;
+    if (rules.empty()) {
+        // read tag-recognition patterns
+        QFile file(::Tw::Utils::ResourcesLibrary::getTagPatternsPath());
+        if (file.open(QIODevice::ReadOnly)) {
+            QRegularExpression whitespace(QStringLiteral("\\s+"));
+            while (true) {
+                QByteArray ba = file.readLine();
+                if (ba.size() == 0)
+                    break;
+                if (ba[0] == '#' || ba[0] == '\n')
+                    continue;
+                QString line = QString::fromUtf8(ba.data(), ba.size());
+                QStringList parts = line.split(whitespace, Qt::SkipEmptyParts);
+                if (parts.size() != 3)
+                    continue;
+                bool ok{false};
+                Type type = typeForName(parts[0]);
+                if (type != Type::Any) {
+                    int level = parts[1].toInt(&ok);
+                    if (ok) {
+                        auto pattern = QRegularExpression(parts[2]);
+                        if (pattern.isValid()) {
+                            const Rule *r = new Rule(type, level, pattern);
+                            rules << r;
+                        } else {
+                            qWarning() << "Wrong tag pattern:" << parts[2];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return rules;
 }
 
-Tag::Tag(const QTextCursor &cursor,
-         const int level,
-         const QString &text,
-         TagBank *parent /* = nullptr */):
-QObject  (parent      ),
-__type   (Type::Any   ),
-__subtype(Subtype::Any),
-__level  (level       ),
-__cursor (cursor      ),
-__text   (text        ),
-__tooltip(QString()   )
-{
-    Q_ASSERT(!cursor.isNull());
-    int end = __cursor.selectionEnd();
-    __cursor.movePosition(QTextCursor::StartOfBlock);
-    __cursor.setPosition(end, QTextCursor::KeepAnchor);
-    __cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-}
 
-Tag::Tag(const Tag::Type type,
-         const int level,
+//MARK: Tag
+Tag::Tag(const Type    type,
+         const Subtype subtype,
+         const int     level,
          const QTextCursor &cursor,
-         const QRegularExpressionMatch & match,
-         TagBank *parent):
-QObject (parent),
-__type  (type  ),
-__level (level ),
-__cursor(cursor)
+         const QString     &text,
+         const QString     &tooltip,
+         TagBank           *bank):
+type_m   (type),
+subtype_m(subtype),
+level_m  (level),
+cursor_m (cursor),
+text_m   (text),
+tooltip_m(tooltip),
+bank_m   (bank)
 {
-    Q_ASSERT(!cursor.isNull());
-    
-    QString s = match.captured(__::kKeyType);
-    __subtype = Tag::subtypeForName(s);
-    
-    int end = __cursor.selectionEnd();
-    __cursor.movePosition(QTextCursor::StartOfBlock);
-    __cursor.setPosition(end, QTextCursor::KeepAnchor);
-    __cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-    
-    s = match.captured(__::kKeyContent);
-    if (s.isEmpty()) {
-        s = match.captured(1);
-    }
-    if (s.isEmpty()) {
-        __text = match.captured(0);
-        __tooltip = QString();
-    } else {
-        __text = s;
-        __tooltip = match.captured(0);
-    }
+    Q_ASSERT(bank);
 }
 
 const TagBank *Tag::bank() const
 {
-    return static_cast<TagBank *>(parent());
+    return bank_m;
 }
 
 TextDocument *Tag::document() const
 {
-    return bank()->document();
+    return bank_m->document();
+}
+
+int Tag::level() const
+{
+    return level_m;
+}
+
+const QString &Tag::text() const
+{
+    return text_m;
+}
+
+const QString &Tag::tooltip() const
+{
+    return tooltip_m;
+}
+
+const QTextCursor &Tag::cursor() const
+{
+    return cursor_m;
+}
+
+int  Tag::position()const
+{
+    return cursor_m.position();
+}
+
+bool Tag::isOfType(Type t) const
+{
+    return type_m == t;
+}
+
+bool Tag::isMagic() const
+{
+    return type_m == Type::Magic;
+}
+
+bool Tag::isBookmark() const
+{
+    return type_m == Type::Bookmark;
+}
+
+bool Tag::isOutline() const
+{
+    return type_m == Type::Outline;
+}
+
+bool Tag::isMARK() const
+{
+    return subtype_m == Subtype::MARK;
+}
+
+bool Tag::isTODO() const
+{
+    return subtype_m == Subtype::TODO;
+}
+
+bool Tag::isBORDER() const
+{
+    return subtype_m == Subtype::BORDER;
+}
+
+bool Tag::isBoundary() const
+{
+    return isMagic() || isBORDER();
+}
+
+bool Tag::operator==(Tag &rhs)
+{
+    return position() == rhs.position();
+}
+
+//MARK: Tag::Rule
+Tag::Rule::Rule(Type type,
+                int level,
+                const QRegularExpression & pattern):
+type_m(type),
+level_m(level),
+pattern_m(pattern)
+{}
+
+//MARK: TagBank
+TagBank::TagBank(TextDocument *parent): Super(parent)
+{
+    // no destructor available, install a signal listener instead
+    connect(this, &QObject::destroyed, this, [=]() {
+        for (auto *suite: suites_m) {
+            delete suite;
+        }
+        suites_m.clear();
+        for (auto *tag: tags_m) {
+            delete tag;
+        }
+        tags_m.clear();
+    });
+}
+
+TagSuite *TagBank::makeSuite(Tag::Filter filter)
+{
+    suites_m << new TagSuite(this, filter);
+    return suites_m.last();
+}
+
+TextDocument *TagBank::document() const
+{
+    return static_cast<TextDocument *>(parent());
+}
+
+const QList<const Tag *> TagBank::tags() const
+{
+    return tags_m;
+};
+
+void TagBank::willChange()
+{
+    for(auto *suite: suites_m) {
+        suite->willChange();
+    }
+}
+
+void TagBank::didChange()
+{
+    // model changes
+    for(auto *suite: suites_m) {
+        suite->update();
+    }
+    // UI changes are postponed
+    for(auto *suite: suites_m) {
+        emit suite->didChange();
+    }
+}
+
+//MARK: Tag::BankHelper
+Tag::BankHelper::BankHelper(TextDocument *document): document_m(document)
+{
+    Q_ASSERT(document_m);
+    document_m->tagBank()->willChange();
+}
+
+Tag::BankHelper::~BankHelper() {
+    document_m->tagBank()->didChange();
+}
+
+void Tag::BankHelper::addTag(const Tag::Rule *rule,
+                             const int position,
+                             const QRegularExpressionMatch &match)
+{
+    Q_ASSERT(rule);
+    auto subtype = subtypeForMatch(match);
+    
+    auto cursor = QTextCursor(document_m);
+    cursor.setPosition(position);
+    cursor.movePosition(QTextCursor::StartOfBlock);
+
+    QString s = match.captured(__::kKeyContent);
+    if (s.isEmpty()) {
+        s = match.captured(1);
+    }
+    QString text, tooltip;
+    if (s.isEmpty()) {
+        text = match.captured(0);
+        tooltip = QString();
+    } else {
+        text = s;
+        tooltip = match.captured(0);
+    }
+    auto *bank = document_m->tagBank();
+    auto *tag = new Tag(rule->type(),
+                        subtype,
+                        rule->level(),
+                        cursor,
+                        text,
+                        tooltip,
+                        bank
+                        );
+    auto tags = bank->tags_m;
+    int i = tags.size();
+    while(i--) {
+        const Tag *t = tags.at(i);
+        if (t->position() > position) {
+            continue;
+        }
+        if (t->position() == position) {
+            delete tags.takeAt(i);
+        }
+        tags.insert(i, tag);
+        tag = nullptr;
+        break;
+    }
+    if (tag) {
+        tags.insert(0, tag);
+    }
+}
+
+unsigned int Tag::BankHelper::removeTags(int offset, int len)
+{
+    unsigned int removed = 0;
+    auto *bank = document_m->tagBank();
+    auto tags = bank->tags_m;
+    auto start = tags.begin();
+    while(start != tags.end() && (*start)->position() < offset) {
+        ++start;
+    }
+    auto end = start;
+    offset += len;
+    while(end != tags.end() && (*end)->position() < offset) {
+        delete *end;
+        ++removed;
+        ++end;
+    }
+    if (removed > 0) {
+        tags.erase(start, end);
+    }
+    return removed;
 }
 
 //MARK: TagSuite
 
-TagSuite::TagSuite(TagBank *bank, Filter f): QObject(bank), __filter(f)
+TagSuite::TagSuite(TagBank *bank, Tag::Filter filter): Super(bank),
+filter_m(filter)
 {
     Q_ASSERT(bank);
-    connect(bank, &TagBank::changed, this, [=]() {
-        qDebug() << "CHANGED";
-        __tags.clear();
-        const auto tags = bank->tags();
-        qDebug() << tags.size();
-        for (const Tag *tag: tags) {
-            if (tag && f(tag))
-                __tags << tag;
-        }
-        qDebug() << __tags.size();
-        emit changed();
-    });
 }
 
 const TagBank *TagSuite::bank() const
@@ -206,166 +410,41 @@ TextDocument *TagSuite::document() const
     return bank()->document();
 }
 
-QList<const Tag *> TagSuite::tags()
+QList<const Tag *> TagSuite::tags() const
 {
-    return QList<const Tag *>(__tags);
+    return tags_m;
 }
 
-const Tag *TagSuite::get(const int i)
+bool TagSuite::isEmpty() const
 {
-    return 0 <= i && i < __tags.count() ? __tags[i] : nullptr;
+    return tags_m.isEmpty();
 }
 
-/// \brief manage the cursor for a contiguous selection
-/// \param yorn select when true , deselect when false
-/// \param cursor
-void TagSuite::select(bool yorn, const QTextCursor &cursor)
+const Tag *TagSuite::at(const int i) const
 {
-    if (cursor.isNull()) {
-        if (yorn) {
-            __cursor = QTextCursor(document());
-            __cursor.movePosition(QTextCursor::Start);
-            __cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        }
-        return;
-    }
-    int start =  0;
-    int end   = -1;
-    if (yorn) {
-        if (__cursor.isNull()) {
-            __cursor = cursor;
-            start = __cursor.selectionStart();
-            end   = __cursor.selectionEnd();
-heaven:
-            if (start < end) {
-                __cursor.setPosition(start);
-                __cursor.movePosition(QTextCursor::StartOfBlock);
-                __cursor.setPosition(end, QTextCursor::KeepAnchor);
-                __cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-                return;
-            }
-            __cursor = QTextCursor();
-            return;
-        }
-        // expand the selection
-        start = std::min(cursor.selectionStart(), __cursor.selectionStart());
-        end =   std::max(cursor.selectionEnd(),   __cursor.selectionEnd());
-        goto heaven;
-    }
-    if (__cursor.isNull()) {
-        return;
-    }
-    // cut off the selection
-    if (cursor.selectionStart()>=__cursor.selectionEnd()) {
-        __cursor = QTextCursor();
-        return;
-    }
-    if (__cursor.selectionStart()>=cursor.selectionEnd()) {
-        __cursor = QTextCursor();
-        return;
-    }
-    start = __cursor.selectionStart();
-    end   =   cursor.selectionStart();
-    if (start < end) {
-        goto heaven;
-    }
-    start =   cursor.selectionEnd();
-    end   = __cursor.selectionEnd();
-    if (start < end) {
-        goto heaven;
-    }
-    __cursor = QTextCursor();
-}
-bool TagSuite::isSelected(const Tag *tag) const
-{
-    if (__cursor.isNull() || !tag) return false;
-    int i = tag->selectionStart();
-    return __cursor.selectionStart() <= i && i <= __cursor.selectionEnd();
+    return 0 <= i && i < tags_m.count() ? tags_m.at(i) : nullptr;
 }
 
-//MARK: TagBank
-TagBank::TagBank(TextDocument *parent) : QObject(parent)
+int TagSuite::indexOf(const Tag *tag) const
 {
-    _suiteAll      = new TagSuite(this, [](const Tag *tag) {
-        return tag;
-    });
-    _suiteBookmark = new TagSuite(this, [](const Tag *tag) {
-        return tag && ! tag->isOutline();
-    });
-    _suiteOutline  = new TagSuite(this, [](const Tag *tag) {
-        return tag && (tag->isOutline() || tag->isBoundary());
-    });
+    return tags_m.indexOf(tag);
 }
 
-TextDocument *TagBank::document() const
+void TagSuite::emitChange()
 {
-    return static_cast<TextDocument *>(parent());
+    emit willChange();
+    emit didChange();
 }
 
-bool TagBank::addTag(Tag *tag)
+void TagSuite::update()
 {
-    if (!tag) return false;
-    
-    tag->setParent(this); // take ownership
-    
-    auto index = tag->selectionStart();
-    int i = _tags.size();
-    while(i--) {
-        const Tag *t = _tags.at(i);
-        if (t->selectionStart() > index) {
-            continue;
-        }
-        if (t->selectionStart() == index) {
-            _tags.replace(i, tag);
-        } else {
-            _tags.insert(i, tag);
-        }
-        tag = nullptr;
-        break;
+    tags_m.clear();
+    const auto tags = bank()->tags();
+    qDebug() << tags.size();
+    for (const Tag *tag: tags) {
+        if (tag && filter_m(tag))
+            tags_m << tag;
     }
-    if (tag) {
-        _tags.insert(0, tag);
-    }
-    emit changed();
-    return true;
-}
-
-void TagBank::addTag(const QTextCursor & c, const int level, const QString & text)
-{
-    Tag *tag = new Tag(c, level, text, this);
-    if (! addTag(tag)) delete tag;
-}
-
-void TagBank::addTag(const Tag::Type type,
-                     const int level,
-                     const int index,
-                     const QRegularExpressionMatch & match)
-{
-    QTextCursor c = QTextCursor(document());
-    c.setPosition(index);
-    c.setPosition(index+match.capturedLength(), QTextCursor::KeepAnchor);
-    Tag *tag = new Tag(type, level, c, match, this);
-    if (! addTag(tag)) delete tag;
-}
-unsigned int TagBank::removeTags(int offset, int len)
-{
-    unsigned int removed = 0;
-    auto start = _tags.begin();
-    while(start != _tags.end() && (*start)->selectionStart() < offset) {
-        ++start;
-    }
-    auto end = start;
-    offset += len;
-    while(end != _tags.end() && (*end)->selectionStart() < offset) {
-        delete *end;
-        ++removed;
-        ++end;
-    }
-    if (removed > 0) {
-        _tags.erase(start, end);
-        emit changed();
-    }
-    return removed;
 }
 
 } // namespace Document

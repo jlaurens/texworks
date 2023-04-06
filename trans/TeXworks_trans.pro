@@ -25,12 +25,12 @@ SOURCES = \
   "../src/TWString.cpp" \
   "../src/TWIcon.cpp" \
   "../src/TWUtils.cpp" \
-  "../src/TeXDocks.cpp" \
+  "../src/TWTeXDockTree.cpp" \
   "../src/TeXDocumentWindow.cpp" \
   "../src/TeXHighlighter.cpp" \
   "../src/TemplateDialog.cpp" \
   "../src/document/Document.cpp" \
-  "../src/document/SpellChecker.cpp" \
+  "../src/document/TWSpellChecker.cpp" \
   "../src/document/TeXDocument.cpp" \
   "../src/document/TextDocument.cpp" \
   "../src/document/TWTag.cpp" \
@@ -83,15 +83,15 @@ HEADERS = \
   "../src/TWString.h" \
   "../src/TWUtils.h" \
   "../src/TWVersion.h" \
-  "../src/TeXDocks.h" \
   "../src/TeXDocumentWindow.h" \
   "../src/TeXHighlighter.h" \
   "../src/TemplateDialog.h" \
   "../src/document/Document.h" \
-  "../src/document/SpellChecker.h" \
+  "../src/document/TWSpellChecker.h" \
   "../src/document/TeXDocument.h" \
   "../src/document/TextDocument.h" \
   "../src/document/TWTag.h" \
+  "../src/document/TWTeXDockTree.h" \
   "../src/scripting/JSScript.h" \
   "../src/scripting/JSScriptInterface.h" \
   "../src/scripting/Script.h" \

@@ -19,7 +19,7 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "document/SpellChecker.h"
+#include "document/TWSpellChecker.h"
 
 #include "TWUtils.h" // for TWUtils::getLibraryPath
 #include "utils/ResourcesLibrary.h"
@@ -29,32 +29,34 @@
 namespace Tw {
 namespace Document {
 
-QMultiHash<QString, QString> * SpellChecker::dictionaryList = nullptr;
-QHash<const QString,SpellChecker::Dictionary*> * SpellChecker::dictionaries = nullptr;
-SpellChecker * SpellChecker::_instance = new SpellChecker();
+namespace __ {
+static QMultiHash<QString, QString> * dictionaryList = nullptr;
+static QHash<const QString,SpellChecker::Dictionary*> * dictionaries = nullptr;
+}
+
+SpellChecker * SpellChecker::instance_m = new SpellChecker();
 
 // static
 QMultiHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceReload /* = false */)
 {
-	if (dictionaryList) {
+	if (__::dictionaryList) {
 		if (!forceReload)
-			return dictionaryList;
-		delete dictionaryList;
+			return __::dictionaryList;
+        delete __::dictionaryList;
 	}
-
-	dictionaryList = new QMultiHash<QString, QString>();
+    __::dictionaryList = new QMultiHash<QString, QString>();
 	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
 	foreach (QDir dicDir, dirs) {
-		foreach (QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QString::fromLatin1("*.dic")),
+		foreach (QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QStringLiteral("*.dic")),
 					QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase)) {
-			QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QLatin1String(".aff"));
+			QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QStringLiteral(".aff"));
 			if (affFileInfo.isReadable())
-				dictionaryList->insert(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
+				__::dictionaryList->insert(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
 		}
 	}
 
-	emit SpellChecker::instance()->dictionaryListChanged();
-	return dictionaryList;
+	emit instance()->dictionaryListChanged();
+	return __::dictionaryList;
 }
 
 // static
@@ -63,21 +65,21 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
 	if (language.isEmpty())
 		return nullptr;
 
-	if (!dictionaries)
-		dictionaries = new QHash<const QString, Dictionary*>;
+	if (!__::dictionaries)
+        __::dictionaries = new QHash<const QString, Dictionary*>;
 
-	if (dictionaries->contains(language))
-		return dictionaries->value(language);
+	if (__::dictionaries->contains(language))
+		return __::dictionaries->value(language);
 
 	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
 	foreach (QDir dicDir, dirs) {
-		QFileInfo affFile(dicDir, language + QLatin1String(".aff"));
-		QFileInfo dicFile(dicDir, language + QLatin1String(".dic"));
+		QFileInfo affFile(dicDir, language + QStringLiteral(".aff"));
+		QFileInfo dicFile(dicDir, language + QStringLiteral(".dic"));
 		if (affFile.isReadable() && dicFile.isReadable()) {
 			Hunhandle * h = Hunspell_create(affFile.canonicalFilePath().toLocal8Bit().data(),
 								dicFile.canonicalFilePath().toLocal8Bit().data());
-			dictionaries->insert(language, new Dictionary(language, h));
-			return dictionaries->value(language);
+            __::dictionaries->insert(language, new Dictionary(language, h));
+			return __::dictionaries->value(language);
 		}
 	}
 	return nullptr;
@@ -86,36 +88,36 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
 // static
 void SpellChecker::clearDictionaries()
 {
-	if (!dictionaries)
+	if (!__::dictionaries)
 		return;
 
-	foreach(Dictionary * d, *dictionaries)
+	foreach(Dictionary * d, *__::dictionaries)
 		delete d;
 
-	delete dictionaries;
-	dictionaries = nullptr;
+	delete __::dictionaries;
+    __::dictionaries = nullptr;
 }
-
+//MARK: SpellChecker::Dictionary
 SpellChecker::Dictionary::Dictionary(const QString & language, Hunhandle * hunhandle)
-	: _language(language)
-	, _hunhandle(hunhandle)
-	, _codec(nullptr)
+	: language_m(language)
+	, hunhandle_m(hunhandle)
+	, codec_m(nullptr)
 {
-	if (_hunhandle)
-		_codec = QTextCodec::codecForName(Hunspell_get_dic_encoding(_hunhandle));
-	if (!_codec)
-		_codec = QTextCodec::codecForLocale(); // almost certainly wrong, if we couldn't find the actual name!
+	if (hunhandle_m)
+		codec_m = QTextCodec::codecForName(Hunspell_get_dic_encoding(hunhandle_m));
+	if (!codec_m)
+		codec_m = QTextCodec::codecForLocale(); // almost certainly wrong, if we couldn't find the actual name!
 }
 
 SpellChecker::Dictionary::~Dictionary()
 {
-	if (_hunhandle)
-		Hunspell_destroy(_hunhandle);
+	if (hunhandle_m)
+		Hunspell_destroy(hunhandle_m);
 }
 
 bool SpellChecker::Dictionary::isWordCorrect(const QString & word) const
 {
-	return (Hunspell_spell(_hunhandle, _codec->fromUnicode(word).data()) != 0);
+	return (Hunspell_spell(hunhandle_m, codec_m->fromUnicode(word).data()) != 0);
 }
 
 QList<QString> SpellChecker::Dictionary::suggestionsForWord(const QString & word) const
@@ -123,12 +125,12 @@ QList<QString> SpellChecker::Dictionary::suggestionsForWord(const QString & word
 	QList<QString> suggestions;
 	char ** suggestionList{nullptr};
 
-	int numSuggestions = Hunspell_suggest(_hunhandle, &suggestionList, _codec->fromUnicode(word).data());
+	int numSuggestions = Hunspell_suggest(hunhandle_m, &suggestionList, codec_m->fromUnicode(word).data());
 	suggestions.reserve(numSuggestions);
 	for (int iSuggestion = 0; iSuggestion < numSuggestions; ++iSuggestion)
-		suggestions.append(_codec->toUnicode(suggestionList[iSuggestion]));
+		suggestions.append(codec_m->toUnicode(suggestionList[iSuggestion]));
 
-	Hunspell_free_list(_hunhandle, &suggestionList, numSuggestions);
+	Hunspell_free_list(hunhandle_m, &suggestionList, numSuggestions);
 
 	return suggestions;
 }
@@ -136,7 +138,7 @@ QList<QString> SpellChecker::Dictionary::suggestionsForWord(const QString & word
 void SpellChecker::Dictionary::ignoreWord(const QString & word)
 {
 	// note that this is not persistent after quitting TW
-	Hunspell_add(_hunhandle, _codec->fromUnicode(word).data());
+	Hunspell_add(hunhandle_m, codec_m->fromUnicode(word).data());
 }
 
 } // namespace Document

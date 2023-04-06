@@ -27,7 +27,7 @@ namespace Tw {
 namespace Document {
 namespace UnitTest {
 
-class TestDocument : public QObject
+class SpellCheckerTest : public QObject
 {
 	Q_OBJECT
 
@@ -48,6 +48,10 @@ private slots:
 	void modelines();
 	void findNextWord_data();
 	void findNextWord();
+
+	void SpellChecker_getDictionaryList();
+	void SpellChecker_getDictionary();
+	void SpellChecker_ignoreWord();
 
 	void Synchronizer_isValid();
 	void Synchronizer_syncTeXFilename();

@@ -22,7 +22,6 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   ScriptManagerWidget.cpp
                   Settings.cpp
                   TemplateDialog.cpp
-                  TeXDocks.cpp
                   TeXDocumentWindow.cpp
                   TeXHighlighter.cpp
                   TWApp.cpp
@@ -33,10 +32,11 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   TWString.cpp
                   TWUtils.cpp
                   document/Document.cpp
-                  document/SpellChecker.cpp
+                  document/TWSpellChecker.cpp
                   document/TextDocument.cpp
                   document/TeXDocument.cpp
                   document/TWTag.cpp
+                  document/TWTeXDockTree.cpp
                   scripting/ECMAScriptInterface.cpp
                   scripting/ECMAScript.cpp
                   scripting/ScriptAPI.cpp
@@ -76,7 +76,6 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   ScriptManagerWidget.h
                   Settings.h
                   TemplateDialog.h
-                  TeXDocks.h
                   TeXDocumentWindow.h
                   TeXHighlighter.h
                   TWApp.h
@@ -89,10 +88,11 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   TWVersion.h
                   InterProcessCommunicator.h
                   document/Document.h
-                  document/SpellChecker.h
+                  document/TWSpellChecker.h
                   document/TextDocument.h
                   document/TeXDocument.h
                   document/TWTag.h
+                  document/TWTeXDockTree.h
                   scripting/ScriptAPIInterface.h
                   scripting/ScriptLanguageInterface.h
                   scripting/ScriptAPI.h

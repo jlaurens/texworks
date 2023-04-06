@@ -25,10 +25,23 @@
 
 namespace Tw {
 
+namespace String {
+
+#if defined(Q_OS_WIN)
+const QString pathListSeparator = QStringLiteral(";");
+const QString exeExtension = QStringLiteral(".exe");
+#else
+const QString pathListSeparator = QStringLiteral(":");
+const QString exeExtension = QStringLiteral("");
+#endif
+
+}
+
 const QString TypeName::Bookmark = QStringLiteral("Bookmark");
 const QString TypeName::Outline  = QStringLiteral("Outline");
 const QString TypeName::Unknown  = QStringLiteral("Unknown");
 
+const QString ObjectName::treeWidget  = QStringLiteral("Tw.treeWidget");
 const QString ObjectName::toolbar     = QStringLiteral("Tw.toolbar");
 const QString ObjectName::list_add    = QStringLiteral("Tw.list_add");
 const QString ObjectName::list_remove = QStringLiteral("Tw.list_remove");

@@ -23,7 +23,7 @@
 #include "Engine.h"
 #include "Settings.h"
 #include "TWApp.h"
-#include "document/SpellChecker.h"
+#include "document/TWSpellChecker.h"
 #include "scripting/Script.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/SystemCommand.h"

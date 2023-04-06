@@ -26,15 +26,13 @@
 namespace Tw {
 namespace Document {
 
-TextDocument::TextDocument(QObject * parent): QTextDocument(QString(), parent)
-{
-    _tagBank = new TagBank(this);
-}
+TextDocument::TextDocument(QObject * parent): QTextDocument(QString(), parent),
+tagBank_m(new TagBank(this))
+{}
 
-TextDocument::TextDocument(const QString & text, QObject * parent): QTextDocument(text, parent)
-{
-    _tagBank = new TagBank(this);
-}
+TextDocument::TextDocument(const QString & text, QObject * parent): QTextDocument(text, parent),
+tagBank_m(new TagBank(this))
+{}
 
 } // namespace Document
 } // namespace Tw

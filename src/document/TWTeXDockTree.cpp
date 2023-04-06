@@ -19,8 +19,8 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "TeXDocks.h"
-
+#include "document/TWTeXDockTree.h"
+#include "document/TWTag.h"
 #include "TeXDocumentWindow.h"
 #include "TWString.h"
 #include "TWIcon.h"
@@ -33,28 +33,32 @@
 #include <QDebug>
 #include <QProxyStyle>
 
+namespace Tw {
+namespace Document {
+
 /// \note all static material is gathered here
 namespace __ {
 
 static int kMinLevel = std::numeric_limits<int>::min();
 
 enum Role {
-    kTagRole = Qt::UserRole,
+    kSuiteRole = Qt::UserRole,
+    kTagRole,
     kTagIndexRole,
     kLevelRole,
     kBookmarkLevelRole,
     kOutlineLevelRole,
 };
-static const Tw::Document::Tag *getItemTag(const QTreeWidgetItem *item) {
+static const Tag *getItemTag(const QTreeWidgetItem *item) {
     if (item) {
         QVariant v = item->data(0, __::kTagRole);
         if (v.isValid()) {
-            return static_cast<const Tw::Document::Tag *>(v.value<const void *>());
+            return static_cast<const Tag *>(v.value<const void *>());
         }
     }
     return nullptr;
 }
-static void setItemTag(QTreeWidgetItem *item, const Tw::Document::Tag *tag) {
+static void setItemTag(QTreeWidgetItem *item, const Tag *tag) {
     if (item) {
         QVariant v = QVariant::fromValue(static_cast<const void*>(tag));
         item->setData(0, __::kTagRole, v);
@@ -117,41 +121,107 @@ static bool setItemOutlineLevel(QTreeWidgetItem * item, const int level) {
     return false;
 }
 } // namespace __
-TeXDock::TeXDock(const QString &title, TeXDocumentWindow * window)
-	: QDockWidget(title, window), _window(window), _updated(false)
-{
-	connect(this, &TeXDock::visibilityChanged, this, &TeXDock::onVisibilityChanged);
-}
 
-void TeXDock::onVisibilityChanged(bool visible)
-{
-	update(visible);
-}
- //MARK: TeXDockTreeWidget
+//MARK: TeXDockTreeWidget
 
 TeXDockTreeWidget::TeXDockTreeWidget(QWidget *parent)
-	: QTreeWidget(parent)
+: QTreeWidget(parent)
 {
-	setIndentation(10);
+    setIndentation(10);
 }
 
 QSize TeXDockTreeWidget::sizeHint() const
 {
-	return QSize(180, 300);
+    return QSize(180, 300);
 }
 
 //MARK: TeXDockTree
 
 /// \author JL
-TeXDockTree::TeXDockTree(const QString &title, TeXDocumentWindow * win)
-    : TeXDock(title, win), _dontFollowItemSelection(false)
+TeXDockTree::TeXDockTree(const QString &title, TeXDocumentWindow * window): Super(title, window)
 {
+    connect(this,
+            &TeXDockTree::visibilityChanged,
+            this,
+            [=](bool visible) {
+        update(visible);
+    });
     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    connect(win->textDoc()->tagBank(), &Tw::Document::TagBank::changed, this, &TeXDockTree::onTagBankChanged);
-    _lastScrollValue = 0;
-    observeCursorPositionChanged(true);
+    connect(editor(), &QTextEdit::cursorPositionChanged, this, [=]() {
+        selectItemsForCursor(editor()->textCursor(), true);
+    });
 }
 
+TeXDocumentWindow *TeXDockTree::window()
+{
+    return static_cast<TeXDocumentWindow *>(parent());
+}
+
+QTextEdit *TeXDockTree::editor()
+{
+    return window()->editor();
+}
+
+void TeXDockTree::setTagSuite(TagSuite * tagSuite)
+{
+    if (tagSuite_m) {
+        disconnect(tagSuite_m, &TagSuite::willChange, this, nullptr);
+        disconnect(tagSuite_m, &TagSuite::didChange,  this, nullptr);
+    }
+    tagSuite_m = tagSuite;
+    if (!tagSuite_m) {
+        return;
+    }
+    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    Q_ASSERT(treeWidget);
+    struct State
+    {
+        bool isSelected;
+        bool isExpanded;
+    };
+    QMap<int, State> states;
+    int lastScrollValue = 0;
+    connect(tagSuite_m, &TagSuite::willChange, this, [&]() {
+        treeWidget->blockSignals(true);
+        lastScrollValue = treeWidget->verticalScrollBar()->value();
+        QList<QTreeWidgetItem *> items = { treeWidget->invisibleRootItem() };
+        while (! items.isEmpty()) {
+            const auto *item = items.takeFirst();
+            int i = item->childCount();
+            while (i--) {
+                items.prepend(item->child(i));
+            }
+            const auto *tag = __::getItemTag(item);
+            State state{item->isSelected(), item->childCount() == 0 || item->isExpanded()};
+            states.insert(tag->position(), state);
+        }
+    });
+    connect(tagSuite_m, &TagSuite::didChange, this, [&]() {
+        treeWidget->clear();
+        QTreeWidgetItem *item = nullptr;
+        int i = 0;
+        State defaultState{false, true};
+        const Tag *tag = nullptr;
+        while((tag = tagSuite_m->at(i))) {
+            makeNewItem(item, treeWidget, tag);
+            __::setItemTag(item, tag);
+            __::setItemTagIndex(item, i);
+            auto state = states.value(tag->position(), defaultState);
+            item->setSelected(state.isSelected);
+            if (state.isExpanded) {
+                treeWidget->expandItem(item);
+            } else {
+                treeWidget->collapseItem(item);
+            }
+            ++i;
+        }
+        if (lastScrollValue > 0) {
+            treeWidget->verticalScrollBar()->setValue(lastScrollValue);
+        }
+        treeWidget->blockSignals(false);
+    });
+    
+}
 /// \note must be called by subclassers.
 void TeXDockTree::initUI()
 {
@@ -163,7 +233,7 @@ void TeXDockTree::initUI()
     topWidget->setLayout(topLayout);
     // the toolbar
     auto *toolbarWidget = new QWidget;
-    toolbarWidget->setObjectName(Tw::ObjectName::toolbar);
+    toolbarWidget->setObjectName(ObjectName::toolbar);
     auto *toolbarLayout = new QHBoxLayout;
     toolbarLayout->setSpacing(0);
     toolbarLayout->setContentsMargins(0,0,0,0);
@@ -181,7 +251,7 @@ void TeXDockTree::initUI()
     toolbarLayout->addWidget(comboBox, 2);
     topLayout->addWidget(toolbarWidget);
     // the tree
-    auto *treeWidget = newTreeWidget(this);
+    auto *treeWidget = newTreeWidget();
     treeWidget->header()->hide();
     treeWidget->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     treeWidget->setExpandsOnDoubleClick(false);
@@ -189,49 +259,9 @@ void TeXDockTree::initUI()
     setWidget(topWidget);
 }
 
-TeXDockTreeWidget *TeXDockTree::newTreeWidget(QWidget *parent)
+TeXDockTreeWidget *TeXDockTree::newTreeWidget()
 {
-    return new TeXDockTreeWidget(parent);
-}
-
-void TeXDockTree::onTagBankChanged()
-{
-}
-
-void TeXDockTree::onTagSuiteChanged()
-{
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
-    Q_ASSERT(treeWidget);
-    _lastScrollValue = treeWidget->verticalScrollBar()->value();
-    treeWidget->clear();
-    update(true);
-    
-}
-
-void TeXDockTree::observeCursorPositionChanged(bool yorn)
-{
-    if (yorn) {
-        connect(_window->editor(), &QTextEdit::cursorPositionChanged, this, &TeXDockTree::onCursorPositionChanged);
-    } else {
-        disconnect(_window->editor(), &QTextEdit::cursorPositionChanged, this, &TeXDockTree::onCursorPositionChanged);
-    }
-}
-
-void TeXDockTree::itemGainedFocus()
-{
-    if (_dontFollowItemSelection) return;
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
-    Q_ASSERT(treeWidget);
-    auto *suite = tagSuite();
-    suite->select(false);
-    for (const auto &item: treeWidget->selectedItems()) {
-        auto *tag = __::getItemTag(item);
-        if (tag) {
-            auto c = tag->cursor();
-            _window->ensureCursorVisible(c);
-            suite->select(true, c);
-        }
-    }
+    return new TeXDockTreeWidget(this);
 }
 
 QTreeWidgetItem *TeXDockTree::getItemAtIndex(const int tagIndex)
@@ -256,46 +286,54 @@ void TeXDockTree::selectItemsForCursor(const QTextCursor &cursor, bool dontFollo
 {
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
     Q_ASSERT(treeWidget);
+    treeWidget->blockSignals(dontFollowItemSelection);
     QTextCursor c(cursor);
     c.movePosition(QTextCursor::StartOfBlock);
-    int start = c.selectionStart();
+    int start = c.position();
     c.setPosition(cursor.selectionEnd());
     c.movePosition(QTextCursor::EndOfBlock);
-    int end = c.selectionEnd();
-    int tagIndex = 0;
-    auto *suite = tagSuite();
-    suite->select(false);
-    for (const auto *tag: suite->tags()) {
-        int i = tag->selectionStart();
+    int end = c.position();
+    QList<QTreeWidgetItem *> selectedItems;
+    QList<QTreeWidgetItem *> items = { treeWidget->invisibleRootItem() };
+    while (! items.isEmpty()) {
+        QTreeWidgetItem *item = items.takeFirst();
+        int i = item->childCount();
+        while (i--) {
+            items.prepend(item->child(i));
+        }
+        const auto *tag = __::getItemTag(item);
+        i = tag->position();
         if (start <= i) {
             if (end <= i)
                 break;
-            auto *item = getItemAtIndex(tagIndex);
-            if (item) {
-                _dontFollowItemSelection = dontFollowItemSelection;
-                item->setSelected(true);
-                suite->select(true, tag->cursor());
-                _dontFollowItemSelection = false;
-                treeWidget->scrollToItem(item);
+            item->setSelected(true);
+            selectedItems<<item;
+        }
+    }
+    // scroll to the item which is closest to the visible rect.
+    if (! selectedItems.isEmpty()) {
+        auto top = 0;
+        auto bottom = treeWidget->viewport()->rect().bottom();
+        auto distance = std::numeric_limits<int>::max();
+        const QTreeWidgetItem *minItem = nullptr;
+        for (const auto *item: selectedItems) {
+            auto r = treeWidget->visualItemRect(item);
+            int d = std::min(top - r.bottom(), r.top() - bottom);
+            if (d < distance) {
+                minItem = item;
+                distance = d;
             }
         }
-        ++tagIndex;
-    }
-}
-
-void TeXDockTree::onCursorPositionChanged()
-{
-    if (_window) {
-        auto *editor = _window->editor();
-        if (editor) {
-            selectItemsForCursor(editor->textCursor(), true);
+        if (minItem) {
+            treeWidget->scrollToItem(minItem);
         }
     }
+    treeWidget->blockSignals(false);
 }
 
-void TeXDockTree::makeNewItem(QTreeWidgetItem *item,
+void TeXDockTree::makeNewItem(QTreeWidgetItem *&item,
                               QTreeWidget *treeWidget,
-                              const Tw::Document::Tag *tag) const
+                              const Tag *tag) const
 {
     if (! tag) return;
     const int level = tag->level();
@@ -316,47 +354,65 @@ void TeXDockTree::makeNewItem(QTreeWidgetItem *item,
 
 void TeXDockTree::update(bool force)
 {
-    if ((! _window || ! isVisible() || _updated) && ! force) return;
+    if ((! isVisible() || _updated) && ! force) return;
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
     Q_ASSERT(treeWidget);
-    disconnect(treeWidget, &QTreeWidget::itemSelectionChanged, this, &TeXDockBookmark::itemGainedFocus);
-    disconnect(treeWidget, &QTreeWidget::itemActivated, this, &TeXDockBookmark::itemGainedFocus);
-    disconnect(treeWidget, &QTreeWidget::itemClicked, this, &TeXDockBookmark::itemGainedFocus);
-    treeWidget->clear();
-    auto *suite = tagSuite();
-    if (suite->isEmpty()) {
+    treeWidget->blockSignals(true);
+    if (tagSuite_m->isEmpty()) {
+        treeWidget->clear();
         updateVoid();
     } else {
+        // We save the state
+        struct State
+        {
+            bool isSelected;
+            bool isExpanded;
+        };
+        State defaultState{false, true};
+        QMap<int, State> states;
+        QList<QTreeWidgetItem *> items = { treeWidget->invisibleRootItem() };
         QTreeWidgetItem *item = nullptr;
+        const Tag *tag = nullptr;
+        while (! items.isEmpty()) {
+            item = items.takeFirst();
+            int i = item->childCount();
+            while (i--) {
+                items.prepend(item->child(i));
+            }
+            tag = __::getItemTag(item);
+            State state{item->isSelected(), item->isExpanded()};
+            states.insert(tag->position(), state);
+        }
+        treeWidget->clear();
+        item = nullptr;
         int i = 0;
-        const Tw::Document::Tag *tag;
-        while((tag = suite->get(i))) {
+        while((tag = tagSuite_m->at(i))) {
             makeNewItem(item, treeWidget, tag);
             __::setItemTag(item, tag);
             __::setItemTagIndex(item, i);
-            treeWidget->expandItem(item);
-            item->setSelected(suite->isSelected(tag));
+            auto state = states.value(tag->position(), defaultState);
+            item->setSelected(state.isSelected);
+            if (state.isExpanded) {
+                treeWidget->expandItem(item);
+            } else {
+                treeWidget->collapseItem(item);
+            }
             ++i;
         }
-        if (_lastScrollValue > 0) {
-            treeWidget->verticalScrollBar()->setValue(_lastScrollValue);
-            _lastScrollValue = 0;
+        if (lastScrollValue_m > 0) {
+            treeWidget->verticalScrollBar()->setValue(lastScrollValue_m);
+            lastScrollValue_m = 0;
         }
-        connect(treeWidget, &QTreeWidget::itemSelectionChanged, this, &TeXDockBookmark::itemGainedFocus);
-        connect(treeWidget, &QTreeWidget::itemActivated, this, &TeXDockBookmark::itemGainedFocus);
-        connect(treeWidget, &QTreeWidget::itemClicked, this, &TeXDockBookmark::itemGainedFocus);
     }
+    treeWidget->blockSignals(false);
     _updated = true;
 }
 
 void TeXDockTree::find(const QString &find)
 {
-    if (! _window) return;
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
-    if (! treeWidget) {
-        return;
-    }
-    QList<const Tw::Document::Tag *> next;
+    Q_ASSERT(treeWidget);
+    QList<const Tag *> next;
     int anchor = 0;
     auto items = treeWidget->selectedItems();
     if (! items.isEmpty()) {
@@ -367,17 +423,16 @@ void TeXDockTree::find(const QString &find)
             c.movePosition(QTextCursor::EndOfBlock);
             anchor = c.selectionEnd();
         } else {
-            anchor = _window->editor()->textCursor().selectionEnd();
+            anchor = editor()->textCursor().selectionEnd();
         }
     } else {
-        anchor = _window->editor()->textCursor().selectionEnd();
+        anchor = editor()->textCursor().selectionEnd();
     }
     if (find.startsWith(QStringLiteral(":"))) {
         QRegularExpression re(find.mid(1));
         if(re.isValid()) {
-            auto *suite = tagSuite();
-            for (const auto *tag: suite->tags()) {
-                if(tag->selectionStart() >= anchor) {
+            for (const auto *tag: tagSuite_m->tags()) {
+                if(tag->position() >= anchor) {
                     auto m = re.match(tag->text());
                     if (m.hasMatch()) {
                         selectItemsForCursor(tag->cursor(), false);
@@ -397,8 +452,8 @@ void TeXDockTree::find(const QString &find)
             return;
         }
     }
-    for (const auto *tag: tagSuite()->tags()) {
-        if(tag->cursor().selectionStart() >= anchor) {
+    for (const auto *tag: tagSuite_m->tags()) {
+        if(tag->position() >= anchor) {
             if (tag->text().contains(find)) {
                 selectItemsForCursor(tag->cursor(), false);
                 return;
@@ -418,27 +473,23 @@ void TeXDockTree::find(const QString &find)
 //MARK: Tags
 
 /// \author JL
-TeXDockTag::TeXDockTag(TeXDocumentWindow * win)
-    : TeXDockTree(TeXDockTree::tr("Tags"), win)
+TeXDockTag::TeXDockTag(TeXDocumentWindow *window)
+: TeXDockTree(TeXDockTree::tr("Tags"), window)
 {
-    setObjectName(Tw::ObjectName::Tags);
-    connect(tagSuite(), &Tw::Document::TagSuite::changed, this, &TeXDockTag::onTagSuiteChanged);
+    Q_ASSERT(window);
+    setObjectName(ObjectName::Tags);
+    setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
+        Q_UNUSED(tag);
+        return true;
+    }));
     initUI();
-}
-
-Tw::Document::TagSuite *TeXDockTag::tagSuite()
-{
-    Q_ASSERT(_window);
-    return _window->textDoc()->tagBank()->suiteAll();
 }
 
 void TeXDockTag::updateVoid()
 {
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
-    if (! treeWidget) {
-        return;
-    }
-    QTreeWidgetItem *item = new QTreeWidgetItem();
+    Q_ASSERT(treeWidget);
+    auto *item = new QTreeWidgetItem();
     item->setText(0, TeXDockTree::tr("No bookmark"));
     item->setFlags(item->flags() &~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
     treeWidget->addTopLevelItem(item);
@@ -446,7 +497,6 @@ void TeXDockTag::updateVoid()
 
 void TeXDockTag::initUI()
 {
-    Q_ASSERT(_window);
     Super::initUI();
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
     Q_ASSERT(treeWidget);
@@ -455,39 +505,37 @@ void TeXDockTag::initUI()
     treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeWidget->header()->setSectionResizeMode(1, QHeaderView::Fixed);
     treeWidget->header()->resizeSection(1, 24);
-    auto *toolbarWidget = findChild<QWidget*>(Tw::ObjectName::toolbar);
+    auto *toolbarWidget = findChild<QWidget*>(ObjectName::toolbar);
     Q_ASSERT(toolbarWidget);
-//TODO: Edit tags in place
+    //TODO: Edit tags in place
     auto *layout = static_cast<QBoxLayout *>(toolbarWidget->layout());
     if (! layout) return;
     {
         auto *button = new QPushButton(QString());
-        button->setIcon(Tw::Icon::list_add());
+        button->setIcon(Icon::list_add());
         button->setStyleSheet(QStringLiteral("QPushButton { border: none; }"));
-        button->setObjectName(Tw::ObjectName::list_add);
+        button->setObjectName(ObjectName::list_add);
         connect(button, &QPushButton::clicked, [=]() {
-            auto cursor = _window->editor()->textCursor();
+            auto cursor = editor()->textCursor();
             cursor.movePosition(QTextCursor::StartOfBlock);
             cursor.insertText(QStringLiteral("%:?\n"));
             cursor.movePosition(QTextCursor::PreviousBlock);
             cursor.movePosition(QTextCursor::NextCharacter);
             cursor.movePosition(QTextCursor::NextCharacter);
             cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-            _window->editor()->setTextCursor(cursor);
-            _window->editor()->setFocus();
+            editor()->setTextCursor(cursor);
+            editor()->setFocus();
         });
         layout->insertWidget(0, button);
     }
     {
         auto *button = new QPushButton(QString());
-        button->setIcon(Tw::Icon::list_remove());
+        button->setIcon(Icon::list_remove());
         button->setStyleSheet(QStringLiteral("QPushButton { border: none; }"));
-        button->setObjectName(Tw::ObjectName::list_remove);
+        button->setObjectName(ObjectName::list_remove);
         button->setEnabled(false);
         connect(button, &QPushButton::clicked, [=]() {
             auto items = treeWidget->selectedItems();
-            auto *suite = tagSuite();
-            suite->select(false);
             for (auto *item: treeWidget->selectedItems()) {
                 auto const *tag = __::getItemTag(item);
                 if (tag) {
@@ -495,7 +543,6 @@ void TeXDockTag::initUI()
                     cursor.movePosition(QTextCursor::StartOfBlock);
                     cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
                     cursor.insertText(QString());
-                    suite->select(true, cursor);
                 }
             }
         });
@@ -514,9 +561,9 @@ void TeXDockTag::initUI()
 /// Each item has both an outline level and a bookmark level.
 /// The bookmark level of an outline item is always kMinLevel.
 /// The outline level of a boorkmark item is its parent's one or kMinLevel whan at top.
-void TeXDockTag::makeNewItem(QTreeWidgetItem *item,
+void TeXDockTag::makeNewItem(QTreeWidgetItem *&item,
                              QTreeWidget *treeWidget,
-                             const Tw::Document::Tag *tag) const
+                             const Tag *tag) const
 {
     Q_ASSERT(tag);
     int outlineLevel = tag->level();
@@ -536,7 +583,7 @@ void TeXDockTag::makeNewItem(QTreeWidgetItem *item,
     if (item) {
         bool bigStep = __::getItemOutlineLevel(item) + 1 < outlineLevel;
         item = new QTreeWidgetItem(item, QTreeWidgetItem::UserType);
-//TODO: Next does not work on OSX Ventura.
+        //TODO: Next does not work on OSX Ventura.
         if (bigStep) {
             QFont font(item->font(1));
             font.setBold(true);
@@ -551,11 +598,11 @@ void TeXDockTag::makeNewItem(QTreeWidgetItem *item,
     __::setItemBookmarkLevel(item, bookmarkLevel);
     item->setText(0, tag->text());
     if (tag->isOutline()) {
-        item->setIcon(1, Tw::Icon::Outline());
+        item->setIcon(1, Icon::Outline());
     } else if (tag->isTODO()) {
-        item->setIcon(1, Tw::Icon::TODO());
+        item->setIcon(1, Icon::TODO());
     } else if (tag->isMARK()) {
-        item->setIcon(1, Tw::Icon::MARK());
+        item->setIcon(1, Icon::MARK());
     }
     auto tip = tag->tooltip();
     if (! tip.isEmpty()) {
@@ -568,25 +615,19 @@ void TeXDockTag::makeNewItem(QTreeWidgetItem *item,
 
 /// \author JL
 TeXDockBookmark::TeXDockBookmark(TeXDocumentWindow * window)
-    : TeXDockTree(TeXDockTree::tr("Bookmarks"), window)
+: TeXDockTree(TeXDockTree::tr("Bookmarks"), window)
 {
-    setObjectName(Tw::ObjectName::Bookmarks);
-    connect(tagSuite(), &Tw::Document::TagSuite::changed, this, &TeXDockBookmark::onTagSuiteChanged);
+    setObjectName(ObjectName::Bookmarks);
+    setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
+        return tag && ! tag->isOutline();
+    }));
     initUI();
-}
-
-Tw::Document::TagSuite *TeXDockBookmark::tagSuite()
-{
-    Q_ASSERT(_window);
-    return _window->textDoc()->tagBank()->suiteBookmark();
 }
 
 void TeXDockBookmark::updateVoid()
 {
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
-    if (! treeWidget) {
-        return;
-    }
+    Q_ASSERT(treeWidget);
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText(0, TeXDockTree::tr("No bookmark"));
     item->setFlags(item->flags() &~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
@@ -595,7 +636,6 @@ void TeXDockBookmark::updateVoid()
 
 void TeXDockBookmark::initUI()
 {
-    Q_ASSERT(_window);
     Super::initUI();
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
     Q_ASSERT(treeWidget);
@@ -604,42 +644,42 @@ void TeXDockBookmark::initUI()
     treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeWidget->header()->setSectionResizeMode(1, QHeaderView::Fixed);
     treeWidget->header()->resizeSection(1, 24);
-    auto *toolbarWidget = findChild<QWidget*>(Tw::ObjectName::toolbar);
+    auto *toolbarWidget = findChild<QWidget*>(ObjectName::toolbar);
     Q_ASSERT(toolbarWidget);
-//TODO: Edit tags in place
+    //TODO: Edit tags in place
     /*
-    connect(treeWidget, &QTreeWidget::itemDoubleClicked, [=](QTreeWidgetItem * item, int column)
-            {
-        if (column == 0) {
-            treeWidget->editItem(item, column);
-        }
-    });
+     connect(treeWidget, &QTreeWidget::itemDoubleClicked, [=](QTreeWidgetItem * item, int column)
+     {
+     if (column == 0) {
+     treeWidget->editItem(item, column);
+     }
+     });
      */
     auto *layout = static_cast<QBoxLayout *>(toolbarWidget->layout());
     if (! layout) return;
     {
         auto *button = new QPushButton(QString());
-        button->setIcon(Tw::Icon::list_add());
+        button->setIcon(Icon::list_add());
         button->setStyleSheet(QStringLiteral("QPushButton { border: none; }"));
-        button->setObjectName(Tw::ObjectName::list_add);
+        button->setObjectName(ObjectName::list_add);
         connect(button, &QPushButton::clicked, [=]() {
-            auto cursor = _window->editor()->textCursor();
+            auto cursor = editor()->textCursor();
             cursor.movePosition(QTextCursor::StartOfBlock);
             cursor.insertText(QStringLiteral("%:?\n"));
             cursor.movePosition(QTextCursor::PreviousBlock);
             cursor.movePosition(QTextCursor::NextCharacter);
             cursor.movePosition(QTextCursor::NextCharacter);
             cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-            _window->editor()->setTextCursor(cursor);
-            _window->editor()->setFocus();
+            editor()->setTextCursor(cursor);
+            editor()->setFocus();
         });
         layout->insertWidget(0, button);
     }
     {
         auto *button = new QPushButton(QString());
-        button->setIcon(Tw::Icon::list_remove());
+        button->setIcon(Icon::list_remove());
         button->setStyleSheet(QStringLiteral("QPushButton { border: none; }"));
-        button->setObjectName(Tw::ObjectName::list_remove);
+        button->setObjectName(ObjectName::list_remove);
         button->setEnabled(false);
         connect(button, &QPushButton::clicked, [=]() {
             auto items = treeWidget->selectedItems();
@@ -661,9 +701,9 @@ void TeXDockBookmark::initUI()
     }
 }
 
-void TeXDockBookmark::makeNewItem(QTreeWidgetItem *item,
+void TeXDockBookmark::makeNewItem(QTreeWidgetItem *&item,
                                   QTreeWidget *treeWidget,
-                                  const Tw::Document::Tag *tag) const
+                                  const Tag *tag) const
 {
     Q_ASSERT(tag);
     const int level = tag->level();
@@ -684,9 +724,9 @@ void TeXDockBookmark::makeNewItem(QTreeWidgetItem *item,
         item->setToolTip(1, tip);
     }
     if (tag->isTODO()) {
-        item->setIcon(1, Tw::Icon::TODO());
+        item->setIcon(1, Icon::TODO());
     } else if (tag->isMARK()) {
-        item->setIcon(1, Tw::Icon::MARK());
+        item->setIcon(1, Icon::MARK());
     }
 }
 //MARK: TeXDockTreeWidgetStyle
@@ -697,7 +737,7 @@ class TeXDockTreeWidgetStyle: public QProxyStyle
     
 public:
     TeXDockTreeWidgetStyle(QStyle *style = nullptr);
-
+    
     void drawPrimitive(PrimitiveElement element,
                        const QStyleOption *option,
                        QPainter *painter,
@@ -705,7 +745,7 @@ public:
 };
 
 TeXDockTreeWidgetStyle::TeXDockTreeWidgetStyle(QStyle *style)
-     :QProxyStyle(style)
+:QProxyStyle(style)
 {}
 //TODO: draw a thicker indicator
 void TeXDockTreeWidgetStyle::drawPrimitive(QStyle::PrimitiveElement element,
@@ -714,7 +754,7 @@ void TeXDockTreeWidgetStyle::drawPrimitive(QStyle::PrimitiveElement element,
                                            const QWidget *widget) const
 {
     if (element == QStyle::PE_IndicatorItemViewItemDrop
-            && ! option->rect.isNull()) {
+        && ! option->rect.isNull()) {
         if (option->rect.height() == 0) {
             QStyleOption theOption(*option);
             theOption.rect.setLeft(0);
@@ -730,16 +770,19 @@ void TeXDockTreeWidgetStyle::drawPrimitive(QStyle::PrimitiveElement element,
 //MARK: TeXDockOutline
 /// \author JL
 TeXDockOutline::TeXDockOutline(TeXDocumentWindow * window)
-    : TeXDockTree(TeXDockTree::tr("Outline"), window)
+: TeXDockTree(TeXDockTree::tr("Outline"), window)
 {
-    setObjectName(Tw::ObjectName::Outlines);
-    connect(tagSuite(), &Tw::Document::TagSuite::changed, this, &TeXDockOutline::onTagSuiteChanged);
+    setObjectName(ObjectName::Outlines);
+    setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
+        return tag && (tag->isOutline() || tag->isBoundary());
+    }));
     initUI();
 }
 
-TeXDockTreeWidget *TeXDockOutline::newTreeWidget(QWidget *parent)
+TeXDockTreeWidget *TeXDockOutline::newTreeWidget()
 {
-    auto *treeWidget = new TeXDockOutlineWidget(parent);
+    auto *treeWidget = new TeXDockOutlineWidget(this);
+    Q_ASSERT(treeWidget);
     treeWidget->setDragEnabled(true);
     treeWidget->viewport()->setAcceptDrops(true);
     treeWidget->setDropIndicatorShown(true);
@@ -755,27 +798,19 @@ TeXDockTreeWidget *TeXDockOutline::newTreeWidget(QWidget *parent)
     return treeWidget;
 }
 
-Tw::Document::TagSuite *TeXDockOutline::tagSuite()
-{
-    Q_ASSERT(_window);
-    return _window->textDoc()->tagBank()->suiteOutline();
-}
-
 void TeXDockOutline::updateVoid()
 {
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
-    if (! treeWidget) {
-        return;
-    }
+    Q_ASSERT(treeWidget);
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setText(0, TeXDockTree::tr("No outline"));
     item->setFlags(item->flags() & ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
     treeWidget->addTopLevelItem(item);
 }
 
-void TeXDockOutline::makeNewItem(QTreeWidgetItem *item,
+void TeXDockOutline::makeNewItem(QTreeWidgetItem *&item,
                                  QTreeWidget *treeWidget,
-                                 const Tw::Document::Tag *tag) const
+                                 const Tag *tag) const
 {
     Q_ASSERT(tag);
     Super::makeNewItem(item, treeWidget, tag);
@@ -797,34 +832,112 @@ void TeXDockOutline::makeNewItem(QTreeWidgetItem *item,
     }
 }
 
+bool TeXDockOutline::performDrag(const QList<TagX> &tagXs, QTextCursor toCursor)
+{
+    // first we build a list of cursors corresponding to the multiple text ranges to drag
+    bool fromEOL = false;
+    QTextCursor cursor;
+    QList<QTextCursor> fromCursors;
+    int position = 0;
+    for (const auto &tagX: tagXs) {
+        const auto *tag = tagX.tag;
+        int i = tagSuite()->indexOf(tag);
+        if (i<0)
+            return false;
+        cursor = tag->cursor();
+        if (cursor.position() < position) {
+            cursor.setPosition(position);
+        }
+        if (tagX.isExpanded) {
+            // select up to the next tag when possible
+            if ((tag = tagSuite()->at(++i))) {
+                cursor.setPosition(tag->position(), QTextCursor::KeepAnchor);
+                cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+            } else {
+select_tail:
+                cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                // Does it end with an EOL marker?
+                QTextCursor c(cursor);
+                c.movePosition(QTextCursor::End);
+                int end = c.position();
+                c.movePosition(QTextCursor::StartOfBlock);
+                fromEOL = (cursor.position() < end);
+            }
+        } else {
+            // select up to a boundary, the the next tag with a lower level or to the end
+            int max_level = tag->level();
+            while (true) {
+                if ((tag = tagSuite()->at(++i))) {
+                    if (tag->isBoundary() || tag->level() <= max_level) {
+                        cursor.setPosition(tag->position(), QTextCursor::KeepAnchor);
+                        cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+                        break;
+                    }
+                } else {
+                    goto select_tail;
+                }
+
+            }
+        }
+        if (position < cursor.position()) {
+            if (cursor.position() <= toCursor.position() || cursor.anchor() <= toCursor.position()) {
+                fromCursors << cursor;
+                position = cursor.position();
+                // We ensure that the cursor position is always moved to the right of its anchor
+            } else {
+                // We do not allow to drop inside a selection
+                return false;
+            }
+        }
+    }
+    // clean cursors
+    if (fromCursors.empty()) {
+        return false;
+    }
+    toCursor.beginEditBlock();
+    toCursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+    if (toCursor.position() < toCursor.anchor()) {
+        // I was at the end
+        toCursor.insertText(QString(QChar::LineFeed));
+        toCursor.movePosition(QTextCursor::End);
+    }
+    for (auto fromCursor: fromCursors) {
+        toCursor.insertText(fromCursor.selectedText());
+        fromCursor.removeSelectedText();
+    }
+    if (fromEOL) {
+        toCursor.insertText(QString(QChar::LineFeed));
+    }
+    toCursor.endEditBlock();
+    return true;
+}
+
 ///MARK: TeXDockOutlineWidget
-TeXDockOutlineWidget::TeXDockOutlineWidget(QWidget *parent): Super(parent) {}
+TeXDockOutlineWidget::TeXDockOutlineWidget(TeXDockOutline *parent): Super(parent) {}
 
 void TeXDockOutlineWidget::dragEnterEvent(QDragEnterEvent *event)
 {
+    // If one of the selected items is a boundary, we abort the drag
     for (const auto *item: selectedItems()) {
         const auto *tag = __::getItemTag(item);
-        if (tag->isBoundary()) { // Logically unreachable due to TeXDockOutline::makeNewItem above
+        if (tag->isBoundary()) {
             event->ignore();
-            Super::dragEnterEvent(event);
-            return;
+            break;
         }
     }
     Super::dragEnterEvent(event);
 }
 
-/// \note We assume contiguous selections only.
-/// We assume that tag cursor position points to the start of a line,
-/// which does not break a grapheme.
 void TeXDockOutlineWidget::dropEvent(QDropEvent *event)
 {
+    // We share the logic with the parent for better testing
+    
     QTextCursor fromCursor, toCursor;
-    bool insertEOL = false;
     // we start by the drop location setting up toCursor
     auto index = indexAt(event->pos());
     if (! index.isValid()) {  // just in case
-theBeach:
-        event->setDropAction(Qt::IgnoreAction);
+    theBeach:
+        event->ignore();
         Super::dropEvent(event);
         return;
     }
@@ -839,96 +952,37 @@ theBeach:
     }
     // Ready to setup toCursor
     toCursor = tag->cursor();
-    {
-        QRect R = visualItemRect(item);
-        if (event->pos().y() > R.center().y()) {
-            if ((item = itemBelow(item))) {
-                if (! (tag = __::getItemTag(item))) {
-                    goto theBeach;
-                }
-                toCursor.setPosition(tag->selectionStart());
-            } else {
-                toCursor.movePosition(QTextCursor::End);
-                toCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-                insertEOL = toCursor.position() < toCursor.anchor();
-                toCursor.movePosition(QTextCursor::End);
+    QRect R = visualItemRect(item);
+    if (event->pos().y() > R.center().y()) {
+        if ((item = itemBelow(item))) {
+            if (! (tag = __::getItemTag(item))) {
+                goto theBeach;
             }
+            toCursor.setPosition(tag->position());
         } else {
-            // ensure position == anchor
-            toCursor.setPosition(tag->selectionStart());
+            toCursor.movePosition(QTextCursor::End);
         }
+    } else {
+        // ensure position == anchor
+        toCursor.setPosition(tag->position());
     }
     // Setting the fromCursor:
     tag = nullptr;
-    const auto items = selectedItems();
-    if (items.isEmpty()) {
+    QList<TeXDockOutline::TagX> tagXs;
+    for (const auto *item: selectedItems()) {
+        tag = __::getItemTag(item);
+        auto tagX = TeXDockOutline::TagX{tag, item->isExpanded()};
+        tagXs << tagX;
+    }
+    if (tagXs.isEmpty()) {
         goto theBeach;
     }
-    item = items.first();
-    tag = __::getItemTag(item);
-    Q_ASSERT(tag && tag->isOutline());
-    if (! tag || ! tag->isOutline()) {
-        goto theBeach; // Unlikely to happen in theory
-    }
-    int max_level = tag->level();
-    auto *last = items.last();
-    auto document = static_cast<Tw::Document::TextDocument *>(fromCursor.document());
-    auto tags = document->tagBank()->suiteOutline()->tags();
-    int i = tags.indexOf(tag);
-    if (item == last) {
-        // only one item
-        if (Qt::AltModifier & event->keyboardModifiers()) {
-            // only move the text material up to the next tag
-            if (++i < tags.size()) {
-                tag = tags.at(i);
-                fromCursor.setPosition(tag->selectionStart(), QTextCursor::KeepAnchor);
-            } else {
-                fromCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-            }
-        } else {
-            // only move the text material up to the next boundary or upper outline
-            while (++i < tags.size()) {
-                tag = tags.at(i);
-                fromCursor.setPosition(tag->selectionStart(), QTextCursor::KeepAnchor);
-                if (tag->level() <= max_level || tag->isBoundary()) {
-                    break;
-                }
-            }
-            if (i == tags.size()) {
-                // all forthcoming tags where included: select to the end
-                fromCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-            }
-        }
-    } else {
-        tag = __::getItemTag(last);
-        Q_ASSERT(tag && tag->isOutline());
-        if (! tag || ! tag->isOutline()) {
-            goto theBeach; // Unlikely to happen in theory
-        }
-        i = tags.indexOf(tag);
-        Q_ASSERT(i >= 0);
-        if (i < 0) {
-            goto theBeach; // Unlikely to happen in theory
-        }
-        if (++i < tags.size()) {
-            tag = tags.at(i);
-            fromCursor.setPosition(tag->selectionStart(), QTextCursor::KeepAnchor);
-        } else {
-            fromCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        }
-    }
-    // source cursor
-    if (toCursor.position() < fromCursor.anchor() || toCursor > fromCursor) {
-        toCursor.beginEditBlock();
-        if (insertEOL) {
-            toCursor.insertText(QString(QChar::LineFeed));
-        }
-        toCursor.insertText(fromCursor.selectedText());
-        fromCursor.removeSelectedText();
-        toCursor.endEditBlock();
-        return;
-    } else {
-        event->ignore();
+    auto * treeOutline = static_cast<TeXDockOutline *>(parent());
+    if (! treeOutline->performDrag(tagXs, toCursor)) {
+        goto theBeach;
     }
     Super::dropEvent(event);
 }
+
+} // namespace Document
+} // namespace Tw

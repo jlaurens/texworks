@@ -22,7 +22,7 @@
 #ifndef TEX_HIGHLIGHTER_H
 #define TEX_HIGHLIGHTER_H
 
-#include "document/SpellChecker.h"
+#include "document/TWSpellChecker.h"
 
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>

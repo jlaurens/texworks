@@ -22,55 +22,12 @@
 #include "TeXHighlighter.h"
 #include "TWUtils.h"
 #include "document/TeXDocument.h"
+#include "document/TWTag.h"
 #include "utils/ResourcesLibrary.h"
 
 #include <QTextCursor>
 #include <QDebug>
 #include <climits> // for INT_MAX
-
-struct TagPattern {
-    QRegularExpression pattern;
-    Tw::Document::Tag::Type type;
-    int level;
-};
-
-static QVector<TagPattern> &tagPatternArray()
-{
-    static QVector<TagPattern> array;
-    if (array.empty()) {
-        // read tag-recognition patterns
-        QFile file(Tw::Utils::ResourcesLibrary::getTagPatternsPath());
-        if (file.open(QIODevice::ReadOnly)) {
-            QRegularExpression whitespace(QStringLiteral("\\s+"));
-            while (true) {
-                QByteArray ba = file.readLine();
-                if (ba.size() == 0)
-                    break;
-                if (ba[0] == '#' || ba[0] == '\n')
-                    continue;
-                QString line = QString::fromUtf8(ba.data(), ba.size());
-                QStringList parts = line.split(whitespace, Qt::SkipEmptyParts);
-                if (parts.size() != 3)
-                    continue;
-                TagPattern tagPattern;
-                bool ok{false};
-                tagPattern.type = Tw::Document::Tag::typeForName(parts[0]);
-                if (tagPattern.type != Tw::Document::Tag::Type::Any) {
-                    tagPattern.level = parts[1].toInt(&ok);
-                    if (ok) {
-                        tagPattern.pattern = QRegularExpression(parts[2]);
-                        if (tagPattern.pattern.isValid()) {
-                            array.append(tagPattern);
-                        } else {
-                            qWarning() << "Wrong tag pattern:" << parts[2];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return array;
-}
 
 struct HilightRule  {
     QRegularExpression pattern;
@@ -199,6 +156,7 @@ void TeXHighlighter::spellCheckRange(const QString &text, QString::size_type ind
 		index = end;
 	}
 }
+using Tag = Tw::Document::Tag;
 
 void TeXHighlighter::highlightBlock(const QString &text)
 {
@@ -240,29 +198,27 @@ void TeXHighlighter::highlightBlock(const QString &text)
 		spellCheckRange(text, charPos, text.length(), spellFormat);
 
 	if (texDoc) {
-		texDoc->tagBank()->removeTags(currentBlock().position(), currentBlock().length());
+        Tag::BankHelper tagHelper(texDoc);
+        tagHelper.removeTags(currentBlock().position(), currentBlock().length());
 		if (isTagging) {
 			QString::size_type index = 0;
 			while (index < text.length()) {
-				QString::size_type firstIndex{std::numeric_limits<QString::size_type>::max()}, len{0};
-                auto type = Tw::Document::Tag::Type::Any;
-                int level = 0;
-				QRegularExpressionMatch firstMatch;
-                for (auto patt: tagPatternArray()) {
-					QRegularExpressionMatch m = patt.pattern.match(text, index);
-					if (m.capturedStart() >= 0 && m.capturedStart() < firstIndex) {
-						firstIndex = m.capturedStart();
-						firstMatch = m;
-                        type = patt.type;
-                        level = patt.level;
+				QString::size_type start{std::numeric_limits<QString::size_type>::max()}, len{0};
+				QRegularExpressionMatch match;
+                const Tag::Rule *rule = nullptr;
+                for (const auto *r: Tag::rules()) {
+					QRegularExpressionMatch m = r->pattern().match(text, index);
+					if (m.hasMatch() && m.capturedStart() < start) {
+                        start = m.capturedStart();
+                        match = m;
+                        rule = r;
 					}
 				}
-				if (firstMatch.hasMatch() && (len = firstMatch.capturedLength()) > 0) {
-                    texDoc->tagBank()->addTag(type,
-                                              level,
-                                              currentBlock().position() + firstIndex,
-                                              firstMatch);
-					index = firstIndex + len;
+				if (match.hasMatch() && (len = match.capturedLength()) > 0) {
+                    tagHelper.addTag(rule,
+                                     currentBlock().position() + start,
+                                     match);
+					index = start + len;
 				}
 				else
 					break;

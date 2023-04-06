@@ -22,7 +22,7 @@
 #ifndef COMPLETING_EDIT_H
 #define COMPLETING_EDIT_H
 
-#include "document/SpellChecker.h"
+#include "document/TWSpellChecker.h"
 #include "ui/LineNumberWidget.h"
 #include "ui_CompletingEdit.h"
 #include "Settings.h"

@@ -22,7 +22,6 @@
 #define Document_TextDocument_H
 
 #include "document/Document.h"
-#include "document/TWTag.h"
 
 #include <QVariant>
 #include <QTextCursor>
@@ -32,18 +31,19 @@
 namespace Tw {
 namespace Document {
 
-class TextDocument;
+class TagBank;
 
 class TextDocument: public QTextDocument, public Document
 {
 	Q_OBJECT
 public:
 	explicit TextDocument(QObject * parent = nullptr);
-	explicit TextDocument(const QString & text, QObject * parent = nullptr);
-    TagBank *tagBank() const { return _tagBank; };
+	explicit TextDocument(const QString & text,
+                          QObject * parent = nullptr);
+    TagBank *tagBank() const { return tagBank_m; };
 
 protected:
-    TagBank *_tagBank;
+    TagBank *tagBank_m; // also accessible as a child
 };
 
 } // namespace Document

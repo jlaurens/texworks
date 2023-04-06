@@ -28,7 +28,7 @@
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
-#include "document/SpellChecker.h"
+#include "document/TWSpellChecker.h"
 
 #include <QFileDialog>
 #include <QFontDatabase>
