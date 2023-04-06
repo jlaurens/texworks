@@ -311,7 +311,7 @@ QTreeWidgetItem *TeXDockTree::getItemAtIndex(const int tagIndex)
 
 void TeXDockTree::selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection)
 {
-    if (tagSuite_m.empty()) {
+    if (tagSuite()->isEmpty()) {
         return;
     }
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
@@ -393,7 +393,7 @@ void TeXDockTree::update(bool force)
 
 void TeXDockTree::find(const QString &find)
 {
-    if (tagSuitep.empty()) {
+    if (tagSuite()->isEmpty()) {
         return;
     }
     auto *treeWidget = findChild<TeXDockTreeWidget *>();
@@ -522,7 +522,7 @@ void TeXDockTag::initUI()
         button->setObjectName(ObjectName::list_remove);
         button->setEnabled(false);
         connect(button, &QPushButton::clicked, [=]() {
-            if (tagSuite_m.empty()) {
+            if (tagSuite()->isEmpty()) {
                 return;
             }
             auto items = treeWidget->selectedItems();
@@ -672,7 +672,7 @@ void TeXDockBookmark::initUI()
         button->setObjectName(ObjectName::list_remove);
         button->setEnabled(false);
         connect(button, &QPushButton::clicked, [=]() {
-            if (tagSuite_m.empty()) {
+            if (tagSuite()->isEmpty()) {
                 return;
             }
             auto items = treeWidget->selectedItems();
@@ -912,15 +912,11 @@ TeXDockOutlineWidget::TeXDockOutlineWidget(TeXDockOutline *parent)
 void TeXDockOutlineWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     // If one of the selected items is a boundary, we abort the drag
-    if (tagSuite_m.empty()) {
-        event->ignore();
-    } else {
-        for (const auto *item: selectedItems()) {
-            const auto *tag = __::getItemTag(item);
-            if (tag->isBoundary()) {
-                event->ignore();
-                break;
-            }
+    for (const auto *item: selectedItems()) {
+        const auto *tag = __::getItemTag(item);
+        if (tag->isBoundary()) {
+            event->ignore();
+            break;
         }
     }
     Super::dragEnterEvent(event);
@@ -928,25 +924,21 @@ void TeXDockOutlineWidget::dragEnterEvent(QDragEnterEvent *event)
 
 void TeXDockOutlineWidget::dropEvent(QDropEvent *event)
 {
-    if (tagSuite_m.empty()) {
-    theBeach:
-        event->ignore();
-        Super::dropEvent(event);
-        return;
-    }
     // We share the logic with the parent for better testing
     QTextCursor fromCursor, toCursor;
     // we start by the drop location setting up toCursor
     auto index = indexAt(event->pos());
     if (! index.isValid()) {  // just in case
-        goto theBeach;
+    theBeach:
+        event->ignore();
+        Super::dropEvent(event);
+        return;
     }
     QTreeWidgetItem *item = itemFromIndex(index);
     if (! item) {
         goto theBeach;
     }
     const auto *tag = __::getItemTag(item);
-    Q_ASSERT(tag);
     if (! tag || ! tag->isOutline()) {
         goto theBeach; // Only for boundary tags
     }
