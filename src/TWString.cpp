@@ -46,12 +46,14 @@ const QString TypeName::Bookmark = QStringLiteral("Bookmark");
 const QString TypeName::Outline  = QStringLiteral("Outline");
 const QString TypeName::Unknown  = QStringLiteral("Unknown");
 
-const QString ObjectName::treeWidget  = QStringLiteral("Tw.treeWidget");
-const QString ObjectName::toolbar     = QStringLiteral("Tw.toolbar");
-const QString ObjectName::list_add    = QStringLiteral("Tw.list_add");
-const QString ObjectName::list_remove = QStringLiteral("Tw.list_remove");
-const QString ObjectName::Tags        = QStringLiteral("Tw.Tags");
-const QString ObjectName::Bookmarks   = QStringLiteral("Tw.Bookmarks");
-const QString ObjectName::Outlines    = QStringLiteral("Tw.Outlines");
+const QString ObjectName::treeWidget  = QStringLiteral("Tw.Document.Anchor.treeWidget");
+const QString ObjectName::toolbar     = QStringLiteral("Tw.Document.Anchor.toolbar");
+const QString ObjectName::list_add    = QStringLiteral("Tw.Document.Anchor.list_add");
+const QString ObjectName::list_remove = QStringLiteral("Tw.Document.Anchor.list_remove");
+const QString ObjectName::Tags        = QStringLiteral("Tw.Document.Anchor.Tags");
+const QString ObjectName::Bookmarks   = QStringLiteral("Tw.Document.Anchor.Bookmarks");
+const QString ObjectName::Outlines    = QStringLiteral("Tw.Document.Anchor.Outlines");
+
+const QString ObjectName::TagBank    = QStringLiteral("Tw.Document.Anchor.Bank");
 
 }

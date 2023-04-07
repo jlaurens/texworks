@@ -1,0 +1,36 @@
+version:1
+
+rule: Magic.*  0  ^%(?:\^\^A)?\s!((?:TEX|TeX)\s*(.*?)\s*$
+rule: Bookmark.*.4  4  ^%:::::\s*(.+)
+rule: Bookmark.*.3  3  ^%::::\s*(.+)
+rule: Bookmark.*.2  2  ^%:::\s*(.+)
+rule: Bookmark.*.1  1  ^%::\s*(.+)
+rule: Bookmark.*.top  0  ^%(?<type>MARK|TODO|BORDER)?:\s*(?<content>.+)
+
+mode: dtx
+rule: Bookmark.dtx.4  4  ^%\^\^A:::::\s*(.*?)\s*$
+rule: Bookmark.dtx.3  3  ^%\^\^A::::\s*(.*?)\s*$
+rule: Bookmark.dtx.2  2  ^%\^\^A:::\s*(.*?)\s*$
+rule: Bookmark.dtx.1  1  ^%\^\^A::\s*(.*?)\s*$
+rule: Bookmark.dtx.top  0  ^%\^\^A(?<type>MARK|TODO|BORDER)?:\s*(?<content>.*?)\s*$
+
+mode: latex|context|dtx
+rule: Outline.*.part 0  ^%?\s*\\part\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+rule: Outline.*.chapter  1  ^%?\s*\\chapter\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+rule: Outline.*.section  2  ^%?\s*\\section\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+rule: Outline.*.subsection  3  ^%?\s*\\subsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+rule: Outline.*.subsubsection  4  ^%?\s*\\subsubsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+
+mode: dtx
+rule: Bookmark.dtx.<>  0  ^%<\*(readme|driver|install)>
+rule: Bookmark.dtx.documentation  0  ^%?\s*\\begin\*?\{(documentation)\}
+rule: Bookmark.dtx.implementation  0  ^%?\s*\\begin\*?\{(implementation)\}
+
+mode: context|latex
+rule: Outline.*.title  0  ^\s*\\title\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+
+mode: context
+rule: Outline.context.subject  1  ^\s*\\subject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+rule: Outline.context.subsubject  2  ^\s*\\subsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+rule: Outline.context.subsubsubject  3  ^\s*\\subsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+rule: Outline.context.subsubsubsubject  4  ^\s*\\subsubsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}

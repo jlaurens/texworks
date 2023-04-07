@@ -22,7 +22,7 @@
 #include "TeXHighlighter.h"
 #include "TWUtils.h"
 #include "document/TeXDocument.h"
-#include "document/TWTag.h"
+#include "document/anchor/TWTag.h"
 #include "utils/ResourcesLibrary.h"
 
 #include <QTextCursor>
@@ -156,7 +156,7 @@ void TeXHighlighter::spellCheckRange(const QString &text, QString::size_type ind
 		index = end;
 	}
 }
-using Tag = Tw::Document::Tag;
+using Tag = Tw::Document::Anchor::Tag;
 
 //TODO: do not refer to the currentBlock
 // We assume that `text` == currentBlock().text()

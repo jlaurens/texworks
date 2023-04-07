@@ -11,7 +11,7 @@
 # to remember to re-run `cmake` if a source file is added._
 set(TEXWORKS_SRCS BibTeXFile.cpp
                   CitationSelectDialog.cpp
-                  CompletingEdit.cpp
+                  TWTextEdit.cpp
                   Engine.cpp
                   FindDialog.cpp
                   HardWrapDialog.cpp
@@ -35,8 +35,9 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   document/TWSpellChecker.cpp
                   document/TextDocument.cpp
                   document/TeXDocument.cpp
-                  document/TWTag.cpp
-                  document/TWTeXDockTree.cpp
+                  document/anchor/TWTag.cpp
+                  document/anchor/TWParser.cpp
+                  document/anchor/TWDockTree.cpp
                   scripting/ECMAScriptInterface.cpp
                   scripting/ECMAScript.cpp
                   scripting/ScriptAPI.cpp
@@ -63,7 +64,7 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
 
 set(TEXWORKS_HDRS BibTeXFile.h
                   CitationSelectDialog.h
-                  CompletingEdit.h
+                  TWTextEdit.h
                   DefaultBinaryPaths.h
                   DefaultPrefs.h
                   Engine.h
@@ -91,8 +92,9 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   document/TWSpellChecker.h
                   document/TextDocument.h
                   document/TeXDocument.h
-                  document/TWTag.h
-                  document/TWTeXDockTree.h
+                  document/anchor/TWTag.h
+                  document/anchor/TWParser.h
+                  document/anchor/TWDockTree.h
                   scripting/ScriptAPIInterface.h
                   scripting/ScriptLanguageInterface.h
                   scripting/ScriptAPI.h
@@ -133,7 +135,7 @@ if (WITH_QTSCRIPT)
 endif (WITH_QTSCRIPT)
 
 set(TEXWORKS_UIS CitationSelectDialog.ui
-                 CompletingEdit.ui
+                 TWTextEdit.ui
                  Find.ui
                  HardWrapDialog.ui
                  PDFDocumentWindow.ui

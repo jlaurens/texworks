@@ -19,7 +19,7 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "CompletingEdit.h"
+#include "TWTextEdit.h"
 
 #include "DefaultPrefs.h"
 #include "Settings.h"
@@ -52,7 +52,7 @@
 #include <QTimer>
 #include <QDebug>
 
-CompletingEdit::CompletingEdit(QWidget *parent /* = nullptr */)
+TWTextEdit::TWTextEdit(QWidget *parent /* = nullptr */)
 	: QTextEdit(parent), _lineTimer(this)
 {
 	if (!currentCompletionFormat) { // initialize shared (static) members
@@ -65,18 +65,18 @@ CompletingEdit::CompletingEdit(QWidget *parent /* = nullptr */)
 	loadIndentModes();
 	loadSmartQuotesModes();
 
-	connect(this, &CompletingEdit::cursorPositionChanged, this, &CompletingEdit::cursorPositionChangedSlot);
-	connect(this, &CompletingEdit::selectionChanged, this, &CompletingEdit::cursorPositionChangedSlot);
+	connect(this, &TWTextEdit::cursorPositionChanged, this, &TWTextEdit::cursorPositionChangedSlot);
+	connect(this, &TWTextEdit::selectionChanged, this, &TWTextEdit::cursorPositionChangedSlot);
 
 	lineNumberArea = new Tw::UI::LineNumberWidget(this);
 
 	// Invoke our setDocument() method to properly set up document-specific
 	// connections
 	setDocument(document());
-	connect(this, &CompletingEdit::updateRequest, this, &CompletingEdit::updateLineNumberArea);
-	connect(this, &CompletingEdit::textChanged, lineNumberArea, static_cast<void (Tw::UI::LineNumberWidget::*)()>(&Tw::UI::LineNumberWidget::update));
+	connect(this, &TWTextEdit::updateRequest, this, &TWTextEdit::updateLineNumberArea);
+	connect(this, &TWTextEdit::textChanged, lineNumberArea, static_cast<void (Tw::UI::LineNumberWidget::*)()>(&Tw::UI::LineNumberWidget::update));
 
-    connect(Tw::SettingsObserver::instance(), &Tw::SettingsObserver::settingsChanged, this, &CompletingEdit::readSettings);
+    connect(Tw::SettingsObserver::instance(), &Tw::SettingsObserver::settingsChanged, this, &TWTextEdit::readSettings);
 
 	setupUi(this);
 	connect(actionJump_To_PDF, &QAction::triggered, this, [=]() { this->jumpToPdf(); });
@@ -100,12 +100,12 @@ CompletingEdit::CompletingEdit(QWidget *parent /* = nullptr */)
 	updateColors();
 	TWUtils::installCustomShortcuts(this);
     _lineTimer.setSingleShot(true);
-    connect(&_lineTimer, &QTimer::timeout, this, &CompletingEdit::unhilightLine);
+    connect(&_lineTimer, &QTimer::timeout, this, &TWTextEdit::unhilightLine);
     readSettings();
 }
 
 /// \author JL
-void CompletingEdit::readSettings()
+void TWTextEdit::readSettings()
 {
     Tw::Settings settings;
     setCursorWidth(settings.value(QStringLiteral("cursorWidth"), kDefault_CursorWidth).toInt());
@@ -116,7 +116,7 @@ void CompletingEdit::readSettings()
     resetExtraSelections();
 }
 
-void CompletingEdit::prefixLines(const QString &prefix)
+void TWTextEdit::prefixLines(const QString &prefix)
 {
 	QTextCursor cursor = textCursor();
 	cursor.beginEditBlock();
@@ -151,7 +151,7 @@ void CompletingEdit::prefixLines(const QString &prefix)
 	cursor.endEditBlock();
 }
 
-void CompletingEdit::unPrefixLines(const QString &prefix)
+void TWTextEdit::unPrefixLines(const QString &prefix)
 {
 	QTextCursor cursor = textCursor();
 	cursor.beginEditBlock();
@@ -189,7 +189,7 @@ void CompletingEdit::unPrefixLines(const QString &prefix)
 	cursor.endEditBlock();
 }
 
-void CompletingEdit::updateColors()
+void TWTextEdit::updateColors()
 {
   Q_ASSERT(currentCompletionFormat);
 	Q_ASSERT(braceMatchingFormat);
@@ -221,12 +221,12 @@ void CompletingEdit::updateColors()
 	lineNumberArea->setBgColor(QColor::fromRgbF(0.75f * bgR + 0.25f * fgR, 0.75f * bgG + 0.25f * fgG, 0.75f * bgB + 0.25f * fgB));
 }
 
-CompletingEdit::~CompletingEdit()
+TWTextEdit::~TWTextEdit()
 {
 	setCompleter(nullptr);
 }
 
-void CompletingEdit::setCompleter(QCompleter *completer)
+void TWTextEdit::setCompleter(QCompleter *completer)
 {
 	c = completer;
 	if (!c)
@@ -235,7 +235,7 @@ void CompletingEdit::setCompleter(QCompleter *completer)
 	c->setWidget(this);
 }
 
-void CompletingEdit::cursorPositionChangedSlot()
+void TWTextEdit::cursorPositionChangedSlot()
 {
 	setCompleter(nullptr);
 	if (!currentCompletionRange.isNull())
@@ -244,7 +244,7 @@ void CompletingEdit::cursorPositionChangedSlot()
 	prefixLength = 0;
 }
 
-void CompletingEdit::mousePressEvent(QMouseEvent *e)
+void TWTextEdit::mousePressEvent(QMouseEvent *e)
 {
 	if (e->buttons() != Qt::LeftButton) {
 		mouseMode = none;
@@ -297,7 +297,7 @@ void CompletingEdit::mousePressEvent(QMouseEvent *e)
 	e->accept();
 }
 
-void CompletingEdit::mouseMoveEvent(QMouseEvent *e)
+void TWTextEdit::mouseMoveEvent(QMouseEvent *e)
 {
 	switch (mouseMode) {
 		case none:
@@ -420,7 +420,7 @@ void CompletingEdit::mouseMoveEvent(QMouseEvent *e)
 	}
 }
 
-void CompletingEdit::mouseReleaseEvent(QMouseEvent *e)
+void TWTextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
 	switch (mouseMode) {
 		case none:
@@ -455,7 +455,7 @@ void CompletingEdit::mouseReleaseEvent(QMouseEvent *e)
 	}
 }
 
-QTextCursor CompletingEdit::blockSelectionForPos(const QPoint& pos)
+QTextCursor TWTextEdit::blockSelectionForPos(const QPoint& pos)
 {
 	QTextCursor curs = cursorForPosition(pos);
 	curs.setPosition(curs.block().position());
@@ -463,7 +463,7 @@ QTextCursor CompletingEdit::blockSelectionForPos(const QPoint& pos)
 	return curs;
 }
 
-bool CompletingEdit::selectWord(QTextCursor& cursor)
+bool TWTextEdit::selectWord(QTextCursor& cursor)
 {
 	if (cursor.selectionEnd() - cursor.selectionStart() > 1)
 		return false;	// actually an error by the caller
@@ -481,7 +481,7 @@ bool CompletingEdit::selectWord(QTextCursor& cursor)
 	return result;
 }
 
-QTextCursor CompletingEdit::wordSelectionForPos(const QPoint& mousePos)
+QTextCursor TWTextEdit::wordSelectionForPos(const QPoint& mousePos)
 {
 	QTextCursor cursor;
 	QPoint	pos = mousePos + QPoint(horizontalScrollBar()->value(), verticalScrollBar()->value());
@@ -537,7 +537,7 @@ QTextCursor CompletingEdit::wordSelectionForPos(const QPoint& mousePos)
 	return cursor;
 }
 
-void CompletingEdit::mouseDoubleClickEvent(QMouseEvent *e)
+void TWTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
 	if (e->modifiers() == Qt::ControlModifier)
 		e->accept();
@@ -547,7 +547,7 @@ void CompletingEdit::mouseDoubleClickEvent(QMouseEvent *e)
 		mousePressEvent(e); // don't like QTextEdit's selection behavior, so we try to improve it
 }
 
-void CompletingEdit::setSelectionClipboard(const QTextCursor& curs)
+void TWTextEdit::setSelectionClipboard(const QTextCursor& curs)
 {
 	if (!curs.hasSelection())
 		return;
@@ -558,7 +558,7 @@ void CompletingEdit::setSelectionClipboard(const QTextCursor& curs)
 		QClipboard::Selection);
 }
 
-void CompletingEdit::timerEvent(QTimerEvent *e)
+void TWTextEdit::timerEvent(QTimerEvent *e)
 {
 	if (e->timerId() == clickTimer.timerId()) {
 		clickTimer.stop();
@@ -568,14 +568,14 @@ void CompletingEdit::timerEvent(QTimerEvent *e)
 		QTextEdit::timerEvent(e);
 }
 
-void CompletingEdit::focusInEvent(QFocusEvent *e)
+void TWTextEdit::focusInEvent(QFocusEvent *e)
 {
 	if (c)
 		c->setWidget(this);
 	QTextEdit::focusInEvent(e);
 }
 
-void CompletingEdit::resetExtraSelections()
+void TWTextEdit::resetExtraSelections()
 {
 	QList<ExtraSelection> selections;
 	if (highlightCurrentLine && !textCursor().hasSelection()) {
@@ -606,7 +606,7 @@ void CompletingEdit::resetExtraSelections()
 /// \author Jérôme L
 /// \date 2023/03/17
 ///
-void CompletingEdit::hilightLine(const QTextCursor & cursor)
+void TWTextEdit::hilightLine(const QTextCursor & cursor)
 {
     hilightLineRange = QTextCursor(cursor);
     hilightLineRange.movePosition(QTextCursor::StartOfBlock);
@@ -615,13 +615,13 @@ void CompletingEdit::hilightLine(const QTextCursor & cursor)
 }
 
 
-void CompletingEdit::unhilightLine()
+void TWTextEdit::unhilightLine()
 {
     hilightLineRange = QTextCursor();
     resetExtraSelections();
 }
 
-void CompletingEdit::keyPressEvent(QKeyEvent *e)
+void TWTextEdit::keyPressEvent(QKeyEvent *e)
 {
 	if (autocompleteEnabled) {
 		QKeySequence seq(static_cast<int>(e->modifiers()) | e->key());
@@ -654,7 +654,7 @@ void CompletingEdit::keyPressEvent(QKeyEvent *e)
 	}
 }
 
-void CompletingEdit::handleReturn(QKeyEvent *e)
+void TWTextEdit::handleReturn(QKeyEvent *e)
 {
 	QString prefix;
 	// Check if auto indent is on and applicable
@@ -687,7 +687,7 @@ void CompletingEdit::handleReturn(QKeyEvent *e)
 	}
 }
 
-void CompletingEdit::handleBackspace(QKeyEvent *e)
+void TWTextEdit::handleBackspace(QKeyEvent *e)
 {
 	QTextCursor curs = textCursor();
 	if (e->modifiers() == Qt::NoModifier && prefixLength > 0 && !curs.hasSelection()) {
@@ -707,7 +707,7 @@ void CompletingEdit::handleBackspace(QKeyEvent *e)
 	setTextCursor(curs);
 }
 
-void CompletingEdit::handleOtherKey(QKeyEvent *e)
+void TWTextEdit::handleOtherKey(QKeyEvent *e)
 {
 	pos_type pos = textCursor().selectionStart(); // remember cursor before the keystroke
 	pos_type end = textCursor().selectionEnd();
@@ -752,7 +752,7 @@ void CompletingEdit::handleOtherKey(QKeyEvent *e)
 #if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
 					QTimer::singleShot(250, this, SLOT(resetExtraSelections()));
 #else
-					QTimer::singleShot(250, this, &CompletingEdit::resetExtraSelections);
+					QTimer::singleShot(250, this, &TWTextEdit::resetExtraSelections);
 #endif
 				}
 			}
@@ -760,12 +760,12 @@ void CompletingEdit::handleOtherKey(QKeyEvent *e)
 	}
 }
 
-void CompletingEdit::setSmartQuotesMode(int index)
+void TWTextEdit::setSmartQuotesMode(int index)
 {
 	smartQuotesMode = (index >= 0 && index < quotesModes->count()) ? index : -1;
 }
 
-QStringList CompletingEdit::smartQuotesModes()
+QStringList TWTextEdit::smartQuotesModes()
 {
 	loadSmartQuotesModes();
 
@@ -775,7 +775,7 @@ QStringList CompletingEdit::smartQuotesModes()
 	return modes;
 }
 
-void CompletingEdit::loadSmartQuotesModes()
+void TWTextEdit::loadSmartQuotesModes()
 {
 	if (!quotesModes) {
 		QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
@@ -817,7 +817,7 @@ void CompletingEdit::loadSmartQuotesModes()
 	}
 }
 
-void CompletingEdit::maybeSmartenQuote(int offset)
+void TWTextEdit::maybeSmartenQuote(int offset)
 {
 	if (smartQuotesMode < 0 || smartQuotesMode >= quotesModes->count())
 		return;
@@ -858,7 +858,7 @@ void CompletingEdit::maybeSmartenQuote(int offset)
 	cursor.insertText(replacement);
 }
 
-void CompletingEdit::smartenQuotes()
+void TWTextEdit::smartenQuotes()
 {
 	if (smartQuotesMode < 0 || smartQuotesMode >= quotesModes->count())
 		return;
@@ -897,7 +897,7 @@ void CompletingEdit::smartenQuotes()
 }
 
 // returns true if shortcut was handled, false otherwise
-bool CompletingEdit::handleCompletionShortcut(QKeyEvent *e)
+bool TWTextEdit::handleCompletionShortcut(QKeyEvent *e)
 {
 	QKeySequence seq(static_cast<int>(e->modifiers()) | e->key());
 	if (seq == actionNext_Completion_Placeholder->shortcut() || seq == actionPrevious_Completion_Placeholder->shortcut())
@@ -1006,7 +1006,7 @@ bool CompletingEdit::handleCompletionShortcut(QKeyEvent *e)
 	return false;
 }
 
-void CompletingEdit::handleTab(QKeyEvent * e)
+void TWTextEdit::handleTab(QKeyEvent * e)
 {
 	if (textCursor().hasSelection()) {
 		if(e->modifiers() == Qt::ShiftModifier) {
@@ -1019,9 +1019,9 @@ void CompletingEdit::handleTab(QKeyEvent * e)
 	}
 }
 
-void CompletingEdit::showCompletion(const QString& completion, QString::size_type insOffset)
+void TWTextEdit::showCompletion(const QString& completion, QString::size_type insOffset)
 {
-	disconnect(this, &CompletingEdit::cursorPositionChanged, this, &CompletingEdit::cursorPositionChangedSlot);
+	disconnect(this, &TWTextEdit::cursorPositionChanged, this, &TWTextEdit::cursorPositionChangedSlot);
 
 	if (c->widget() != this)
 		return;
@@ -1043,10 +1043,10 @@ void CompletingEdit::showCompletion(const QString& completion, QString::size_typ
 	currentCompletionRange = cmpCursor;
 	resetExtraSelections();
 
-	connect(this, &CompletingEdit::cursorPositionChanged, this, &CompletingEdit::cursorPositionChangedSlot);
+	connect(this, &TWTextEdit::cursorPositionChanged, this, &TWTextEdit::cursorPositionChangedSlot);
 }
 
-void CompletingEdit::showCurrentCompletion()
+void TWTextEdit::showCurrentCompletion()
 {
 	if (c->widget() != this)
 		return;
@@ -1084,7 +1084,7 @@ void CompletingEdit::showCurrentCompletion()
 	showCompletion(completion, insOffset);
 }
 
-void CompletingEdit::loadCompletionsFromFile(QStandardItemModel *model, const QString& filename)
+void TWTextEdit::loadCompletionsFromFile(QStandardItemModel *model, const QString& filename)
 {
 	QFile	completionFile(filename);
 	if (completionFile.exists() && completionFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -1116,7 +1116,7 @@ void CompletingEdit::loadCompletionsFromFile(QStandardItemModel *model, const QS
 	}
 }
 
-void CompletingEdit::loadCompletionFiles(QCompleter *theCompleter)
+void TWTextEdit::loadCompletionFiles(QCompleter *theCompleter)
 {
 	QStandardItemModel *model = new QStandardItemModel(0, 2, theCompleter); // columns are abbrev, expansion
 
@@ -1128,14 +1128,14 @@ void CompletingEdit::loadCompletionFiles(QCompleter *theCompleter)
 	theCompleter->setModel(model);
 }
 
-void CompletingEdit::jumpToPdf(QTextCursor pos)
+void TWTextEdit::jumpToPdf(QTextCursor pos)
 {
 	if (pos.isNull())
 		pos = textCursor();
 	emit syncClick(pos.blockNumber() + 1, pos.positionInBlock());
 }
 
-void CompletingEdit::jumpToPdfFromContextMenu()
+void TWTextEdit::jumpToPdfFromContextMenu()
 {
 	QAction *act = qobject_cast<QAction*>(sender());
 	if (act) {
@@ -1144,7 +1144,7 @@ void CompletingEdit::jumpToPdfFromContextMenu()
 	}
 }
 
-void CompletingEdit::contextMenuEvent(QContextMenuEvent *event)
+void TWTextEdit::contextMenuEvent(QContextMenuEvent *event)
 {
 	QMenu *menu = createStandardContextMenu();
 	QAction *defaultAction = nullptr;
@@ -1152,7 +1152,7 @@ void CompletingEdit::contextMenuEvent(QContextMenuEvent *event)
 	QTextCursor cur = cursorForPosition(event->pos());
 
 	act->setData(QVariant(QPoint(cur.positionInBlock(), cur.blockNumber() + 1)));
-	connect(act, &QAction::triggered, this, &CompletingEdit::jumpToPdfFromContextMenu);
+	connect(act, &QAction::triggered, this, &TWTextEdit::jumpToPdfFromContextMenu);
 	menu->insertSeparator(menu->actions().first());
 	menu->insertAction(menu->actions().first(), act);
 
@@ -1178,17 +1178,17 @@ void CompletingEdit::contextMenuEvent(QContextMenuEvent *event)
 							defaultAction = act;
 					}
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-					connect(mapper, static_cast<void (QSignalMapper::*)(const QString &)>(&QSignalMapper::mapped), this, &CompletingEdit::correction);
+					connect(mapper, static_cast<void (QSignalMapper::*)(const QString &)>(&QSignalMapper::mapped), this, &TWTextEdit::correction);
 #else
-					connect(mapper, &QSignalMapper::mappedString, this, &CompletingEdit::correction);
+					connect(mapper, &QSignalMapper::mappedString, this, &TWTextEdit::correction);
 #endif
 				}
 				sep = menu->insertSeparator(menu->actions().first());
 //				QAction *add = new QAction(tr("Add to dictionary"), menu);
-//				connect(add, &QAction::triggered, this, &CompletingEdit::addToDictionary);
+//				connect(add, &QAction::triggered, this, &TWTextEdit::addToDictionary);
 //				menu->insertAction(sep, add);
 				QAction *ignore = new QAction(tr("Ignore word"), menu);
-				connect(ignore, &QAction::triggered, this, &CompletingEdit::ignoreWord);
+				connect(ignore, &QAction::triggered, this, &TWTextEdit::ignoreWord);
 				menu->insertAction(sep, ignore);
 			}
 		}
@@ -1198,23 +1198,23 @@ void CompletingEdit::contextMenuEvent(QContextMenuEvent *event)
 	delete menu;
 }
 
-void CompletingEdit::setAutoIndentMode(int index)
+void TWTextEdit::setAutoIndentMode(int index)
 {
 	autoIndentMode = (index >= 0 && index < indentModes->count()) ? index : -1;
 }
 
-void CompletingEdit::correction(const QString& suggestion)
+void TWTextEdit::correction(const QString& suggestion)
 {
 	currentWord.insertText(suggestion);
 }
 
-void CompletingEdit::addToDictionary()
+void TWTextEdit::addToDictionary()
 {
 	// For this to be useful, we need to be able to store a user dictionary (per language).
 	// Prefer to switch to Enchant first, before looking into this further.
 }
 
-void CompletingEdit::ignoreWord()
+void TWTextEdit::ignoreWord()
 {
 	Tw::Document::SpellChecker::Dictionary * dictionary = getSpellChecker();
 	if (dictionary == nullptr)
@@ -1224,7 +1224,7 @@ void CompletingEdit::ignoreWord()
 	emit rehighlight();
 }
 
-void CompletingEdit::loadIndentModes()
+void TWTextEdit::loadIndentModes()
 {
 	if (!indentModes) {
 		QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
@@ -1252,7 +1252,7 @@ void CompletingEdit::loadIndentModes()
 	}
 }
 
-QStringList CompletingEdit::autoIndentModes()
+QStringList TWTextEdit::autoIndentModes()
 {
 	loadIndentModes();
 
@@ -1262,7 +1262,7 @@ QStringList CompletingEdit::autoIndentModes()
 	return modes;
 }
 
-void CompletingEdit::dragEnterEvent(QDragEnterEvent *event)
+void TWTextEdit::dragEnterEvent(QDragEnterEvent *event)
 {
 	if (event->mimeData()->hasUrls())
 		event->ignore();
@@ -1270,7 +1270,7 @@ void CompletingEdit::dragEnterEvent(QDragEnterEvent *event)
 		QTextEdit::dragEnterEvent(event);
 }
 
-void CompletingEdit::dropEvent(QDropEvent *event)
+void TWTextEdit::dropEvent(QDropEvent *event)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	QTextCursor dropCursor = cursorForPosition(event->pos());
@@ -1291,7 +1291,7 @@ void CompletingEdit::dropEvent(QDropEvent *event)
 	horizontalScrollBar()->setValue(scrollX);
 }
 
-void CompletingEdit::insertFromMimeData(const QMimeData *source)
+void TWTextEdit::insertFromMimeData(const QMimeData *source)
 {
 	if (source->hasText()) {
 		QTextCursor curs = textCursor();
@@ -1299,7 +1299,7 @@ void CompletingEdit::insertFromMimeData(const QMimeData *source)
 	}
 }
 
-bool CompletingEdit::canInsertFromMimeData(const QMimeData *source) const
+bool TWTextEdit::canInsertFromMimeData(const QMimeData *source) const
 {
 	return source->hasText();
 }
@@ -1307,18 +1307,18 @@ bool CompletingEdit::canInsertFromMimeData(const QMimeData *source) const
 // support for the line-number area
 // from Qt tutorial "Code Editor"
 
-void CompletingEdit::setLineNumberDisplay(bool displayNumbers)
+void TWTextEdit::setLineNumberDisplay(bool displayNumbers)
 {
 	lineNumberArea->setVisible(displayNumbers);
 	updateLineNumberAreaWidth(0);
 }
 
-bool CompletingEdit::getLineNumbersVisible() const
+bool TWTextEdit::getLineNumbersVisible() const
 {
 	return lineNumberArea->isVisible();
 }
 
-QString CompletingEdit::text() const
+QString TWTextEdit::text() const
 {
 #if QT_VERSION < QT_VERSION_CHECK(5, 9, 0)
 	return toPlainText();
@@ -1350,7 +1350,7 @@ QString CompletingEdit::text() const
 #endif
 }
 
-void CompletingEdit::updateLineNumberAreaWidth(int /* newBlockCount */)
+void TWTextEdit::updateLineNumberAreaWidth(int /* newBlockCount */)
 {
 	if (lineNumberArea->isVisible()) {
 		setViewportMargins(lineNumberArea->sizeHint().width(), 0, 0, 0);
@@ -1361,7 +1361,7 @@ void CompletingEdit::updateLineNumberAreaWidth(int /* newBlockCount */)
 	}
 }
 
-void CompletingEdit::updateLineNumberArea(const QRect &rect, int dy)
+void TWTextEdit::updateLineNumberArea(const QRect &rect, int dy)
 {
 	if (dy)
 		lineNumberArea->scroll(0, dy);
@@ -1372,7 +1372,7 @@ void CompletingEdit::updateLineNumberArea(const QRect &rect, int dy)
 		updateLineNumberAreaWidth(0);
 }
 
-void CompletingEdit::resizeEvent(QResizeEvent *e)
+void TWTextEdit::resizeEvent(QResizeEvent *e)
 {
 	QTextEdit::resizeEvent(e);
 
@@ -1380,7 +1380,7 @@ void CompletingEdit::resizeEvent(QResizeEvent *e)
 	lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberArea->sizeHint().width(), cr.height()));
 }
 
-void CompletingEdit::wheelEvent(QWheelEvent *e)
+void TWTextEdit::wheelEvent(QWheelEvent *e)
 {
 	if (e->modifiers() & Qt::ControlModifier)
 	{
@@ -1402,7 +1402,7 @@ void CompletingEdit::wheelEvent(QWheelEvent *e)
 	QTextEdit::wheelEvent(e);
 }
 
-void CompletingEdit::setTextCursor(const QTextCursor & cursor)
+void TWTextEdit::setTextCursor(const QTextCursor & cursor)
 {
 	// QTextEdit::setTextCursor only scrolls to cursor.position(). If
 	// position() > anchor(), the two are on different lines, and the view has
@@ -1417,17 +1417,17 @@ void CompletingEdit::setTextCursor(const QTextCursor & cursor)
 	QTextEdit::setTextCursor(cursor);
 }
 
-void CompletingEdit::setDocument(QTextDocument * document)
+void TWTextEdit::setDocument(QTextDocument * document)
 {
 	disconnect(QTextEdit::document(), nullptr, this, nullptr);
 	// Remember the cursor width setting
 	int oldCursorWidth = cursorWidth();
 	QTextEdit::setDocument(document);
 	setCursorWidth(oldCursorWidth);
-	connect(document, &QTextDocument::blockCountChanged, this, &CompletingEdit::updateLineNumberAreaWidth);
+	connect(document, &QTextDocument::blockCountChanged, this, &TWTextEdit::updateLineNumberAreaWidth);
 }
 
-bool CompletingEdit::event(QEvent *e)
+bool TWTextEdit::event(QEvent *e)
 {
 	if (e->type() == QEvent::UpdateRequest) {
 		// should be limiting the rect to what actually needs updating
@@ -1461,7 +1461,7 @@ bool CompletingEdit::event(QEvent *e)
 	return QTextEdit::event(e);
 }
 
-void CompletingEdit::scrollContentsBy(int dx, int dy)
+void TWTextEdit::scrollContentsBy(int dx, int dy)
 {
 	if (dy != 0) {
 		emit updateRequest(viewport()->rect(), dy);
@@ -1469,7 +1469,7 @@ void CompletingEdit::scrollContentsBy(int dx, int dy)
 	QTextEdit::scrollContentsBy(dx, dy);
 }
 
-Tw::Document::SpellChecker::Dictionary * CompletingEdit::getSpellChecker() const
+Tw::Document::SpellChecker::Dictionary * TWTextEdit::getSpellChecker() const
 {
 	Tw::Document::TeXDocument * doc = qobject_cast<Tw::Document::TeXDocument *>(document());
 	if (doc == nullptr)
@@ -1480,7 +1480,7 @@ Tw::Document::SpellChecker::Dictionary * CompletingEdit::getSpellChecker() const
 	return highlighter->getSpellChecker();
 }
 
-void CompletingEdit::setHighlightCurrentLine(bool highlight)
+void TWTextEdit::setHighlightCurrentLine(bool highlight)
 {
 	if (highlight != highlightCurrentLine) {
 		highlightCurrentLine = highlight;
@@ -1488,45 +1488,45 @@ void CompletingEdit::setHighlightCurrentLine(bool highlight)
 	}
 }
 
-void CompletingEdit::setAutocompleteEnabled(bool autocomplete)
+void TWTextEdit::setAutocompleteEnabled(bool autocomplete)
 {
 	if (autocomplete != autocompleteEnabled) {
 		autocompleteEnabled = autocomplete;
 	}
 }
 
-void CompletingEdit::setFont(const QFont & font)
+void TWTextEdit::setFont(const QFont & font)
 {
 	QTextEdit::setFont(font);
 	updateLineNumberAreaWidth((document() ? document()->blockCount() : 0));
 }
 
-void CompletingEdit::setFontFamily(const QString & fontFamily)
+void TWTextEdit::setFontFamily(const QString & fontFamily)
 {
 	QTextEdit::setFontFamily(fontFamily);
 	updateLineNumberAreaWidth((document() ? document()->blockCount() : 0));
 }
 
-void CompletingEdit::setFontItalic(bool italic)
+void TWTextEdit::setFontItalic(bool italic)
 {
 	QTextEdit::setFontItalic(italic);
 	updateLineNumberAreaWidth((document() ? document()->blockCount() : 0));
 }
 
-void CompletingEdit::setFontPointSize(qreal s)
+void TWTextEdit::setFontPointSize(qreal s)
 {
 	QTextEdit::setFontPointSize(s);
 	updateLineNumberAreaWidth((document() ? document()->blockCount() : 0));
 }
 
-void CompletingEdit::setFontWeight(int weight)
+void TWTextEdit::setFontWeight(int weight)
 {
     QTextEdit::setFontWeight(weight);
     updateLineNumberAreaWidth((document() ? document()->blockCount() : 0));
 }
 
 /// \author JL
-void CompletingEdit::verticalScrollToCursorPosition(const QTextCursor & c)
+void TWTextEdit::verticalScrollToCursorPosition(const QTextCursor & c)
 {
     auto cursor = QTextCursor(c);
     cursor.movePosition(QTextCursor::StartOfBlock);
@@ -1548,15 +1548,15 @@ void CompletingEdit::verticalScrollToCursorPosition(const QTextCursor & c)
     }
 }
 
-QTextCharFormat	*CompletingEdit::currentCompletionFormat = nullptr;
-QTextCharFormat	*CompletingEdit::braceMatchingFormat = nullptr;
-QTextCharFormat	*CompletingEdit::currentLineFormat = nullptr;
-QTextCharFormat	*CompletingEdit::currentTagFormat = nullptr;
+QTextCharFormat	*TWTextEdit::currentCompletionFormat = nullptr;
+QTextCharFormat	*TWTextEdit::braceMatchingFormat = nullptr;
+QTextCharFormat	*TWTextEdit::currentLineFormat = nullptr;
+QTextCharFormat	*TWTextEdit::currentTagFormat = nullptr;
 
-bool CompletingEdit::highlightCurrentLine = true;
-bool CompletingEdit::autocompleteEnabled = true;
+bool TWTextEdit::highlightCurrentLine = true;
+bool TWTextEdit::autocompleteEnabled = true;
 
-QCompleter *CompletingEdit::sharedCompleter()
+QCompleter *TWTextEdit::sharedCompleter()
 {
     static QCompleter *ans = nullptr;
     if (!ans) { // initialize shared (static) members
@@ -1568,6 +1568,6 @@ QCompleter *CompletingEdit::sharedCompleter()
     return ans;
 }
 
-QList<CompletingEdit::IndentMode> *CompletingEdit::indentModes = nullptr;
-QList<CompletingEdit::QuotesMode> *CompletingEdit::quotesModes = nullptr;
+QList<TWTextEdit::IndentMode> *TWTextEdit::indentModes = nullptr;
+QList<TWTextEdit::QuotesMode> *TWTextEdit::quotesModes = nullptr;
 

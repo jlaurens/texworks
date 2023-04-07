@@ -21,7 +21,7 @@
 
 #include "PrefsDialog.h"
 
-#include "CompletingEdit.h"
+#include "TWTextEdit.h"
 #include "DefaultPrefs.h"
 #include "PDFDocumentWindow.h"
 #include "Settings.h"
@@ -477,10 +477,10 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	QStringList syntaxOptions = TeXHighlighter::syntaxOptions();
 	dlg.syntaxColoring->addItems(syntaxOptions);
 
-	QStringList indentModes = CompletingEdit::autoIndentModes();
+	QStringList indentModes = TWTextEdit::autoIndentModes();
 	dlg.autoIndent->addItems(indentModes);
 
-	QStringList quotesModes = CompletingEdit::smartQuotesModes();
+	QStringList quotesModes = TWTextEdit::smartQuotesModes();
 	dlg.smartQuotes->addItems(quotesModes);
 
 	QList< DictPair > dictList;
@@ -785,7 +785,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 
 		bool autocompleteEnabled = dlg.autocompleteEnabled->isChecked();
 		settings.setValue(QString::fromLatin1("autocompleteEnabled"), autocompleteEnabled);
-		CompletingEdit::setAutocompleteEnabled(autocompleteEnabled);
+		TWTextEdit::setAutocompleteEnabled(autocompleteEnabled);
 
 		settings.setValue(QStringLiteral("autoFollowFocusEnabled"), dlg.autoFollowFocusEnabled->isChecked());
 

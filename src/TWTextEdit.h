@@ -24,7 +24,7 @@
 
 #include "document/TWSpellChecker.h"
 #include "ui/LineNumberWidget.h"
-#include "ui_CompletingEdit.h"
+#include "ui_TWTextEdit.h"
 #include "Settings.h"
 
 #include <QDrag>
@@ -38,14 +38,14 @@ class QCompleter;
 class QStandardItemModel;
 class QTextCodec;
 
-class CompletingEdit : public QTextEdit, private Ui::CompletingEdit
+class TWTextEdit : public QTextEdit, private Ui::TWTextEdit
 {
 	Q_OBJECT
 	using pos_type = decltype(QTextCursor().position());
 
 public:
-	CompletingEdit(QWidget *parent = nullptr);
-	~CompletingEdit() override;
+	TWTextEdit(QWidget *parent = nullptr);
+	~TWTextEdit() override;
 
 	bool selectWord(QTextCursor& cursor);
 

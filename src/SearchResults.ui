@@ -1,6 +1,6 @@
 <ui version="4.0" >
  <class>SearchResults</class>
- <widget class="QDockWidget" name="SearchResults" >
+ <widget class="QDock" name="SearchResults" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="allowedAreas" >
-   <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   <set>Qt::BottomDockArea|Qt::TopDockArea</set>
   </property>
   <property name="windowTitle" >
    <string>Search Results</string>

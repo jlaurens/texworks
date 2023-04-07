@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,10 +19,10 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#ifndef Tw_Document_TeXDockTree_H
-#define Tw_Document_TeXDockTree_H
+#ifndef Tw_Document_Anchor_DockTree_H
+#define Tw_Document_Anchor_DockTree_H
 
-#include <QDockWidget>
+#include <QDock>
 #include <QTreeWidget>
 
 class QTreeWidgetItem;
@@ -33,29 +33,30 @@ class TeXDocumentWindow;
 
 namespace Tw {
 namespace Document {
+namespace Anchor {
 
 class Tag;
 class TagSuite;
 class TagBank;
 
-class TeXDockTreeWidget;
+class DockTreeWidget;
 
-class TeXDockTreeAux;
+class DockTreeAux;
 
 /// \author JL
-class TeXDockTree: public QDockWidget
+class DockTree: public QDock
 {
     Q_OBJECT
-    using Super = QDockWidget;
-    using Self  = TeXDockTree;
+    using Super = QDock;
+    using Self  = DockTree;
     struct Extra;
     TagSuite *tagSuite_m;
 protected:
     bool updated_m;
     void setTagSuite(TagSuite *);
 public:
-    TeXDockTree(const QString & title, TeXDocumentWindow *window);
-    ~TeXDockTree() override = default;
+    DockTree(const QString & title, TeXDocumentWindow *window);
+    ~DockTree() override = default;
     const TagSuite *tagSuite() { return tagSuite_m; };
     TeXDocumentWindow *window();
     QTextEdit *editor();
@@ -68,7 +69,7 @@ public:
     void setupUpdate();
     
 protected:
-    virtual TeXDockTreeWidget *newTreeWidget();
+    virtual DockTreeWidget *newTreeWidget();
     virtual void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tag *) const;
     virtual void updateVoid() = 0;
     QTreeWidgetItem *getItemAtIndex(const int tagIndex);
@@ -76,26 +77,26 @@ protected:
     Extra *extra_m;
 };
 
-class TeXDockTreeWidget: public QTreeWidget
+class DockTreeWidget: public QTreeWidget
 {
     Q_OBJECT
     using Super = QTreeWidget;
 public:
-    friend void TeXDockTree::initUI();
-    explicit TeXDockTreeWidget(QWidget * parent = nullptr);
-    ~TeXDockTreeWidget() override = default;
+    friend void DockTree::initUI();
+    explicit DockTreeWidget(QWidget * parent = nullptr);
+    ~DockTreeWidget() override = default;
     QSize sizeHint() const override;
 };
 
-class TeXDockTag: public TeXDockTree
+class DockTag: public DockTree
 {
     Q_OBJECT
     
-    using Super = TeXDockTree;
+    using Super = DockTree;
     
 public:
-    TeXDockTag(TeXDocumentWindow *window);
-    ~TeXDockTag() override = default;
+    DockTag(TeXDocumentWindow *window);
+    ~DockTag() override = default;
     
 protected:
     void updateVoid() override;
@@ -103,15 +104,15 @@ protected:
     void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tag *) const override;
 };
 
-class TeXDockBookmark: public TeXDockTree
+class DockBookmark: public DockTree
 {
     Q_OBJECT
     
-    using Super = TeXDockTree;
+    using Super = DockTree;
     
 public:
-    TeXDockBookmark(TeXDocumentWindow *window);
-    ~TeXDockBookmark() override = default;
+    DockBookmark(TeXDocumentWindow *window);
+    ~DockBookmark() override = default;
     
 protected:
     void updateVoid() override;
@@ -119,30 +120,30 @@ protected:
     void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tag *) const override;
 };
 
-class TeXDockOutline;
+class DockOutline;
 
 /**
  D&D manager.
  */
-class TeXDockOutlineWidget: public TeXDockTreeWidget
+class DockOutlineWidget: public DockTreeWidget
 {
     Q_OBJECT
-    using Super = TeXDockTreeWidget;
+    using Super = DockTreeWidget;
     
 public:
-    explicit TeXDockOutlineWidget(TeXDockOutline * parent);
-    ~TeXDockOutlineWidget() override = default;
+    explicit DockOutlineWidget(DockOutline * parent);
+    ~DockOutlineWidget() override = default;
     
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *) override;
 };
 
-class TeXDockOutline: public TeXDockTree
+class DockOutline: public DockTree
 {
     Q_OBJECT
     
-    using Super = TeXDockTree;
+    using Super = DockTree;
 
 public:
     struct TagX
@@ -150,17 +151,18 @@ public:
         const Tag * tag;
         bool isExpanded;
     };
-    TeXDockOutline(TeXDocumentWindow *window);
-    ~TeXDockOutline() override = default;
+    DockOutline(TeXDocumentWindow *window);
+    ~DockOutline() override = default;
     bool performDrag(const QList<TagX> &, QTextCursor);
 
 protected:
     void updateVoid() override;
-    TeXDockTreeWidget *newTreeWidget() override;
+    DockTreeWidget *newTreeWidget() override;
     void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tag *) const override;
 };
 
+} // namespace Anchor
 } // namespace Document
 } // namespace Tw
 
-#endif // Tw_Document_TeXDockTree_H
+#endif // Tw_Document_Anchor_DockTree_H

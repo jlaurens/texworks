@@ -20,18 +20,18 @@
 */
 
 #include "document/TextDocument.h"
-#include "document/TWTag.h"
+#include "document/anchor/TWTag.h"
 #include <QDebug>
 
 namespace Tw {
 namespace Document {
 
 TextDocument::TextDocument(QObject * parent): QTextDocument(QString(), parent),
-tagBank_m(new TagBank(this))
+anchorBank_m(new Anchor::TagBank(this))
 {}
 
 TextDocument::TextDocument(const QString & text, QObject * parent): QTextDocument(text, parent),
-tagBank_m(new TagBank(this))
+anchorBank_m(new Anchor::TagBank(this))
 {}
 
 } // namespace Document

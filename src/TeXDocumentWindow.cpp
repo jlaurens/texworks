@@ -32,7 +32,7 @@
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
 #include "TemplateDialog.h"
-#include "document/TWTeXDockTree.h"
+#include "document/anchor/TWDockTree.h"
 #include "scripting/ScriptAPI.h"
 #include "ui/ClickableLabel.h"
 #include "ui/RemoveAuxFilesDialog.h"
@@ -46,7 +46,7 @@
 #include <QClipboard>
 #include <QCloseEvent>
 #include <QComboBox>
-#include <QDockWidget>
+#include <QDock>
 #include <QFileDialog>
 #include <QFileSystemWatcher>
 #include <QFontDialog>
@@ -227,9 +227,9 @@ void TeXDocumentWindow::init()
 	connect(textDoc(), &Tw::Document::TeXDocument::modificationChanged, this, &TeXDocumentWindow::setWindowModified);
 	connect(textDoc(), &Tw::Document::TeXDocument::modificationChanged, this, &TeXDocumentWindow::maybeEnableSaveAndRevert);
 	connect(textDoc(), &Tw::Document::TeXDocument::modelinesChanged, this, &TeXDocumentWindow::handleModelineChange);
-	connect(textEdit, &CompletingEdit::cursorPositionChanged, this, &TeXDocumentWindow::showCursorPosition);
-	connect(textEdit, &CompletingEdit::selectionChanged, this, &TeXDocumentWindow::showCursorPosition);
-	connect(textEdit, &CompletingEdit::syncClick, this, &TeXDocumentWindow::syncClick);
+	connect(textEdit, &TWTextEdit::cursorPositionChanged, this, &TeXDocumentWindow::showCursorPosition);
+	connect(textEdit, &TWTextEdit::selectionChanged, this, &TeXDocumentWindow::showCursorPosition);
+	connect(textEdit, &TWTextEdit::syncClick, this, &TeXDocumentWindow::syncClick);
 	connect(this, &TeXDocumentWindow::syncFromSource, TWApp::instance(), &TWApp::syncPdf);
 
 	connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &TeXDocumentWindow::clipboardChanged);
@@ -338,13 +338,13 @@ void TeXDocumentWindow::init()
 	connect(this, &TeXDocumentWindow::asyncFlashStatusBarMessage, statusBar(), &QStatusBar::showMessage, Qt::QueuedConnection);
 
 	QString indentOption = settings.value(QString::fromLatin1("autoIndent")).toString();
-	options = CompletingEdit::autoIndentModes();
+	options = TWTextEdit::autoIndentModes();
 
 	QSignalMapper *indentMapper = new QSignalMapper(this);
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-	connect(indentMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), textEdit, &CompletingEdit::setAutoIndentMode);
+	connect(indentMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), textEdit, &TWTextEdit::setAutoIndentMode);
 #else
-	connect(indentMapper, &QSignalMapper::mappedInt, textEdit, &CompletingEdit::setAutoIndentMode);
+	connect(indentMapper, &QSignalMapper::mappedInt, textEdit, &TWTextEdit::setAutoIndentMode);
 #endif
 	indentMapper->setMapping(actionAutoIndent_None, -1);
 	connect(actionAutoIndent_None, &QAction::triggered, indentMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
@@ -366,13 +366,13 @@ void TeXDocumentWindow::init()
 	}
 
 	QString quotesOption = settings.value(QString::fromLatin1("smartQuotes")).toString();
-	options = CompletingEdit::smartQuotesModes();
+	options = TWTextEdit::smartQuotesModes();
 
 	QSignalMapper *quotesMapper = new QSignalMapper(this);
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-	connect(quotesMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), textEdit, &CompletingEdit::setSmartQuotesMode);
+	connect(quotesMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), textEdit, &TWTextEdit::setSmartQuotesMode);
 #else
-	connect(quotesMapper, &QSignalMapper::mappedInt, textEdit, &CompletingEdit::setSmartQuotesMode);
+	connect(quotesMapper, &QSignalMapper::mappedInt, textEdit, &TWTextEdit::setSmartQuotesMode);
 #endif
 	quotesMapper->setMapping(actionSmartQuotes_None, -1);
 	connect(actionSmartQuotes_None, &QAction::triggered, quotesMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
@@ -396,7 +396,7 @@ void TeXDocumentWindow::init()
 	if (!options.empty())
 		menuSmart_Quotes_Mode->addSeparator();
 	menuSmart_Quotes_Mode->addAction(actionApply_to_Selection);
-	connect(actionApply_to_Selection, &QAction::triggered, textEdit, &CompletingEdit::smartenQuotes);
+	connect(actionApply_to_Selection, &QAction::triggered, textEdit, &TWTextEdit::smartenQuotes);
 
 	connect(actionLine_Numbers, &QAction::triggered, this, &TeXDocumentWindow::setLineNumbers);
 	connect(actionWrap_Lines, &QAction::triggered, this, &TeXDocumentWindow::setWrapLines);
@@ -421,17 +421,17 @@ void TeXDocumentWindow::init()
 
 	Tw::Utils::WindowManager::zoomToHalfScreen(this);
 
-	QDockWidget *dw = new Tw::Document::TeXDockTag(this);
+	QDock *dw = new Tw::Document::Anchor::DockTag(this);
 	dw->hide();
-	addDockWidget(Qt::LeftDockWidgetArea, dw);
+	addDock(Qt::LeftDockArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
-    dw = new Tw::Document::TeXDockOutline(this);
+    dw = new Tw::Document::Anchor::DockOutline(this);
     dw->hide();
-    addDockWidget(Qt::LeftDockWidgetArea, dw);
+    addDock(Qt::LeftDockArea, dw);
     menuShow->addAction(dw->toggleViewAction());
-    dw = new Tw::Document::TeXDockBookmark(this);
+    dw = new Tw::Document::Anchor::DockBookmark(this);
     dw->hide();
-    addDockWidget(Qt::LeftDockWidgetArea, dw);
+    addDock(Qt::LeftDockArea, dw);
     menuShow->addAction(dw->toggleViewAction());
 
 	watcher = new QFileSystemWatcher(this);
@@ -1234,7 +1234,7 @@ void TeXDocumentWindow::delayedInit()
 		Tw::Settings settings;
 
 		TeXHighlighter * highlighter = new TeXHighlighter(_texDoc);
-		connect(textEdit, &CompletingEdit::rehighlight, highlighter, &TeXHighlighter::rehighlight);
+		connect(textEdit, &TWTextEdit::rehighlight, highlighter, &TeXHighlighter::rehighlight);
 
 		// set up syntax highlighting
 		// First, use the current file's syntaxMode property (if available)

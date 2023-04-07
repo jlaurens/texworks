@@ -418,7 +418,7 @@ ReplaceDialog::DialogCode ReplaceDialog::doReplaceDialog(QTextEdit *document)
 
 
 SearchResults::SearchResults(QWidget* parent)
-	: QDockWidget(parent)
+	: QDock(parent)
 {
 	setupUi(this);
 	setFocusProxy(parent);
@@ -457,7 +457,7 @@ void SearchResults::presentResults(const QString& searchText,
 		// remove any existing results dock from this parent window
 		QList<SearchResults*> children = parent->findChildren<SearchResults*>();
 		foreach (SearchResults* child, children) {
-			parent->removeDockWidget(child);
+			parent->removeDock(child);
 			child->deleteLater();
 		}
 	}
@@ -538,13 +538,13 @@ void SearchResults::presentResults(const QString& searchText,
 	resultsWindow->table->resizeRowsToContents();
 
 	if (singleFile) {
-		resultsWindow->setAllowedAreas(Qt::TopDockWidgetArea|Qt::BottomDockWidgetArea);
+		resultsWindow->setAllowedAreas(Qt::TopDockArea|Qt::BottomDockArea);
 		resultsWindow->setFloating(false);
-		parent->addDockWidget(Qt::TopDockWidgetArea, resultsWindow);
+		parent->addDock(Qt::TopDockArea, resultsWindow);
 	}
 	else {
-		resultsWindow->setAllowedAreas(Qt::NoDockWidgetArea);
-		resultsWindow->setFeatures(QDockWidget::NoDockWidgetFeatures);
+		resultsWindow->setAllowedAreas(Qt::NoDockArea);
+		resultsWindow->setFeatures(QDock::NoDockFeatures);
 		resultsWindow->setParent(nullptr);
 		resultsWindow->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
 	}

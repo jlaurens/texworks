@@ -23,7 +23,7 @@
 ## Presentation
  Tags are text extracts that fulfill some conditions.
  We have magic comments at lines starting with `% TeX:` or `LaTeX` sectionning commands.
- These tags are collected and displayed in docks, see `TWTeXDockTree.h`.
+ These tags are collected and displayed in docks, see `TWDockTree.h`.
  
 ## Implementation details.
  Any `Tag` instance contains informations about one particular tag: its text, tooltip, type, subtype, level
@@ -36,8 +36,8 @@
  In order to keep the corresponding items expanded or selected, we store supplemental information
  based on the cursor.
  */
-#ifndef Tw_Document_Tag_H
-#define Tw_Document_Tag_H
+#ifndef Tw_Document_Anchor_Tag_H
+#define Tw_Document_Anchor_Tag_H
 
 #include "document/Document.h"
 
@@ -52,10 +52,16 @@ class QTreeWidgetItem;
 
 namespace Tw {
 namespace Document {
+
+class TextDocument;
+
+namespace Anchor {
+
 namespace UnitTest {
 class TagTest; // This class may exist uniquely while testing, friend of everyone.
 }
-class TextDocument;
+
+#warning I can override the destructor!!!
 
 class Tag;
 class TagBank;
@@ -221,10 +227,11 @@ signals:
     friend class UnitTest::TagTest;
 }; // class TagSuite
 
+} // namespace Anchor
 } // namespace Document
 } // namespace Tw
 
-Q_DECLARE_METATYPE(Tw::Document::Tag *) // for QVariant usage
+Q_DECLARE_METATYPE(Tw::Document::Anchor::Tag *) // for QVariant usage
 Q_DECLARE_METATYPE(const void *) // for QVariant usage
 
-#endif // ifndef Tw_Document_Tag_H
+#endif // ifndef Tw_Document_Anchor_Tag_H

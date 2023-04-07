@@ -19,12 +19,12 @@
     see <http://www.tug.org/texworks/>.
 */
 
-#include <QTemporaryDir>
-
 #include <QtTest/QtTest>
 
 namespace Tw {
+
 namespace Document {
+namespace Anchor {
 namespace UnitTest {
 
 class TagTest : public QObject
@@ -37,5 +37,6 @@ private slots:
 };
 
 } // namespace UnitTest
+} // namespace Anchor
 } // namespace Document
 } // namespace Tw

@@ -19,8 +19,8 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "document/TWTeXDockTree.h"
-#include "document/TWTag.h"
+#include "document/anchor/TWDockTree.h"
+#include "document/anchor/TWTag.h"
 #include "TeXDocumentWindow.h"
 #include "TWString.h"
 #include "TWIcon.h"
@@ -35,6 +35,7 @@
 
 namespace Tw {
 namespace Document {
+namespace Anchor {
 
 /// \note all static material is gathered here
 namespace __ {
@@ -53,14 +54,14 @@ static const Tag *getItemTag(const QTreeWidgetItem *item) {
     if (item) {
         QVariant v = item->data(0, __::kTagRole);
         if (v.isValid()) {
-            return static_cast<const Tag *>(v.value<const void *>());
+            return reinterpret_cast<const Tag *>(v.value<const void *>());
         }
     }
     return nullptr; // this happens for void Tag suites.
 }
 static void setItemTag(QTreeWidgetItem *item, const Tag *tag) {
     if (item) {
-        QVariant v = QVariant::fromValue(static_cast<const void*>(tag));
+        QVariant v = QVariant::fromValue(reinterpret_cast<const void*>(tag));
         item->setData(0, __::kTagRole, v);
     }
 }
@@ -122,7 +123,7 @@ static bool setItemOutlineLevel(QTreeWidgetItem * item, const int level) {
 }
 } // namespace __
 
-//MARK: TeXDockTreeWidget
+//MARK: DockTreeWidget
 
 TeXDockTreeWidget::TeXDockTreeWidget(QWidget *parent)
 : QTreeWidget(parent)
@@ -130,19 +131,19 @@ TeXDockTreeWidget::TeXDockTreeWidget(QWidget *parent)
     setIndentation(10);
 }
 
-QSize TeXDockTreeWidget::sizeHint() const
+QSize DockTreeWidget::sizeHint() const
 {
     return QSize(180, 300);
 }
 
-//MARK: TeXDockTree
+//MARK: DockTree
 
 /// \author JL
-TeXDockTree::TeXDockTree(const QString &title, TeXDocumentWindow * window)
+DockTree::DockTree(const QString &title, TeXDocumentWindow * window)
     : Super(title, window)
 {
     connect(this,
-            &TeXDockTree::visibilityChanged,
+            &DockTree::visibilityChanged,
             this,
             [=](bool visible) {
         update(visible);
@@ -153,19 +154,19 @@ TeXDockTree::TeXDockTree(const QString &title, TeXDocumentWindow * window)
     });
 }
 
-TeXDocumentWindow *TeXDockTree::window()
+TeXDocumentWindow *DockTree::window()
 {
-    return static_cast<TeXDocumentWindow *>(parent());
+    return reinterpret_cast<TeXDocumentWindow *>(parent());
 }
 
-QTextEdit *TeXDockTree::editor()
+QTextEdit *DockTree::editor()
 {
     return window()->editor();
 }
 
-//MARK: TeXDockTree::Extra[::State]
+//MARK: DockTree::Extra[::State]
 // People don't need to know what is in there.
-struct TeXDockTree::Extra
+struct DockTree::Extra
 {
     int lastScrollValue_m = 0;
     struct State
@@ -177,7 +178,7 @@ struct TeXDockTree::Extra
     States states_m;
 };
 
-void TeXDockTree::setTagSuite(TagSuite * tagSuite)
+void DockTree::setTagSuite(TagSuite * tagSuite)
 {
     if (tagSuite_m) {
         disconnect(tagSuite_m, &TagSuite::willChange, this, nullptr);
@@ -187,9 +188,9 @@ void TeXDockTree::setTagSuite(TagSuite * tagSuite)
     if (!tagSuite_m) {
         return;
     }
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
-    qDebug() << "TeXDockTree::setTagSuite" << treeWidget;
+    qDebug() << "DockTree::setTagSuite" << treeWidget;
     connect(tagSuite_m, &TagSuite::willChange, this, [=]() {
         qDebug() << "&TagSuite::willChange";
         qDebug() << treeWidget;
@@ -250,7 +251,7 @@ void TeXDockTree::setTagSuite(TagSuite * tagSuite)
     });
 }
 /// \note must be called by subclassers.
-void TeXDockTree::initUI()
+void DockTree::initUI()
 {
     // top level
     QVBoxLayout *topLayout = new QVBoxLayout;
@@ -288,12 +289,12 @@ void TeXDockTree::initUI()
 
 TeXDockTreeWidget *TeXDockTree::newTreeWidget()
 {
-    return new TeXDockTreeWidget(this);
+    return new DockTreeWidget(this);
 }
 
-QTreeWidgetItem *TeXDockTree::getItemAtIndex(const int tagIndex)
+QTreeWidgetItem *DockTree::getItemAtIndex(const int tagIndex)
 {
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
     QList<QTreeWidgetItem *> items = { treeWidget->invisibleRootItem() };
     while (! items.isEmpty()) {
@@ -309,12 +310,12 @@ QTreeWidgetItem *TeXDockTree::getItemAtIndex(const int tagIndex)
     return nullptr;
 }
 
-void TeXDockTree::selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection)
+void DockTree::selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection)
 {
     if (tagSuite()->isEmpty()) {
         return;
     }
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
     treeWidget->blockSignals(dontFollowItemSelection);
     QTextCursor c(cursor);
@@ -362,7 +363,7 @@ void TeXDockTree::selectItemsForCursor(const QTextCursor &cursor, bool dontFollo
     treeWidget->blockSignals(false);
 }
 
-void TeXDockTree::makeNewItem(QTreeWidgetItem *&item,
+void DockTree::makeNewItem(QTreeWidgetItem *&item,
                               QTreeWidget *treeWidget,
                               const Tag *tag) const
 {
@@ -383,7 +384,7 @@ void TeXDockTree::makeNewItem(QTreeWidgetItem *&item,
     }
 }
 
-void TeXDockTree::update(bool force)
+void DockTree::update(bool force)
 {
     if ((! isVisible() || updated_m) && ! force) return;
     emit tagSuite_m->willChange();
@@ -391,12 +392,12 @@ void TeXDockTree::update(bool force)
     updated_m = true;
 }
 
-void TeXDockTree::find(const QString &find)
+void DockTree::find(const QString &find)
 {
     if (tagSuite()->isEmpty()) {
         return;
     }
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
     QList<const Tag *> next;
     int anchor = 0;
@@ -459,33 +460,33 @@ void TeXDockTree::find(const QString &find)
 //MARK: Tags
 
 /// \author JL
-TeXDockTag::TeXDockTag(TeXDocumentWindow *window)
-: TeXDockTree(TeXDockTree::tr("Tags"), window)
+DockTag::DockTag(TeXDocumentWindow *window)
+: DockTree(DockTree::tr("Tags"), window)
 {
     Q_ASSERT(window);
     setObjectName(ObjectName::Tags);
     initUI();
-    setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
+    setTagSuite(window->textDoc()->anchorBank()->makeSuite([](const Tag *tag) {
         Q_UNUSED(tag);
         return true;
     }));
 }
 
-void TeXDockTag::updateVoid()
+void DockTag::updateVoid()
 {
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
     auto *item = new QTreeWidgetItem();
-    item->setText(0, TeXDockTree::tr("No bookmark"));
+    item->setText(0, DockTree::tr("No bookmark"));
     // This item MUST NOT be selectable
     item->setFlags(item->flags() &~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
     treeWidget->addTopLevelItem(item);
 }
 
-void TeXDockTag::initUI()
+void DockTag::initUI()
 {
     Super::initUI();
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
     treeWidget->setColumnCount(2);
     treeWidget->header()->setStretchLastSection(false);
@@ -495,7 +496,7 @@ void TeXDockTag::initUI()
     auto *toolbarWidget = findChild<QWidget*>(ObjectName::toolbar);
     Q_ASSERT(toolbarWidget);
     //TODO: Edit tags in place
-    auto *layout = static_cast<QBoxLayout *>(toolbarWidget->layout());
+    auto *layout = reinterpret_cast<QBoxLayout *>(toolbarWidget->layout());
     if (! layout) return;
     {
         auto *button = new QPushButton(QString());
@@ -551,7 +552,7 @@ void TeXDockTag::initUI()
 /// Each item has both an outline level and a bookmark level.
 /// The bookmark level of an outline item is always kMinLevel.
 /// The outline level of a boorkmark item is its parent's one or kMinLevel whan at top.
-void TeXDockTag::makeNewItem(QTreeWidgetItem *&item,
+void DockTag::makeNewItem(QTreeWidgetItem *&item,
                              QTreeWidget *treeWidget,
                              const Tag *tag) const
 {
@@ -604,30 +605,30 @@ void TeXDockTag::makeNewItem(QTreeWidgetItem *&item,
 //MARK: Bookmarks
 
 /// \author JL
-TeXDockBookmark::TeXDockBookmark(TeXDocumentWindow * window)
-: TeXDockTree(TeXDockTree::tr("Bookmarks"), window)
+DockBookmark::DockBookmark(TeXDocumentWindow * window)
+: DockTree(DockTree::tr("Bookmarks"), window)
 {
     setObjectName(ObjectName::Bookmarks);
     initUI();
-    setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
+    setTagSuite(window->textDoc()->anchorBank()->makeSuite([](const Tag *tag) {
         return tag && ! tag->isOutline();
     }));
 }
 
-void TeXDockBookmark::updateVoid()
+void DockBookmark::updateVoid()
 {
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
     QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, TeXDockTree::tr("No bookmark"));
+    item->setText(0, DockTree::tr("No bookmark"));
     item->setFlags(item->flags() &~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
     treeWidget->addTopLevelItem(item);
 }
 
-void TeXDockBookmark::initUI()
+void DockBookmark::initUI()
 {
     Super::initUI();
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
     treeWidget->setColumnCount(2);
     treeWidget->header()->setStretchLastSection(false);
@@ -645,7 +646,7 @@ void TeXDockBookmark::initUI()
      }
      });
      */
-    auto *layout = static_cast<QBoxLayout *>(toolbarWidget->layout());
+    auto *layout = reinterpret_cast<QBoxLayout *>(toolbarWidget->layout());
     if (! layout) return;
     {
         auto *button = new QPushButton(QString());
@@ -694,7 +695,7 @@ void TeXDockBookmark::initUI()
     }
 }
 
-void TeXDockBookmark::makeNewItem(QTreeWidgetItem *&item,
+void DockBookmark::makeNewItem(QTreeWidgetItem *&item,
                                   QTreeWidget *treeWidget,
                                   const Tag *tag) const
 {
@@ -722,14 +723,14 @@ void TeXDockBookmark::makeNewItem(QTreeWidgetItem *&item,
         item->setIcon(1, Icon::MARK());
     }
 }
-//MARK: TeXDockTreeWidgetStyle
+//MARK: DockTreeWidgetStyle
 //// See https://stackoverflow.com/questions/7596584/qtreeview-draw-drop-indicator
-class TeXDockTreeWidgetStyle: public QProxyStyle
+class DockTreeWidgetStyle: public QProxyStyle
 {
     using Super = QProxyStyle;
     
 public:
-    TeXDockTreeWidgetStyle(QStyle *style = nullptr);
+    DockTreeWidgetStyle(QStyle *style = nullptr);
     
     void drawPrimitive(PrimitiveElement element,
                        const QStyleOption *option,
@@ -737,11 +738,11 @@ public:
                        const QWidget *widget = nullptr) const;
 };
 
-TeXDockTreeWidgetStyle::TeXDockTreeWidgetStyle(QStyle *style)
+DockTreeWidgetStyle::DockTreeWidgetStyle(QStyle *style)
 :QProxyStyle(style)
 {}
 //TODO: draw a thicker indicator
-void TeXDockTreeWidgetStyle::drawPrimitive(QStyle::PrimitiveElement element,
+void DockTreeWidgetStyle::drawPrimitive(QStyle::PrimitiveElement element,
                                            const QStyleOption *option,
                                            QPainter *painter,
                                            const QWidget *widget) const
@@ -760,21 +761,21 @@ void TeXDockTreeWidgetStyle::drawPrimitive(QStyle::PrimitiveElement element,
 }
 
 
-//MARK: TeXDockOutline
+//MARK: DockOutline
 /// \author JL
-TeXDockOutline::TeXDockOutline(TeXDocumentWindow * window)
-: TeXDockTree(TeXDockTree::tr("Outline"), window)
+DockOutline::DockOutline(TeXDocumentWindow * window)
+: DockTree(DockTree::tr("Outline"), window)
 {
     setObjectName(ObjectName::Outlines);
     initUI();
-    setTagSuite(window->textDoc()->tagBank()->makeSuite([](const Tag *tag) {
+    setTagSuite(window->textDoc()->anchorBank()->makeSuite([](const Tag *tag) {
         return tag && (tag->isOutline() || tag->isBoundary());
     }));
 }
 
-TeXDockTreeWidget *TeXDockOutline::newTreeWidget()
+DockTreeWidget *DockOutline::newTreeWidget()
 {
-    auto *treeWidget = new TeXDockOutlineWidget(this);
+    auto *treeWidget = new DockOutlineWidget(this);
     Q_ASSERT(treeWidget);
     treeWidget->setDragEnabled(true);
     treeWidget->viewport()->setAcceptDrops(true);
@@ -783,7 +784,7 @@ TeXDockTreeWidget *TeXDockOutline::newTreeWidget()
     treeWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);
     QStyle *oldStyle = treeWidget->style();
     QObject *oldOwner = oldStyle ? oldStyle->parent() : nullptr;
-    QStyle *newStyle = new TeXDockTreeWidgetStyle(oldStyle);
+    QStyle *newStyle = new DockTreeWidgetStyle(oldStyle);
     // oldStyle is now owned by newStyle
     newStyle->setParent(oldOwner ? oldOwner : this);
     // newStyle has an owner now
@@ -791,17 +792,17 @@ TeXDockTreeWidget *TeXDockOutline::newTreeWidget()
     return treeWidget;
 }
 
-void TeXDockOutline::updateVoid()
+void DockOutline::updateVoid()
 {
-    auto *treeWidget = findChild<TeXDockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>();
     Q_ASSERT(treeWidget);
     QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, TeXDockTree::tr("No outline"));
+    item->setText(0, DockTree::tr("No outline"));
     item->setFlags(item->flags() & ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
     treeWidget->addTopLevelItem(item);
 }
 
-void TeXDockOutline::makeNewItem(QTreeWidgetItem *&item,
+void DockOutline::makeNewItem(QTreeWidgetItem *&item,
                                  QTreeWidget *treeWidget,
                                  const Tag *tag) const
 {
@@ -825,7 +826,7 @@ void TeXDockOutline::makeNewItem(QTreeWidgetItem *&item,
     }
 }
 
-bool TeXDockOutline::performDrag(const QList<TagX> &tagXs, QTextCursor toCursor)
+bool DockOutline::performDrag(const QList<TagX> &tagXs, QTextCursor toCursor)
 {
     // first we build a list of cursors corresponding to the multiple text ranges to drag
     bool fromEOL = false;
@@ -905,11 +906,11 @@ select_tail:
     return true;
 }
 
-///MARK: TeXDockOutlineWidget
-TeXDockOutlineWidget::TeXDockOutlineWidget(TeXDockOutline *parent)
+///MARK: DockOutlineWidget
+DockOutlineWidget::DockOutlineWidget(DockOutline *parent)
     : Super(parent) {}
 
-void TeXDockOutlineWidget::dragEnterEvent(QDragEnterEvent *event)
+void DockOutlineWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     // If one of the selected items is a boundary, we abort the drag
     for (const auto *item: selectedItems()) {
@@ -922,7 +923,7 @@ void TeXDockOutlineWidget::dragEnterEvent(QDragEnterEvent *event)
     Super::dragEnterEvent(event);
 }
 
-void TeXDockOutlineWidget::dropEvent(QDropEvent *event)
+void DockOutlineWidget::dropEvent(QDropEvent *event)
 {
     // We share the logic with the parent for better testing
     QTextCursor fromCursor, toCursor;
@@ -960,21 +961,22 @@ void TeXDockOutlineWidget::dropEvent(QDropEvent *event)
     }
     // Setting the fromCursor:
     tag = nullptr;
-    QList<TeXDockOutline::TagX> tagXs;
+    QList<DockOutline::TagX> tagXs;
     for (const auto *item: selectedItems()) {
         tag = __::getItemTag(item);
-        auto tagX = TeXDockOutline::TagX{tag, item->isExpanded()};
+        auto tagX = DockOutline::TagX{tag, item->isExpanded()};
         tagXs << tagX;
     }
     if (tagXs.isEmpty()) {
         goto theBeach;
     }
-    auto * treeOutline = static_cast<TeXDockOutline *>(parent());
+    auto * treeOutline = reinterpret_cast<DockOutline *>(parent());
     if (! treeOutline->performDrag(tagXs, toCursor)) {
         goto theBeach;
     }
     Super::dropEvent(event);
 }
 
+} // namespace Anchor
 } // namespace Document
 } // namespace Tw

@@ -69,6 +69,7 @@ class TeXDocumentWindow : public TWScriptableWindow, private Ui::TeXDocumentWind
 	Q_OBJECT
 
 public:
+    using Editor = TWTextEdit; // See TWDockTree
 	explicit TeXDocumentWindow();
 	explicit TeXDocumentWindow(const QString & fileName, bool asTemplate = false);
 
@@ -93,7 +94,7 @@ public:
 	const Tw::Document::TeXDocument* textDoc() const
 		{ return _texDoc; }
 	QString getLineText(int lineNo) const;
-	CompletingEdit* editor()
+	TWTextEdit* editor()
 		{ return textEdit; }
 	int cursorPosition() const { return textCursor().position(); }
 	int selectionStart() const { return textCursor().selectionStart(); }

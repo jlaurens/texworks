@@ -33,7 +33,7 @@
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 #include <QDesktopWidget>
 #endif
-#include <QDockWidget>
+#include <QDock>
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QLabel>
@@ -277,29 +277,29 @@ void PDFDocumentWindow::init()
 	menuShow->addAction(toolBar->toggleViewAction());
 	menuShow->addSeparator();
 
-	QDockWidget * dw = pdfWidget->dockWidget(QtPDF::PDFDocumentView::Dock_TableOfContents, this);
+	QDock * dw = pdfWidget->dockWidget(QtPDF::PDFDocumentView::Dock_TableOfContents, this);
 	dw->hide();
-	addDockWidget(Qt::LeftDockWidgetArea, dw);
+	addDock(Qt::LeftDockArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
 
 	dw = pdfWidget->dockWidget(QtPDF::PDFDocumentView::Dock_MetaData, this);
 	dw->hide();
-	addDockWidget(Qt::LeftDockWidgetArea, dw);
+	addDock(Qt::LeftDockArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
 
 	dw = pdfWidget->dockWidget(QtPDF::PDFDocumentView::Dock_Fonts, this);
 	dw->hide();
-	addDockWidget(Qt::BottomDockWidgetArea, dw);
+	addDock(Qt::BottomDockArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
 
 	dw = pdfWidget->dockWidget(QtPDF::PDFDocumentView::Dock_Permissions, this);
 	dw->hide();
-	addDockWidget(Qt::LeftDockWidgetArea, dw);
+	addDock(Qt::LeftDockArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
 
 	dw = pdfWidget->dockWidget(QtPDF::PDFDocumentView::Dock_Annotations, this);
 	dw->hide();
-	addDockWidget(Qt::LeftDockWidgetArea, dw);
+	addDock(Qt::LeftDockArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
 
 	Tw::Settings settings;

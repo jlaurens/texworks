@@ -31,7 +31,9 @@
 namespace Tw {
 namespace Document {
 
-class TagBank;
+namespace Anchor {
+        class TagBank;
+}
 
 class TextDocument: public QTextDocument, public Document
 {
@@ -40,10 +42,10 @@ public:
 	explicit TextDocument(QObject * parent = nullptr);
 	explicit TextDocument(const QString & text,
                           QObject * parent = nullptr);
-    TagBank *tagBank() const { return tagBank_m; };
+    Anchor::TagBank *anchorBank() const { return anchorBank_m; };
 
 protected:
-    TagBank *tagBank_m; // also accessible as a child
+    Anchor::TagBank *anchorBank_m; // also accessible as a child
 };
 
 } // namespace Document

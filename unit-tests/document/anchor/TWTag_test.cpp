@@ -23,7 +23,8 @@
 
 #include "document/Document.h"
 #include "document/TextDocument.h"
-#include "document/TWTag.h"
+#include "document/anchor/TWTag.h"
+#include "document/anchor/TWParser.h"
 #include "utils/ResourcesLibrary.h"
 
 #include <QSignalSpy>
@@ -39,6 +40,7 @@ const QString ResourcesLibrary::getTagPatternsPath()
 } //namespace Utils
 
 namespace Document {
+namespace Anchor {
 
 bool StrictEqual(const Tag & t1, const Tag & t2) {
     return (t1.cursor() == t2.cursor() && t1.level() == t2.level() && t1.text() == t2.text() && t1.tooltip() == t2.tooltip());
@@ -53,7 +55,7 @@ void TagTest::test_main()
     QVERIFY(document);
     auto *banker = new Tag::Banker(document);
     QVERIFY(banker);
-    auto *bank = document->tagBank();
+    auto *bank = document->anchorBank();
     QVERIFY(bank);
 //    auto tags = bank->tags();
 //    QCOMPARE(tags.count(), 0);
@@ -63,7 +65,7 @@ void TagTest::test_main()
 //    auto rem = pattern.match(text, index);
 //    QVERIFY(rem.hasMatch());
 //    banker->addTag(rule, rem.capturedStart(), rem);
-//    
+//
 //    delete rule;
     delete banker;
     delete document;
@@ -109,7 +111,8 @@ void TagTest::test_main()
 
 } // namespace UnitTest
 
+} // namespace Anchor
 } // namespace Document
 } // namespace Tw
 
-QTEST_MAIN(Tw::Document::UnitTest::TagTest)
+QTEST_MAIN(Tw::Document::Anchor::UnitTest::TagTest)

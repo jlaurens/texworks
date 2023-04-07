@@ -8,7 +8,7 @@ INCLUDEPATH += ../src/
 SOURCES = \
   "../src/BibTeXFile.cpp" \
   "../src/CitationSelectDialog.cpp" \
-  "../src/CompletingEdit.cpp" \
+  "../src/TWTextEdit.cpp" \
   "../src/Engine.cpp" \
   "../src/FindDialog.cpp" \
   "../src/HardWrapDialog.cpp" \
@@ -25,7 +25,6 @@ SOURCES = \
   "../src/TWString.cpp" \
   "../src/TWIcon.cpp" \
   "../src/TWUtils.cpp" \
-  "../src/TWTeXDockTree.cpp" \
   "../src/TeXDocumentWindow.cpp" \
   "../src/TeXHighlighter.cpp" \
   "../src/TemplateDialog.cpp" \
@@ -33,7 +32,9 @@ SOURCES = \
   "../src/document/TWSpellChecker.cpp" \
   "../src/document/TeXDocument.cpp" \
   "../src/document/TextDocument.cpp" \
-  "../src/document/TWTag.cpp" \
+  "../src/document/anchor/TWTag.cpp" \
+  "../src/document/anchor/TWParser.cpp" \
+  "../src/document/anchor/TWDockTree.cpp" \
   "../src/main.cpp" \
   "../src/scripting/ECMAScript.cpp" \
   "../src/scripting/ECMAScriptInterface.cpp" \
@@ -62,7 +63,7 @@ SOURCES = \
 HEADERS = \
   "../src/BibTeXFile.h" \
   "../src/CitationSelectDialog.h" \
-  "../src/CompletingEdit.h" \
+  "../src/TWTextEdit.h" \
   "../src/DefaultBinaryPaths.h" \
   "../src/DefaultPrefs.h" \
   "../src/Engine.h" \
@@ -90,8 +91,9 @@ HEADERS = \
   "../src/document/TWSpellChecker.h" \
   "../src/document/TeXDocument.h" \
   "../src/document/TextDocument.h" \
-  "../src/document/TWTag.h" \
-  "../src/document/TWTeXDockTree.h" \
+  "../src/document/anchor/TWTag.h" \
+  "../src/document/anchor/TWParser.h" \
+  "../src/document/anchor/TWDockTree.h" \
   "../src/scripting/JSScript.h" \
   "../src/scripting/JSScriptInterface.h" \
   "../src/scripting/Script.h" \
@@ -117,7 +119,7 @@ HEADERS = \
 
 FORMS = \
   "../src/CitationSelectDialog.ui" \
-  "../src/CompletingEdit.ui" \
+  "../src/TWTextEdit.ui" \
   "../src/Find.ui" \
   "../src/HardWrapDialog.ui" \
   "../src/PDFDocumentWindow.ui" \

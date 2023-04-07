@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2022  Stefan Löffler
+	Copyright (C) 2019-2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,24 +19,22 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include <QtTest/QtTest>
+#include "TWString.h"
+#include "document/anchor/TWParser.h"
+#include "TWUtils.h"
+#include "utils/ResourcesLibrary.h"
+
+#include <QString>
+#include <QDebug>
+#include <QTreeWidgetItem>
 
 namespace Tw {
 namespace Document {
-namespace UnitTest {
+namespace Anchor {
 
-class SpellCheckerTest : public QObject
-{
-	Q_OBJECT
+auto Parser::categories_m = QList<Category>();
+auto Parser::modes_m      = QList<Mode>();
 
-	QTemporaryDir m_tempDir;
-private slots:
-    void test_getDictionaryList();
-    void test_getDictionary();
-    void test_ignoreWord();
-
-};
-
-} // namespace UnitTest
+} // namespace Anchor
 } // namespace Document
 } // namespace Tw

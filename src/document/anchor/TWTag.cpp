@@ -21,7 +21,8 @@
 
 #include "TWString.h"
 #include "document/TextDocument.h"
-#include "document/TWTag.h"
+#include "document/anchor/TWTag.h"
+#include "document/anchor/TWParser.h"
 #include "TWUtils.h"
 #include "utils/ResourcesLibrary.h"
 
@@ -31,6 +32,7 @@
 
 namespace Tw {
 namespace Document {
+namespace Anchor {
 
 /// \file Tag model
 /// \author JL
@@ -170,7 +172,7 @@ Tag::Tag(TagBank *bank,
 
 const TagBank *Tag::bank() const
 {
-    return static_cast<TagBank *>(parent());
+    return reinterpret_cast<TagBank *>(parent());
 }
 
 TextDocument *Tag::document() const
@@ -259,7 +261,7 @@ pattern_m(pattern)
 
 //MARK: TagBank
 TagBank::TagBank(TextDocument *parent)
-    : Super(parent)
+    : QObject(parent)
 {}
 
 TagSuite *TagBank::makeSuite(Tag::Filter filter)
@@ -270,7 +272,7 @@ TagSuite *TagBank::makeSuite(Tag::Filter filter)
 
 TextDocument *TagBank::document() const
 {
-    return static_cast<TextDocument *>(parent());
+    return reinterpret_cast<TextDocument *>(parent());
 }
 
 const QList<const Tag *> TagBank::tags() const
@@ -301,11 +303,11 @@ void TagBank::didChange()
 Tag::Banker::Banker(TextDocument *document): document_m(document)
 {
     Q_ASSERT(document_m);
-    document_m->tagBank()->willChange();
+    document_m->anchorBank()->willChange();
 }
 
 Tag::Banker::~Banker() {
-    document_m->tagBank()->didChange();
+    document_m->anchorBank()->didChange();
 }
 
 void Tag::Banker::addTag(const Tag::Rule *rule,
@@ -331,7 +333,7 @@ void Tag::Banker::addTag(const Tag::Rule *rule,
         text = s;
         tooltip = match.captured(0);
     }
-    auto *bank = document_m->tagBank();
+    auto *bank = document_m->anchorBank();
     auto *tag = new Tag(bank,
                         rule->type(),
                         subtype,
@@ -362,7 +364,7 @@ void Tag::Banker::addTag(const Tag::Rule *rule,
 unsigned int Tag::Banker::removeTags(int offset, int len)
 {
     unsigned int removed = 0;
-    auto *bank = document_m->tagBank();
+    auto *bank = document_m->anchorBank();
     auto tags = bank->tags_m;
     auto start = tags.begin();
     while(start != tags.end() && (*start)->position() < offset) {
@@ -391,7 +393,7 @@ filter_m(filter)
 
 const TagBank *TagSuite::bank() const
 {
-    return static_cast<TagBank *>(parent());
+    return reinterpret_cast<TagBank *>(parent());
 }
 
 TextDocument *TagSuite::document() const
@@ -436,5 +438,6 @@ void TagSuite::update()
     }
 }
 
+} // namespace Anchor
 } // namespace Document
 } // namespace Tw
