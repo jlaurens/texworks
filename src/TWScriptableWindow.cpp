@@ -33,7 +33,7 @@
 #include "utils/WindowManager.h"
 
 #include <QAction>
-#include <QDock>
+#include <QDockWidget>
 #include <QFile>
 #include <QMenu>
 #include <QMessageBox>
@@ -215,7 +215,7 @@ void TWScriptableWindow::hideFloatersUnlessThis(QWidget* currWindow)
 			tb->hide();
 			continue;
 		}
-		QDock* dw = qobject_cast<QDock*>(child);
+		QDockWidget* dw = qobject_cast<QDockWidget*>(child);
 		if (dw && dw->isVisible() && dw->isFloating()) {
 			latentVisibleWidgets.append(dw);
 			dw->hide();

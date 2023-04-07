@@ -46,7 +46,7 @@
 #include <QClipboard>
 #include <QCloseEvent>
 #include <QComboBox>
-#include <QDock>
+#include <QDockWidget>
 #include <QFileDialog>
 #include <QFileSystemWatcher>
 #include <QFontDialog>
@@ -421,17 +421,17 @@ void TeXDocumentWindow::init()
 
 	Tw::Utils::WindowManager::zoomToHalfScreen(this);
 
-	QDock *dw = new Tw::Document::Anchor::DockTag(this);
+	QDockWidget *dw = new Tw::Document::Anchor::DockTag(this);
 	dw->hide();
-	addDock(Qt::LeftDockArea, dw);
+    addDockWidget(Qt::LeftDockWidgetArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
     dw = new Tw::Document::Anchor::DockOutline(this);
     dw->hide();
-    addDock(Qt::LeftDockArea, dw);
+    addDockWidget(Qt::LeftDockWidgetArea, dw);
     menuShow->addAction(dw->toggleViewAction());
     dw = new Tw::Document::Anchor::DockBookmark(this);
     dw->hide();
-    addDock(Qt::LeftDockArea, dw);
+    addDockWidget(Qt::LeftDockWidgetArea, dw);
     menuShow->addAction(dw->toggleViewAction());
 
 	watcher = new QFileSystemWatcher(this);

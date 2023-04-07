@@ -22,7 +22,7 @@
 #ifndef Tw_Document_Anchor_DockTree_H
 #define Tw_Document_Anchor_DockTree_H
 
-#include <QDock>
+#include <QDockWidget>
 #include <QTreeWidget>
 
 class QTreeWidgetItem;
@@ -44,10 +44,10 @@ class DockTreeWidget;
 class DockTreeAux;
 
 /// \author JL
-class DockTree: public QDock
+class DockTree: public QDockWidget
 {
     Q_OBJECT
-    using Super = QDock;
+    using Super = QDockWidget;
     using Self  = DockTree;
     struct Extra;
     TagSuite *tagSuite_m;

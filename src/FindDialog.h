@@ -23,7 +23,7 @@
 #define FindDialog_H
 
 #include <QDialog>
-#include <QDock>
+#include <QDockWidget>
 #include <QList>
 
 #include "ui_Find.h"
@@ -146,7 +146,7 @@ public:
 	QRectF selRect;
 };
 
-class SearchResults : public QDock, private Ui::SearchResults
+class SearchResults : public QDockWidget, private Ui::SearchResults
 {
 	Q_OBJECT
 

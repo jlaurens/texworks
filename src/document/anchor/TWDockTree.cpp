@@ -125,7 +125,7 @@ static bool setItemOutlineLevel(QTreeWidgetItem * item, const int level) {
 
 //MARK: DockTreeWidget
 
-TeXDockTreeWidget::TeXDockTreeWidget(QWidget *parent)
+DockTreeWidget::DockTreeWidget(QWidget *parent)
 : QTreeWidget(parent)
 {
     setIndentation(10);
@@ -287,7 +287,7 @@ void DockTree::initUI()
     setWidget(topWidget);
 }
 
-TeXDockTreeWidget *TeXDockTree::newTreeWidget()
+DockTreeWidget *DockTree::newTreeWidget()
 {
     return new DockTreeWidget(this);
 }
