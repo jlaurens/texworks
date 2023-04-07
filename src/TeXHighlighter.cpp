@@ -22,7 +22,7 @@
 #include "TeXHighlighter.h"
 #include "TWUtils.h"
 #include "document/TeXDocument.h"
-#include "document/anchor/TWTag.h"
+#include "anchor/TWTag.h"
 #include "utils/ResourcesLibrary.h"
 
 #include <QTextCursor>

@@ -20,7 +20,7 @@
 */
 
 #include "TWString.h"
-#include "document/anchor/TWParser.h"
+#include "anchor/TWParser.h"
 #include "TWUtils.h"
 #include "utils/ResourcesLibrary.h"
 

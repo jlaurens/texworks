@@ -20,7 +20,7 @@
 */
 
 #include "document/TextDocument.h"
-#include "document/anchor/TWTag.h"
+#include "anchor/TWTag.h"
 #include <QDebug>
 
 namespace Tw {

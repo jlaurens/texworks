@@ -97,8 +97,8 @@ add_executable(test_Document
     "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.h"
     "${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TWSpellChecker.cpp"
-    "${CMAKE_SOURCE_DIR}/src/document/anchor/TWTag.cpp"
-    "${CMAKE_SOURCE_DIR}/src/document/anchor/TWParser.cpp"
+    "${CMAKE_SOURCE_DIR}/src/anchor/TWTag.cpp"
+    "${CMAKE_SOURCE_DIR}/src/anchor/TWParser.cpp"
     "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.cpp"
     "${CMAKE_SOURCE_DIR}/src/TWSynchronizer.h"
     "${CMAKE_SOURCE_DIR}/src/TeXHighlighter.h"
@@ -124,23 +124,23 @@ target_link_libraries(test_document_TWSpellChecker Hunspell::hunspell ${QT_LIBRA
 add_test(NAME test_document_TWSpellChecker COMMAND test_document_TWSpellChecker WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases/document")
 
 # Tags
-add_executable(test_document_anchor_Parser
-    document/anchor/TWParser_test.cpp
-    document/anchor/TWParser_test.h
-    "${CMAKE_SOURCE_DIR}/src/document/anchor/TWParser.cpp"
+add_executable(test_anchor_Parser
+    anchor/TWParser_test.cpp
+    anchor/TWParser_test.h
+    "${CMAKE_SOURCE_DIR}/src/anchor/TWParser.cpp"
 )
-target_compile_options(test_document_anchor_Parser PRIVATE ${WARNING_OPTIONS})
-target_link_libraries(test_document_anchor_Parser ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
-add_test(NAME test_document_anchor_Parser COMMAND test_document_anchor_Parser WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases/document/anchor")
+target_compile_options(test_anchor_Parser PRIVATE ${WARNING_OPTIONS})
+target_link_libraries(test_anchor_Parser ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
+add_test(NAME test_anchor_Parser COMMAND test_anchor_Parser WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases/anchor")
 
 # Tags
-add_executable(test_document_anchor_Tag
-    document/anchor/TWTag_test.cpp
-    document/anchor/TWTag_test.h
-    "${CMAKE_SOURCE_DIR}/src/document/anchor/TWTag.cpp"
-    "${CMAKE_SOURCE_DIR}/src/document/anchor/TWParser.cpp"
+add_executable(test_anchor_Tag
+    anchor/TWTag_test.cpp
+    anchor/TWTag_test.h
+    "${CMAKE_SOURCE_DIR}/src/anchor/TWTag.cpp"
+    "${CMAKE_SOURCE_DIR}/src/anchor/TWParser.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"
 )
-target_compile_options(test_document_anchor_Tag PRIVATE ${WARNING_OPTIONS})
-target_link_libraries(test_document_anchor_Tag ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
-add_test(NAME test_document_anchor_Tag COMMAND test_document_anchor_Tag WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases/document/anchor")
+target_compile_options(test_anchor_Tag PRIVATE ${WARNING_OPTIONS})
+target_link_libraries(test_anchor_Tag ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
+add_test(NAME test_anchor_Tag COMMAND test_anchor_Tag WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases/anchor")

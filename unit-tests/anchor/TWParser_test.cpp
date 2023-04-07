@@ -21,8 +21,8 @@
 
 #include "TWParser_test.h"
 
-#include "document/anchor/TWTag.h"
-#include "document/anchor/TWParser.h"
+#include "anchor/TWTag.h"
+#include "anchor/TWParser.h"
 #include "utils/ResourcesLibrary.h"
 
 #include <QSignalSpy>

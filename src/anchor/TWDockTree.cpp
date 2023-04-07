@@ -19,8 +19,8 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "document/anchor/TWDockTree.h"
-#include "document/anchor/TWTag.h"
+#include "anchor/TWDockTree.h"
+#include "anchor/TWTag.h"
 #include "TWString.h"
 #include "TWIcon.h"
 

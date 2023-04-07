@@ -39,7 +39,7 @@
 #ifndef Tw_Document_Anchor_Tag_H
 #define Tw_Document_Anchor_Tag_H
 
-#include "document/anchor/TWParser.h"
+#include "anchor/TWParser.h"
 
 #include <QVariant>
 #include <QTextCursor>

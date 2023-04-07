@@ -32,7 +32,7 @@
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
 #include "TemplateDialog.h"
-#include "document/anchor/TWDockTree.h"
+#include "anchor/TWDockTree.h"
 #include "scripting/ScriptAPI.h"
 #include "ui/ClickableLabel.h"
 #include "ui/RemoveAuxFilesDialog.h"

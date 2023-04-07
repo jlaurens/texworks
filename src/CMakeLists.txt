@@ -35,9 +35,9 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   document/TWSpellChecker.cpp
                   document/TextDocument.cpp
                   document/TeXDocument.cpp
-                  document/anchor/TWTag.cpp
-                  document/anchor/TWParser.cpp
-                  document/anchor/TWDockTree.cpp
+                  anchor/TWTag.cpp
+                  anchor/TWParser.cpp
+                  anchor/TWDockTree.cpp
                   scripting/ECMAScriptInterface.cpp
                   scripting/ECMAScript.cpp
                   scripting/ScriptAPI.cpp
@@ -92,9 +92,9 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   document/TWSpellChecker.h
                   document/TextDocument.h
                   document/TeXDocument.h
-                  document/anchor/TWTag.h
-                  document/anchor/TWParser.h
-                  document/anchor/TWDockTree.h
+                  anchor/TWTag.h
+                  anchor/TWParser.h
+                  anchor/TWDockTree.h
                   scripting/ScriptAPIInterface.h
                   scripting/ScriptLanguageInterface.h
                   scripting/ScriptAPI.h

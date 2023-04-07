@@ -22,7 +22,7 @@
 #define Document_TextDocument_H
 
 #include "document/TWFileExtent.h"
-#include "document/anchor/TWTag.h"
+#include "anchor/TWTag.h"
 
 #include <QObject>
 #include <QString>

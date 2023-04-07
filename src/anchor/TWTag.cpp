@@ -20,8 +20,8 @@
 */
 
 #include "document/TextDocument.h"
-#include "document/anchor/TWTag.h"
-#include "document/anchor/TWParser.h"
+#include "anchor/TWTag.h"
+#include "anchor/TWParser.h"
 #include "TWUtils.h"
 #include "utils/ResourcesLibrary.h"
 
@@ -271,6 +271,7 @@ bool Banker::addTag(const Rule *rule,
     if (tag) {
         tags.insert(0, tag);
     }
+    return true;
 }
 
 unsigned int Banker::removeTags(int offset, int len)

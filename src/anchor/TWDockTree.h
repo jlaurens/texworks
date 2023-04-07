@@ -22,7 +22,7 @@
 #ifndef Tw_Document_Anchor_DockTree_H
 #define Tw_Document_Anchor_DockTree_H
 
-#include "document/anchor/TWTag.h"
+#include "anchor/TWTag.h"
 
 #include <QDockWidget>
 #include <QTextEdit>

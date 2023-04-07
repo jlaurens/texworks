@@ -32,9 +32,9 @@ SOURCES = \
   "../src/document/TWSpellChecker.cpp" \
   "../src/document/TeXDocument.cpp" \
   "../src/document/TextDocument.cpp" \
-  "../src/document/anchor/TWTag.cpp" \
-  "../src/document/anchor/TWParser.cpp" \
-  "../src/document/anchor/TWDockTree.cpp" \
+  "../src/anchor/TWTag.cpp" \
+  "../src/anchor/TWParser.cpp" \
+  "../src/anchor/TWDockTree.cpp" \
   "../src/main.cpp" \
   "../src/scripting/ECMAScript.cpp" \
   "../src/scripting/ECMAScriptInterface.cpp" \
@@ -91,9 +91,9 @@ HEADERS = \
   "../src/document/TWSpellChecker.h" \
   "../src/document/TeXDocument.h" \
   "../src/document/TextDocument.h" \
-  "../src/document/anchor/TWTag.h" \
-  "../src/document/anchor/TWParser.h" \
-  "../src/document/anchor/TWDockTree.h" \
+  "../src/anchor/TWTag.h" \
+  "../src/anchor/TWParser.h" \
+  "../src/anchor/TWDockTree.h" \
   "../src/scripting/JSScript.h" \
   "../src/scripting/JSScriptInterface.h" \
   "../src/scripting/Script.h" \
