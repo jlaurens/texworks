@@ -22,7 +22,10 @@
 #ifndef Tw_Document_Anchor_DockTree_H
 #define Tw_Document_Anchor_DockTree_H
 
+#include "document/anchor/TWTag.h"
+
 #include <QDockWidget>
+#include <QTextEdit>
 #include <QTreeWidget>
 
 class QTreeWidgetItem;
@@ -35,31 +38,43 @@ namespace Tw {
 namespace Document {
 namespace Anchor {
 
+namespace ObjectName {
+
+extern const QString treeWidget_m;
+extern const QString toolbar_m;
+extern const QString list_add_m;
+extern const QString list_remove_m;
+extern const QString Tags_m;
+extern const QString Bookmarks_m;
+extern const QString Outlines_m;
+
+}
+
 class Tag;
-class TagSuite;
-class TagBank;
+class Suite;
+class Bank;
 
 class DockTreeWidget;
-
-class DockTreeAux;
 
 /// \author JL
 class DockTree: public QDockWidget
 {
     Q_OBJECT
     using Super = QDockWidget;
-    using Self  = DockTree;
-    struct Extra;
-    TagSuite *tagSuite_m;
+    using Title = QString;
+    Suite *suite_m;
+    QTextEdit * textEdit_m;
 protected:
     bool updated_m;
-    void setTagSuite(TagSuite *);
+    void setSuite(Suite *);
+    void setSuite(Filter);
 public:
-    DockTree(const QString & title, TeXDocumentWindow *window);
-    ~DockTree() override = default;
-    const TagSuite *tagSuite() { return tagSuite_m; };
-    TeXDocumentWindow *window();
-    QTextEdit *editor();
+    DockTree(const Title &, QWidget *);
+    virtual ~DockTree();
+    const Suite *suite() { return suite_m; };
+    const Bank  *bank()  { return suite_m ? suite_m->bank() : nullptr; };
+    QWidget *mainWindow();
+    QTextEdit *textEdit();
 protected slots:
     virtual void update(bool force);
     void find(const QString & text);
@@ -74,18 +89,9 @@ protected:
     virtual void updateVoid() = 0;
     QTreeWidgetItem *getItemAtIndex(const int tagIndex);
     void selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection);
-    Extra *extra_m;
-};
 
-class DockTreeWidget: public QTreeWidget
-{
-    Q_OBJECT
-    using Super = QTreeWidget;
-public:
-    friend void DockTree::initUI();
-    explicit DockTreeWidget(QWidget * parent = nullptr);
-    ~DockTreeWidget() override = default;
-    QSize sizeHint() const override;
+    struct Aid;
+    Aid *aid_m;
 };
 
 class DockTag: public DockTree
@@ -95,7 +101,7 @@ class DockTag: public DockTree
     using Super = DockTree;
     
 public:
-    DockTag(TeXDocumentWindow *window);
+    DockTag(QWidget *window);
     ~DockTag() override = default;
     
 protected:
@@ -111,13 +117,24 @@ class DockBookmark: public DockTree
     using Super = DockTree;
     
 public:
-    DockBookmark(TeXDocumentWindow *window);
+    DockBookmark(QWidget *window);
     ~DockBookmark() override = default;
     
 protected:
     void updateVoid() override;
     void initUI() override;
     void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tag *) const override;
+};
+
+class DockTreeWidget: public QTreeWidget
+{
+    Q_OBJECT
+    using Super = QTreeWidget;
+public:
+    friend void DockTree::initUI();
+    explicit DockTreeWidget(QWidget * parent = nullptr);
+    ~DockTreeWidget() override = default;
+    QSize sizeHint() const override;
 };
 
 class DockOutline;
@@ -151,7 +168,7 @@ public:
         const Tag * tag;
         bool isExpanded;
     };
-    DockOutline(TeXDocumentWindow *window);
+    DockOutline(QWidget *window);
     ~DockOutline() override = default;
     bool performDrag(const QList<TagX> &, QTextCursor);
 

@@ -64,7 +64,9 @@ const int kTeXWindowStateVersion = 1; // increment this if we add toolbars/docks
 #define kLineEnd_Flags_Mask  0xFF00
 #define kLineEnd_Mixed       0x0100
 
-class TeXDocumentWindow : public TWScriptableWindow, private Ui::TeXDocumentWindow
+class TeXDocumentWindow
+    : public TWScriptableWindow
+    , private Ui::TeXDocumentWindow
 {
 	Q_OBJECT
 
@@ -87,7 +89,7 @@ public:
 	QString fileName() const
 		{ return textDoc()->getFileInfo().filePath(); }
 	QTextCursor textCursor() const
-		{ return textEdit->textCursor(); }
+		{ return textEdit_m->textCursor(); }
     void setTextCursor(QTextCursor const &textCursor);
 	Tw::Document::TeXDocument* textDoc()
 		{ return _texDoc; }
@@ -95,7 +97,7 @@ public:
 		{ return _texDoc; }
 	QString getLineText(int lineNo) const;
 	TWTextEdit* editor()
-		{ return textEdit; }
+		{ return textEdit_m; }
 	int cursorPosition() const { return textCursor().position(); }
 	int selectionStart() const { return textCursor().selectionStart(); }
 	int selectionLength() const { return textCursor().selectionEnd() - textCursor().selectionStart(); }
@@ -110,8 +112,8 @@ public:
 	void goToLine(int lineNo, int selStart = -1, int selEnd = -1);
     void ensureCursorVisible(const QTextCursor & cursor);
 
-	bool isModified() const { return textEdit->document()->isModified(); }
-	void setModified(const bool m = true) { textEdit->document()->setModified(m); }
+	bool isModified() const { return textEdit_m->document()->isModified(); }
+	void setModified(const bool m = true) { textEdit_m->document()->setModified(m); }
 
 	bool isTypesetting() const;
 
@@ -194,7 +196,7 @@ public slots:
 	void reloadSpellcheckerMenu();
 	void selectRange(int start, int length = 0);
 	void insertText(const QString& text);
-	void selectAll() { textEdit->selectAll(); }
+	void selectAll() { textEdit_m->selectAll(); }
 	void setWindowModified(bool modified);
 	void setSmartQuotesMode(const QString& mode);
 	void setAutoIndentMode(const QString& mode);
@@ -259,7 +261,7 @@ private:
 
 	QString selectedText() { return textCursor().selectedText().replace(QChar(QChar::ParagraphSeparator), QChar::fromLatin1('\n')); }
 	QString consoleText() { return textEdit_console->toPlainText(); }
-	QString text() { return textEdit->text(); }
+	QString text() { return textEdit_m->text(); }
 
 	Tw::Document::TeXDocument * _texDoc;
 	PDFDocumentWindow * pdfDoc{nullptr};

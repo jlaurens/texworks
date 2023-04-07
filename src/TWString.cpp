@@ -1,6 +1,6 @@
 /*
     This is part of TeXworks, an environment for working with TeX documents
-    Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+    Copyright (C) 2023  Jérôme Laurens
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,18 +42,14 @@ const QString exeExtension = QStringLiteral("");
 
 }
 
-const QString TypeName::Bookmark = QStringLiteral("Bookmark");
-const QString TypeName::Outline  = QStringLiteral("Outline");
-const QString TypeName::Unknown  = QStringLiteral("Unknown");
-
-const QString ObjectName::treeWidget  = QStringLiteral("Tw.Document.Anchor.treeWidget");
-const QString ObjectName::toolbar     = QStringLiteral("Tw.Document.Anchor.toolbar");
-const QString ObjectName::list_add    = QStringLiteral("Tw.Document.Anchor.list_add");
-const QString ObjectName::list_remove = QStringLiteral("Tw.Document.Anchor.list_remove");
-const QString ObjectName::Tags        = QStringLiteral("Tw.Document.Anchor.Tags");
-const QString ObjectName::Bookmarks   = QStringLiteral("Tw.Document.Anchor.Bookmarks");
-const QString ObjectName::Outlines    = QStringLiteral("Tw.Document.Anchor.Outlines");
-
-const QString ObjectName::TagBank    = QStringLiteral("Tw.Document.Anchor.Bank");
+namespace TypeName {
 
 }
+
+namespace ObjectName {
+
+const QString textEdit_m    = QStringLiteral("textEdit_m");
+
+} // namespace ObjectName
+
+} // namespace Tw

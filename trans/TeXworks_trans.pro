@@ -28,7 +28,7 @@ SOURCES = \
   "../src/TeXDocumentWindow.cpp" \
   "../src/TeXHighlighter.cpp" \
   "../src/TemplateDialog.cpp" \
-  "../src/document/Document.cpp" \
+  "../src/document/TWFileExtent.cpp" \
   "../src/document/TWSpellChecker.cpp" \
   "../src/document/TeXDocument.cpp" \
   "../src/document/TextDocument.cpp" \
@@ -87,7 +87,7 @@ HEADERS = \
   "../src/TeXDocumentWindow.h" \
   "../src/TeXHighlighter.h" \
   "../src/TemplateDialog.h" \
-  "../src/document/Document.h" \
+  "../src/document/TWFileExtent.h" \
   "../src/document/TWSpellChecker.h" \
   "../src/document/TeXDocument.h" \
   "../src/document/TextDocument.h" \

@@ -21,7 +21,6 @@
 
 #include "document/anchor/TWDockTree.h"
 #include "document/anchor/TWTag.h"
-#include "TeXDocumentWindow.h"
 #include "TWString.h"
 #include "TWIcon.h"
 
@@ -32,16 +31,34 @@
 #include <QPushButton>
 #include <QDebug>
 #include <QProxyStyle>
+#include <QWindow>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 namespace Tw {
 namespace Document {
 namespace Anchor {
+
+namespace ObjectName {
+
+const QString treeWidget_m  = QStringLiteral("Tw.Document.Anchor.treeWidget_m");
+const QString toolbar_m     = QStringLiteral("Tw.Document.Anchor.toolbar_m");
+const QString list_add_m    = QStringLiteral("Tw.Document.Anchor.list_add_m");
+const QString list_remove_m = QStringLiteral("Tw.Document.Anchor.list_remove");
+const QString Tags_m        = QStringLiteral("Tw.Document.Anchor.Tags");
+const QString Bookmarks_m   = QStringLiteral("Tw.Document.Anchor.Bookmarks");
+const QString Outlines_m    = QStringLiteral("Tw.Document.Anchor.Outlines");
+
+}
 
 /// \note all static material is gathered here
 namespace __ {
 
 static int kMinLevel = std::numeric_limits<int>::min();
 
+// See QtTreeWidgetItem data for role
 enum Role {
     kSuiteRole = Qt::UserRole,
     kTagRole,
@@ -136,37 +153,9 @@ QSize DockTreeWidget::sizeHint() const
     return QSize(180, 300);
 }
 
-//MARK: DockTree
-
-/// \author JL
-DockTree::DockTree(const QString &title, TeXDocumentWindow * window)
-    : Super(title, window)
-{
-    connect(this,
-            &DockTree::visibilityChanged,
-            this,
-            [=](bool visible) {
-        update(visible);
-    });
-    setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    connect(editor(), &QTextEdit::cursorPositionChanged, this, [=]() {
-        selectItemsForCursor(editor()->textCursor(), true);
-    });
-}
-
-TeXDocumentWindow *DockTree::window()
-{
-    return reinterpret_cast<TeXDocumentWindow *>(parent());
-}
-
-QTextEdit *DockTree::editor()
-{
-    return window()->editor();
-}
-
-//MARK: DockTree::Extra[::State]
+//MARK: DockTree::Aid[::State]
 // People don't need to know what is in there.
-struct DockTree::Extra
+struct DockTree::Aid
 {
     int lastScrollValue_m = 0;
     struct State
@@ -178,29 +167,91 @@ struct DockTree::Extra
     States states_m;
 };
 
-void DockTree::setTagSuite(TagSuite * tagSuite)
+//MARK: DockTree
+
+/// \author JL
+DockTree::DockTree(const Title &title, QWidget *mainWindow)
+    : Super(title, mainWindow)
 {
-    if (tagSuite_m) {
-        disconnect(tagSuite_m, &TagSuite::willChange, this, nullptr);
-        disconnect(tagSuite_m, &TagSuite::didChange,  this, nullptr);
+    connect(this,
+            &DockTree::visibilityChanged,
+            this,
+            [=](bool visible) {
+        update(visible);
+    });
+    setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    auto *tE = textEdit();
+    if (tE) {
+        connect(tE, &QTextEdit::cursorPositionChanged, this, [=]() {
+            selectItemsForCursor(tE->textCursor(), true);
+        });
     }
-    tagSuite_m = tagSuite;
-    if (!tagSuite_m) {
+    aid_m = new Aid();
+}
+
+DockTree::~DockTree()
+{
+    delete aid_m;
+}
+
+QWidget *DockTree::mainWindow()
+{
+    return reinterpret_cast<QWidget *>(parent());
+}
+
+// Lazy initializer of the eponym member variable.
+QTextEdit *DockTree::textEdit()
+{
+    if (! textEdit_m) {
+        auto *p = parent();
+        if (p) {
+            textEdit_m = p->findChild<QTextEdit *>(Tw::ObjectName::textEdit_m);
+        }
+        if (! textEdit_m) {
+            auto *w = windowHandle();
+            if (w) {
+                textEdit_m = w->findChild<QTextEdit *>(Tw::ObjectName::textEdit_m);
+            }
+        }
+        if (! textEdit_m) {
+            qDebug() << "No editor";
+        }
+        Q_ASSERT(textEdit_m);
+    }
+    return textEdit_m;
+}
+
+void DockTree::setSuite(Filter f)
+{
+    auto *tE = textEdit();
+    if (tE) {
+        auto *document = tE->document();
+        auto *bank = getBank(document);
+        if (bank) {
+            setSuite(bank->makeSuite(f));
+        }
+    }
+}
+
+void DockTree::setSuite(Suite *suite)
+{
+    if (suite_m) {
+        disconnect(suite_m, &Suite::willChange, this, nullptr);
+        disconnect(suite_m, &Suite::didChange,  this, nullptr);
+    }
+    suite_m = suite;
+    if (! suite_m) {
         return;
     }
-    auto *treeWidget = findChild<DockTreeWidget *>();
+    auto *treeWidget = findChild<DockTreeWidget *>(ObjectName::treeWidget_m);
     Q_ASSERT(treeWidget);
     qDebug() << "DockTree::setTagSuite" << treeWidget;
-    connect(tagSuite_m, &TagSuite::willChange, this, [=]() {
-        qDebug() << "&TagSuite::willChange";
+    connect(suite_m, &Suite::willChange, this, [=]() {
+        qDebug() << "&Suite::willChange";
         qDebug() << treeWidget;
         treeWidget->blockSignals(true);
-        if (!extra_m) {
-            extra_m = new Extra();
-            connect(this, &Self::destroyed, this, [=]() { delete extra_m; });
-        }
-        extra_m->lastScrollValue_m = treeWidget->verticalScrollBar()->value();
-        if (tagSuite_m->isEmpty()) {
+        aid_m->lastScrollValue_m = treeWidget->verticalScrollBar()->value();
+        if (suite_m->isEmpty()) {
             treeWidget->clear();
             updateVoid();
         } else {
@@ -213,29 +264,29 @@ void DockTree::setTagSuite(TagSuite * tagSuite)
                     items.prepend(item->child(i));
                 }
                 const auto *tag = __::getItemTag(item);
-                Extra::State state{item->isSelected(), item->childCount() == 0 || item->isExpanded()};
-                extra_m->states_m.insert(tag->position(), state);
+                Aid::State state{item->isSelected(), item->childCount() == 0 || item->isExpanded()};
+                aid_m->states_m.insert(tag->position(), state);
             }
         }
     });
-    connect(tagSuite_m, &TagSuite::didChange, this, [=]() {
-        qDebug() << "&TagSuite::didChange";
+    connect(suite_m, &Suite::didChange, this, [=]() {
+        qDebug() << "&Suite::didChange";
         qDebug() << treeWidget;
         treeWidget->clear();
-        if (tagSuite_m->isEmpty()) {
+        if (suite_m->isEmpty()) {
             updateVoid();
             treeWidget->blockSignals(false);
             return;
         }
         QTreeWidgetItem *item = nullptr;
         int i = 0;
-        Extra::State defaultState{false, true};
+        Aid::State defaultState{false, true};
         const Tag *tag = nullptr;
-        while((tag = tagSuite_m->at(i))) {
+        while((tag = suite_m->at(i))) {
             makeNewItem(item, treeWidget, tag);
             __::setItemTag(item, tag);
             __::setItemTagIndex(item, i);
-            auto state = extra_m->states_m.value(tag->position(), defaultState);
+            auto state = aid_m->states_m.value(tag->position(), defaultState);
             item->setSelected(state.isSelected);
             if (state.isExpanded) {
                 treeWidget->expandItem(item);
@@ -244,8 +295,8 @@ void DockTree::setTagSuite(TagSuite * tagSuite)
             }
             ++i;
         }
-        if (extra_m->lastScrollValue_m > 0) {
-            treeWidget->verticalScrollBar()->setValue(extra_m->lastScrollValue_m);
+        if (aid_m->lastScrollValue_m > 0) {
+            treeWidget->verticalScrollBar()->setValue(aid_m->lastScrollValue_m);
         }
         treeWidget->blockSignals(false);
     });
@@ -261,7 +312,7 @@ void DockTree::initUI()
     topWidget->setLayout(topLayout);
     // the toolbar
     auto *toolbarWidget = new QWidget;
-    toolbarWidget->setObjectName(ObjectName::toolbar);
+    toolbarWidget->setObjectName(ObjectName::toolbar_m);
     auto *toolbarLayout = new QHBoxLayout;
     toolbarLayout->setSpacing(0);
     toolbarLayout->setContentsMargins(0,0,0,0);
@@ -312,7 +363,7 @@ QTreeWidgetItem *DockTree::getItemAtIndex(const int tagIndex)
 
 void DockTree::selectItemsForCursor(const QTextCursor &cursor, bool dontFollowItemSelection)
 {
-    if (tagSuite()->isEmpty()) {
+    if (suite()->isEmpty()) {
         return;
     }
     auto *treeWidget = findChild<DockTreeWidget *>();
@@ -387,14 +438,14 @@ void DockTree::makeNewItem(QTreeWidgetItem *&item,
 void DockTree::update(bool force)
 {
     if ((! isVisible() || updated_m) && ! force) return;
-    emit tagSuite_m->willChange();
-    emit tagSuite_m->didChange();
+    emit suite_m->willChange();
+    emit suite_m->didChange();
     updated_m = true;
 }
 
 void DockTree::find(const QString &find)
 {
-    if (tagSuite()->isEmpty()) {
+    if (suite()->isEmpty() || ! textEdit()) {
         return;
     }
     auto *treeWidget = findChild<DockTreeWidget *>();
@@ -410,15 +461,15 @@ void DockTree::find(const QString &find)
             c.movePosition(QTextCursor::EndOfBlock);
             anchor = c.selectionEnd();
         } else {
-            anchor = editor()->textCursor().selectionEnd();
+            anchor = textEdit_m->textCursor().selectionEnd();
         }
     } else {
-        anchor = editor()->textCursor().selectionEnd();
+        anchor = textEdit_m->textCursor().selectionEnd();
     }
     if (find.startsWith(QStringLiteral(":"))) {
         QRegularExpression re(find.mid(1));
         if(re.isValid()) {
-            for (const auto *tag: tagSuite_m->tags()) {
+            for (const auto *tag: suite_m->tags()) {
                 if(tag->position() >= anchor) {
                     auto m = re.match(tag->text());
                     if (m.hasMatch()) {
@@ -439,7 +490,7 @@ void DockTree::find(const QString &find)
             return;
         }
     }
-    for (const auto *tag: tagSuite_m->tags()) {
+    for (const auto *tag: suite_m->tags()) {
         if(tag->position() >= anchor) {
             if (tag->text().contains(find)) {
                 selectItemsForCursor(tag->cursor(), false);
@@ -460,16 +511,16 @@ void DockTree::find(const QString &find)
 //MARK: Tags
 
 /// \author JL
-DockTag::DockTag(TeXDocumentWindow *window)
-: DockTree(DockTree::tr("Tags"), window)
+DockTag::DockTag(QWidget *mainWindow)
+    : DockTree(DockTree::tr("Tags"), mainWindow)
 {
-    Q_ASSERT(window);
-    setObjectName(ObjectName::Tags);
+    Q_ASSERT(mainWindow);
+    setObjectName(ObjectName::Tags_m);
     initUI();
-    setTagSuite(window->textDoc()->anchorBank()->makeSuite([](const Tag *tag) {
+    setSuite([](const Tag *tag) {
         Q_UNUSED(tag);
         return true;
-    }));
+    });
 }
 
 void DockTag::updateVoid()
@@ -493,7 +544,7 @@ void DockTag::initUI()
     treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeWidget->header()->setSectionResizeMode(1, QHeaderView::Fixed);
     treeWidget->header()->resizeSection(1, 24);
-    auto *toolbarWidget = findChild<QWidget*>(ObjectName::toolbar);
+    auto *toolbarWidget = findChild<QWidget*>(ObjectName::toolbar_m);
     Q_ASSERT(toolbarWidget);
     //TODO: Edit tags in place
     auto *layout = reinterpret_cast<QBoxLayout *>(toolbarWidget->layout());
@@ -502,28 +553,32 @@ void DockTag::initUI()
         auto *button = new QPushButton(QString());
         button->setIcon(Icon::list_add());
         button->setStyleSheet(QStringLiteral("QPushButton { border: none; }"));
-        button->setObjectName(ObjectName::list_add);
-        connect(button, &QPushButton::clicked, [=]() {
-            auto cursor = editor()->textCursor();
-            cursor.movePosition(QTextCursor::StartOfBlock);
-            cursor.insertText(QStringLiteral("%:?\n"));
-            cursor.movePosition(QTextCursor::PreviousBlock);
-            cursor.movePosition(QTextCursor::NextCharacter);
-            cursor.movePosition(QTextCursor::NextCharacter);
-            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-            editor()->setTextCursor(cursor);
-            editor()->setFocus();
-        });
+        button->setObjectName(ObjectName::list_add_m);
+        auto *tE = textEdit();
+        if (tE) {
+            connect(button, &QPushButton::clicked, [=]() {
+                auto cursor = tE->textCursor();
+                cursor.movePosition(QTextCursor::StartOfBlock);
+                cursor.insertText(QStringLiteral("%:?\n"));
+                cursor.movePosition(QTextCursor::PreviousBlock);
+                cursor.movePosition(QTextCursor::NextCharacter);
+                cursor.movePosition(QTextCursor::NextCharacter);
+                cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+                tE->setTextCursor(cursor);
+                tE->setFocus();
+            });
+
+        }
         layout->insertWidget(0, button);
     }
     {
         auto *button = new QPushButton(QString());
         button->setIcon(Icon::list_remove());
         button->setStyleSheet(QStringLiteral("QPushButton { border: none; }"));
-        button->setObjectName(ObjectName::list_remove);
+        button->setObjectName(ObjectName::list_remove_m);
         button->setEnabled(false);
         connect(button, &QPushButton::clicked, [=]() {
-            if (tagSuite()->isEmpty()) {
+            if (suite()->isEmpty()) {
                 return;
             }
             auto items = treeWidget->selectedItems();
@@ -560,7 +615,7 @@ void DockTag::makeNewItem(QTreeWidgetItem *&item,
     int outlineLevel = tag->level();
     Q_ASSERT(outlineLevel > __::kMinLevel);
     int bookmarkLevel = __::kMinLevel;
-    if (tag->isOutline()) {
+    if (tag->isCategoryOutline()) {
         while (__::getItemOutlineLevel(item) >= outlineLevel || __::getItemBookmarkLevel(item) > bookmarkLevel) {
             item = item->parent();
         }
@@ -588,11 +643,11 @@ void DockTag::makeNewItem(QTreeWidgetItem *&item,
     __::setItemOutlineLevel(item, outlineLevel);
     __::setItemBookmarkLevel(item, bookmarkLevel);
     item->setText(0, tag->text());
-    if (tag->isOutline()) {
+    if (tag->isCategoryOutline()) {
         item->setIcon(1, Icon::Outline());
-    } else if (tag->isTODO()) {
+    } else if (tag->isTypeTODO()) {
         item->setIcon(1, Icon::TODO());
-    } else if (tag->isMARK()) {
+    } else if (tag->isTypeMARK()) {
         item->setIcon(1, Icon::MARK());
     }
     auto tip = tag->tooltip();
@@ -605,14 +660,14 @@ void DockTag::makeNewItem(QTreeWidgetItem *&item,
 //MARK: Bookmarks
 
 /// \author JL
-DockBookmark::DockBookmark(TeXDocumentWindow * window)
-: DockTree(DockTree::tr("Bookmarks"), window)
+DockBookmark::DockBookmark(QWidget * mainWindow)
+    : DockTree(DockTree::tr("Bookmarks"), mainWindow)
 {
-    setObjectName(ObjectName::Bookmarks);
+    setObjectName(ObjectName::Bookmarks_m);
     initUI();
-    setTagSuite(window->textDoc()->anchorBank()->makeSuite([](const Tag *tag) {
-        return tag && ! tag->isOutline();
-    }));
+    setSuite([](const Tag *tag) {
+        return tag && ! tag->isCategoryOutline();
+    });
 }
 
 void DockBookmark::updateVoid()
@@ -635,7 +690,7 @@ void DockBookmark::initUI()
     treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeWidget->header()->setSectionResizeMode(1, QHeaderView::Fixed);
     treeWidget->header()->resizeSection(1, 24);
-    auto *toolbarWidget = findChild<QWidget*>(ObjectName::toolbar);
+    auto *toolbarWidget = findChild<QWidget*>(ObjectName::toolbar_m);
     Q_ASSERT(toolbarWidget);
     //TODO: Edit tags in place
     /*
@@ -652,28 +707,31 @@ void DockBookmark::initUI()
         auto *button = new QPushButton(QString());
         button->setIcon(Icon::list_add());
         button->setStyleSheet(QStringLiteral("QPushButton { border: none; }"));
-        button->setObjectName(ObjectName::list_add);
-        connect(button, &QPushButton::clicked, [=]() {
-            auto cursor = editor()->textCursor();
-            cursor.movePosition(QTextCursor::StartOfBlock);
-            cursor.insertText(QStringLiteral("%:?\n"));
-            cursor.movePosition(QTextCursor::PreviousBlock);
-            cursor.movePosition(QTextCursor::NextCharacter);
-            cursor.movePosition(QTextCursor::NextCharacter);
-            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-            editor()->setTextCursor(cursor);
-            editor()->setFocus();
-        });
+        button->setObjectName(ObjectName::list_add_m);
+        auto *tE = textEdit();
+        if (tE) {
+            connect(button, &QPushButton::clicked, [=]() {
+                auto cursor = tE->textCursor();
+                cursor.movePosition(QTextCursor::StartOfBlock);
+                cursor.insertText(QStringLiteral("%:?\n"));
+                cursor.movePosition(QTextCursor::PreviousBlock);
+                cursor.movePosition(QTextCursor::NextCharacter);
+                cursor.movePosition(QTextCursor::NextCharacter);
+                cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+                tE->setTextCursor(cursor);
+                tE->setFocus();
+            });
+        }
         layout->insertWidget(0, button);
     }
     {
         auto *button = new QPushButton(QString());
         button->setIcon(Icon::list_remove());
         button->setStyleSheet(QStringLiteral("QPushButton { border: none; }"));
-        button->setObjectName(ObjectName::list_remove);
+        button->setObjectName(ObjectName::list_remove_m);
         button->setEnabled(false);
         connect(button, &QPushButton::clicked, [=]() {
-            if (tagSuite()->isEmpty()) {
+            if (suite()->isEmpty()) {
                 return;
             }
             auto items = treeWidget->selectedItems();
@@ -717,9 +775,9 @@ void DockBookmark::makeNewItem(QTreeWidgetItem *&item,
         item->setToolTip(0, tip);
         item->setToolTip(1, tip);
     }
-    if (tag->isTODO()) {
+    if (tag->isTypeTODO()) {
         item->setIcon(1, Icon::TODO());
-    } else if (tag->isMARK()) {
+    } else if (tag->isTypeMARK()) {
         item->setIcon(1, Icon::MARK());
     }
 }
@@ -763,14 +821,14 @@ void DockTreeWidgetStyle::drawPrimitive(QStyle::PrimitiveElement element,
 
 //MARK: DockOutline
 /// \author JL
-DockOutline::DockOutline(TeXDocumentWindow * window)
-: DockTree(DockTree::tr("Outline"), window)
+DockOutline::DockOutline(QWidget * mainWindow)
+: DockTree(DockTree::tr("Outline"), mainWindow)
 {
-    setObjectName(ObjectName::Outlines);
+    setObjectName(ObjectName::Outlines_m);
     initUI();
-    setTagSuite(window->textDoc()->anchorBank()->makeSuite([](const Tag *tag) {
-        return tag && (tag->isOutline() || tag->isBoundary());
-    }));
+    setSuite([](const Tag *tag) {
+        return tag && (tag->isCategoryOutline() || tag->isBoundary());
+    });
 }
 
 DockTreeWidget *DockOutline::newTreeWidget()
@@ -835,7 +893,7 @@ bool DockOutline::performDrag(const QList<TagX> &tagXs, QTextCursor toCursor)
     int position = 0;
     for (const auto &tagX: tagXs) {
         const auto *tag = tagX.tag;
-        int i = tagSuite()->indexOf(tag);
+        int i = suite()->indexOf(tag);
         if (i<0)
             return false;
         cursor = tag->cursor();
@@ -844,7 +902,7 @@ bool DockOutline::performDrag(const QList<TagX> &tagXs, QTextCursor toCursor)
         }
         if (tagX.isExpanded) {
             // select up to the next tag when possible
-            if ((tag = tagSuite()->at(++i))) {
+            if ((tag = suite()->at(++i))) {
                 cursor.setPosition(tag->position(), QTextCursor::KeepAnchor);
                 cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
             } else {
@@ -861,7 +919,7 @@ select_tail:
             // select up to a boundary, the the next tag with a lower level or to the end
             int max_level = tag->level();
             while (true) {
-                if ((tag = tagSuite()->at(++i))) {
+                if ((tag = suite()->at(++i))) {
                     if (tag->isBoundary() || tag->level() <= max_level) {
                         cursor.setPosition(tag->position(), QTextCursor::KeepAnchor);
                         cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
@@ -940,7 +998,7 @@ void DockOutlineWidget::dropEvent(QDropEvent *event)
         goto theBeach;
     }
     const auto *tag = __::getItemTag(item);
-    if (! tag || ! tag->isOutline()) {
+    if (! tag || ! tag->isCategoryOutline()) {
         goto theBeach; // Only for boundary tags
     }
     // Ready to setup toCursor

@@ -26,7 +26,8 @@ Static methods are gathered to parse text for tags.
 #ifndef Tw_Document_Anchor_Parser_H
 #define Tw_Document_Anchor_Parser_H
 
-#include <QObject>
+#include <QRegularExpression>
+#include <QFileInfo>
 
 namespace Tw {
 namespace Document {
@@ -40,28 +41,49 @@ class RuleTest;
 
 }
 
+namespace Mode {
+using type = QString;
+extern const type plain;
+extern const type latex;
+extern const type dtx;
+extern const type context;
+}
+
+namespace Category {
+using type = QString;
+extern const type Magic;
+extern const type Bookmark;
+extern const type Outline;
+}
+
+namespace Type {
+using type = QString;
+extern const type MARK;
+extern const type TODO;
+extern const type BORDER;
+}
+
+
+using ID       = QString;
+using Name     = QString;
+using Level    = int;
+using Path     = QString;
+
 class Parser;
 class Syntax;
 class Rule;
 
-using Mode     = QString;
-using Category = QString;
-using Name     = QString;
-
 class Parser: public QObject
 {
     Q_OBJECT
+    
     using Super    = QObject;
     
-
-    static QList<Category> categories_m;
-    static QList<Mode>     modes_m;
-        
-    class Rule;
-
+    const Syntax *syntax_m;
+    
 public:
-
-    void reload();
+    static Syntax *newSyntax(const Path &);
+    Parser(Syntax *, QObject * = nullptr);
 
     friend class UnitTest::RuleTest;
     friend class UnitTest::SyntaxTest;
@@ -74,11 +96,13 @@ class Syntax: public QObject
     using Super = QObject;
     using Self  = Syntax;
     
-    QList<Category> categories_m;
-    QList<Mode>     modes_m;
-    
+    QList<Category::type> categories_m;
+    QList<Mode::type>     modes_m;
+    QList<Rule *>         rules_m;
     Syntax(Parser *, const QString &);
 public:
+    Rule * makeRule(Mode::type, QString);
+
     friend class UnitTest::RuleTest;
     friend class UnitTest::SyntaxTest;
     friend class UnitTest::ParserTest;
@@ -89,12 +113,28 @@ class Rule: public QObject
     Q_OBJECT
     using Super = QObject;
 
-    Rule(Parser *);
+    QList<Mode::type> modes_m;
+    Category::type category_m;
+    Level level_m;
+    bool  relative_m;
+    QRegularExpression pattern_m;
+    Rule(Syntax *, Mode::type, ID, int, const QRegularExpression &);
 public:
+    friend Rule * Syntax::makeRule(Mode::type, QString);
+    QList<Mode::type> modes()           const { return modes_m; };
+    Category::type category()           const { return category_m; };
+    Level level()                       const { return level_m; };
+    bool relative()                     const { return relative_m; }
+    const QRegularExpression &pattern() const { return pattern_m; };
+
+    bool isMode(Mode::type mode) const;
+    bool isCategory(Category::type category) const;
+
     friend class UnitTest::RuleTest;
     friend class UnitTest::SyntaxTest;
     friend class UnitTest::ParserTest;
 };
+
 
 } // namespace Anchor
 } // namespace Document

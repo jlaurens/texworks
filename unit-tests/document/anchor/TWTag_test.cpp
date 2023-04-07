@@ -21,7 +21,7 @@
 
 #include "TWTag_test.h"
 
-#include "document/Document.h"
+#include "document/TWFileExtent.h"
 #include "document/TextDocument.h"
 #include "document/anchor/TWTag.h"
 #include "document/anchor/TWParser.h"
@@ -53,14 +53,14 @@ void TagTest::test_main()
     auto text = QStringLiteral("Hello World");
     auto *document = new TextDocument(text);
     QVERIFY(document);
-    auto *banker = new Tag::Banker(document);
+    auto *banker = new Banker(document);
     QVERIFY(banker);
-    auto *bank = document->anchorBank();
+    auto *bank = getBank(document);
     QVERIFY(bank);
 //    auto tags = bank->tags();
 //    QCOMPARE(tags.count(), 0);
 //    auto pattern = QRegularExpression(QString("."));
-//    auto *rule = new Tag::Rule(Tag::Type::Outline, 0, pattern);
+//    auto *rule = new Rule(Tag::Type::Outline, 0, pattern);
 //    int index = 0;
 //    auto rem = pattern.match(text, index);
 //    QVERIFY(rem.hasMatch());
@@ -73,7 +73,7 @@ void TagTest::test_main()
 //#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
 //    QSignalSpy spy(bank, SIGNAL(changed()));
 //#else
-//    QSignalSpy spy(bank, &TagBank::changed);
+//    QSignalSpy spy(bank, &Bank::changed);
 //#endif
     
 //    Tag tag1(Tag::Type::Bookmark,

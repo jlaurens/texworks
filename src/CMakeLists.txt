@@ -31,7 +31,7 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   TWIcon.cpp
                   TWString.cpp
                   TWUtils.cpp
-                  document/Document.cpp
+                  document/TWFileExtent.cpp
                   document/TWSpellChecker.cpp
                   document/TextDocument.cpp
                   document/TeXDocument.cpp
@@ -88,7 +88,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   TWUtils.h
                   TWVersion.h
                   InterProcessCommunicator.h
-                  document/Document.h
+                  document/TWFileExtent.h
                   document/TWSpellChecker.h
                   document/TextDocument.h
                   document/TeXDocument.h

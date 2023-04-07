@@ -29,8 +29,8 @@
  Any `Tag` instance contains informations about one particular tag: its text, tooltip, type, subtype, level
  and finally a text cursor indicating the start of the line where the tag belongs in some `TextDocument` instance. All these informations are known at creation time
  and are never modified afterwards. Actually, `Tag` instances are created when the `TeXHighlighter`parses the document but this may change in the future.
- `Tags` are owned and created by a `TagBank` instance. There are various tree widgets that display
- a subset of all tags these maintained in one of three `TagSuite`'s: one for the outline tags, one for the tag marks and one for all of them. The very same `Tag` instance may be hold by different objects.
+ `Tags` are owned and created by a `Bank` instance. There are various tree widgets that display
+ a subset of all tags these maintained in one of three `Suite`'s: one for the outline tags, one for the tag marks and one for all of them. The very same `Tag` instance may be hold by different objects.
  The `QTreeWidget` instances will recreate their inner `QTreeWidgetItem` instances based on
  the available tags. The list is updated each time tags are removed or created while editing the text.
  In order to keep the corresponding items expanded or selected, we store supplemental information
@@ -39,7 +39,7 @@
 #ifndef Tw_Document_Anchor_Tag_H
 #define Tw_Document_Anchor_Tag_H
 
-#include "document/Document.h"
+#include "document/anchor/TWParser.h"
 
 #include <QVariant>
 #include <QTextCursor>
@@ -53,167 +53,130 @@ class QTreeWidgetItem;
 namespace Tw {
 namespace Document {
 
-class TextDocument;
-
 namespace Anchor {
 
 namespace UnitTest {
 class TagTest; // This class may exist uniquely while testing, friend of everyone.
 }
 
-#warning I can override the destructor!!!
+using Text    = QString;
+using Tooltip = QString;
 
 class Tag;
-class TagBank;
-class TagSuite;
+class Bank;
+class Banker;
+class Suite;
+
+extern const QString kNameBank;
+
+extern void setBank(QObject *, Bank *); /*!< Set the bank of any object */
+extern Bank *getBank(QObject *); /*!< Get the bank of any object, if any. */
+
+/**
+ The `Banker` makes the changes to the `Bank` but let the `Bank` emit its `changed`
+ signal only once all expected modifications are performed.
+ Scoped instances are created on the stack.
+ */
+class Banker
+{
+    QTextDocument *document_m;
+public:
+    Banker(QTextDocument *document);
+    ~Banker();
+    bool addTag(const Rule *rule,
+                const int position,
+                const QRegularExpressionMatch &match);/*!< The only public way to create a new Tag. */
+    unsigned int removeTags(int offset, int len);
+
+    friend class UnitTest::TagTest;
+};
+
+using Filter = std::function<bool(const Tag *)>; // to pick up only some tags
 
 class Tag: public QObject
 {
-    using Super = QObject;
-    
-public:
-    enum class Type {Any, Magic, Bookmark, Outline};
-    struct TypeName {
-        static const QString Any;
-        static const QString Magic;
-        static const QString Bookmark;
-        static const QString Outline;
-    };
-    static Type typeForName(const QString &name);
-    static const QString nameForType(Type type);
-    enum class Subtype {Any, MARK, TODO, BORDER};
-    struct SubtypeName {
-        static const QString Any;
-        static const QString MARK;
-        static const QString TODO;
-        static const QString BORDER;
-    };
-    static Subtype subtypeForName(const QString &name);
-    static Subtype subtypeForMatch(const QRegularExpressionMatch &match);
-    static const QString nameForSubtype(Subtype type);
-    
-    class Rule
-    {
-        Type type_m;
-        int level_m;
-        QRegularExpression pattern_m;
-    public:
-        Rule(Type, int, const QRegularExpression &);
-        Type type() const { return type_m; };
-        int level() const { return level_m; };
-        const QRegularExpression &pattern() const { return pattern_m; };
-    };
-    
-    class Banker;
-    
-    using Filter = std::function<bool(const Tag *)>; // to pick up only some tags
-    
-    struct State
-    {
-        bool isSelected;
-        bool isCollapsed;
-    };
-    
-    static const QList<const Rule *> rules();
-    
+    using Super   = QObject;
 private:
-    Type    type_m;
-    Subtype subtype_m;
-    int          level_m;
-    QTextCursor  cursor_m;
-    QString      text_m;
-    QString      tooltip_m;
+    const Rule *rule_m;
+    Type::type  type_m;
+    Level       level_m;
+    QTextCursor cursor_m;
+    Text        text_m;
+    Tooltip     tooltip_m;
     /**
-     Private constructorc only available to `TagBank::makeTag` method.
+     Private constructor only available to `Bank::makeTag` method.
      */
-    Tag(TagBank *,
-        const Type,
-        const Subtype,
-        const int,
+    Tag(      Bank *,
+        const Rule *,
+        const Type::type,
+        const Level,
         const QTextCursor &,
-        const QString& text,
-        const QString& tooltip);
+        const Text        &,
+        const Tooltip     &);
 public:
-    TextDocument *document() const;
-    const TagBank *bank() const;
-    int level() const;
-    const QString &text() const;
-    const QString &tooltip() const;
+    QTextDocument *document() const;
+    const Bank *bank() const;
+    const Rule *rule() const;
+    const Mode::type mode();
+    const Category::type category();
+    const Type::type type();
+          Level level() const;
     const QTextCursor &cursor() const;
-    int  position() const;
-    bool isOfType(Type t) const;
-    bool isMagic() const;
-    bool isBookmark() const;
-    bool isOutline() const;
-    bool isMARK() const;
-    bool isTODO() const;
-    bool isBORDER() const;
+    const Text &text() const;
+    const Tooltip &tooltip() const;
+    Level  position() const;
+    bool isMode(Mode::type) const;
+    bool isCategory(Category::type) const;
+    bool isType(Type::type) const;
+    bool isCategoryMagic() const;
+    bool isCategoryBookmark() const;
+    bool isCategoryOutline() const;
+    bool isTypeMARK() const;
+    bool isTypeTODO() const;
+    bool isTypeBORDER() const;
     bool isBoundary() const;
     bool operator==(Tag &rhs);
-public:
-    /**
-     The `Banker` makes the changes to the `TagBank` but let the `TagBank` emit its `changed`
-     signal only once all expected modifications are performed.
-     Scoped instance are created on the stack.
-     */
-    class Banker
-    {
-        TextDocument *document_m;
-    public:
-        Banker(TextDocument *document);
-        ~Banker();
-        void addTag(const Rule *rule,
-                    const int position,
-                    const QRegularExpressionMatch &match);/*!< The only public way to create a new Tag. */
-        unsigned int removeTags(int offset, int len);
 
-        friend class UnitTest::TagTest;
-    };
-    
-public:
-    friend void Banker::addTag(const Rule *,
-                                   const int,
-                                   const QRegularExpressionMatch &);
-    
-    
+    friend bool Banker::addTag(const Rule *,
+                               const int,
+                               const QRegularExpressionMatch &);
+
     friend class UnitTest::TagTest;
 }; // class Tag
 
-class TagBank: public QObject
+class Bank: public QObject
 {
     Q_OBJECT
     using Super = QObject;
     QList<const Tag *> tags_m;
-    QList<TagSuite *> suites_m;
+    QList<Suite *> suites_m;
 public:
-    explicit TagBank(TextDocument *parent); /*!< The parent may not be null. */
-    TextDocument *document() const; /*!< The owner is the parent. */
+    explicit Bank(QObject *parent); /*!< The parent may not be null. */
     const QList<const Tag *> tags() const;
     void willChange(); /*!< Forwards the message to all the owned suites. */
     void didChange(); /*!< Forwards the message to all the owned suites. */
 signals:
     void changed() const;
 public:
-    friend class Tag::Banker; /*!< Management of Tag's is delegated to a `Tagger` instance. */
-    TagSuite *makeSuite(Tag::Filter); /*!< Create a new suite owned by the receiver. */
+    friend class Banker; /*!< Management of Tag's is delegated to a `Tagger` instance. */
+    Suite *makeSuite(Filter); /*!< Create a new suite owned by the receiver. */
 
     friend class UnitTest::TagTest;
-}; // class TagBank
+}; // class Bank
 
 /**
- `TagSuite` instances are owned by `TagBank`instances and created only by them.
+ `Suite` instances are owned by `Bank` instances and created only by them.
  */
-class TagSuite: public QObject
+class Suite: public QObject
 {
     Q_OBJECT
     using Super = QObject;
     QList<const Tag *> tags_m; /*!< List of chosen tags. */
-    Tag::Filter        filter_m;
-    TagSuite(TagBank *, Tag::Filter);
+    Filter filter_m;
+    Suite(Bank *, Filter);
 public:
-    friend TagSuite *TagBank::makeSuite(Tag::Filter);
-    const TagBank *bank() const; /*!< The owner is a Tag bank. */
-    TextDocument *document() const; /*!< Shortcut to the owner of the owning Tag bank. */
+    friend Suite *Bank::makeSuite(Filter);
+    const Bank *bank() const; /*!< The owner is a Tag bank. */
     bool isEmpty() const;
     QList<const Tag *> tags() const; /*!< Copy of the internal list. */
     const Tag *at(const int) const;
@@ -225,7 +188,7 @@ signals:
     void didChange();
     
     friend class UnitTest::TagTest;
-}; // class TagSuite
+}; // class Suite
 
 } // namespace Anchor
 } // namespace Document

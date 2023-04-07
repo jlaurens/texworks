@@ -18,23 +18,28 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef Document_Document_H
-#define Document_Document_H
+#ifndef Tw_Document_FileExtent_H
+#define Tw_Document_FileExtent_H
 
 #include <QFileInfo>
 
 namespace Tw {
 namespace Document {
 
+namespace UnitTest {
+class FileExtentTest;
+}
+
 // is the given file a PDF document? image? Postscript?
 bool isPDFfile(const QString& fileName);
 bool isImageFile(const QString& fileName);
 bool isPostscriptFile(const QString& fileName);
 
-class Document
+// The name ends with `Extent` to indicate that it does inherot from `QObject`.
+class FileExtent
 {
 public:
-	virtual ~Document() = default;
+	virtual ~FileExtent() = default;
 
 	virtual QFileInfo getFileInfo() const { return _fileInfo; }
 	virtual void setFileInfo(const QFileInfo & fileInfo) { _fileInfo = fileInfo; }
@@ -59,4 +64,4 @@ protected:
 } // namespace Document
 } // namespace Tw
 
-#endif // !defined(Document_Document_H)
+#endif // #ifndef Tw_Document_FileExtent_H

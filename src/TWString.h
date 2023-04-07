@@ -54,24 +54,13 @@ extern const QString exeExtension;
  */
 namespace ObjectName {
 
-extern const QString treeWidget;
-extern const QString toolbar;
-extern const QString list_add;
-extern const QString list_remove;
-extern const QString Tags;
-extern const QString Bookmarks;
-extern const QString Outlines;
-extern const QString TagBank;
+extern const QString textEdit_m;
 
 }
 
 /*! \brief Type display names.
  */
-struct TypeName {
-
-    static const QString Bookmark;
-    static const QString Outline;
-    static const QString Unknown;
+namespace TypeName {
 
 };
 

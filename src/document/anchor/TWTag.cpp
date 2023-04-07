@@ -19,7 +19,6 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "TWString.h"
 #include "document/TextDocument.h"
 #include "document/anchor/TWTag.h"
 #include "document/anchor/TWParser.h"
@@ -37,147 +36,34 @@ namespace Anchor {
 /// \file Tag model
 /// \author JL
 
-// types declared in the pattern-tags.txt file
-const QString Tag::TypeName::Any       = QStringLiteral("Any");
-const QString Tag::TypeName::Magic     = QStringLiteral("Magic");
-const QString Tag::TypeName::Bookmark  = QStringLiteral("Bookmark");
-const QString Tag::TypeName::Outline   = QStringLiteral("Outline");
-
-const QString Tag::SubtypeName::Any    = QStringLiteral("Any");
-// This is the list of recognized anchor subtypes
-const QString Tag::SubtypeName::MARK   = QStringLiteral("MARK");
-const QString Tag::SubtypeName::TODO   = QStringLiteral("TODO");
-const QString Tag::SubtypeName::BORDER = QStringLiteral("BORDER");
-
 // name of a capture group, should be defined more globally because file "tag-patterns.txt" relies on it.
 namespace __ {
 static const QString kKeyContent = QStringLiteral("content");
 static const QString kKeyType    = QStringLiteral("type");
 }
 
-//MARK: Tag static
-Tag::Type Tag::typeForName(const QString &name) {
-    if (name == TypeName::Magic) {
-        return Type::Magic;
-    }
-    if (name == TypeName::Outline) {
-        return Type::Outline;
-    }
-    if (name == TypeName::Bookmark) {
-        return Type::Bookmark;
-    }
-    return Type::Any;
-}
-
-const QString Tag::nameForType(Tag::Type type) {
-    if (type == Type::Magic) {
-        return TypeName::Magic;
-    }
-    if (type == Type::Outline) {
-        return TypeName::Outline;
-    }
-    if (type == Type::Bookmark) {
-        return TypeName::Bookmark;
-    }
-    return TypeName::Any;
-}
-
-Tag::Subtype Tag::subtypeForName(const QString &name) {
-    if (name == SubtypeName::MARK) {
-        return Subtype::MARK;
-    }
-    if (name == SubtypeName::TODO) {
-        return Subtype::TODO;
-    }
-    if (  name == SubtypeName::BORDER) {
-        return Subtype::BORDER;
-    }
-    return Subtype::Any;
-}
-
-Tag::Subtype Tag::subtypeForMatch(const QRegularExpressionMatch &match) {
-    return subtypeForName(match.captured(__::kKeyType));
-}
-
-const QString Tag::nameForSubtype(Tag::Subtype subtype) {
-    if (subtype == Subtype::MARK) {
-        return SubtypeName::MARK;
-    }
-    if (subtype == Subtype::TODO) {
-        return SubtypeName::TODO;
-    }
-    if (subtype == Subtype::BORDER) {
-        return SubtypeName::BORDER;
-    }
-    return SubtypeName::Any;
-}
-
-const QList<const Tag::Rule *> Tag::rules()
-{
-    static QList<const Rule *> rules;
-    if (rules.empty()) {
-        // read tag-recognition patterns
-        QFile file(::Tw::Utils::ResourcesLibrary::getTagPatternsPath());
-        if (file.open(QIODevice::ReadOnly)) {
-            QRegularExpression whitespace(QStringLiteral("\\s+"));
-            while (true) {
-                QByteArray ba = file.readLine();
-                if (ba.size() == 0)
-                    break;
-                if (ba[0] == '#' || ba[0] == '\n')
-                    continue;
-                QString line = QString::fromUtf8(ba.data(), ba.size());
-                QStringList parts = line.split(whitespace, Qt::SkipEmptyParts);
-                if (parts.size() != 3)
-                    continue;
-                bool ok{false};
-                Type type = typeForName(parts[0]);
-                if (type != Type::Any) {
-                    int level = parts[1].toInt(&ok);
-                    if (ok) {
-                        auto pattern = QRegularExpression(parts[2]);
-                        if (pattern.isValid()) {
-                            const Rule *r = new Rule(type, level, pattern);
-                            rules << r;
-                        } else {
-                            qWarning() << "Wrong tag pattern:" << parts[2];
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return rules;
-}
-
+const QString kNameBank  = QStringLiteral("Tw.Document.Anchor.Bank");
 
 //MARK: Tag
-Tag::Tag(TagBank *bank,
-         const Type    type,
-         const Subtype subtype,
-         const int     level,
+Tag::Tag(      Bank *bank,
+         const Rule *rule,
+         const Type::type  type,
+         const Level level,
          const QTextCursor &cursor,
-         const QString     &text,
-         const QString     &tooltip)
+         const Text        &text,
+         const Tooltip     &tooltip)
     : Super(bank)
+    , rule_m   (rule)
     , type_m   (type)
-    , subtype_m(subtype)
     , level_m  (level)
     , cursor_m (cursor)
     , text_m   (text)
     , tooltip_m(tooltip)
-{
-    Q_ASSERT(bank);
-}
+{}
 
-const TagBank *Tag::bank() const
+const Bank *Tag::bank() const
 {
-    return reinterpret_cast<TagBank *>(parent());
-}
-
-TextDocument *Tag::document() const
-{
-    return bank()->document();
+    return reinterpret_cast<Bank *>(parent());
 }
 
 int Tag::level() const
@@ -185,12 +71,12 @@ int Tag::level() const
     return level_m;
 }
 
-const QString &Tag::text() const
+const Text &Tag::text() const
 {
     return text_m;
 }
 
-const QString &Tag::tooltip() const
+const Tooltip &Tag::tooltip() const
 {
     return tooltip_m;
 }
@@ -200,49 +86,59 @@ const QTextCursor &Tag::cursor() const
     return cursor_m;
 }
 
-int  Tag::position()const
+int Tag::position() const
 {
     return cursor_m.position();
 }
 
-bool Tag::isOfType(Type t) const
+bool Tag::isMode(Mode::type mode) const
 {
-    return type_m == t;
+    return rule_m->isMode(mode);
 }
 
-bool Tag::isMagic() const
+bool Tag::isCategory(Category::type category) const
 {
-    return type_m == Type::Magic;
+    return rule_m->isCategory(category);
 }
 
-bool Tag::isBookmark() const
+bool Tag::isCategoryMagic() const
 {
-    return type_m == Type::Bookmark;
+    return isCategory(Category::Magic);
 }
 
-bool Tag::isOutline() const
+bool Tag::isCategoryBookmark() const
 {
-    return type_m == Type::Outline;
+    return isCategory(Category::Bookmark);
 }
 
-bool Tag::isMARK() const
+bool Tag::isCategoryOutline() const
 {
-    return subtype_m == Subtype::MARK;
+    return isCategory(Category::Outline);
 }
 
-bool Tag::isTODO() const
+bool Tag::isType(Type::type type) const
 {
-    return subtype_m == Subtype::TODO;
+    return type_m == type;
 }
 
-bool Tag::isBORDER() const
+bool Tag::isTypeMARK() const
 {
-    return subtype_m == Subtype::BORDER;
+    return type_m == Type::MARK;
+}
+
+bool Tag::isTypeTODO() const
+{
+    return type_m == Type::TODO;
+}
+
+bool Tag::isTypeBORDER() const
+{
+    return type_m == Type::BORDER;
 }
 
 bool Tag::isBoundary() const
 {
-    return isMagic() || isBORDER();
+    return isCategoryMagic() || isTypeBORDER();
 }
 
 bool Tag::operator==(Tag &rhs)
@@ -250,44 +146,52 @@ bool Tag::operator==(Tag &rhs)
     return position() == rhs.position();
 }
 
-//MARK: Tag::Rule
-Tag::Rule::Rule(Type type,
-                int level,
-                const QRegularExpression & pattern):
-type_m(type),
-level_m(level),
-pattern_m(pattern)
-{}
+//MARK: Static
+void setBank(QObject *parent, Bank *bank)
+{
+    auto * already = getBank(parent);
+    if (already == bank) {
+        return;
+    }
+    if (already) {
+        already->setParent(nullptr);
+    }
+    if (bank) {
+        bank->setObjectName(kNameBank);
+        bank->setParent(parent);
+    }
+}
 
-//MARK: TagBank
-TagBank::TagBank(TextDocument *parent)
+Bank *getBank(QObject *parent)
+{
+    return parent ? parent->findChild<Bank *>(kNameBank, Qt::FindDirectChildrenOnly)
+                  : nullptr;
+}
+
+//MARK: Bank
+Bank::Bank(QObject *parent)
     : QObject(parent)
 {}
 
-TagSuite *TagBank::makeSuite(Tag::Filter filter)
+Suite *Bank::makeSuite(Filter filter)
 {
-    suites_m << new TagSuite(this, filter);
+    suites_m << new Suite(this, filter);
     return suites_m.last();
 }
 
-TextDocument *TagBank::document() const
-{
-    return reinterpret_cast<TextDocument *>(parent());
-}
-
-const QList<const Tag *> TagBank::tags() const
+const QList<const Tag *> Bank::tags() const
 {
     return tags_m;
 };
 
-void TagBank::willChange()
+void Bank::willChange()
 {
     for(auto *suite: suites_m) {
         suite->willChange();
     }
 }
 
-void TagBank::didChange()
+void Bank::didChange()
 {
     // model changes
     for(auto *suite: suites_m) {
@@ -299,23 +203,31 @@ void TagBank::didChange()
     }
 }
 
-//MARK: Tag::Banker
-Tag::Banker::Banker(TextDocument *document): document_m(document)
+//MARK: Banker
+Banker::Banker(QTextDocument *document): document_m(document)
 {
-    Q_ASSERT(document_m);
-    document_m->anchorBank()->willChange();
+    Bank *bank = getBank(document);
+    if (bank) {
+        bank->willChange();
+    }
 }
 
-Tag::Banker::~Banker() {
-    document_m->anchorBank()->didChange();
+Banker::~Banker() {
+    Bank *bank = getBank(document_m);
+    if (bank) {
+        bank->didChange();
+    }
 }
 
-void Tag::Banker::addTag(const Tag::Rule *rule,
-                             const int position,
-                             const QRegularExpressionMatch &match)
+bool Banker::addTag(const Rule *rule,
+                    const int position,
+                    const QRegularExpressionMatch &match)
 {
-    Q_ASSERT(rule);
-    auto subtype = subtypeForMatch(match);
+    auto *bank = getBank(document_m);
+    if (! bank || ! rule) {
+        return false;
+    }
+    auto type = match.captured(__::kKeyType);
     
     auto cursor = QTextCursor(document_m);
     cursor.setPosition(position);
@@ -333,10 +245,9 @@ void Tag::Banker::addTag(const Tag::Rule *rule,
         text = s;
         tooltip = match.captured(0);
     }
-    auto *bank = document_m->anchorBank();
     auto *tag = new Tag(bank,
-                        rule->type(),
-                        subtype,
+                        rule,
+                        type,
                         rule->level(),
                         cursor,
                         text,
@@ -352,6 +263,7 @@ void Tag::Banker::addTag(const Tag::Rule *rule,
         if (t->position() == position) {
             delete tags.takeAt(i);
         }
+        //TODO: support relative levels
         tags.insert(i, tag);
         tag = nullptr;
         break;
@@ -361,10 +273,13 @@ void Tag::Banker::addTag(const Tag::Rule *rule,
     }
 }
 
-unsigned int Tag::Banker::removeTags(int offset, int len)
+unsigned int Banker::removeTags(int offset, int len)
 {
     unsigned int removed = 0;
-    auto *bank = document_m->anchorBank();
+    auto *bank = getBank(document_m);
+    if (! bank) {
+        return removed;
+    }
     auto tags = bank->tags_m;
     auto start = tags.begin();
     while(start != tags.end() && (*start)->position() < offset) {
@@ -383,51 +298,48 @@ unsigned int Tag::Banker::removeTags(int offset, int len)
     return removed;
 }
 
-//MARK: TagSuite
+//MARK: Suite
 
-TagSuite::TagSuite(TagBank *bank, Tag::Filter filter): Super(bank),
-filter_m(filter)
+Suite::Suite(Bank *bank, Filter filter)
+    : Super(bank)
+    , filter_m(filter)
 {
     Q_ASSERT(bank);
 }
 
-const TagBank *TagSuite::bank() const
+const Bank *Suite::bank() const
 {
-    return reinterpret_cast<TagBank *>(parent());
+    return reinterpret_cast<Bank *>(parent());
 }
 
-TextDocument *TagSuite::document() const
-{
-    return bank()->document();
-}
 
-QList<const Tag *> TagSuite::tags() const
+QList<const Tag *> Suite::tags() const
 {
     return tags_m;
 }
 
-bool TagSuite::isEmpty() const
+bool Suite::isEmpty() const
 {
     return tags_m.isEmpty();
 }
 
-const Tag *TagSuite::at(const int i) const
+const Tag *Suite::at(const int i) const
 {
     return 0 <= i && i < tags_m.count() ? tags_m.at(i) : nullptr;
 }
 
-int TagSuite::indexOf(const Tag *tag) const
+int Suite::indexOf(const Tag *tag) const
 {
     return tags_m.indexOf(tag);
 }
 
-void TagSuite::emitChange()
+void Suite::emitChange()
 {
     emit willChange();
     emit didChange();
 }
 
-void TagSuite::update()
+void Suite::update()
 {
     tags_m.clear();
     const auto tags = bank()->tags();

@@ -92,7 +92,7 @@ endif (APPLE)
 add_executable(test_Document
     Document_test.cpp
     Document_test.h
-    "${CMAKE_SOURCE_DIR}/src/document/Document.cpp"
+    "${CMAKE_SOURCE_DIR}/src/document/TWFileExtent.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.cpp"
     "${CMAKE_SOURCE_DIR}/src/document/TeXDocument.h"
     "${CMAKE_SOURCE_DIR}/src/document/TextDocument.cpp"

@@ -24,7 +24,7 @@
 #include "../modules/QtPDF/src/PDFBackend.h"
 #include "TWSynchronizer.h"
 #include "TeXHighlighter.h"
-#include "document/Document.h"
+#include "document/TWFileExtent.h"
 #include "document/TWSpellChecker.h"
 #include "document/TeXDocument.h"
 #include "document/TextDocument.h"

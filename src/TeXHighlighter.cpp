@@ -201,31 +201,32 @@ void TeXHighlighter::highlightBlock(const QString &text)
 		spellCheckRange(text, charPos, text.length(), spellFormat);
 
 	if (texDoc) {
-        Tag::Banker tagHelper(texDoc);
-        tagHelper.removeTags(currentBlock().position(), currentBlock().length());
+        Tw::Document::Anchor::Banker banker(texDoc);
+        banker.removeTags(currentBlock().position(), currentBlock().length());
 		if (isTagging) {
-			QString::size_type index = 0;
-			while (index < text.length()) {
-				QString::size_type start{std::numeric_limits<QString::size_type>::max()}, len{0};
-				QRegularExpressionMatch match;
-                const Tag::Rule *rule = nullptr;
-                for (const auto *r: Tag::rules()) {
-					QRegularExpressionMatch m = r->pattern().match(text, index);
-					if (m.hasMatch() && m.capturedStart() < start) {
-                        start = m.capturedStart();
-                        match = m;
-                        rule = r;
-					}
-				}
-				if (match.hasMatch() && (len = match.capturedLength()) > 0) {
-                    tagHelper.addTag(rule,
-                                     currentBlock().position() + start,
-                                     match);
-					index = start + len;
-				}
-				else
-					break;
-			}
+#warning NYI
+//			QString::size_type index = 0;
+//			while (index < text.length()) {
+//				QString::size_type start{std::numeric_limits<QString::size_type>::max()}, len{0};
+//				QRegularExpressionMatch match;
+//                const Rule *rule = nullptr;
+//                for (const auto *r: Tag::rules()) {
+//					QRegularExpressionMatch m = r->pattern().match(text, index);
+//					if (m.hasMatch() && m.capturedStart() < start) {
+//                        start = m.capturedStart();
+//                        match = m;
+//                        rule = r;
+//					}
+//				}
+//				if (match.hasMatch() && (len = match.capturedLength()) > 0) {
+//                    banker.addTag(rule,
+//                                  currentBlock().position() + start,
+//                                  match);
+//					index = start + len;
+//				}
+//				else
+//					break;
+//			}
 		}
 	}
 }

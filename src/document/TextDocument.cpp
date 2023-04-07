@@ -26,12 +26,14 @@
 namespace Tw {
 namespace Document {
 
-TextDocument::TextDocument(QObject * parent): QTextDocument(QString(), parent),
-anchorBank_m(new Anchor::TagBank(this))
+TextDocument::TextDocument(QObject * parent)
+    : QTextDocument(QString(), parent)
+    , FileExtent()
 {}
 
-TextDocument::TextDocument(const QString & text, QObject * parent): QTextDocument(text, parent),
-anchorBank_m(new Anchor::TagBank(this))
+TextDocument::TextDocument(const QString & text, QObject * parent)
+    : QTextDocument(text, parent)
+    , FileExtent()
 {}
 
 } // namespace Document

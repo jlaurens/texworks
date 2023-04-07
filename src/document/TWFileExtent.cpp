@@ -19,7 +19,7 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "document/Document.h"
+#include "document/TWFileExtent.h"
 
 #include <QImage>
 

@@ -32,8 +32,77 @@ namespace Tw {
 namespace Document {
 namespace Anchor {
 
-auto Parser::categories_m = QList<Category>();
-auto Parser::modes_m      = QList<Mode>();
+namespace Mode {
+const type plain   = QStringLiteral("plain");
+const type latex   = QStringLiteral("latex");
+const type dtx     = QStringLiteral("dtx");
+const type context = QStringLiteral("context");
+}
+
+namespace Category {
+const type Magic     = QStringLiteral("Magic");
+const type Bookmark  = QStringLiteral("Bookmark");
+const type Outline   = QStringLiteral("Outline");
+}
+
+namespace Type {
+const type MARK   = QStringLiteral("MARK");
+const type TODO   = QStringLiteral("TODO");
+const type BORDER = QStringLiteral("BORDER");
+}
+
+#if false
+#pragma mark Rule
+#endif
+
+bool Rule::isMode(Mode::type mode) const
+{
+    return ! mode.length() || modes_m.contains(mode);
+}
+
+bool Rule::isCategory(Category::type category) const
+{
+    return category_m == category;
+}
+
+//const QList<const Rule *> Tag::rules()
+//{
+//    static QList<const Rule *> rules;
+//    if (rules.empty()) {
+//        // read tag-recognition patterns
+//        QFile file(::Tw::Utils::ResourcesLibrary::getTagPatternsPath());
+//        if (file.open(QIODevice::ReadOnly)) {
+//            QRegularExpression whitespace(QStringLiteral("\\s+"));
+//            while (true) {
+//                QByteArray ba = file.readLine();
+//                if (ba.size() == 0)
+//                    break;
+//                if (ba[0] == '#' || ba[0] == '\n')
+//                    continue;
+//                QString line = QString::fromUtf8(ba.data(), ba.size());
+//                QStringList parts = line.split(whitespace, Qt::SkipEmptyParts);
+//                if (parts.size() != 3)
+//                    continue;
+//                bool ok{false};
+//                Type type = typeForName(parts[0]);
+//                if (type != Type::Any) {
+//                    int level = parts[1].toInt(&ok);
+//                    if (ok) {
+//                        auto pattern = QRegularExpression(parts[2]);
+//                        if (pattern.isValid()) {
+//                            const Rule *r = new Rule(type, level, pattern);
+//                            rules << r;
+//                        } else {
+//                            qWarning() << "Wrong tag pattern:" << parts[2];
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    return rules;
+//}
+
 
 } // namespace Anchor
 } // namespace Document

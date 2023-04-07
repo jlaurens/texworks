@@ -21,31 +21,25 @@
 #ifndef Document_TextDocument_H
 #define Document_TextDocument_H
 
-#include "document/Document.h"
+#include "document/TWFileExtent.h"
+#include "document/anchor/TWTag.h"
 
-#include <QVariant>
-#include <QTextCursor>
+#include <QObject>
+#include <QString>
 #include <QTextDocument>
-#include <QRegularExpressionMatch>
 
 namespace Tw {
 namespace Document {
 
-namespace Anchor {
-        class TagBank;
-}
-
-class TextDocument: public QTextDocument, public Document
+class TextDocument
+    : public QTextDocument
+    , public FileExtent
 {
 	Q_OBJECT
 public:
 	explicit TextDocument(QObject * parent = nullptr);
 	explicit TextDocument(const QString & text,
                           QObject * parent = nullptr);
-    Anchor::TagBank *anchorBank() const { return anchorBank_m; };
-
-protected:
-    Anchor::TagBank *anchorBank_m; // also accessible as a child
 };
 
 } // namespace Document
