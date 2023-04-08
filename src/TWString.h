@@ -19,9 +19,10 @@
     see <http://www.tug.org/texworks/>.
 */
 
-/*! \brief Collection of static strings.
+/*! \brief Collection of shared static strings.
  *
- *  Literal strings are used only once in definitions to avoid typos.
+ *  Literal strings are used only once in definitions.
+ *  The compiler guards again typos.
  *
  */
 
@@ -53,8 +54,6 @@ extern const QString exeExtension;
 /*! \brief QWidget object names.
  */
 namespace ObjectName {
-
-extern const QString textEdit_m;
 
 }
 

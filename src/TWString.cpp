@@ -48,8 +48,6 @@ namespace TypeName {
 
 namespace ObjectName {
 
-const QString textEdit_m    = QStringLiteral("textEdit_m");
-
 } // namespace ObjectName
 
 } // namespace Tw

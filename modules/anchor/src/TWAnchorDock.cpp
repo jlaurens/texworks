@@ -1,3 +1,4 @@
+
 /*
 	This is part of TeXworks, an environment for working with TeX documents
 	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
