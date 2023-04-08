@@ -37,7 +37,6 @@ const QString ResourcesLibrary::getTagPatternsPath()
 
 } //namespace Utils
 
-namespace Document {
 namespace Anchor {
 
 namespace UnitTest {
@@ -58,7 +57,6 @@ void ParserTest::test_main2()
 } // namespace UnitTest
 
 } // namespace Anchor
-} // namespace Document
 } // namespace Tw
 
-QTEST_MAIN(Tw::Document::Anchor::UnitTest::ParserTest)
+QTEST_MAIN(Tw::Anchor::UnitTest::ParserTest)

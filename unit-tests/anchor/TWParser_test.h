@@ -22,7 +22,6 @@
 #include <QtTest/QtTest>
 
 namespace Tw {
-namespace Document {
 namespace Anchor {
 namespace UnitTest {
 
@@ -41,5 +40,4 @@ private slots:
 
 } // namespace UnitTest
 } // namespace Anchor
-} // namespace Document
 } // namespace Tw

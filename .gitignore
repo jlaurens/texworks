@@ -3,7 +3,7 @@
 
 # Build directories
 /build*/
-/modules/QtPDF/build*/
+/modules/**/build*/
 
 # Files downloaded/extracted as part of OS X packaging task.
 /poppler-data-*.tar.gz
@@ -25,3 +25,4 @@ CMakeUserPresets.json
 
 # vscode files
 settings.json
+/.vscode/

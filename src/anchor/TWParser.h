@@ -23,14 +23,13 @@
 ## Presentation
 Static methods are gathered to parse text for tags.
  */
-#ifndef Tw_Document_Anchor_Parser_H
-#define Tw_Document_Anchor_Parser_H
+#ifndef TW_Anchor_Parser_H
+#define TW_Anchor_Parser_H
 
 #include <QRegularExpression>
 #include <QFileInfo>
 
 namespace Tw {
-namespace Document {
 namespace Anchor {
 
 namespace UnitTest {
@@ -137,7 +136,6 @@ public:
 
 
 } // namespace Anchor
-} // namespace Document
 } // namespace Tw
 
-#endif // ifndef Tw_Document_Anchor_Parser_H
+#endif // ifndef TW_Anchor_Parser_H

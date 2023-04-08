@@ -189,6 +189,6 @@ signals:
 
 } // namespace TWAnchor
 
-Q_DECLARE_METATYPE(TWAnchor::Tag *) // for QVariant usage
+Q_DECLARE_METATYPE(const TWAnchor::Tag *) // for QVariant usage
 
 #endif // #ifndef TWAnchor_Tag_H

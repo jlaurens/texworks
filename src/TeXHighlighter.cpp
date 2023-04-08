@@ -156,7 +156,7 @@ void TeXHighlighter::spellCheckRange(const QString &text, QString::size_type ind
 		index = end;
 	}
 }
-using Tag = Tw::Document::Anchor::Tag;
+using Tag = Tw::Anchor::Tag;
 
 //TODO: do not refer to the currentBlock
 // We assume that `text` == currentBlock().text()
@@ -201,7 +201,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 		spellCheckRange(text, charPos, text.length(), spellFormat);
 
 	if (texDoc) {
-        Tw::Document::Anchor::Banker banker(texDoc);
+        Tw::Anchor::Banker banker(texDoc);
         banker.removeTags(currentBlock().position(), currentBlock().length());
 		if (isTagging) {
 #warning NYI

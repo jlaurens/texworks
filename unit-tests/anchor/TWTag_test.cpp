@@ -39,7 +39,6 @@ const QString ResourcesLibrary::getTagPatternsPath()
 
 } //namespace Utils
 
-namespace Document {
 namespace Anchor {
 
 bool StrictEqual(const Tag & t1, const Tag & t2) {
@@ -51,7 +50,7 @@ namespace UnitTest {
 void TagTest::test_main()
 {
     auto text = QStringLiteral("Hello World");
-    auto *document = new TextDocument(text);
+    auto *document = new QTextDocument(text);
     QVERIFY(document);
     auto *banker = new Banker(document);
     QVERIFY(banker);
@@ -112,7 +111,6 @@ void TagTest::test_main()
 } // namespace UnitTest
 
 } // namespace Anchor
-} // namespace Document
 } // namespace Tw
 
-QTEST_MAIN(Tw::Document::Anchor::UnitTest::TagTest)
+QTEST_MAIN(Tw::Anchor::UnitTest::TagTest)

@@ -71,14 +71,14 @@ static const Tag *getItemTag(const QTreeWidgetItem *item) {
     if (item) {
         QVariant v = item->data(0, __::kTagRole);
         if (v.isValid()) {
-            return reinterpret_cast<const Tag *>(v.value<void *>());
+            return v.value<const Tag *>();
         }
     }
     return nullptr; // this happens for void Tag suites.
 }
 static void setItemTag(QTreeWidgetItem *item, const Tag *tag) {
     if (item) {
-        QVariant v = QVariant::fromValue(reinterpret_cast<const void*>(tag));
+        QVariant v = QVariant::fromValue(tag);
         item->setData(0, __::kTagRole, v);
     }
 }

@@ -29,7 +29,8 @@
 #include <QDebug>
 #include <QTreeWidgetItem>
 
-namespace TWAnchor {
+namespace Tw {
+namespace Anchor {
 
 /// \file Tag model
 /// \author JL
@@ -351,4 +352,5 @@ void Suite::update()
     }
 }
 
-} // namespace TWAnchor
+} // namespace Tw
+} // namespace Anchor

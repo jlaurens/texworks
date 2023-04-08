@@ -422,15 +422,15 @@ void TeXDocumentWindow::init()
 
 	Tw::Utils::WindowManager::zoomToHalfScreen(this);
 
-	QDockWidget *dw = new Tw::Document::Anchor::DockTag(this);
+	QDockWidget *dw = new Tw::Anchor::DockTag(this);
 	dw->hide();
     addDockWidget(Qt::LeftDockWidgetArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
-    dw = new Tw::Document::Anchor::DockOutline(this);
+    dw = new Tw::Anchor::DockOutline(this);
     dw->hide();
     addDockWidget(Qt::LeftDockWidgetArea, dw);
     menuShow->addAction(dw->toggleViewAction());
-    dw = new Tw::Document::Anchor::DockBookmark(this);
+    dw = new Tw::Anchor::DockBookmark(this);
     dw->hide();
     addDockWidget(Qt::LeftDockWidgetArea, dw);
     menuShow->addAction(dw->toggleViewAction());

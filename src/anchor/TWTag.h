@@ -36,8 +36,8 @@
  In order to keep the corresponding items expanded or selected, we store supplemental information
  based on the cursor.
  */
-#ifndef TWAnchor_Tag_H
-#define TWAnchor_Tag_H
+#ifndef Tw_Anchor_Tag_H
+#define Tw_Anchor_Tag_H
 
 #include "anchor/TWParser.h"
 
@@ -50,7 +50,8 @@
 class QTextEdit;
 class QTreeWidgetItem;
 
-namespace TWAnchor {
+namespace Tw {
+namespace Anchor {
 
 namespace UnitTest {
 class TagTest; // This class may exist uniquely while testing, friend of everyone.
@@ -187,8 +188,9 @@ signals:
     friend class UnitTest::TagTest;
 }; // class Suite
 
-} // namespace TWAnchor
+} // namespace Anchor
+} // namespace Tw
 
-Q_DECLARE_METATYPE(TWAnchor::Tag *) // for QVariant usage
+Q_DECLARE_METATYPE(const Tw::Anchor::Tag *); // for QVariant usage
 
-#endif // #ifndef TWAnchor_Tag_H
+#endif // #ifndef Tw_Anchor_Tag_H

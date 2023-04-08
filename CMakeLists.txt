@@ -9,6 +9,8 @@
 #   │   └── <a href="src/CMakeLists.html">CMakeLists.txt</a>
 #   ├── modules
 #   │   ├── <a href="modules/CMakeLists.html">CMakeLists.txt</a>
+#   │   ├── anchor
+#   │   │   └── <a href="modules/anchor/CMakeLists.html">CMakeLists.txt</a>
 #   │   ├── synctex
 #   │   │   └── <a href="modules/synctex/CMakeLists.html">CMakeLists.txt</a>
 #   │   └── QtPDF (documented separately)

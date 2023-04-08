@@ -29,7 +29,6 @@
 #include <QTreeWidgetItem>
 
 namespace Tw {
-namespace Document {
 namespace Anchor {
 
 namespace Mode {
@@ -105,5 +104,4 @@ bool Rule::isCategory(Category::type category) const
 
 
 } // namespace Anchor
-} // namespace Document
 } // namespace Tw

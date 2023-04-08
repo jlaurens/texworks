@@ -19,8 +19,8 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#ifndef TWAnchor_DockTree_H
-#define TWAnchor_DockTree_H
+#ifndef Tw_Anchor_DockTree_H
+#define Tw_Anchor_DockTree_H
 
 #include "anchor/TWTag.h"
 
@@ -34,7 +34,8 @@ class QTextEdit;
 class QTextCursor;
 class TeXDocumentWindow;
 
-namespace TWAnchor {
+namespace Tw {
+namespace Anchor {
 
 namespace ObjectName {
 
@@ -189,6 +190,7 @@ protected:
     void makeNewItem(QTreeWidgetItem *&, QTreeWidget *, const Tag *) const override;
 };
 
-} // namespace TWAnchor
+} // namespace Anchor
+} // namespace Tw
 
-#endif // TWAnchor_DockTree_H
+#endif // Tw_Anchor_DockTree_H
