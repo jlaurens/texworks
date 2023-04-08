@@ -171,7 +171,7 @@ Bank *getBank(QObject *parent)
 Bank::Bank(QObject *parent)
     : QObject(parent)
 {
-    qRegisterMetaType<const Tag *>("const TWAnchor::Tag *");
+    qRegisterMetaType<const Tag *>("const TWXAnchor::Tag *");
 }
 
 Suite *Bank::makeSuite(Filter filter)
