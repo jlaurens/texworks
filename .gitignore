@@ -2,8 +2,7 @@
 /TeXworks.plist
 
 # Build directories
-/build*/
-/modules/QtPDF/build*/
+build*/
 
 # Files downloaded/extracted as part of OS X packaging task.
 /poppler-data-*.tar.gz
@@ -22,3 +21,6 @@ CMakeLists.txt.user*
 
 # CMake files
 CMakeUserPresets.json
+
+# Visual studio code
+.vscode
