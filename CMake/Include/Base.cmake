@@ -74,3 +74,10 @@ list(
   "${TWX_DIR_CMake}/Modules"
 )
 
+if (TWX_CMakeLists_STEP_Policy)
+  include (
+    BasePolicy
+    NO_POLICY_SCOPE
+  )
+endif ()
+
