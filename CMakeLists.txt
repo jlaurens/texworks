@@ -79,10 +79,14 @@ endif ()
 * Step 0: core preamble, allways loaded.
   It essentially defines usefull global paths.
 * Step 0.1: Policy
+* Step 0.2: Tool
 #]=======]
 
 if (TWX_CMakeLists_NEXT GREATER 10)
   set (TWX_CMakeLists_STEP_Policy ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 20)
+  set (TWX_CMakeLists_STEP_Tools ON)
 endif ()
 
 include (
@@ -548,6 +552,10 @@ INCLUDE(CPack)
 
 # This section displays a nice configuration summary for the user.
 
+if (NOT TWX_CMakeLists_STEP_Tools)
+#<Old code>
+# ANCHOR: Old summary
+
 # These macros borrowed from the Poppler CMake scripts. They add some nice
 # formatting to configuration info.
 MACRO(CONFIG_INFO what value)
@@ -610,3 +618,59 @@ MESSAGE("")
 MESSAGE("  TeXworks will be installed to:")
 MESSAGE("      ${CMAKE_INSTALL_PREFIX}")
 MESSAGE("")
+#</Old code>
+else (NOT TWX_CMakeLists_STEP_Tools)
+#</New code>
+# ANCHOR: New summary
+
+twx_config_begin(BOLD_GREEN "TeXworks has been configured (CMake ${CMAKE_VERSION}, ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}):\n")
+twx_config_begin(BOLD_MAGENTA "Version info")
+twx_config_log("${PROJECT_NAME}" "${TeXworks_VERSION} (${TeXworks_GIT_HASH}, ${TeXworks_GIT_DATE}, ${TeXworks_GIT_BRANCH})")
+# Hunspell does not have a reliable way to determine its version
+twx_config_log_kv("Hunspell" FLAG HUNSPELL_FOUND)
+IF ( WITH_LUA )
+  twx_config_log("Lua" "${LUA_VERSION_STRING}")
+ENDIF()
+if (WITH_PYTHON)
+  twx_config_log("Python" "${PYTHON_VERSION_STRING}")
+endif()
+twx_config_log("Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH})
+twx_config_log("SyncTeX" "${SYNCTEX_VERSION_STRING}")
+twx_config_log("zlib" "${ZLIB_VERSION_STRING}")
+twx_config_end()
+
+twx_config_begin(BOLD_MAGENTA "Scripting")
+twx_config_log_kv("ECMA scripting" FLAG "ON")
+twx_config_log_kv("QtScript scripting" FLAG WITH_QTSCRIPT)
+twx_config_log_kv("Lua scripting plugin" FLAG LUA_FOUND)
+twx_config_log_kv("Python scripting plugin" FLAG PYTHONLIBS_FOUND)
+twx_config_end  ()
+
+twx_config_log("Build ID" ${TW_BUILD_ID})
+twx_config_log("Compiler optimization" ${CMAKE_BUILD_TYPE})
+if( APPLE )
+  twx_config_log_kv("OS X system python" FLAG USE_SYSTEM_PYTHON)
+endif()
+twx_config_log("")
+
+twx_config_begin(BOLD_BLUE "Libraries" VERBOSE)
+twx_config_log_kv ("Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES)
+twx_config_log_kv ("TeXworks" VAR TeXworks_LIBS)
+twx_config_log_kv ("TeXworks additional" VAR TEXWORKS_ADDITIONAL_LIBS)
+twx_config_end  ()
+
+twx_config_begin(BOLD_BLUE "Build settings" VERBOSE)
+twx_config_log_kv ("Compile definitions" VAR COMPILE_DEFINITIONS)
+twx_config_log_kv ("Compile options" VAR COMPILE_OPTIONS)
+twx_config_end  ()
+
+twx_config_end  (NO_EOL)
+
+twx_config_begin(BOLD_GREEN "TeXworks will be installed to:")
+twx_config_log  ("  ${CMAKE_INSTALL_PREFIX}")
+
+twx_config_end  ()
+
+
+#</New code>
+endif ()
