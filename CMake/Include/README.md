@@ -98,9 +98,14 @@ according to this quote from `CMake` maintener Brad King
 
 ## Available `.cmake` files description
 
-* `Base`: everyone primary `MakeLists.txt` must include this.
+* `Base`: everyone primary `CMakeLists.txt` must include this.
 * `BasePolicy`: the policy settings.
 * `BaseTools`: various utilities.
+* `BaseConfig`: Global configuration.
+* `TwxGetVERSION`: Retrieve version information
+
+File names starting with `Twx` indicate a strong bound with `TeXworks`.
+Others indicate more general contents.
 
 ## Various configuration flags used
 
