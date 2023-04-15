@@ -79,8 +79,9 @@ endif ()
 * Step 0: core preamble, allways loaded.
   It essentially defines usefull global paths.
 * Step 0.1: Policy
-* Step 0.2: Tool
+* Step 0.2: Tools
 * Step 0.3: Configuration
+* Step 1.0: Version
 #]=======]
 
 if (TWX_CMakeLists_NEXT GREATER 10)
@@ -91,6 +92,9 @@ if (TWX_CMakeLists_NEXT GREATER 20)
 endif ()
 if (TWX_CMakeLists_NEXT GREATER 30)
   set (TWX_CMakeLists_STEP_Config ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 100)
+  set (TWX_CMakeLists_STEP_VERSION ON)
 endif ()
 
 include (
@@ -178,6 +182,15 @@ endif (MSVC)
 # </Original code>
 endif (NOT TWX_CMakeLists_STEP_Config)
 
+# ANCHOR: VERSION
+if (TWX_CMakeLists_STEP_VERSION)
+# <New code>
+
+include (TwxGetVERSION)
+
+# </New code>
+else (TWX_CMakeLists_STEP_VERSION)
+# <Original code>
 
 # Determine Version Numbers
 # -------------------------
@@ -199,6 +212,9 @@ STRING(REGEX MATCH "([0-9]+)" TeXworks_VER_MINOR ${TeXworks_VER_MINOR})
 FILE(STRINGS ${PROJECT_SOURCE_DIR}/src/TWVersion.h TeXworks_VER_PATCH REGEX "VER_BUGFIX")
 STRING(REGEX MATCH "([0-9]+)" TeXworks_VER_PATCH ${TeXworks_VER_PATCH})
 SET(TeXworks_VERSION ${TeXworks_VER_MAJOR}.${TeXworks_VER_MINOR}.${TeXworks_VER_PATCH})
+
+# </Original code>
+endif (TWX_CMakeLists_STEP_VERSION)
 
 # Make sure we have up-to-date git commit infos
 execute_process(COMMAND "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/src" -P "${PROJECT_SOURCE_DIR}/CMake/Modules/getGitRevInfo.cmake" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
