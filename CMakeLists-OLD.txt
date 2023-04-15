@@ -1,87 +1,58 @@
-#[=====================================[
+# Top-level build file for [TeXworks][tw], a simple editor for TeX and friends.
+#
+# This buildsystem uses [CMake][cmake] and consists of the following files:
+#
+# <pre>
+#   TeXworks
+#   ├── <a href="CMakeLists.html">CMakeLists.txt</a>
+#   ├── src
+#   │   └── <a href="src/CMakeLists.html">CMakeLists.txt</a>
+#   ├── modules
+#   │   ├── <a href="modules/CMakeLists.html">CMakeLists.txt</a>
+#   │   ├── synctex
+#   │   │   └── <a href="modules/synctex/CMakeLists.html">CMakeLists.txt</a>
+#   │   └── QtPDF (documented separately)
+#   ├── plugins-src
+#   │   ├── TWLuaPlugin
+#   │   │   └── <a href="plugins-src/TWLuaPlugin/CMakeLists.html">CMakeLists.txt</a>
+#   │   └── TWPythonPlugin
+#   │       └── <a href="plugins-src/TWPythonPlugin/CMakeLists.html">CMakeLists.txt</a>
+#   ├── unit-tests
+#   │   └── <a href="unit-tests/CMakeLists.html">CMakeLists.txt</a>
+#   └── CMake
+#       └── packaging
+#           ├── <a href="CMake/packaging/CMakeLists.html">CMakeLists.txt</a>
+#           └── mac
+#               └── <a href="CMake/packaging/mac/MacPackagingTasks.cmake.html">MacPackagingTasks.cmake.in</a>
+# </pre>
+#
+# Using CMake as a buildsystem offers some nice advantages:
+#
+#   * Supports component discovery and configuration for all three major
+#     operating systems and can set TeXworks up to be built using GNU
+#     Makefiles, XCode or Visual Studio.
+#
+#   * Includes CPack, a tool which simplifies the task of packaging the
+#     TeXworks app for release after it has been built. CPack can generate
+#     Drag N' Drop installers for the Mac, Nullsoft installers for Windows and
+#     `.deb` or `.rpm` packages for Linux.
+#
+# Comments in the CMake files follow [Markdown][md] formatting conventions.
+# This convention allows the `CMakeLists.txt` files to be passed through a tool
+# such as [Docco][docco] to create a nicely annotated README for the benefit of
+# future developers and maintainers.
+#
+#   [cmake]: http://www.cmake.org
+#   [docco]: http://jashkenas.github.com/docco
+#   [md]: http://daringfireball.net/projects/markdown/
+#   [tw]: https://github.com/TeXworks/texworks
 
-## Back to version `CMakeLists.txt` version `0.7.0`
 
-The build system has been improved to help people develop and test
-new features without building the whole TeXworks package.
+# Setup and User Options
+# ======================
 
-This file will not follow github usual commit mechanism.
-During a period of transition, it will be possible to revert
-to the original design with
-```
-cmake -CTWX_CMakeLists_OLD=ON ...
-```
-This will cause `CMakeLists.txt` version `0.7.0` to be loaded. 
-#]=====================================]
-
-if (TWX_CMakeLists_OLD)
-  PROJECT (TeXworks)
-  include (
-    "${CMAKE_CURENT_LIST_DIR}/CMakeLists-OLD.txt"
-    NO_POLICY_SCOPE
-  )
-  return ()
-endif ()
-
-#[=====================================[
-## Optional changes
-
-The original `CMakeLists.txt` has been split into components.
-Each component is turned into a separate file.
-The technology it contains can revert to the original behavior
-when the proper variable is set.
-
-Changes are made step by step.
-Each step is uniquely identified by a positive number in ℕ/100
-(aka 0.01, 0.5, 100 but not 1000.001).
-Such numbers are denoted here as restricted floats.
-
-In next command,
-```
-cmake -DTWX_CMakeLists_STEP_MAX=<restricted floats>
-```
-all steps which identifier is no more than `<restricted floats>` is taken.
-
-Implementation details:
-`TWX_CMakeLists_NEXT` contains `100*<restricted floats>+1` which is an integer.
-It starts with a big value to activate all the steps.
-Then it is restricted by `TWX_CMakeLists_STEP_MAX`.
-Notice that `CMake` only knows about integers.
-#]=====================================]
-
-set (TWX_CMakeLists_NEXT 1000000)
-
-if (
-  "${TWX_CMakeLists_STEP_MAX}"
-  MATCHES
-  "^([0-9]+)(\\.([0-9])([0-9]?))?$"
-)
-  # NB: `CMAKE_MATCH_<n>` is documented separately in CMake 3.9
-  #     and tagged as new. In CMake 3.1.3 however, the documentation
-  #     on strings mentions this poperty, see:
-  #    (https://cmake.org/cmake/help/v3.1/search.html?q=CMAKE_MATCH)
-  #    Moreover this has been successfully tested on cmake 3.1.3.  
-  math (
-    EXPR
-    TWX_CMakeLists_NEXT
-    "100 *  ${CMAKE_MATCH_1}\
-    + 10 * 0${CMAKE_MATCH_3}\
-    +      0${CMAKE_MATCH_4}\
-    +  1"
-  )
-endif ()
-
-#[=======[
-* Step 0: core preamble, allways loaded.
-  It essentially defines usefull global paths.
-#]=======]
-
-include (
-  "${CMAKE_CURRENT_LIST_DIR}/CMake/Include/Base.cmake"
-  NO_POLICY_SCOPE
-)
-
-# We start with a cc of the original `CMakeLists.txt`.
+# Set project name.
+PROJECT(TeXworks)
 
 # CMake 3.1 significantly improves support for imported targets, Qt5, c++11, etc.
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
@@ -112,14 +83,6 @@ if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
 
-# Set project name.
-project(TeXworks)
-# Include the base once again to finish setup
-include (
-  Base
-  NO_POLICY_SCOPE
-)
-
 SET(CMAKE_COLOR_MAKEFILE ON)
 # Always add the current source and binary directories to the header include
 # path when compiling.
@@ -131,11 +94,6 @@ SET(CMAKE_AUTOUIC TRUE)
 # Make the contents of `CMake/Modules` available. Among other things, this
 # directory contains scripts that locate project components such as hunspell.
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${PROJECT_SOURCE_DIR}/modules/QtPDF/CMake/Modules ${CMAKE_MODULE_PATH})
-SET(
-  CMAKE_MODULE_PATH
-  ${PROJECT_SOURCE_DIR}/CMake/Include
-  ${CMAKE_MODULE_PATH}
-)
 
 IF(WIN32 AND MINGW)
   # Ensure that no cpp flags are passed to windres, the Windows resource compiler.
@@ -384,7 +342,7 @@ SET(TeXworks_LIBS
 # -------------------------------
 
 IF ( WITH_LUA )
-  find_package(TwxLua)
+  FIND_PACKAGE(Lua)
 ENDIF()
 
 IF ( WITH_PYTHON )
