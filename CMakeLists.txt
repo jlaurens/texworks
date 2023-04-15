@@ -14,6 +14,10 @@ cmake -CTWX_CMakeLists_OLD=ON ...
 This will cause `CMakeLists.txt` version `0.7.0` to be loaded. 
 #]=====================================]
 
+# CMake 3.1 significantly improves support for imported targets, Qt5, c++11, etc.
+# This must be first
+cmake_minimum_required(VERSION 3.1)
+
 if (TWX_CMakeLists_OLD)
   PROJECT (TeXworks)
   include (
@@ -74,7 +78,12 @@ endif ()
 #[=======[
 * Step 0: core preamble, allways loaded.
   It essentially defines usefull global paths.
+* Step 0.1: Policy
 #]=======]
+
+if (TWX_CMakeLists_NEXT GREATER 10)
+  set (TWX_CMakeLists_STEP_Policy ON)
+endif ()
 
 include (
   "${CMAKE_CURRENT_LIST_DIR}/CMake/Include/Base.cmake"
@@ -83,8 +92,12 @@ include (
 
 # We start with a cc of the original `CMakeLists.txt`.
 
-# CMake 3.1 significantly improves support for imported targets, Qt5, c++11, etc.
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+
+
+# ANCHOR: Policy
+if (NOT TWX_CMakeLists_STEP_Policy)
+# <Original code>
+
 CMAKE_POLICY(VERSION 3.1)
 
 # Silence warning about linking to qtmain.lib statically on Windows
@@ -112,13 +125,14 @@ if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
 
+# </Original code>
+endif (NOT TWX_CMakeLists_STEP_Policy)
+
+
 # Set project name.
 project(TeXworks)
 # Include the base once again to finish setup
-include (
-  Base
-  NO_POLICY_SCOPE
-)
+include (Base)
 
 SET(CMAKE_COLOR_MAKEFILE ON)
 # Always add the current source and binary directories to the header include
