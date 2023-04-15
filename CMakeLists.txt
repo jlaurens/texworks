@@ -80,6 +80,7 @@ endif ()
   It essentially defines usefull global paths.
 * Step 0.1: Policy
 * Step 0.2: Tool
+* Step 0.3: Configuration
 #]=======]
 
 if (TWX_CMakeLists_NEXT GREATER 10)
@@ -87,6 +88,9 @@ if (TWX_CMakeLists_NEXT GREATER 10)
 endif ()
 if (TWX_CMakeLists_NEXT GREATER 20)
   set (TWX_CMakeLists_STEP_Tools ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 30)
+  set (TWX_CMakeLists_STEP_Config ON)
 endif ()
 
 include (
@@ -133,10 +137,15 @@ endif()
 endif (NOT TWX_CMakeLists_STEP_Policy)
 
 
+# ANCHOR: Project
 # Set project name.
 project(TeXworks)
 # Include the base once again to finish setup
 include (Base)
+
+# ANCHOR: Config
+if (NOT TWX_CMakeLists_STEP_Config)
+# <Original code>
 
 SET(CMAKE_COLOR_MAKEFILE ON)
 # Always add the current source and binary directories to the header include
@@ -165,6 +174,9 @@ if (MSVC)
 	add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 	add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 endif (MSVC)
+
+# </Original code>
+endif (NOT TWX_CMakeLists_STEP_Config)
 
 
 # Determine Version Numbers

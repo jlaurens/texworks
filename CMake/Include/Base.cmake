@@ -85,3 +85,7 @@ if (TWX_CMakeLists_STEP_Tools)
   include (BaseTools)
 endif ()
 
+if (TWX_CMakeLists_STEP_Config)
+  include (BaseConfig)
+endif ()
+
