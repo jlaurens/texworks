@@ -82,6 +82,9 @@ endif ()
 * Step 0.2: Tools
 * Step 0.3: Configuration
 * Step 1.0: Version
+* Step 2.0: Git version
+* Step 2.1: Git version, new code
+* Step 2.2: Git version, with re
 #]=======]
 
 if (TWX_CMakeLists_NEXT GREATER 10)
@@ -95,6 +98,15 @@ if (TWX_CMakeLists_NEXT GREATER 30)
 endif ()
 if (TWX_CMakeLists_NEXT GREATER 100)
   set (TWX_CMakeLists_STEP_VERSION ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 200)
+  set (TWX_CMakeLists_STEP_GitRev ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 210)
+  set (TWX_CMakeLists_STEP_GitRev_new ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 220)
+  set (TWX_CMakeLists_STEP_GitRev_re ON)
 endif ()
 
 include (
@@ -216,6 +228,14 @@ SET(TeXworks_VERSION ${TeXworks_VER_MAJOR}.${TeXworks_VER_MINOR}.${TeXworks_VER_
 # </Original code>
 endif (TWX_CMakeLists_STEP_VERSION)
 
+# ANCHOR: GitRev
+if (TWX_CMakeLists_STEP_GitRev)
+
+include(TwxGitRev)
+
+else (TWX_CMakeLists_STEP_GitRev)
+# <Original code>
+
 # Make sure we have up-to-date git commit infos
 execute_process(COMMAND "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/src" -P "${PROJECT_SOURCE_DIR}/CMake/Modules/getGitRevInfo.cmake" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 add_custom_target(GitRev ALL "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/src" -P "${PROJECT_SOURCE_DIR}/CMake/Modules/getGitRevInfo.cmake" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" COMMENT "Update git commit info")
@@ -227,6 +247,8 @@ STRING(REGEX REPLACE "#define GIT_COMMIT_HASH \"([a-f0-9]+\\*?)\"" "\\1" TeXwork
 LIST(GET TeXworks_GIT_INFO 2 TeXworks_GIT_COMMIT)
 STRING(REGEX REPLACE "#define GIT_COMMIT_DATE \"([-+:0-9TZ]+)\"" "\\1" TeXworks_GIT_DATE "${TeXworks_GIT_COMMIT}")
 
+# </Original code>
+endif (TWX_CMakeLists_STEP_GitRev)
 
 # Declare Project Options
 # -----------------------
