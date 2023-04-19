@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2020  Stefan Löffler
+	Copyright (C) 2023  Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,23 +18,27 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef Twx_Core_Const_H
+#define Twx_Core_Const_H
 
-#include <QSettings>
-//TODO: document this class, what is the purpose???
-namespace Tw {
+#include <QString>
 
-class Settings : public QSettings
-{
-	Q_OBJECT
-public:
-	Settings() = default;
+namespace Twx {
+namespace Core {
 
-	using QSettings::defaultFormat;
-	using QSettings::setDefaultFormat;
-};
+extern const QString pathListSeparator;
+extern const QString dot;
 
-} // namespace Tw
+namespace Key {
 
-#endif // SETTINGS_H
+	extern const QString binaryPaths;
+	extern const QString defaultbinpaths;
+	extern const QString defaultBinaryPaths;
+	extern const QString PATH;
+
+} // namespace Key
+
+} // namespace Core
+} // namespace Twx
+
+#endif // Twx_Core_Const_H

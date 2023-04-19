@@ -22,5 +22,5 @@ CMakeLists.txt.user*
 # CMake files
 CMakeUserPresets.json
 
-# Visual studio code
+# Visual Studio Code support
 .vscode
