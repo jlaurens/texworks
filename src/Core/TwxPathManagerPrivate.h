@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2020  Stefan Löffler
+	Copyright (C) 2018-2023  Jonathan Kew, Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,23 +18,9 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef SETTINGS_H
-#define SETTINGS_H
 
-#include <QSettings>
-//TODO: document this class, what is the purpose???
-namespace Tw {
-
-class Settings : public QSettings
-{
-	Q_OBJECT
-public:
-	Settings() = default;
-
-	using QSettings::defaultFormat;
-	using QSettings::setDefaultFormat;
-};
-
-} // namespace Tw
-
-#endif // SETTINGS_H
+// Private
+#if defined(Twx_Core_TEST)
+private:
+  static QStringList messages_m;
+#endif

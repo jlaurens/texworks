@@ -9,6 +9,9 @@
 # new file to an explicit list will cause CMake to automatically reconfigure
 # the next time `make` is invoked. When `GLOB` is used, the developer will have
 # to remember to re-run `cmake` if a source file is added._
+
+include("${CMAKE_CURRENT_LIST_DIR}/Core/CmakeLists.txt")
+
 set(TEXWORKS_SRCS BibTeXFile.cpp
                   CitationSelectDialog.cpp
                   CompletingEdit.cpp
@@ -56,6 +59,7 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   utils/TypesetManager.cpp
                   utils/VersionInfo.cpp
                   utils/WindowManager.cpp
+                  ${Twx_Core_SOURCES}
                   )
 
 set(TEXWORKS_HDRS BibTeXFile.h
@@ -109,6 +113,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   utils/TypesetManager.h
                   utils/VersionInfo.h
                   utils/WindowManager.h
+                  ${Twx_Core_HEADERS}
                   )
 
 if (WIN32)

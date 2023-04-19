@@ -49,8 +49,6 @@ public:
 	static QStringList binPaths();
 
 private:
-	static QString programPath(const QString & prog);
-
 	QString _name;
 	QString _program;
 	QStringList _arguments;

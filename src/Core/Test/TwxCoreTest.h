@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2020  Stefan Löffler
+	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,23 +18,38 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#include "Core/TwxPathManager.h"
 
-#include <QSettings>
-//TODO: document this class, what is the purpose???
-namespace Tw {
+#include <QtTest/QtTest>
 
-class Settings : public QSettings
+namespace Twx {
+namespace Core {
+
+namespace Test {
+
+class Main: public QObject
 {
 	Q_OBJECT
-public:
-	Settings() = default;
+	QProcessEnvironment PE_m;
 
-	using QSettings::defaultFormat;
-	using QSettings::setDefaultFormat;
+private slots:
+	void initTestCase();
+	void cleanupTestCase();
+
+	void testConst();
+
+	void testPathManager_setRawBinaryPaths();
+	void testPathManager_resetDefaultBinaryPaths();
+	void testPathManager_resetRawBinaryPaths();
+	void testPathManager_getRawBinaryPaths();	
+	void testPathManager_getBinaryPaths();
+	void testPathManager_programPath();
+
+public:
+  Main();
+  ~Main();
 };
 
-} // namespace Tw
-
-#endif // SETTINGS_H
+} // namespace Test
+} // namespace Core
+} // namespace Twx

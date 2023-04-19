@@ -54,7 +54,9 @@ SOURCES = \
   "../src/utils/TextCodecs.cpp" \
   "../src/utils/TypesetManager.cpp" \
   "../src/utils/VersionInfo.cpp" \
-  "../src/utils/WindowManager.cpp"
+  "../src/utils/WindowManager.cpp" \
+  "../src/Core/TwxConst.cpp" \
+  "../src/Core/TwxPathManager.cpp"
 
 HEADERS = \
   "../src/BibTeXFile.h" \
@@ -107,7 +109,9 @@ HEADERS = \
   "../src/utils/TextCodecs.h" \
   "../src/utils/TypesetManager.h" \
   "../src/utils/VersionInfo.h" \
-  "../src/utils/WindowManager.h"
+  "../src/utils/WindowManager.h" \
+  "../src/Core/TwxConst.h" \
+  "../src/Core/TwxPathManager.h"
 
 FORMS = \
   "../src/CitationSelectDialog.ui" \
