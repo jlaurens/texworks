@@ -111,3 +111,4 @@ endif (WITH_POPPLERQT)
 target_link_libraries(test_Document QtPDF::qtpdf SyncTeX::synctex Hunspell::hunspell ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
 add_test(NAME test_Document COMMAND test_Document WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
 
+include("${CMAKE_SOURCE_DIR}/src/Core/Test/CMakeLists.txt")

@@ -20,7 +20,10 @@
 */
 
 #include "Engine.h"
-#include "TWApp.h"
+
+#include "Core/TwxConst.h"
+#include "Core/TwxPathManager.h"
+using PathManager = Twx::Core::PathManager;
 
 #include <QDir>
 
@@ -85,27 +88,18 @@ void Engine::setShowPdf(bool showPdf)
 
 bool Engine::isAvailable() const
 {
-	return !(programPath(program()).isEmpty());
+	return !(PathManager::programPath(program()).isEmpty());
 }
 
 //static
 QStringList Engine::binPaths()
 {
-	return TWApp::instance()->getBinaryPaths();
+	return PathManager::getBinaryPaths();
 }
-
-// static
-QString Engine::programPath(const QString & prog)
-{
-	if (prog.isEmpty()) return QString();
-
-	return TWApp::instance()->findProgram(prog, binPaths());
-}
-
 
 QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */)
 {
-	QString exeFilePath = programPath(program());
+	QString exeFilePath = PathManager::programPath(program());
 	if (exeFilePath.isEmpty())
 		return nullptr;
 
@@ -130,6 +124,9 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	env.insert(QStringLiteral("MIKTEX_EDITOR"), QStringLiteral("\"%1\" --position=%l \"%f\"").arg(QCoreApplication::applicationFilePath()));
 #endif
 
+// Append to tha PATH environment variable,
+// the binary paths declared in the settings.
+QStringList envPaths = PathManager::getBinaryPaths(env);
 #if defined(Q_OS_DARWIN)
 	// On Mac OS X, append the path to the typesetting tool to the PATH
 	// environment variable.
@@ -141,10 +138,10 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	// Appending the path to the typesetting tool to PATH acts as a fallback and
 	// implicitly assumes that the tool itself and all tools it relies on are in
 	// the same (standard) location.
-	QStringList envPaths = env.value(QStringLiteral("PATH")).split(QStringLiteral(PATH_LIST_SEP));
+	//env.value(Twx::Core::Key::PATH).split(Twx::Core::pathListSeparator);
 	envPaths.append(QFileInfo(exeFilePath).dir().absolutePath());
-	env.insert(QStringLiteral("PATH"), envPaths.join(QStringLiteral(PATH_LIST_SEP)));
 #endif
+env.insert(Twx::Core::Key::PATH, envPaths.join(Twx::Core::pathListSeparator));
 
 	QStringList args = arguments();
 
@@ -152,7 +149,7 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	static bool checkedForSynctex = false;
 	static bool synctexSupported = true;
 	if (!checkedForSynctex) {
-		QString pdftex = programPath(QString::fromLatin1("pdftex"));
+		QString pdftex = PathManager::programPath(QStringLiteral("pdftex"));
 		if (!pdftex.isEmpty()) {
 			int result = QProcess::execute(pdftex, QStringList() << QString::fromLatin1("-synctex=1") << QString::fromLatin1("-version"));
 			synctexSupported = (result == 0);
