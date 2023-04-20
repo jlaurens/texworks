@@ -27,6 +27,8 @@ if (TWX_CMakeLists_OLD)
   return ()
 endif ()
 
+#PROJECT (TeXworks)
+
 #[=====================================[
 ## Optional changes
 
@@ -85,6 +87,9 @@ endif ()
 * Step 2.0: Git version
 * Step 2.1: Git version, new code
 * Step 2.2: Git version, with re
+* Step 3.0: Qt
+* Step 3.1: Qt, new code
+* Step 3.2: Qt, plugins
 #]=======]
 
 if (TWX_CMakeLists_NEXT GREATER 10)
@@ -107,6 +112,15 @@ if (TWX_CMakeLists_NEXT GREATER 210)
 endif ()
 if (TWX_CMakeLists_NEXT GREATER 220)
   set (TWX_CMakeLists_STEP_GitRev_re ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 300)
+  set (TWX_CMakeLists_STEP_Qt ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 310)
+  set (TWX_CMakeLists_STEP_Qt_new ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 320)
+  set (TWX_CMakeLists_STEP_Qt_plugins ON)
 endif ()
 
 include (
@@ -192,6 +206,10 @@ if (MSVC)
 endif (MSVC)
 
 # </Original code>
+
+# moved from below
+set (CMAKE_CXX_STANDARD 11)
+
 endif (NOT TWX_CMakeLists_STEP_Config)
 
 # ANCHOR: VERSION
@@ -341,6 +359,172 @@ set (CMAKE_CXX_STANDARD 11)
 # Dependency Configuration
 # ========================
 
+# ANCHOR: Qt
+if (TWX_CMakeLists_STEP_Qt)
+# <New code>
+
+include(WithQt)
+
+if (TWX_CMakeLists_STEP_Qt_new)
+# <New code>
+
+twx_append_QT(
+  REQUIRED Core Widgets Gui UiTools Concurrent Xml Qml
+)
+find_package(${QtMAJOR} REQUIRED COMPONENTS LinguistTools)
+
+if (UNIX AND NOT APPLE)
+  twx_append_QT(REQUIRED DBus)
+endif ()
+
+if (QT_VERSION_MAJOR EQUAL 6)
+	# Check for Qt6
+  twx_append_QT(REQUIRED Core5Compat)
+  
+  if (TWX_CMakeLists_STEP_Qt_plugins)
+    twx_setup_PLUGINS()
+  else ()
+    # <Old code>
+    if (APPLE)
+      # Inspired by https://github.com/MaximAlien/macdeployqt/blob/bc9c0ba199f323a42e3f1cc04d4b66e3e59ac995/macdeployqt/shared.cpp
+      if (QT_PLUGIN_PATH)
+        set(_pluginDir "${QT_PLUGIN_PATH}")
+      else ()
+        get_target_property(_pluginDir ${QtMAJOR}::Widgets LOCATION)
+        get_filename_component(_pluginDir "${_pluginDir}" REALPATH)
+        get_filename_component(_pluginDir "${_pluginDir}" DIRECTORY)
+        set(_pluginDir "${_pluginDir}/../../../../share/qt/plugins")
+        get_filename_component(_pluginDir "${_pluginDir}" REALPATH)
+      endif ()
+
+      foreach (_lib IN ITEMS platforms/qcocoa styles/qmacstyle)
+        get_filename_component(_lib_name ${_lib} NAME)
+        get_filename_component(_lib_dir ${_lib} DIRECTORY)
+        find_library(_plugin_${_lib_name} NAMES ${_lib_name} HINTS ${_pluginDir} PATH_SUFFIXES ${_lib_dir})
+        if (NOT _plugin_${_lib_name})
+          message(FATAL_ERROR "Could not find plugin ${_lib} in ${_pluginDir}")
+        else ()
+          list(APPEND QT_PLUGINS "${_plugin_${_lib_name}}")
+        endif ()
+      endforeach ()
+
+      message(STATUS "QT_PLUGINS = ${QT_PLUGINS}")
+    endif ()
+    # </Old code>
+  endif ()
+
+else ()
+	# Check for Qt5
+  twx_append_QT(OPTIONAL Script ScriptTools)
+	if (${QtMAJOR}Script_FOUND AND ${QtMAJOR}ScriptTools_FOUND)
+		set(WITH_QTSCRIPT ON)
+	endif()
+
+	if (WIN32 AND NOT BUILD_SHARED_LIBS)
+    twx_append_QT(REQUIRED WindowsPlatformSupport)
+	endif ()
+  # Next instruction needs explanations
+	set(WITH_QTSCRIPT ON)
+endif ()
+
+if (WITH_TESTS)
+  twx_append_QT(OPTIONAL Test)
+  if (NOT ${QtMAJOR}Test_FOUND)
+    set(WITH_TESTS OFF)
+  endif ()
+endif ()
+
+twx_setup_QT_VERSION()
+
+# </New code>
+else (TWX_CMakeLists_STEP_Qt_new)
+# <Old code revisited>
+
+find_package(${QtMAJOR} REQUIRED COMPONENTS Core Widgets Gui UiTools Concurrent Xml Qml)
+set(QT_LIBRARIES ${QT_LIBRARIES} ${QtMAJOR}::Core ${QtMAJOR}::Widgets ${QtMAJOR}::Gui ${QtMAJOR}::UiTools ${QtMAJOR}::Concurrent ${QtMAJOR}::Xml ${QtMAJOR}::Qml)
+
+if (QT_VERSION_MAJOR EQUAL 6)
+	# Check for Qt6
+	find_package(${QtMAJOR} REQUIRED COMPONENTS Core5Compat LinguistTools)
+	list(APPEND QT_LIBRARIES ${QtMAJOR}::Core5Compat)
+
+	if (WITH_TESTS)
+	  find_package(${QtMAJOR} OPTIONAL_COMPONENTS Test QUIET)
+	  if (NOT ${QtMAJOR}Test_FOUND)
+		set(WITH_TESTS OFF)
+	  else ()
+		list(APPEND QT_LIBRARIES ${QtMAJOR}::Test)
+	  endif ()
+	endif ()
+
+	if (APPLE)
+		# Inspired by https://github.com/MaximAlien/macdeployqt/blob/bc9c0ba199f323a42e3f1cc04d4b66e3e59ac995/macdeployqt/shared.cpp
+		if (QT_PLUGIN_PATH)
+			set(_pluginDir "${QT_PLUGIN_PATH}")
+		else ()
+			get_target_property(_pluginDir ${QtMAJOR}::Widgets LOCATION)
+			get_filename_component(_pluginDir "${_pluginDir}" REALPATH)
+			get_filename_component(_pluginDir "${_pluginDir}" DIRECTORY)
+			set(_pluginDir "${_pluginDir}/../../../../share/qt/plugins")
+			get_filename_component(_pluginDir "${_pluginDir}" REALPATH)
+		endif ()
+
+		foreach (_lib IN ITEMS platforms/qcocoa styles/qmacstyle)
+			get_filename_component(_lib_name ${_lib} NAME)
+			get_filename_component(_lib_dir ${_lib} DIRECTORY)
+			find_library(_plugin_${_lib_name} NAMES ${_lib_name} HINTS ${_pluginDir} PATH_SUFFIXES ${_lib_dir})
+			if (NOT _plugin_${_lib_name})
+				message(FATAL_ERROR "Could not find plugin ${_lib} in ${_pluginDir}")
+			else ()
+				list(APPEND QT_PLUGINS "${_plugin_${_lib_name}}")
+			endif ()
+		endforeach ()
+
+		message(STATUS "QT_PLUGINS = ${QT_PLUGINS}")
+	endif ()
+
+else ()
+	# Check for Qt5
+	find_package(${QtMAJOR} REQUIRED COMPONENTS LinguistTools OPTIONAL_COMPONENTS Script ScriptTools)
+
+	if (${QtMAJOR}Script_FOUND AND ${QtMAJOR}ScriptTools_FOUND)
+		list(APPEND QT_LIBRARIES ${QtMAJOR}::ScriptTools ${QtMAJOR}::Script)
+		set(WITH_QTSCRIPT ON)
+	endif()
+
+	if (UNIX AND NOT APPLE)
+	  find_package(${QtMAJOR} REQUIRED COMPONENTS DBus)
+	  list(APPEND QT_LIBRARIES ${QtMAJOR}::DBus)
+	endif ()
+
+	if (WITH_TESTS)
+	  find_package(${QtMAJOR} OPTIONAL_COMPONENTS Test QUIET)
+	  if (NOT ${QtMAJOR}Test_FOUND)
+		  set(WITH_TESTS OFF)
+	  else ()
+		  list(APPEND QT_LIBRARIES ${QtMAJOR}::Test)
+	  endif ()
+	endif ()
+
+	if (WIN32 AND NOT BUILD_SHARED_LIBS)
+	  find_package(${QtMAJOR}WindowsPlatformSupport)
+	  list(APPEND QT_LIBRARIES ${QtMAJOR}::WindowsPlatformSupport)
+	endif ()
+
+	set(WITH_QTSCRIPT ON)
+endif ()
+
+set(QT_VERSION_MAJOR "${${QtMAJOR}_VERSION_MAJOR}")
+set(QT_VERSION_MINOR "${${QtMAJOR}_VERSION_MINOR}")
+set(QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}")
+
+# </Old code revisited>
+endif (TWX_CMakeLists_STEP_Qt_new)
+
+# </New code>
+else (TWX_CMakeLists_STEP_Qt)
+# <Old code>
+
 if (QT_DEFAULT_MAJOR_VERSION EQUAL 6)
 	# Check for Qt6
 	find_package(Qt6 REQUIRED COMPONENTS Core Core5Compat Widgets Gui UiTools Concurrent Xml LinguistTools Qml)
@@ -429,6 +613,8 @@ endif ()
 # headers are included)
 ADD_DEFINITIONS(-DQT_VERSION_MAJOR=${QT_VERSION_MAJOR})
 
+# </Old code>
+endif (TWX_CMakeLists_STEP_Qt)
 
 
 FIND_PACKAGE(ZLIB REQUIRED)
