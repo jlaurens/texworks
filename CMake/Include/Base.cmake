@@ -51,7 +51,6 @@ get_filename_component(
   "${CMAKE_CURRENT_LIST_DIR}/../.."
   REALPATH
 )
-
 ## Paths from root
 set(TWX_DIR_CMake     "${TWX_DIR_ROOT}/CMake")
 set(TWX_DIR_modules   "${TWX_DIR_ROOT}/modules")
