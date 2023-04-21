@@ -39,6 +39,9 @@
 #include "utils/CmdKeyFilter.h"
 #include "utils/WindowManager.h"
 
+#include "Typeset/TwxTypesetManager.h"
+using TypesetManager = Twx::Typeset::Manager;
+
 #include <QAbstractButton>
 #include <QAbstractItemView>
 #include <QAbstractTextDocumentLayout>
@@ -233,10 +236,10 @@ void TeXDocumentWindow::init()
 	connect(TWApp::instance(), &TWApp::hideFloatersExcept, this, &TeXDocumentWindow::hideFloatersUnlessThis);
 	connect(this, &TeXDocumentWindow::activatedWindow, TWApp::instance(), &TWApp::activatedWindow);
 
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &TeXDocumentWindow::updateTypesettingAction);
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &TeXDocumentWindow::updateTypesettingAction);
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
+	connect(TypesetManager::emitter(), &TypesetManager::typesettingStarted, this, &TeXDocumentWindow::updateTypesettingAction);
+	connect(TypesetManager::emitter(), &TypesetManager::typesettingStopped, this, &TeXDocumentWindow::updateTypesettingAction);
+	connect(TypesetManager::emitter(), &TypesetManager::typesettingStarted, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
+	connect(TypesetManager::emitter(), &TypesetManager::typesettingStopped, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
 
 	connect(actionStack, &QAction::triggered, TWApp::instance(), &TWApp::stackWindows);
 	connect(actionTile, &QAction::triggered, TWApp::instance(), &TWApp::tileWindows);
@@ -2746,7 +2749,7 @@ void TeXDocumentWindow::typeset()
 		return;
 	}
 
-	if (!TWApp::instance()->typesetManager().startTypesetting(rootFilePath, this)) {
+	if (!TypesetManager::startTypesetting(rootFilePath, this)) {
 		statusBar()->showMessage(tr("%1 is already being processed").arg(rootFilePath), kStatusMessageDuration);
 		updateTypesettingAction();
 		return;
@@ -2802,7 +2805,7 @@ void TeXDocumentWindow::typeset()
 		if (pdfDoc && pdfDoc->widget())
 			pdfDoc->widget()->setWatchForDocumentChangesOnDisk(true);
 
-		TWApp::instance()->typesetManager().stopTypesetting(this);
+		TypesetManager::stopTypesetting(this);
 
 		QMessageBox msgBox(QMessageBox::Critical, tr("Unable to execute %1").arg(e.name()),
 		                      QLatin1String("<p>") + tr("The program \"%1\" was not found.").arg(e.program()) + QLatin1String("</p>") +
@@ -2843,7 +2846,7 @@ void TeXDocumentWindow::interrupt()
 
 void TeXDocumentWindow::goToTypesettingWindow()
 {
-	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()));
+	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TypesetManager::getOwnerForRootFile(textDoc()->getRootFilePath()));
 	if (owner) {
 		owner->raise();
 		owner->activateWindow();
@@ -2852,7 +2855,7 @@ void TeXDocumentWindow::goToTypesettingWindow()
 
 void TeXDocumentWindow::updateTypesettingAction()
 {
-	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()));
+	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TypesetManager::getOwnerForRootFile(textDoc()->getRootFilePath()));
 
 	disconnect(actionTypeset, &QAction::triggered, this, nullptr);
 	if (isTypesetting()) {
@@ -2890,7 +2893,7 @@ void TeXDocumentWindow::conditionallyEnableRemoveAuxFiles()
 		QFileInfo rootFileInfo{textDoc()->getRootFilePath()};
 		if (!rootFileInfo.exists())
 			return false;
-		if (TWApp::instance()->typesetManager().isFileBeingTypeset(rootFileInfo.canonicalFilePath()))
+		if (TypesetManager::isFileBeingTypeset(rootFileInfo.canonicalFilePath()))
 			return false;
 		return true;
 	}();
@@ -2913,7 +2916,7 @@ void TeXDocumentWindow::processError(QProcess::ProcessError /*error*/)
 	if (pdfDoc && pdfDoc->widget())
 		pdfDoc->widget()->setWatchForDocumentChangesOnDisk(true);
 
-	TWApp::instance()->typesetManager().stopTypesetting(this);
+	TypesetManager::stopTypesetting(this);
 }
 
 void TeXDocumentWindow::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -2978,7 +2981,7 @@ void TeXDocumentWindow::processFinished(int exitCode, QProcess::ExitStatus exitS
 		process->deleteLater();
 	process = nullptr;
 
-	TWApp::instance()->typesetManager().stopTypesetting(this);
+	TypesetManager::stopTypesetting(this);
 }
 
 void TeXDocumentWindow::executeAfterTypesetHooks()
@@ -3148,7 +3151,7 @@ void TeXDocumentWindow::goToTag(int index)
 
 bool TeXDocumentWindow::isTypesetting() const
 {
-	return (process != nullptr || TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()) == this);
+	return (process != nullptr || TypesetManager::getOwnerForRootFile(textDoc()->getRootFilePath()) == this);
 }
 
 void TeXDocumentWindow::removeAuxFiles()

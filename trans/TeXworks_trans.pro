@@ -55,6 +55,9 @@ SOURCES = \
   "../src/utils/TypesetManager.cpp" \
   "../src/utils/VersionInfo.cpp" \
   "../src/utils/WindowManager.cpp" \
+  "../src/Git/TwxGitRev.cpp" \
+  "../src/Version/TwxVersion.cpp" \
+  "../src/Typeset/TwxTypesetManager.cpp" \
   "../src/Core/TwxConst.cpp" \
   "../src/Core/TwxPathManager.cpp"
 
@@ -62,7 +65,6 @@ HEADERS = \
   "../src/BibTeXFile.h" \
   "../src/CitationSelectDialog.h" \
   "../src/CompletingEdit.h" \
-  "../src/DefaultBinaryPaths.h" \
   "../src/DefaultPrefs.h" \
   "../src/Engine.h" \
   "../src/FindDialog.h" \
@@ -110,6 +112,9 @@ HEADERS = \
   "../src/utils/TypesetManager.h" \
   "../src/utils/VersionInfo.h" \
   "../src/utils/WindowManager.h" \
+  "../src/Git/TwxGitRev.h" \
+  "../src/Version/TwxVersion.h" \
+  "../src/Typeset/TwxTypesetManager.h" \
   "../src/Core/TwxConst.h" \
   "../src/Core/TwxPathManager.h"
 

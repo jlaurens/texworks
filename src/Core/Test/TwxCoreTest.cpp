@@ -23,8 +23,8 @@
 
 #include "Core/TwxConst.h"
 #include "Core/TwxPathManager.h"
+
 #include "Settings.h"
-#include "DefaultBinaryPaths.h"
 
 #include <QDebug>
 #include <QFile>
@@ -155,8 +155,7 @@ void Main::testPathManager_resetRawBinaryPaths()
 {
 	PM::defaultBinaryPaths_m.clear();
 	PM::rawBinaryPaths_m.clear();
-	// with DefaultBinaryPaths.h
-  QVERIFY(PM::defaultBinaryPaths_m.empty());
+	QVERIFY(PM::defaultBinaryPaths_m.empty());
 	QProcessEnvironment PE;
 	PE.remove(Key::PATH);
   PM::resetRawBinaryPaths(PE);
@@ -170,6 +169,8 @@ void Main::testPathManager_resetRawBinaryPaths()
 		<< d.absoluteFilePath("B")
 		<< d.absoluteFilePath("C");
 	PM::defaultBinaryPaths_m.clear();
+	qDebug() << PM::rawBinaryPaths_m;
+  qDebug() << expected;
   QCOMPARE(PM::rawBinaryPaths_m, expected);
 	// with defaultBinaryPaths_m
   PM::defaultBinaryPaths_m.clear();

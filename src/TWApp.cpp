@@ -21,7 +21,6 @@
 
 #include "TWApp.h"
 
-#include "DefaultBinaryPaths.h"
 #include "DefaultPrefs.h"
 #include "PDFDocumentWindow.h"
 #include "PrefsDialog.h"

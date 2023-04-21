@@ -23,13 +23,6 @@
 namespace Twx {
 namespace Core {
 
-const QString pathListSeparator =
-#if defined(Q_OS_WIN)
-  QStringLiteral(";");
-#else
-  QStringLiteral(":");
-#endif
-
 const QString dot = QStringLiteral(".");
 
 namespace Key {

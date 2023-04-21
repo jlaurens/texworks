@@ -1,31 +1,13 @@
 #[=====================================[
 
-## Back to version `CMakeLists.txt` version `0.7.0`
-
 The build system has been improved to help people develop and test
 new features without building the whole TeXworks package.
 
-This file will not follow github usual commit mechanism.
-During a period of transition, it will be possible to revert
-to the original design with
-```
-cmake -CTWX_CMakeLists_OLD=ON ...
-```
-This will cause `CMakeLists.txt` version `0.7.0` to be loaded. 
 #]=====================================]
 
 # CMake 3.1 significantly improves support for imported targets, Qt5, c++11, etc.
 # This must be first
 cmake_minimum_required(VERSION 3.1)
-
-if (TWX_CMakeLists_OLD)
-  PROJECT (TeXworks)
-  include (
-    "${CMAKE_CURENT_LIST_DIR}/CMakeLists-OLD.txt"
-    NO_POLICY_SCOPE
-  )
-  return ()
-endif ()
 
 # Always start with the base
 include (
@@ -37,8 +19,8 @@ include (
 project(TeXworks)
 # Include the base once again to finish setup
 include (Base)
-include (TwxGetVERSION)
-include (TwxGitRev)
+include (TwxVersionSetup)
+include (TwxGitSetup)
 
 # Declare Project Options
 # -----------------------
@@ -57,8 +39,8 @@ MARK_AS_ADVANCED(BUILD_SHARED_LIBS)
 OPTION(BUILD_SHARED_PLUGINS "Build shared plugins?" ${BUILD_SHARED_LIBS})
 MARK_AS_ADVANCED(BUILD_SHARED_PLUGINS)
 
-OPTION(PREFER_BUNDLED_SYNCTEX "Use SyncTeX bundled with TeXworks even if a shared library is found?" OFF)
-MARK_AS_ADVANCED(PREFER_BUNDLED_SYNCTEX)
+OPTION(PREFER_BUNDLED_SyncTeX "Use SyncTeX bundled with TeXworks even if a shared library is found?" OFF)
+MARK_AS_ADVANCED(PREFER_BUNDLED_SyncTeX)
 
 OPTION(WITH_TESTS "build unit tests" ON)
 IF (WITH_TESTS)
@@ -135,7 +117,7 @@ include(WithQt)
 include(WithQtPlugins)
 
 twx_append_QT(
-  REQUIRED Core Widgets Gui UiTools Concurrent Xml Qml
+  REQUIRED Widgets Gui UiTools Concurrent Xml Qml
 )
 find_package(${QtMAJOR} REQUIRED COMPONENTS LinguistTools)
 
@@ -168,9 +150,6 @@ if (WITH_TESTS)
     set(WITH_TESTS OFF)
   endif ()
 endif ()
-
-twx_setup_QT_VERSION()
-
 
 FIND_PACKAGE(ZLIB REQUIRED)
 FIND_PACKAGE(Hunspell REQUIRED)
@@ -218,13 +197,6 @@ ENDIF ()
 IF ( PYTHONLIBS_FOUND AND WITH_PYTHON AND NOT ${BUILD_SHARED_PLUGINS})
   ADD_DEFINITIONS(-DQT_STATICPLUGIN -DSTATIC_PYTHON_SCRIPTING_PLUGIN)
 ENDIF ()
-
-
-# Update Header Templates
-# -----------------------
-
-include(GenerateDefaultBinPaths)
-GenerateDefaultBinPaths()
 
 # Building
 # ========
@@ -347,7 +319,7 @@ if (WITH_PYTHON)
   twx_config_log("Python" "${PYTHON_VERSION_STRING}")
 endif()
 twx_config_log("Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH})
-twx_config_log("SyncTeX" "${SYNCTEX_VERSION_STRING}")
+twx_config_log("SyncTeX" "${SyncTeX_VERSION}")
 twx_config_log("zlib" "${ZLIB_VERSION_STRING}")
 twx_config_end()
 
