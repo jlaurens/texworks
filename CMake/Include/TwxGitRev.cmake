@@ -12,8 +12,6 @@ Instead we use `TWX_DIR_ROOT` which always point to the correct location.
 set (GitRev.h "GitRev.h")
 set (TWX_HEADER_l "${CMAKE_CURRENT_BINARY_DIR}/src/${GitRev.h}")
 
-if (TWX_CMakeLists_STEP_GitRev_new)
-
 # Make sure we have up-to-date git commit infos
 
 execute_process (
@@ -34,17 +32,6 @@ add_custom_target (
 
 # There will be a target dependency afterwards.
 
-else ()
-# <Old code>
-
-# Make sure we have up-to-date git commit infos
-execute_process(COMMAND "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/src" -P "${PROJECT_SOURCE_DIR}/CMake/Modules/getGitRevInfo.cmake" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
-add_custom_target(GitRev ALL "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/src" -P "${PROJECT_SOURCE_DIR}/CMake/Modules/getGitRevInfo.cmake" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" COMMENT "Update git commit info")
-
-# </Old code>
-endif ()
-
-if (TWX_CMakeLists_STEP_GitRev_re)
 # Recover git commit info from `src/GitRev.h`.
 # Use same ideas for TeXWorks VERSION
 # HASH
@@ -85,18 +72,3 @@ unset (GitRev.h)
 # message("TeXworks_GIT_HASH => ${TeXworks_GIT_HASH}")
 # message("TeXworks_GIT_DATE => ${TeXworks_GIT_DATE}")
 # message("TeXworks_GIT_BRANCH => ${TeXworks_GIT_BRANCH}")
-
-else  (TWX_CMakeLists_STEP_GitRev_re)
-# <Old code>
-
-# Recover git commit info from `src/${GitRev.h}`.
-FILE(STRINGS ${TWX_DIR_build}/src/${GitRev.h} TeXworks_GIT_INFO)
-LIST(GET TeXworks_GIT_INFO 1 TeXworks_GIT_COMMIT)
-STRING(REGEX REPLACE "#define GIT_COMMIT_HASH \"([a-f0-9]+\\*?)\"" "\\1" TeXworks_GIT_HASH "${TeXworks_GIT_COMMIT}")
-LIST(GET TeXworks_GIT_INFO 2 TeXworks_GIT_COMMIT)
-STRING(REGEX REPLACE "#define GIT_COMMIT_DATE \"([-+:0-9TZ]+)\"" "\\1" TeXworks_GIT_DATE "${TeXworks_GIT_COMMIT}")
-LIST(GET TeXworks_GIT_INFO 3 TeXworks_GIT_COMMIT)
-STRING(REGEX REPLACE "#define GIT_COMMIT_BRANCH \"(.+)\"" "\\1" TeXworks_GIT_BRANCH "${TeXworks_GIT_COMMIT}")
-
-# </Old code>
-endif (TWX_CMakeLists_STEP_GitRev_re)
