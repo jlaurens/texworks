@@ -90,6 +90,7 @@ endif ()
 * Step 3.0: Qt
 * Step 3.1: Qt, new code
 * Step 3.2: Qt, plugins
+* Step 4.0: Warning options
 #]=======]
 
 if (TWX_CMakeLists_NEXT GREATER 10)
@@ -121,6 +122,9 @@ if (TWX_CMakeLists_NEXT GREATER 310)
 endif ()
 if (TWX_CMakeLists_NEXT GREATER 320)
   set (TWX_CMakeLists_STEP_Qt_plugins ON)
+endif ()
+if (TWX_CMakeLists_NEXT GREATER 400)
+  set (TWX_CMakeLists_STEP_WARNING ON)
 endif ()
 
 include (
@@ -675,6 +679,11 @@ GenerateDefaultBinPaths()
 # Building
 # ========
 
+# ANCHOR: WARNING
+if (TWX_CMakeLists_STEP_WARNING)
+  include (InitWARNING)
+else ()
+# <Old code>
 if (MSVC)
 	set(WARNING_OPTIONS /W4)
 else ()
@@ -685,6 +694,8 @@ else ()
 		list(APPEND WARNING_OPTIONS -Wzero-as-null-pointer-constant)
 	endif ()
 endif ()
+# </Old code>
+endif (TWX_CMakeLists_STEP_WARNING)
 
 # Build modules
 ADD_SUBDIRECTORY(modules)
