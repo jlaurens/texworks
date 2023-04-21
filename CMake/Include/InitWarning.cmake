@@ -1,3 +1,20 @@
+#[===============================================[
+This is part of TeXworks,
+an environment for working with TeX documents.
+Copyright (C) 2023  Jérôme Laurens
+
+License: GNU General Public License as published by
+the Free Software Foundation; either version 2 of
+the License, or (at your option) any later version.
+See a copy next to this file or 
+<http://www.gnu.org/licenses/>.
+
+#]===============================================]
+
+if (NOT TWX_IS_BASED)
+  message(FATAL_ERROR "Base not loaded")
+endif ()
+
 if (DEFINED WARNING_OPTIONS)
   return ()
 endif()
@@ -19,14 +36,11 @@ Must be included by primary `CMakeLists.txt`.
 #]=======]
 
 if (MSVC)
-	set(WARNING_OPTIONS /W4)
+	set (WARNING_OPTIONS /W4)
 else ()
-	set(WARNING_OPTIONS -Wall -Wpedantic -Wextra -Wconversion -Wold-style-cast -Woverloaded-virtual)
-  if (QT_VERSION_MAJOR)
-    if (NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_LESS "5.6.0")
-      # Old Qt versions were heavily using 0 instead of nullptr, giving lots
-      # of false positives
-      list(APPEND WARNING_OPTIONS -Wzero-as-null-pointer-constant)
-    endif ()
-  endif ()
+	set (
+    WARNING_OPTIONS
+    -Wall -Wpedantic -Wextra -Wconversion
+    -Wold-style-cast -Woverloaded-virtual
+  )
 endif ()

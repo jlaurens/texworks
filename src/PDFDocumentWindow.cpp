@@ -28,6 +28,9 @@
 #include "TeXDocumentWindow.h"
 #include "utils/WindowManager.h"
 
+#include "Typeset/TwxTypesetManager.h"
+using TypesetManager = Twx::Typeset::Manager;
+
 #include <QCloseEvent>
 #include <QDesktopServices>
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
@@ -348,8 +351,8 @@ void PDFDocumentWindow::init()
 	connect(_fullScreenManager, &Tw::Utils::FullscreenManager::fullscreenChanged, actionFull_Screen, &QAction::setChecked);
 	connect(_fullScreenManager, &Tw::Utils::FullscreenManager::fullscreenChanged, this, &PDFDocumentWindow::maybeZoomToWindow, Qt::QueuedConnection);
 
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &PDFDocumentWindow::updateTypesettingAction);
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &PDFDocumentWindow::updateTypesettingAction);
+	connect(TypesetManager::emitter(), &TypesetManager::typesettingStarted, this, &PDFDocumentWindow::updateTypesettingAction);
+	connect(TypesetManager::emitter(), &TypesetManager::typesettingStopped, this, &PDFDocumentWindow::updateTypesettingAction);
 }
 
 void PDFDocumentWindow::changeEvent(QEvent *event)

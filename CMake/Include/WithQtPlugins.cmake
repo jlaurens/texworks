@@ -1,3 +1,20 @@
+#[===============================================[
+This is part of TeXworks,
+an environment for working with TeX documents.
+Copyright (C) 2023  Jérôme Laurens
+
+License: GNU General Public License as published by
+the Free Software Foundation; either version 2 of
+the License, or (at your option) any later version.
+See a copy next to this file or 
+<http://www.gnu.org/licenses/>.
+
+#]===============================================]
+
+if (NOT TWX_IS_BASED)
+  message(FATAL_ERROR "Base not loaded")
+endif ()
+
 if (DEFINED _GUARD_CMake_Include_WithQTPlugins)
   return ()
 endif()
@@ -29,8 +46,10 @@ function (twx_setup_QT_PLUGINS)
     # get_filename_component(_pluginDir "${_pluginDir}" DIRECTORY)
     # set(_pluginDir "${_pluginDir}/../../../../share/qt/plugins")
     # get_filename_component(_pluginDir "${_pluginDir}" REALPATH)
-    get_target_property(_pluginDir ${QtMAJOR}::Widgets LOCATION)
-    set(
+    get_target_property (
+      _pluginDir ${QtMAJOR}::Widgets LOCATION
+    )
+    get_filename_component (
       _pluginDir
       "${_pluginDir}/../../../../../share/qt/plugins"
       REALPATH

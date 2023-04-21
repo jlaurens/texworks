@@ -19,7 +19,6 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "DefaultBinaryPaths.h"
 #include "Core/TwxConst.h"
 #include "Core/TwxPathManager.h"
 #include "Settings.h"
@@ -33,6 +32,13 @@
 
 namespace Twx {
 namespace Core {
+
+const QString pathListSeparator = QStringLiteral("@TWX_PATH_LIST_SEPARATOR@");
+
+const QStringList staticBinaryPaths = QStringLiteral("@TWX_STATIC_BINARY_PATHS@").split(pathListSeparator, Qt::SkipEmptyParts);
+#if defined(Twx_Core_TEST)
+QStringList PathManager::altStaticBinaryPaths = QStringLiteral("@TWX_ALT_STATIC_BINARY_PATHS@").split(pathListSeparator, Qt::SkipEmptyParts);
+#endif
 
 QStringList PathManager::rawBinaryPaths_m;
 QStringList PathManager::defaultBinaryPaths_m;
@@ -117,7 +123,7 @@ bool PathManager::resetRawBinaryPaths(
 ) {
 	rawBinaryPaths_m.clear();
 	if (defaultBinaryPaths_m.empty()) {
-		foreach (QString s, QString::fromUtf8(DEFAULT_BIN_PATHS).split(pathListSeparator, Qt::SkipEmptyParts)) {
+		foreach (QString s, staticBinaryPaths) {
 #if Twx_Core_TEST
       // while testing, DEFAULT_BIN_PATHS needs to be portable
 			// We do not know in advance existing directoris

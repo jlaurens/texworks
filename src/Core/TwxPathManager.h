@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2018-2023  Jonathan Kew, Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2023  Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 #ifndef Twx_Core_PathManager_h
 #define Twx_Core_PathManager_h
 
-#include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QProcessEnvironment>
 
 namespace Twx {
@@ -31,6 +31,9 @@ namespace Core {
 namespace Test {
 	class Main;
 }
+
+extern const QString pathListSeparator;
+extern const QStringList staticBinaryPaths;
 
 class PathManager
 {

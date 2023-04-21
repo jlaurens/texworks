@@ -10,7 +10,10 @@
 # the next time `make` is invoked. When `GLOB` is used, the developer will have
 # to remember to re-run `cmake` if a source file is added._
 
-include("${CMAKE_CURRENT_LIST_DIR}/Core/CmakeLists.txt")
+include (TwxVersionSetup)
+include (TwxGitSetup)
+include (TwxCoreSetup)
+include (TwxTypesetSetup)
 
 set(TEXWORKS_SRCS BibTeXFile.cpp
                   CitationSelectDialog.cpp
@@ -59,13 +62,15 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   utils/TypesetManager.cpp
                   utils/VersionInfo.cpp
                   utils/WindowManager.cpp
+                  ${Twx_Version_SOURCES}
+                  ${Twx_Git_SOURCES}
+                  ${Twx_Typeset_SOURCES}
                   ${Twx_Core_SOURCES}
                   )
 
 set(TEXWORKS_HDRS BibTeXFile.h
                   CitationSelectDialog.h
                   CompletingEdit.h
-                  DefaultBinaryPaths.h
                   DefaultPrefs.h
                   Engine.h
                   FindDialog.h
@@ -85,7 +90,6 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   TWScriptManager.h
                   TWSynchronizer.h
                   TWUtils.h
-                  TWVersion.h
                   InterProcessCommunicator.h
                   document/Document.h
                   document/SpellChecker.h
@@ -113,6 +117,9 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   utils/TypesetManager.h
                   utils/VersionInfo.h
                   utils/WindowManager.h
+                  ${Twx_Version_HEADERS}
+                  ${Twx_Git_HEADERS}
+                  ${Twx_Typeset_HEADERS}
                   ${Twx_Core_HEADERS}
                   )
 

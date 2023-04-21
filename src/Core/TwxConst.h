@@ -26,7 +26,6 @@
 namespace Twx {
 namespace Core {
 
-extern const QString pathListSeparator;
 extern const QString dot;
 
 namespace Key {

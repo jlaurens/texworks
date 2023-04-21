@@ -102,9 +102,10 @@ according to this quote from `CMake` maintener Brad King
 * `BasePolicy`: the policy settings.
 * `BaseTools`: various utilities.
 * `BaseConfig`: Global configuration.
-* `TwxGetVERSION`: Retrieve version information
 
-File names starting with `Twx` indicate a strong bound with `TeXworks`.
+We also have various `Twx<Foo>Setup.cmake` which are very convenient shortcuts to `<...>/src/<Foo>/Setup.cmake`.
+
+File names starting with `Twx` indicate a stronger bound with `TeXworks`.
 Others indicate more general contents.
 
 ## Various configuration flags used

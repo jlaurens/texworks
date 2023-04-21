@@ -1,7 +1,23 @@
-if (DEFINED TWX_GUARD_CMake_Include_BaseTools)
+#[===============================================[
+This is part of TeXworks,
+an environment for working with TeX documents.
+Copyright (C) 2023  Jérôme Laurens
+
+License: GNU General Public License as published by
+the Free Software Foundation; either version 2 of
+the License, or (at your option) any later version.
+See a copy next to this file or 
+<http://www.gnu.org/licenses/>.
+
+#]===============================================]
+
+if (NOT TWX_IS_BASED)
+  message(FATAL_ERROR "Base not loaded")
+endif ()
+
+if (DEFINED twx-format-reset)
   return ()
 endif ()
-set (TWX_GUARD_CMake_Include_BaseTools)
 
 #[=======[
 ## Coloring log output
@@ -18,18 +34,22 @@ It defines
 
 Each one is documented below.
 
+Set `TWX_NO_COLOR` to disable coloring
+or switch to windows.
+
 #]=======]
 
 # Coloring output
-# set `TWX_NO_COLOR` to disable coloring.
-
+# Standard feature to display colors on the terminal
 if (WIN32 OR TWX_NO_COLOR)
   set (twx-format-reset)
   set (twx-format-key)
   set (twx-format-value)
 else ()
-  string (ASCII 27 -27)
-  set (twx-format-reset "${-27}[m")
+  # One character to reset format
+  string (ASCII 27 27)
+  set (twx-format-reset "${27}[m")
+  # This is a poor man map
   set (
     twx-format
     BOLD         "1m"
@@ -58,7 +78,7 @@ twx_log_format(format output input)
 Enclose the input between appropriate formatting characters,
 put the result in the variable pointed to by output.
 `format` is one of the CAPITAL CASED element of `twx-format`.
-]=======]
+#]=======]
 macro    (twx_log_format format output input)
   list (FIND twx-format "${format}" TWX_i)
   if    (TWX_i LESS 0)
@@ -66,7 +86,7 @@ macro    (twx_log_format format output input)
   else  ()
     math (EXPR TWX_i "${TWX_i}+1")
     list (GET twx-format "${TWX_i}" TWX_l)
-    set (TWX_l "${-27}[${TWX_l}")
+    set (TWX_l "${27}[${TWX_l}")
     set ("${output}" "${TWX_l}${input}${twx-format-reset}")
   endif ()
   unset (TWX_i)
@@ -94,6 +114,7 @@ endif ()
 # Parse the format, define shared variables
 # `left` and `right`
 
+# ANCHOR: __twx_config_log_parse
 # Private macro to parse the leading `<format>`
 # and the trailing `VERBOSE`.
 macro (__twx_config_log_parse)
@@ -123,6 +144,7 @@ macro (__twx_config_log_parse)
   unset (TWX_n)
 endmacro ()
 
+# ANCHOR: twx_config_log
 function (twx_log)
 set (TWX_log_args_l ${ARGN})
   __twx_config_log_parse ()
@@ -152,6 +174,7 @@ endfunction ()
 option (TWX_CONFIG_VERBOSE "Display more informations about the configuration")
 # NB: from the CLI use `cmake -DTWX_CONFIG_VERBOSE=ON ...`
 
+# ANCHOR: twx_config_log
 #[=======[ `twx_config_log`
 Basic logger, forthcoming ones depend on this.
 Usage:
@@ -232,6 +255,7 @@ function(twx_config_log)
   endif ()
 endfunction()
 
+# ANCHOR: twx_config_log_kv
 #[=======[ `twx_config_log_kv`
 Usage:
 ```
@@ -243,7 +267,7 @@ Corresponds to the lines: .....key:....value.
   variable content with `VAR` and as is otherwise.
 * In `VERBOSE` mode, nothing is displayed except if
   `TWX_CONFIG_VERBOSE` is set.
-]=======]
+#]=======]
 function(twx_config_log_kv)
   if (TWX_CONFIG_section_hidden_l)
     return ()
@@ -306,6 +330,7 @@ function(twx_config_log_kv)
   twx_config_log(${TWX_format_l} "${key}" "${value}" "${TWX_log_args_l}")
   endfunction()
 
+# ANCHOR: twx_config_begin
 #[=======[ `twx_config_begin`
 Begin a new config section, display the title and setup indentation
 Usage:
@@ -324,7 +349,7 @@ Implementation detail:
 * `TWX_CONFIG_section_hidden_l` keeps track of
   the visibility state of the current section
 * `TWX_config_indentation` is bigger in embedded sections.
-]=======]
+#]=======]
 set (TWX_config_stack)
 function (twx_config_begin)
   set (TWX_log_args_l ${ARGN})
@@ -360,10 +385,11 @@ function (twx_config_begin)
   set (TWX_config_indentation "${TWX_config_indentation}" PARENT_SCOPE)
 endfunction ()
 
+# ANCHOR: twx_config_end
 #[=======[ `twx_config_end`
 End a config section, setup indentation and associate variables.
 Must balance a previous `twx_config_begin` in the same scope. 
-]=======]
+#]=======]
 macro (twx_config_end)
   set (TWX_break_l ON)
   if    ("${ARGN}" STREQUAL "NO_EOL")
@@ -397,3 +423,33 @@ macro (twx_config_end)
   endif ()
   unset(TWX_break_l)
 endmacro ()
+
+# ANCHOR: twx_configure_file
+#[=======[
+Configure file `IN` into `OUT`.
+If `OUT` already exists, it will be overriden
+only when its contents would change.
+The macro are already properly defined.
+Only the syntax `@<...>@` is supported.
+On return, `ANS_VAR` is set if there is a change.
+#]=======]
+function (twx_configure_file IN OUT RETURN_VAR)
+  set (ANS "${RETURN_VAR}")
+	if (EXISTS "${OUT}")
+		file (READ "${OUT}" _old)
+		configure_file ("${IN}"	"${OUT}(new)"	@ONLY)
+		file (READ "${OUT}(new)" _new)
+		if ("${_old}" STREQUAL "${_new}")
+		  # Same content, no change
+			file (REMOVE "${OUT}(new)")
+		else ()
+		  # Content changed: replace the old file
+			file (RENAME "${OUT}(new)" "${OUT}")
+			set (ANS ON)
+  	endif ()
+	else ()
+		configure_file ("${IN}" "${OUT}" @ONLY)
+		set (ANS ON)
+  endif ()
+	set (${RETURN_VAR} "${ANS}" PARENT_SCOPE)
+endfunction ()
