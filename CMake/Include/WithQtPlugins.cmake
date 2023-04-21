@@ -19,7 +19,7 @@ This is not a `Qt` macro.
 
 if (APPLE)
 
-function twx_setup_PLUGINS()
+function (twx_setup_QT_PLUGINS)
   # Inspired by https://github.com/MaximAlien/macdeployqt/blob/bc9c0ba199f323a42e3f1cc04d4b66e3e59ac995/macdeployqt/shared.cpp
   if (QT_PLUGIN_PATH)
     set(_pluginDir "${QT_PLUGIN_PATH}")
@@ -59,7 +59,7 @@ endfunction ()
 
 else ()
 
-function twx_setup_PLUGINS()
+function (twx_setup_QT_PLUGINS)
 endfunction ()
 
 endif ()

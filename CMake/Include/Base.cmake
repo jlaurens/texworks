@@ -58,9 +58,6 @@ set(TWX_DIR_src       "${TWX_DIR_ROOT}/src")
 set(TWX_DIR_res       "${TWX_DIR_ROOT}/res")
 set(TWX_DIR_trans     "${TWX_DIR_ROOT}/trans")
 set(TWX_DIR_scripting "${TWX_DIR_ROOT}/scripting")
-
-## A more semantic shortcut
-set(TWX_DIR_build "${CMAKE_CURRENT_BINARY_DIR}")
  
 #[=======[ setup `CMAKE_MODULE_PATH`
 Make the contents of `CMake/Include` and `CMake/Modules` available.
@@ -72,19 +69,9 @@ list(
   "${TWX_DIR_CMake}/Include"
   "${TWX_DIR_CMake}/Modules"
 )
-
-if (TWX_CMakeLists_STEP_Policy)
-  include (
-    BasePolicy
-    NO_POLICY_SCOPE
-  )
-endif ()
-
-if (TWX_CMakeLists_STEP_Tools)
-  include (BaseTools)
-endif ()
-
-if (TWX_CMakeLists_STEP_Config)
-  include (BaseConfig)
-endif ()
-
+include (
+  BasePolicy
+  NO_POLICY_SCOPE
+)
+include (BaseTools)
+include (BaseConfig)
