@@ -82,7 +82,7 @@ Other variables that may be useful for packaging include:
                              TeXworks even if a system-wide installation is
                              found [false]
    TeXworks_PLUGIN_DIR       place to install plugin libraries to [OS specific]
-   TEXWORKS_ADDITIONAL_LIBS  additional libraries that need to be passed to the
+   TWX_ADDITIONAL_LIBRARIES  additional libraries that need to be passed to the
                              linker; useful only if CMake does not pick up all
                              dependencies automatically; separate multiple
                              libraries by a semicolon

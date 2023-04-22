@@ -91,13 +91,14 @@ get_filename_component(
   REALPATH
 )
 ## Convenient paths from root
-set(TWX_DIR_CMake     "${TWX_DIR_ROOT}/CMake")
-set(TWX_DIR_modules   "${TWX_DIR_ROOT}/modules")
-set(TWX_DIR_src       "${TWX_DIR_ROOT}/src")
-set(TWX_DIR_res       "${TWX_DIR_ROOT}/res")
-set(TWX_DIR_trans     "${TWX_DIR_ROOT}/trans")
-set(TWX_DIR_scripting "${TWX_DIR_ROOT}/scripting")
-set(TWX_DIR_testcases "${TWX_DIR_ROOT}/testcases")
+set(TWX_DIR_CMake       "${TWX_DIR_ROOT}/CMake")
+set(TWX_DIR_modules     "${TWX_DIR_ROOT}/modules")
+set(TWX_DIR_src         "${TWX_DIR_ROOT}/src")
+set(TWX_DIR_res         "${TWX_DIR_ROOT}/res")
+set(TWX_DIR_trans       "${TWX_DIR_ROOT}/trans")
+set(TWX_DIR_scripting   "${TWX_DIR_ROOT}/scripting")
+set(TWX_DIR_testcases   "${TWX_DIR_ROOT}/testcases")
+set(TWX_DIR_plugins-src "${TWX_DIR_ROOT}/plugins-src")
 
 #[=======[ setup `CMAKE_MODULE_PATH`
 Make the contents of `CMake/Include` and `CMake/Modules` available.

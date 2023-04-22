@@ -178,12 +178,12 @@ FIND_PACKAGE(SyncTeX REQUIRED)
 # Aggregate library names and include directories into variables for easy
 # access.
 
-SET(TeXworks_LIBS
+SET(TWX_LIBRARIES
   SyncTeX::synctex
   Hunspell::hunspell
   ${QT_LIBRARIES}
   ZLIB::ZLIB
-  ${TEXWORKS_ADDITIONAL_LIBS}
+  ${TWX_ADDITIONAL_LIBRARIES}
 )
 
 
@@ -302,7 +302,7 @@ target_link_libraries (
 	test_BibTeXFile
 	${QT_LIBRARIES}
 	${ZLIB_LIBRARIES}
-	${TEXWORKS_ADDITIONAL_LIBS}
+	${TWX_ADDITIONAL_LIBRARIES}
 )
 add_test(
 	NAME test_BibTeXFile
@@ -339,7 +339,7 @@ target_link_libraries (
 	test_Scripting
 	${QT_LIBRARIES}
 	${ZLIB_LIBRARIES}
-	${TEXWORKS_ADDITIONAL_LIBS}
+	${TWX_ADDITIONAL_LIBRARIES}
 )
 add_test(
 	NAME test_Scripting
@@ -360,7 +360,7 @@ IF ( LUA_FOUND AND WITH_LUA )
 		target_link_libraries(test_LuaScripting TWLuaPlugin)
 	ENDIF()
 
-	target_link_libraries(test_LuaScripting ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
+	target_link_libraries(test_LuaScripting ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TWX_ADDITIONAL_LIBRARIES})
 	add_test(NAME test_LuaScripting COMMAND test_LuaScripting WORKING_DIRECTORY "${TWX_DIR_testcases}")
 ENDIF ()
 
@@ -392,7 +392,7 @@ target_link_libraries (
 	test_UI
 	${QT_LIBRARIES}
 	${ZLIB_LIBRARIES}
-	${TEXWORKS_ADDITIONAL_LIBS}
+	${TWX_ADDITIONAL_LIBRARIES}
 )
 add_test (
 	NAME test_UI
@@ -422,7 +422,7 @@ target_link_libraries (
 	test_Utils
 	${QT_LIBRARIES}
 	${ZLIB_LIBRARIES}
-	${TEXWORKS_ADDITIONAL_LIBS}
+	${TWX_ADDITIONAL_LIBRARIES}
 )
 add_dependencies(
 	test_Utils
@@ -469,7 +469,7 @@ target_link_libraries(
 	Hunspell::hunspell
 	${QT_LIBRARIES}
 	${ZLIB_LIBRARIES}
-	${TEXWORKS_ADDITIONAL_LIBS}
+	${TWX_ADDITIONAL_LIBRARIES}
 )
 add_test (
 	NAME test_Document

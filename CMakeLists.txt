@@ -29,7 +29,11 @@ include (TwxGitSetup)
 # application is built and what functionalities it will have. Here we declare
 # these options by setting default values.
 
-SET(TW_BUILD_ID "personal" CACHE STRING "A distribution-specific identifier for TeXworks")
+set (
+  TW_BUILD_ID "personal"
+  CACHE
+  STRING "A distribution-specific identifier for TeXworks"
+)
 
 # Build with shared libs by default
 OPTION(BUILD_SHARED_LIBS "Build with shared libs?" ON)
@@ -47,19 +51,25 @@ IF (WITH_TESTS)
   ENABLE_TESTING(TRUE)
 ENDIF (WITH_TESTS)
 
-OPTION(WITH_COVERAGE "build with lcov coverage support" OFF)
-IF (WITH_COVERAGE)
-  IF (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" AND WITH_TESTS))
-    MESSAGE(WARNING "Coverage support is intended to be used with Debug builds and testing enabled")
-  ENDIF ()
-  INCLUDE(CodeCoverage)
-  set(COVERAGE_COMPILER_FLAGS "${COVERAGE_COMPILER_FLAGS} -fno-inline")
-  APPEND_COVERAGE_COMPILER_FLAGS()
-  IF (UNIX)
-    SET(COVERAGE_LCOV_EXCLUDES '/usr/*')
-  ENDIF (UNIX)
-  SETUP_TARGET_FOR_COVERAGE_LCOV(NAME coverage EXECUTABLE "${CMAKE_CTEST_COMMAND}")
-ENDIF (WITH_COVERAGE)
+option (WITH_COVERAGE "build with lcov coverage support" OFF)
+if (WITH_COVERAGE)
+  if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" AND WITH_TESTS))
+    message (
+      WARNING
+      "Coverage support is intended to be used with Debug builds and testing enabled"
+      )
+  endif ()
+  include (CodeCoverage)
+  set (
+    COVERAGE_COMPILER_FLAGS
+    "${COVERAGE_COMPILER_FLAGS} -fno-inline"
+  )
+  append_coverage_compiler_flags()
+  if (UNIX)
+    set(COVERAGE_LCOV_EXCLUDES '/usr/*')
+  endif ()
+  setup_target_for_coverage_lcov(NAME coverage EXECUTABLE "${CMAKE_CTEST_COMMAND}")
+endif (WITH_COVERAGE)
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} CACHE PATH "Path to place libraries in")
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} CACHE PATH "Path to place programs in")
@@ -67,9 +77,9 @@ MARK_AS_ADVANCED(CMAKE_LIBRARY_OUTPUT_DIRECTORY CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 
 # On UNIX, CMake installs to `/usr/local` by default. However, Mac users
 # will probably find `/Applications` a more convenient default.
-IF( APPLE AND CMAKE_INSTALL_PREFIX MATCHES "/usr/local" )
-  SET( CMAKE_INSTALL_PREFIX "/Applications" )
-ENDIF()
+if (APPLE AND CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
+  set (CMAKE_INSTALL_PREFIX "/Applications")
+endif ()
 
 # Do an optimized release build by default
 IF ( NOT CMAKE_BUILD_TYPE )
@@ -158,12 +168,12 @@ FIND_PACKAGE(Synctex QUIET)
 # Aggregate library names and include directories into variables for easy
 # access.
 
-SET(TeXworks_LIBS
+SET(TWX_LIBRARIES
   SyncTeX::synctex
   Hunspell::hunspell
   ${QT_LIBRARIES}
   ZLIB::ZLIB
-  ${TEXWORKS_ADDITIONAL_LIBS}
+  ${TWX_ADDITIONAL_LIBRARIES}
 )
 
 
@@ -213,7 +223,7 @@ add_subdirectory (modules)
 # On OS X, the plugins should live inside the application bundle.
 IF ( APPLE )
   SET(TeXworks_PLUGIN_DIR ${PROJECT_NAME}.app/Contents/PlugIns)
-  # Plugins are build as shared libraries that contain undefined symbols.
+  # Plugins are built as shared libraries that contain undefined symbols.
   # Pass `-undefined dynamic_lookup` so that the Apple linker does not
   # freak out about this.
   SET(CMAKE_MODULE_LINKER_FLAGS
@@ -237,12 +247,12 @@ add_subdirectory (src)
 # -------------
 
 # Build scripting language plugins if the required libraries are available.
-IF ( LUA_FOUND AND WITH_LUA )
-  ADD_SUBDIRECTORY(${TeXworks_SOURCE_DIR}/plugins-src/TWLuaPlugin)
+IF ( WITH_LUA AND LUA_FOUND )
+  ADD_SUBDIRECTORY ( ${TWX_DIR_plugins-src}/TWLuaPlugin )
 ENDIF ()
 
-IF ( PYTHONLIBS_FOUND AND WITH_PYTHON )
-  ADD_SUBDIRECTORY(${TeXworks_SOURCE_DIR}/plugins-src/TWPythonPlugin)
+IF ( WITH_PYTHON AND PYTHONLIBS_FOUND )
+  ADD_SUBDIRECTORY ( ${TWX_DIR_plugins-src}/TWPythonPlugin )
 ENDIF ()
 
 # Tests
@@ -278,13 +288,13 @@ endforeach()
 # is invoked via `ADD_SUBDIRECTORY` so that it executes after TeXworks and its
 # components are built and installed. You cannot fixup an application bundle
 # before it has been created...
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/CMake/packaging)
+add_subdirectory (${TWX_DIR_CMake}/packaging)
 
 # Set CPack variables.
-SET(CPACK_PACKAGE_VERSION_MAJOR ${TeXworks_VER_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${TeXworks_VER_MINOR})
-SET(CPACK_PACKAGE_VERSION_PATCH ${TeXworks_VER_PATCH})
-SET(CPACK_PACKAGE_VERSION ${TeXworks_VERSION})
+SET(CPACK_PACKAGE_VERSION_MAJOR ${TWX_VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${TWX_VERSION_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${TWX_VERSION_PATCH})
+SET(CPACK_PACKAGE_VERSION ${TWX_VERSION})
 
 SET(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 
@@ -339,8 +349,8 @@ twx_config_log("")
 
 twx_config_begin(BOLD_BLUE "Libraries" VERBOSE)
 twx_config_log_kv ("Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES)
-twx_config_log_kv ("TeXworks" VAR TeXworks_LIBS)
-twx_config_log_kv ("TeXworks additional" VAR TEXWORKS_ADDITIONAL_LIBS)
+twx_config_log_kv ("TeXworks" VAR TWX_LIBRARIES)
+twx_config_log_kv ("TeXworks additional" VAR TWX_ADDITIONAL_LIBRARIES)
 twx_config_end  ()
 
 twx_config_begin(BOLD_BLUE "Build settings" VERBOSE)

@@ -95,7 +95,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Configure
-      run: cmake -G 'MSYS Makefiles' -B build -DTW_BUILD_ID='github' -DTEXWORKS_ADDITIONAL_LIBS='shlwapi'
+      run: cmake -G 'MSYS Makefiles' -B build -DTW_BUILD_ID='github' -DTWX_ADDITIONAL_LIBRARIES='shlwapi'
 
     - name: Build
       run: cmake --build build -j

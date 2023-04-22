@@ -1,3 +1,10 @@
+#[=======[
+This file is not properly designed.
+It is using files that are defined outside the directory.
+And it defines a global target.
+Naming is not homogeneous.
+#]=======]
+
 # Build TeXworks
 # ==============
 
@@ -15,175 +22,208 @@ include (TwxGitSetup)
 include (TwxCoreSetup)
 include (TwxTypesetSetup)
 
-set(TEXWORKS_SRCS BibTeXFile.cpp
-                  CitationSelectDialog.cpp
-                  CompletingEdit.cpp
-                  Engine.cpp
-                  FindDialog.cpp
-                  HardWrapDialog.cpp
-                  main.cpp
-                  PDFDocumentWindow.cpp
-                  PrefsDialog.cpp
-                  ResourcesDialog.cpp
-                  ScriptManagerWidget.cpp
-                  Settings.cpp
-                  TemplateDialog.cpp
-                  TeXDocks.cpp
-                  TeXDocumentWindow.cpp
-                  TeXHighlighter.cpp
-                  TWApp.cpp
-                  TWScriptableWindow.cpp
-                  TWScriptManager.cpp
-                  TWSynchronizer.cpp
-                  TWUtils.cpp
-                  document/Document.cpp
-                  document/SpellChecker.cpp
-                  document/TextDocument.cpp
-                  document/TeXDocument.cpp
-                  scripting/ECMAScriptInterface.cpp
-                  scripting/ECMAScript.cpp
-                  scripting/ScriptAPI.cpp
-                  scripting/Script.cpp
-                  ui/ClickableLabel.cpp
-                  ui/ClosableTabWidget.cpp
-                  ui/ColorButton.cpp
-                  ui/ConsoleWidget.cpp
-                  ui/LineNumberWidget.cpp
-                  ui/ListSelectDialog.cpp
-                  ui/RemoveAuxFilesDialog.cpp
-                  ui/ScreenCalibrationWidget.cpp
-                  utils/CmdKeyFilter.cpp
-                  utils/CommandlineParser.cpp
-                  utils/FileVersionDatabase.cpp
-                  utils/FullscreenManager.cpp
-                  utils/ResourcesLibrary.cpp
-                  utils/SystemCommand.cpp
-                  utils/TextCodecs.cpp
-                  utils/TypesetManager.cpp
-                  utils/VersionInfo.cpp
-                  utils/WindowManager.cpp
-                  ${Twx_Version_SOURCES}
-                  ${Twx_Git_SOURCES}
-                  ${Twx_Typeset_SOURCES}
-                  ${Twx_Core_SOURCES}
-                  )
+set ( TWX_SOURCES
+  BibTeXFile.cpp
+  CitationSelectDialog.cpp
+  CompletingEdit.cpp
+  Engine.cpp
+  FindDialog.cpp
+  HardWrapDialog.cpp
+  main.cpp
+  PDFDocumentWindow.cpp
+  PrefsDialog.cpp
+  ResourcesDialog.cpp
+  ScriptManagerWidget.cpp
+  Settings.cpp
+  TemplateDialog.cpp
+  TeXDocks.cpp
+  TeXDocumentWindow.cpp
+  TeXHighlighter.cpp
+  TWApp.cpp
+  TWScriptableWindow.cpp
+  TWScriptManager.cpp
+  TWSynchronizer.cpp
+  TWUtils.cpp
+  document/Document.cpp
+  document/SpellChecker.cpp
+  document/TextDocument.cpp
+  document/TeXDocument.cpp
+  scripting/ECMAScriptInterface.cpp
+  scripting/ECMAScript.cpp
+  scripting/ScriptAPI.cpp
+  scripting/Script.cpp
+  ui/ClickableLabel.cpp
+  ui/ClosableTabWidget.cpp
+  ui/ColorButton.cpp
+  ui/ConsoleWidget.cpp
+  ui/LineNumberWidget.cpp
+  ui/ListSelectDialog.cpp
+  ui/RemoveAuxFilesDialog.cpp
+  ui/ScreenCalibrationWidget.cpp
+  utils/CmdKeyFilter.cpp
+  utils/CommandlineParser.cpp
+  utils/FileVersionDatabase.cpp
+  utils/FullscreenManager.cpp
+  utils/ResourcesLibrary.cpp
+  utils/SystemCommand.cpp
+  utils/TextCodecs.cpp
+  utils/TypesetManager.cpp
+  utils/VersionInfo.cpp
+  utils/WindowManager.cpp
+  ${Twx_Version_SOURCES}
+  ${Twx_Git_SOURCES}
+  ${Twx_Typeset_SOURCES}
+  ${Twx_Core_SOURCES}
+)
 
-set(TEXWORKS_HDRS BibTeXFile.h
-                  CitationSelectDialog.h
-                  CompletingEdit.h
-                  DefaultPrefs.h
-                  Engine.h
-                  FindDialog.h
-                  GitRev.h
-                  HardWrapDialog.h
-                  PDFDocumentWindow.h
-                  PrefsDialog.h
-                  ResourcesDialog.h
-                  ScriptManagerWidget.h
-                  Settings.h
-                  TemplateDialog.h
-                  TeXDocks.h
-                  TeXDocumentWindow.h
-                  TeXHighlighter.h
-                  TWApp.h
-                  TWScriptableWindow.h
-                  TWScriptManager.h
-                  TWSynchronizer.h
-                  TWUtils.h
-                  InterProcessCommunicator.h
-                  document/Document.h
-                  document/SpellChecker.h
-                  document/TextDocument.h
-                  document/TeXDocument.h
-                  scripting/ScriptAPIInterface.h
-                  scripting/ScriptLanguageInterface.h
-                  scripting/ScriptAPI.h
-                  scripting/Script.h
-                  ui/ClickableLabel.h
-                  ui/ClosableTabWidget.h
-                  ui/ColorButton.h
-                  ui/ConsoleWidget.h
-                  ui/LineNumberWidget.h
-                  ui/ListSelectDialog.h
-                  ui/RemoveAuxFilesDialog.h
-                  ui/ScreenCalibrationWidget.h
-                  utils/CmdKeyFilter.cpp
-                  utils/CommandlineParser.h
-                  utils/FileVersionDatabase.h
-                  utils/FullscreenManager.h
-                  utils/ResourcesLibrary.h
-                  utils/SystemCommand.h
-                  utils/TextCodecs.h
-                  utils/TypesetManager.h
-                  utils/VersionInfo.h
-                  utils/WindowManager.h
-                  ${Twx_Version_HEADERS}
-                  ${Twx_Git_HEADERS}
-                  ${Twx_Typeset_HEADERS}
-                  ${Twx_Core_HEADERS}
-                  )
+set ( TWX_HEADERS
+  BibTeXFile.h
+  CitationSelectDialog.h
+  CompletingEdit.h
+  DefaultPrefs.h
+  Engine.h
+  FindDialog.h
+  GitRev.h
+  HardWrapDialog.h
+  PDFDocumentWindow.h
+  PrefsDialog.h
+  ResourcesDialog.h
+  ScriptManagerWidget.h
+  Settings.h
+  TemplateDialog.h
+  TeXDocks.h
+  TeXDocumentWindow.h
+  TeXHighlighter.h
+  TWApp.h
+  TWScriptableWindow.h
+  TWScriptManager.h
+  TWSynchronizer.h
+  TWUtils.h
+  InterProcessCommunicator.h
+  document/Document.h
+  document/SpellChecker.h
+  document/TextDocument.h
+  document/TeXDocument.h
+  scripting/ScriptAPIInterface.h
+  scripting/ScriptLanguageInterface.h
+  scripting/ScriptAPI.h
+  scripting/Script.h
+  ui/ClickableLabel.h
+  ui/ClosableTabWidget.h
+  ui/ColorButton.h
+  ui/ConsoleWidget.h
+  ui/LineNumberWidget.h
+  ui/ListSelectDialog.h
+  ui/RemoveAuxFilesDialog.h
+  ui/ScreenCalibrationWidget.h
+  utils/CmdKeyFilter.cpp
+  utils/CommandlineParser.h
+  utils/FileVersionDatabase.h
+  utils/FullscreenManager.h
+  utils/ResourcesLibrary.h
+  utils/SystemCommand.h
+  utils/TextCodecs.h
+  utils/TypesetManager.h
+  utils/VersionInfo.h
+  utils/WindowManager.h
+  ${Twx_Version_HEADERS}
+  ${Twx_Git_HEADERS}
+  ${Twx_Typeset_HEADERS}
+  ${Twx_Core_HEADERS}
+)
 
+# InterProcessCommunicator...
 if (WIN32)
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorWin.cpp)
+  list ( APPEND TWX_SOURCES
+    InterProcessCommunicatorWin.cpp
+  )
 elseif (APPLE)
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorDummy.cpp)
-  list(APPEND TEXWORKS_SRCS utils/OSVersionInfo_mac.mm)
+  list ( APPEND TWX_SOURCES
+    InterProcessCommunicatorDummy.cpp
+  )
 else ()
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorDBus.cpp)
+  list ( APPEND TWX_SOURCES
+    InterProcessCommunicatorDBus.cpp
+  )
 endif ()
 
-if (WITH_QTSCRIPT)
-  list(APPEND TEXWORKS_SRCS scripting/JSScriptInterface.cpp scripting/JSScript.cpp)
-  list(APPEND TEXWORKS_HDRS scripting/JSScriptInterface.h scripting/JSScript.h)
+if (APPLE)
+  list ( APPEND TWX_SOURCES
+    utils/OSVersionInfo_mac.mm
+  )
+endif ()
+
+if ( WITH_QTSCRIPT )
+  list ( APPEND TWX_SOURCES
+    scripting/JSScriptInterface.cpp
+    scripting/JSScript.cpp
+  )
+  list ( APPEND TWX_HEADERS
+    scripting/JSScriptInterface.h
+    scripting/JSScript.h
+  )
   add_definitions(-DWITH_QTSCRIPT)
 endif (WITH_QTSCRIPT)
 
-set(TEXWORKS_UIS CitationSelectDialog.ui
-                 CompletingEdit.ui
-                 Find.ui
-                 HardWrapDialog.ui
-                 PDFDocumentWindow.ui
-                 PDFFind.ui
-                 PrefsDialog.ui
-                 Replace.ui
-                 ResourcesDialog.ui
-                 ScriptManagerWidget.ui
-                 SearchResults.ui
-                 TemplateDialog.ui
-                 TeXDocumentWindow.ui
-                 ToolConfig.ui
-                 ui/ListSelectDialog.ui
-                 )
-
-set(TEXWORKS_RCS ${TeXworks_SOURCE_DIR}/res/resfiles.qrc
-                 ${TeXworks_SOURCE_DIR}/res/resources.qrc)
-
-FILE(GLOB TEXWORKS_TRANS_TS   "${TeXworks_SOURCE_DIR}/trans/*.ts")
-FILE(GLOB QT_TRANS_QM         "${TeXworks_SOURCE_DIR}/trans/qt/*.qm")
+set ( TWX_UI_FILES
+  CitationSelectDialog.ui
+  CompletingEdit.ui
+  Find.ui
+  HardWrapDialog.ui
+  PDFDocumentWindow.ui
+  PDFFind.ui
+  PrefsDialog.ui
+  Replace.ui
+  ResourcesDialog.ui
+  ScriptManagerWidget.ui
+  SearchResults.ui
+  TemplateDialog.ui
+  TeXDocumentWindow.ui
+  ToolConfig.ui
+  ui/ListSelectDialog.ui
+)
+# This does not really belong here
+set (
+  TWX_QRC_FILES
+  "${TWX_DIR_res}/resfiles.qrc"
+  "${TWX_DIR_res}/resources.qrc"
+)
 
 IF ( WIN32 )
-  if (NOT MSVC)
-    set(CREATE_MANIFEST TRUE)
-  endif (NOT MSVC)
-  configure_file(${TeXworks_SOURCE_DIR}/res/TeXworks.rc TeXworks.rc)
-  list(APPEND TEXWORKS_SRCS ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.rc)
+  if ( NOT MSVC )
+    set ( CREATE_MANIFEST TRUE )
+  endif ()
+  # This does not belong here
+  # It belongs to the res folder
+  # Or TeXworks.rc belongs to this folder
+  configure_file (
+    ${TWX_DIR_res}/TeXworks.rc
+    ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.rc
+  )
+  list (
+    APPEND TWX_SOURCES
+    ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.rc
+  )
 ENDIF ( WIN32 )
 
 # These source files along with the `.moc` files generated from some headers
 # form the TeXworks scripting API. We export them to variables in the
 # `PARENT_SCOPE` (top level CMake file) so that they will be available to the
 # build processes of the scripting language plugins.
-SET(TeXworks_SCRIPT_API
-  ${CMAKE_CURRENT_SOURCE_DIR}/scripting/Script.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/scripting/ScriptAPI.cpp
+
+# WHERE ARE THEY USED ?
+
+set ( TeXworks_SCRIPT_API
+  ${TWX_DIR_src}/scripting/Script.cpp
+  ${TWX_DIR_src}/scripting/ScriptAPI.cpp
   PARENT_SCOPE
 )
 
-SET(TeXworks_SCRIPT_API_H
-  ${CMAKE_CURRENT_SOURCE_DIR}/scripting/Script.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/scripting/ScriptAPI.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/TWSystemCmd.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/Settings.h
+set ( TeXworks_SCRIPT_API_H
+  ${TWX_DIR_src}/scripting/Script.h
+  ${TWX_DIR_src}/scripting/ScriptAPI.h
+  ${TWX_DIR_src}/TWSystemCmd.h
+  ${TWX_DIR_src}/Settings.h
   PARENT_SCOPE
 )
 
@@ -196,7 +236,7 @@ SET(TeXworks_SCRIPT_API_H
 IF ( APPLE )
   SET(GUI_TYPE MACOSX_BUNDLE)
 
-  LIST(APPEND TeXworks_LIBS  "-framework Foundation")
+  LIST(APPEND TWX_LIBRARIES  "-framework Foundation")
 
   set(TeXworks_APP_ICONS "${TeXworks_SOURCE_DIR}/res/TeXworks.icns" "${TeXworks_SOURCE_DIR}/res/TeXworks-doc.icns")
   SET_SOURCE_FILES_PROPERTIES( ${TeXworks_APP_ICONS}
@@ -215,17 +255,20 @@ ENDIF ()
 
 IF (NOT ${BUILD_SHARED_PLUGINS})
   IF (WITH_LUA AND LUA_FOUND)
-    LIST(INSERT TeXworks_LIBS 0 TWLuaPlugin ${LUA_LIBRARIES})
+    LIST(INSERT TWX_LIBRARIES 0 TWLuaPlugin ${LUA_LIBRARIES})
   ENDIF()
   IF (WITH_PYTHON AND PYTHONLIBS_FOUND)
-    LIST(INSERT TeXworks_LIBS 0 TWPythonPlugin ${PYTHON_LIBRARIES})
+    LIST(INSERT TWX_LIBRARIES 0 TWPythonPlugin ${PYTHON_LIBRARIES})
   ENDIF()
 ENDIF()
 
 # Build the executable
-ADD_EXECUTABLE(TeXworks ${GUI_TYPE}
-  ${TEXWORKS_SRCS} ${TEXWORKS_HDRS}
-  ${TEXWORKS_RCS}
+ADD_EXECUTABLE(
+  TeXworks
+  ${GUI_TYPE}
+  ${TWX_SOURCES}
+  ${TWX_HEADERS}
+  ${TWX_QRC_FILES}
   ${TeXworks_APP_ICONS}
 )
 add_dependencies(TeXworks GitRev)
@@ -240,22 +283,45 @@ target_compile_options(TeXworks PRIVATE ${WARNING_OPTIONS})
 
 
 # Add translations
-target_add_qt_translations(TeXworks
-  TS_FILES ${TEXWORKS_TRANS_TS}
-  QM_FILES ${QT_TRANS_QM}
-  INCLUDEPATH "../src/"
+file (
+  GLOB
+  TWX_TRANS_TS_FILES
+  "${TWX_DIR_trans}/*.ts"
+)
+file (
+  GLOB
+  QT_TRANS_QM_FILES
+  "${TWX_DIR_trans}/qt/*.qm"
 )
 
-get_target_property(lupdatePath Qt${QT_VERSION_MAJOR}::lupdate LOCATION)
-get_target_property(_sources TeXworks SOURCES)
-add_custom_target(${PROJECT_NAME}_UpdateTranslations COMMAND "${CMAKE_COMMAND}"
+target_add_qt_translations (
+  TeXworks
+  TS_FILES ${TWX_TRANS_TS_FILES}
+  QM_FILES ${QT_TRANS_QM_FILES}
+  INCLUDEPATH "${TWX_DIR_src}"
+)
+
+get_target_property(
+  lupdatePath
+  ${QtMAJOR}::lupdate
+  LOCATION
+)
+
+get_target_property(
+  _sources
+  TeXworks
+  SOURCES
+)
+add_custom_target (
+  ${PROJECT_NAME}_UpdateTranslations
+  COMMAND "${CMAKE_COMMAND}"
   "-DOUTPUTFILE=\"${CMAKE_SOURCE_DIR}/trans/${PROJECT_NAME}_trans.pro\""
   "-DPROJECT_NAME=\"${PROJECT_NAME}\""
   "-DQt_LUPDATE_EXECUTABLE=\"${lupdatePath}\""
-  "-DFILES=\"${_sources};${TEXWORKS_UIS};${TEXWORKS_TRANS_TS}\""
+  "-DFILES=\"${_sources};${TWX_UI_FILES};${TWX_TRANS_TS_FILES}\""
   "-DINCLUDEPATH=\"../src/\""
   -P "${PROJECT_SOURCE_DIR}/modules/QtPDF/CMake/Modules/UpdateTranslations.cmake"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  WORKING_DIRECTORY "${TWX_DIR_src}")
 if (NOT TARGET UpdateTranslations)
   add_custom_target(UpdateTranslations)
 endif (NOT TARGET UpdateTranslations)
@@ -267,7 +333,7 @@ IF (UNIX)
 ENDIF ()
 
 # Specify libraries to be linked to TeXworks.
-target_LINK_LIBRARIES(TeXworks QtPDF::qtpdf ${TeXworks_LIBS} )
+target_LINK_LIBRARIES(TeXworks QtPDF::qtpdf ${TWX_LIBRARIES} )
 
 # Disallow automatic casts from char* to QString (enforcing the use of tr() or
 # explicitly specifying the string encoding)
