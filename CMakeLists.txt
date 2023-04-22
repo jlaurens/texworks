@@ -278,9 +278,9 @@ endif ()
 
 # Gather all libraries related to Qt plugins used by TeXworks so that they can
 # be bundled into packages. (Required on APPLE for a consistent macOS look&feel)
-foreach (_target ${Qt5Gui_PLUGINS} ${Qt5Widgets_PLUGINS})
-	get_target_property(_path ${_target} LOCATION_Release)
-	list(APPEND QT_PLUGINS ${_path})
+foreach ( _target ${Qt5Gui_PLUGINS} ${Qt5Widgets_PLUGINS} )
+	get_target_property( _path ${_target} LOCATION_Release )
+	list ( APPEND QT_PLUGINS ${_path} )
 endforeach()
 
 # The file `CMake/packaging/CMakeLists.txt` controls the execution of tasks
@@ -288,7 +288,8 @@ endforeach()
 # is invoked via `ADD_SUBDIRECTORY` so that it executes after TeXworks and its
 # components are built and installed. You cannot fixup an application bundle
 # before it has been created...
-add_subdirectory (${TWX_DIR_CMake}/packaging)
+
+add_subdirectory ( "${TWX_DIR_CMake}/packaging" )
 
 # Set CPack variables.
 SET(CPACK_PACKAGE_VERSION_MAJOR ${TWX_VERSION_MAJOR})
@@ -299,16 +300,25 @@ SET(CPACK_PACKAGE_VERSION ${TWX_VERSION})
 SET(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 
 # Configure Drag N' Drop installer.
-IF ( APPLE )
-  SET(MAC_PACK_BITS "${CMAKE_SOURCE_DIR}/CMake/packaging/mac")
-  SET(CPACK_GENERATOR DragNDrop)
-  SET( CPACK_DMG_BACKGROUND_IMAGE "${MAC_PACK_BITS}/texworks_dmg_background.png" )
+if ( APPLE )
+  set (
+    MAC_PACK_BITS
+    "${TWX_DIR_CMake}/packaging/mac"
+  )
+  set ( CPACK_GENERATOR DragNDrop )
+  set (
+    CPACK_DMG_BACKGROUND_IMAGE
+    "${MAC_PACK_BITS}/texworks_dmg_background.png"
+  )
   # Configure an AppleScript for applying a nice window layout to Drag N' Drop disk
   # image.
-  set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${MAC_PACK_BITS}/DMGSetup.scpt")
-ENDIF ()
+  set (
+    CPACK_DMG_DS_STORE_SETUP_SCRIPT
+    "${MAC_PACK_BITS}/DMGSetup.scpt"
+  )
+endif ()
 
-INCLUDE(CPack)
+include (CPack)
 
 
 # ANCHOR: Summary
