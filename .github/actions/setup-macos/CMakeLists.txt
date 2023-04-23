@@ -37,7 +37,7 @@ ADD_GH_GROUP(libpng)
 ExternalProject_Add(freetype
 	URL https://github.com/freetype/freetype/archive/refs/tags/VER-2-13-0.tar.gz
 	URL_HASH SHA256=a683f1091aee95d2deaca9292d976f87415610b8ae1ea186abeebcb08e83ab12
-	CMAKE_ARGS ${CMAKE_ARGS} -DBUILD_SHARED_LIBS=TRUE
+	CMAKE_ARGS ${CMAKE_ARGS} -DTWX_BUILD_SHARED_LIBRARIES=TRUE
 	DEPENDS libpng
 )
 ADD_GH_GROUP(freetype)

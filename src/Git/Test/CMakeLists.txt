@@ -88,7 +88,7 @@ target_include_directories (
 
 target_compile_options (
 	test_TwxGit
-	PRIVATE ${WARNING_OPTIONS}
+	PRIVATE ${TWX_WARNING_OPTIONS}
 )
 target_link_libraries (
 	test_TwxGit

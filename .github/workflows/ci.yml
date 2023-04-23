@@ -43,7 +43,7 @@ jobs:
       run: sudo apt update && sudo apt install --assume-yes --no-install-recommends qtbase5-dev qtdeclarative5-dev qtscript5-dev qttools5-dev qttools5-dev-tools zlib1g-dev libhunspell-dev libpoppler-qt5-dev libpoppler-private-dev liblua5.3-dev xvfb fonts-urw-base35 poppler-data lcov
 
     - name: Configure
-      run: cmake -B build -DCMAKE_BUILD_TYPE="Debug" -DWITH_COVERAGE=On .
+      run: cmake -B build -DCMAKE_BUILD_TYPE="Debug" -DTWX_WITH_COVERAGE=On .
 
     - name: Build
       run: cmake --build build

@@ -23,7 +23,7 @@
 
 using namespace Tw::Scripting;
 
-#if STATIC_LUA_SCRIPTING_PLUGIN
+#if TwxLuaPlugin_STATIC
 #include <QtPlugin>
 Q_IMPORT_PLUGIN(LuaScriptInterface)
 #endif

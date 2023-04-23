@@ -33,11 +33,12 @@
 #include <QDir>
 #include <QPluginLoader>
 
-#if STATIC_LUA_SCRIPTING_PLUGIN
+#if TwxLuaPlugin_STATIC
 #include <QtPlugin>
 using namespace Tw::Scripting;
 Q_IMPORT_PLUGIN(LuaScriptInterface)
 #endif
+
 #if STATIC_PYTHON_SCRIPTING_PLUGIN
 #include <QtPlugin>
 using namespace Tw::Scripting;

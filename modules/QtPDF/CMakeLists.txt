@@ -57,7 +57,7 @@ IF ( NOT CMAKE_BUILD_TYPE )
 ENDIF ()
 
 # By default, we build a shared lib...
-OPTION(BUILD_SHARED_LIBS "Build shared library" ON)
+OPTION(TWX_BUILD_SHARED_LIBRARIES "Build shared library" ON)
 
 # ...with the viewer program...
 if (NOT DEFINED QTPDF_VIEWER)
@@ -66,7 +66,7 @@ endif (NOT DEFINED QTPDF_VIEWER)
 OPTION(QTPDF_VIEWER "Build PDF viewer application" ${QTPDF_VIEWER})
 
 # ...with tests...
-OPTION(WITH_TESTS "Build tests" ON)
+OPTION(TWX_WITH_TESTS "Build tests" ON)
 
 # ...with poppler-qt...
 OPTION(WITH_POPPLERQT "Build Poppler Qt backend" ON)
@@ -102,10 +102,10 @@ FIND_PACKAGE(ZLIB REQUIRED)
 if (QT_DEFAULT_MAJOR_VERSION EQUAL 6)
   find_package(Qt6 REQUIRED COMPONENTS Core Widgets Concurrent Xml LinguistTools)
 
-  if (WITH_TESTS)
+  if (TWX_WITH_TESTS)
     find_package(Qt6 OPTIONAL_COMPONENTS Test QUIET)
     if (NOT Qt6Test_FOUND)
-      set(WITH_TESTS OFF)
+      set(TWX_WITH_TESTS OFF)
     endif()
   endif()
 
@@ -126,14 +126,14 @@ if (QT_DEFAULT_MAJOR_VERSION EQUAL 6)
 else ()
   find_package(Qt5 REQUIRED COMPONENTS Core Widgets Concurrent Xml LinguistTools)
 
-  if (WITH_TESTS)
+  if (TWX_WITH_TESTS)
     find_package(Qt5 OPTIONAL_COMPONENTS Test QUIET)
     if (NOT Qt5Test_FOUND)
-    set(WITH_TESTS OFF)
+    set(TWX_WITH_TESTS OFF)
     endif()
   endif()
 
-  if (WIN32 AND NOT BUILD_SHARED_LIBS)
+  if (WIN32 AND NOT TWX_BUILD_SHARED_LIBRARIES)
     find_package(Qt5WindowsPlatformSupport)
   endif ()
 
@@ -453,7 +453,7 @@ ENDIF() # QTPDF_VIEWER
 # Tests
 # -----
 
-IF ( WITH_TESTS )
+IF ( TWX_WITH_TESTS )
   ENABLE_TESTING(TRUE)
   SET(QTPDFTEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unit-tests/TestQtPDF.cpp
@@ -483,7 +483,7 @@ IF ( WITH_TESTS )
     target_link_libraries(test_mupdf ${QTPDF_TEST_LIBS} qtpdf)
     ADD_TEST(NAME test_mupdf COMMAND test_mupdf WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/unit-tests)
   ENDIF()
-ENDIF( WITH_TESTS )
+ENDIF( TWX_WITH_TESTS )
 
 
 # Packaging
@@ -537,7 +537,7 @@ message("")
 CONFIG_INFO("Compiler optimization" ${CMAKE_BUILD_TYPE})
 CONFIG_YESNO("Poppler-Qt backend" WITH_POPPLERQT)
 CONFIG_YESNO("MuPDF backend" WITH_MUPDF)
-CONFIG_YESNO("Shared library" BUILD_SHARED_LIBS)
+CONFIG_YESNO("Shared library" TWX_BUILD_SHARED_LIBRARIES)
 CONFIG_YESNO("Viewer application" QTPDF_VIEWER)
 
 message("")

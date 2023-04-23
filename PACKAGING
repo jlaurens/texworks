@@ -67,7 +67,7 @@ that packaging-related problems that are reported to the general mailing list
 can be passed on to you, the packager.
 
 Other variables that may be useful for packaging include:
-   BUILD_SHARED_PLUGINS      flag to indicate whether plugins should be built
+   TWX_BUILD_SHARED_PLUGINS      flag to indicate whether plugins should be built
                              as separate shared libraries [true]
    PLATFORM_DEPENDENCIES     additional libraries required by Qt platform
                              support plugins; currently on used when building
@@ -81,7 +81,7 @@ Other variables that may be useful for packaging include:
    PREFER_BUNDLED_SYNCTEX    set this flag to use SyncTeX is bundled with
                              TeXworks even if a system-wide installation is
                              found [false]
-   TeXworks_PLUGIN_DIR       place to install plugin libraries to [OS specific]
+   TWX_PLUGIN_DIR       place to install plugin libraries to [OS specific]
    TWX_ADDITIONAL_LIBRARIES  additional libraries that need to be passed to the
                              linker; useful only if CMake does not pick up all
                              dependencies automatically; separate multiple

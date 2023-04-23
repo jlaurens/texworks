@@ -234,12 +234,12 @@ set ( TeXworks_SCRIPT_API_H
 # On OS X, set GUI type to an `.app` bundle, gather icon files and add core system
 # frameworks to the library link list.
 IF ( APPLE )
-  SET(GUI_TYPE MACOSX_BUNDLE)
+  SET(TWX_GUI_TYPE MACOSX_BUNDLE)
 
   LIST(APPEND TWX_LIBRARIES  "-framework Foundation")
 
-  set(TeXworks_APP_ICONS "${TeXworks_SOURCE_DIR}/res/TeXworks.icns" "${TeXworks_SOURCE_DIR}/res/TeXworks-doc.icns")
-  SET_SOURCE_FILES_PROPERTIES( ${TeXworks_APP_ICONS}
+  set(TWX_APPLICATION_ICONS "${TeXworks_SOURCE_DIR}/res/TeXworks.icns" "${TeXworks_SOURCE_DIR}/res/TeXworks-doc.icns")
+  SET_SOURCE_FILES_PROPERTIES( ${TWX_APPLICATION_ICONS}
     PROPERTIES
       MACOSX_PACKAGE_LOCATION Resources
   )
@@ -247,40 +247,44 @@ ENDIF ()
 
 # **WARNING:** _Windows is untested_
 IF ( WIN32 )
-  SET(GUI_TYPE WIN32)
+  SET(TWX_GUI_TYPE WIN32)
 ENDIF ()
 
 # Compilation
 # -----------
 
-IF (NOT ${BUILD_SHARED_PLUGINS})
-  IF (WITH_LUA AND LUA_FOUND)
-    LIST(INSERT TWX_LIBRARIES 0 TWLuaPlugin ${LUA_LIBRARIES})
+IF (NOT ${TWX_BUILD_SHARED_PLUGINS})
+  IF (TWX_WITH_LUA AND LUA_FOUND)
+    LIST(INSERT TWX_LIBRARIES 0 TwxLuaPlugin ${LUA_LIBRARIES})
   ENDIF()
-  IF (WITH_PYTHON AND PYTHONLIBS_FOUND)
-    LIST(INSERT TWX_LIBRARIES 0 TWPythonPlugin ${PYTHON_LIBRARIES})
+  IF (TWX_WITH_PYTHON AND PythonLibs_FOUND)
+    LIST(INSERT TWX_LIBRARIES 0 TwxPythonPlugin ${PYTHON_LIBRARIES})
   ENDIF()
 ENDIF()
 
 # Build the executable
-ADD_EXECUTABLE(
-  TeXworks
-  ${GUI_TYPE}
+add_executable ( TeXworks
+  ${TWX_GUI_TYPE}
   ${TWX_SOURCES}
   ${TWX_HEADERS}
   ${TWX_QRC_FILES}
-  ${TeXworks_APP_ICONS}
+  ${TWX_APPLICATION_ICONS}
 )
-add_dependencies(TeXworks GitRev)
 
-if (UNIX AND NOT APPLE)
-  set_target_properties(TeXworks PROPERTIES
-    OUTPUT_NAME texworks
+add_dependencies ( TeXworks
+  GitRev
+)
+
+if ( UNIX AND NOT APPLE )
+  # set OUTPUT_NAME in lowercase
+  set_target_properties ( TeXworks
+    PROPERTIES OUTPUT_NAME texworks
   )
 endif ()
 
-target_compile_options(TeXworks PRIVATE ${WARNING_OPTIONS})
-
+target_compile_options ( TeXworks
+  PRIVATE ${TWX_WARNING_OPTIONS}
+)
 
 # Add translations
 file (
@@ -290,14 +294,13 @@ file (
 )
 file (
   GLOB
-  QT_TRANS_QM_FILES
+  TWX_TRANS_QM_FILES
   "${TWX_DIR_trans}/qt/*.qm"
 )
 
-target_add_qt_translations (
-  TeXworks
+target_add_qt_translations ( TeXworks
   TS_FILES ${TWX_TRANS_TS_FILES}
-  QM_FILES ${QT_TRANS_QM_FILES}
+  QM_FILES ${TWX_TRANS_QM_FILES}
   INCLUDEPATH "${TWX_DIR_src}"
 )
 
@@ -315,25 +318,35 @@ get_target_property(
 add_custom_target (
   ${PROJECT_NAME}_UpdateTranslations
   COMMAND "${CMAKE_COMMAND}"
-  "-DOUTPUTFILE=\"${CMAKE_SOURCE_DIR}/trans/${PROJECT_NAME}_trans.pro\""
+  "-DOUTPUTFILE=\"${TWX_DIR_trans}/${PROJECT_NAME}_trans.pro\""
   "-DPROJECT_NAME=\"${PROJECT_NAME}\""
   "-DQt_LUPDATE_EXECUTABLE=\"${lupdatePath}\""
   "-DFILES=\"${_sources};${TWX_UI_FILES};${TWX_TRANS_TS_FILES}\""
-  "-DINCLUDEPATH=\"../src/\""
-  -P "${PROJECT_SOURCE_DIR}/modules/QtPDF/CMake/Modules/UpdateTranslations.cmake"
+  "-DINCLUDEPATH=\"${TWX_DIR_src}/\""
+  -P "${TWX_DIR_modules}/QtPDF/CMake/Modules/UpdateTranslations.cmake"
   WORKING_DIRECTORY "${TWX_DIR_src}")
-if (NOT TARGET UpdateTranslations)
-  add_custom_target(UpdateTranslations)
-endif (NOT TARGET UpdateTranslations)
-add_dependencies(UpdateTranslations ${PROJECT_NAME}_UpdateTranslations)
+if ( NOT TARGET UpdateTranslations )
+  add_custom_target ( UpdateTranslations )
+endif ()
+add_dependencies (
+  UpdateTranslations
+  ${PROJECT_NAME}_UpdateTranslations
+)
 
-IF (UNIX)
+if ( UNIX )
   # Required (at least) on OpenBSD to make scripting plugins work
-  SET_TARGET_PROPERTIES(TeXworks PROPERTIES LINK_FLAGS -rdynamic)
-ENDIF ()
+  set_target_properties (
+    TeXworks
+    PROPERTIES LINK_FLAGS -rdynamic
+  )
+endif ()
 
 # Specify libraries to be linked to TeXworks.
-target_LINK_LIBRARIES(TeXworks QtPDF::qtpdf ${TWX_LIBRARIES} )
+target_link_libraries (
+  TeXworks
+  QtPDF::qtpdf
+  ${TWX_LIBRARIES}
+)
 
 # Disallow automatic casts from char* to QString (enforcing the use of tr() or
 # explicitly specifying the string encoding)
@@ -355,7 +368,7 @@ endfunction()
 
 if (UNIX AND NOT APPLE)
   target_add_path_define(TeXworks "TW_HELPPATH" "${TeXworks_HELP_DIR}")
-  target_add_path_define(TeXworks "TW_PLUGINPATH" "${TeXworks_PLUGIN_DIR}")
+  target_add_path_define(TeXworks "TW_PLUGINPATH" "${TWX_PLUGIN_DIR}")
   target_add_path_define(TeXworks "TW_DICPATH" "${TeXworks_DIC_DIR}")
 endif ()
 

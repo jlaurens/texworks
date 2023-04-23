@@ -106,7 +106,7 @@ RUN \
 	tar -xf freetype.tar.gz && \
 	mkdir freetype-VER-${FREETYPE_VERSION}/build && \
 	cd freetype-VER-${FREETYPE_VERSION}/build && \
-	${CMAKE} .. -DBUILD_SHARED_LIBS=ON && \
+	${CMAKE} .. -DTWX_BUILD_SHARED_LIBRARIES=ON && \
 	make && \
 	make install
 

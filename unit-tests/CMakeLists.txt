@@ -20,12 +20,16 @@ It is also included by the main `CMakeLists.txt`.
 
 # File to build unit-tests
 
+if ( NOT TWX_WITH_TESTS )
+  return ()
+endif ()
+
 if (DEFINED TWX_IS_BASED)
 
-include_directories (
-	"${TWX_DIR_src}"
-	${TeXworks_INCLUDE_DIRS}
-)
+	include_directories (
+		"${TWX_DIR_src}"
+		${TeXworks_INCLUDE_DIRS}
+	)
 
 else ()
 
@@ -52,24 +56,24 @@ include (Base)
 SET(TW_BUILD_ID "personal" CACHE STRING "A distribution-specific identifier for TeXworks")
 
 # Build with shared libs by default
-OPTION(BUILD_SHARED_LIBS "Build with shared libs?" ON)
-MARK_AS_ADVANCED(BUILD_SHARED_LIBS)
+OPTION(TWX_BUILD_SHARED_LIBRARIES "Build with shared libs?" ON)
+MARK_AS_ADVANCED(TWX_BUILD_SHARED_LIBRARIES)
 
 # Build shared plugins by default
-OPTION(BUILD_SHARED_PLUGINS "Build shared plugins?" ${BUILD_SHARED_LIBS})
-MARK_AS_ADVANCED(BUILD_SHARED_PLUGINS)
+OPTION(TWX_BUILD_SHARED_PLUGINS "Build shared plugins?" ${TWX_BUILD_SHARED_LIBRARIES})
+MARK_AS_ADVANCED(TWX_BUILD_SHARED_PLUGINS)
 
-OPTION(PREFER_BUNDLED_SyncTeX "Use SyncTeX bundled with TeXworks even if a shared library is found?" OFF)
-MARK_AS_ADVANCED(PREFER_BUNDLED_SyncTeX)
+OPTION(TWX_PREFER_BUNDLED_SyncTeX "Use SyncTeX bundled with TeXworks even if a shared library is found?" OFF)
+MARK_AS_ADVANCED(TWX_PREFER_BUNDLED_SyncTeX)
 
-# OPTION(WITH_TESTS "build unit tests" ON)
-# IF (WITH_TESTS)
+# OPTION(TWX_WITH_TESTS "build unit tests" ON)
+# IF (TWX_WITH_TESTS)
 #   ENABLE_TESTING(TRUE)
-# ENDIF (WITH_TESTS)
+# ENDIF (TWX_WITH_TESTS)
 
-OPTION(WITH_COVERAGE "build with lcov coverage support" OFF)
-IF (WITH_COVERAGE)
-  IF (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" AND WITH_TESTS))
+OPTION(TWX_WITH_COVERAGE "build with lcov coverage support" OFF)
+IF (TWX_WITH_COVERAGE)
+  IF (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" AND TWX_WITH_TESTS))
     MESSAGE(WARNING "Coverage support is intended to be used with Debug builds and testing enabled")
   ENDIF ()
   INCLUDE(CodeCoverage)
@@ -79,7 +83,7 @@ IF (WITH_COVERAGE)
     SET(COVERAGE_LCOV_EXCLUDES '/usr/*')
   ENDIF (UNIX)
   SETUP_TARGET_FOR_COVERAGE_LCOV(NAME coverage EXECUTABLE "${CMAKE_CTEST_COMMAND}")
-ENDIF (WITH_COVERAGE)
+ENDIF (TWX_WITH_COVERAGE)
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} CACHE PATH "Path to place libraries in")
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} CACHE PATH "Path to place programs in")
@@ -97,8 +101,8 @@ IF ( NOT CMAKE_BUILD_TYPE )
 ENDIF ()
 
 # Options controlling the creation of scripting language plugins.
-OPTION(WITH_LUA "Build TeXworks Lua plugin?" ON)
-OPTION(WITH_PYTHON "Build TeXworks Python plugin?" OFF)
+OPTION(TWX_WITH_LUA "Build TeXworks Lua plugin?" ON)
+OPTION(TWX_WITH_PYTHON "Build TeXworks Python plugin?" OFF)
 
 # On OS X we default to linking against the Python libraries provided by Apple
 # even if other Pythons are available. This helps when building
@@ -157,17 +161,17 @@ else ()
 		set(WITH_QTSCRIPT ON)
 	endif()
 
-	if (WIN32 AND NOT BUILD_SHARED_LIBS)
+	if (WIN32 AND NOT TWX_BUILD_SHARED_LIBRARIES)
     twx_append_QT(REQUIRED WindowsPlatformSupport)
 	endif ()
   # Next instruction needs explanations
 	set(WITH_QTSCRIPT ON)
 endif ()
 
-if (WITH_TESTS)
+if (TWX_WITH_TESTS)
   twx_append_QT(OPTIONAL Test)
   if (NOT ${QtMAJOR}Test_FOUND)
-    set(WITH_TESTS OFF)
+    set(TWX_WITH_TESTS OFF)
   endif ()
 endif ()
 
@@ -190,17 +194,17 @@ SET(TWX_LIBRARIES
 # Configure Optional Dependencies
 # -------------------------------
 
-IF ( WITH_LUA )
+IF ( TWX_WITH_LUA )
   FIND_PACKAGE(Lua)
 ENDIF()
 
-IF ( WITH_PYTHON )
+IF ( TWX_WITH_PYTHON )
   IF ( USE_SYSTEM_PYTHON )
     SET(PYTHON_LIBRARIES "-F/System/Library/Frameworks -framework Python" CACHE PATH "Python library.")
     SET(PYTHON_INCLUDE_DIR "/System/Library/Framework/Python.framework/Headers" CACHE PATH "Python framework.")
     MARK_AS_ADVANCED(PYTHON_LIBRARIES)
     MARK_AS_ADVANCED(PYTHON_INCLUDE_DIR)
-    SET(PYTHONLIBS_FOUND TRUE)
+    SET(PythonLibs_FOUND TRUE)
   ELSE ()
     # **NOTE**
     # In order to find the correct version of 'PythonLibs', it seems that we need to run 'FIND_PACKAGE(PythonInterp)' firstly.
@@ -210,11 +214,11 @@ IF ( WITH_PYTHON )
   ENDIF ()
 ENDIF()
 
-IF ( LUA_FOUND AND WITH_LUA AND NOT ${BUILD_SHARED_PLUGINS})
-  ADD_DEFINITIONS(-DQT_STATICPLUGIN -DSTATIC_LUA_SCRIPTING_PLUGIN)
+IF ( LUA_FOUND AND TWX_WITH_LUA AND NOT ${TWX_BUILD_SHARED_PLUGINS})
+  ADD_DEFINITIONS(-DQT_STATICPLUGIN -DTwxLuaPlugin_STATIC)
 ENDIF ()
 
-IF ( PYTHONLIBS_FOUND AND WITH_PYTHON AND NOT ${BUILD_SHARED_PLUGINS})
+IF ( PythonLibs_FOUND AND TWX_WITH_PYTHON AND NOT ${TWX_BUILD_SHARED_PLUGINS})
   ADD_DEFINITIONS(-DQT_STATICPLUGIN -DSTATIC_PYTHON_SCRIPTING_PLUGIN)
 ENDIF ()
 
@@ -242,7 +246,7 @@ add_subdirectory (
 
 # # On OS X, the plugins should live inside the application bundle.
 # IF ( APPLE )
-#   SET(TeXworks_PLUGIN_DIR ${PROJECT_NAME}.app/Contents/PlugIns)
+#   SET(TWX_PLUGIN_DIR ${PROJECT_NAME}.app/Contents/PlugIns)
 #   # Plugins are build as shared libraries that contain undefined symbols.
 #   # Pass `-undefined dynamic_lookup` so that the Apple linker does not
 #   # freak out about this.
@@ -250,13 +254,13 @@ add_subdirectory (
 #     "${CMAKE_MODULE_LINKER_FLAGS} -undefined dynamic_lookup")
 # ELSEIF (WIN32)
 #   # Put plugins alongside the main app in the root installation folder on Windows
-#   SET(TeXworks_PLUGIN_DIR . CACHE PATH "Path where TeXworks looks for plugins")
-#   MARK_AS_ADVANCED(TeXworks_PLUGIN_DIR)
+#   SET(TWX_PLUGIN_DIR . CACHE PATH "Path where TeXworks looks for plugins")
+#   MARK_AS_ADVANCED(TWX_PLUGIN_DIR)
 # ELSE ()
 #   # Set the plugin installation path. This is a good default for UNIX-like
 #   # systems, but is not appropriate for Windows.
-#   SET(TeXworks_PLUGIN_DIR lib/texworks CACHE PATH "Path where TeXworks looks for plugins")
-#   MARK_AS_ADVANCED(TeXworks_PLUGIN_DIR)
+#   SET(TWX_PLUGIN_DIR lib/texworks CACHE PATH "Path where TeXworks looks for plugins")
+#   MARK_AS_ADVANCED(TWX_PLUGIN_DIR)
 # ENDIF ()
 
 # Build main TeXworks application
@@ -267,17 +271,17 @@ add_subdirectory (
 # -------------
 
 # # Build scripting language plugins if the required libraries are available.
-# IF ( LUA_FOUND AND WITH_LUA )
-#   ADD_SUBDIRECTORY(${TeXworks_SOURCE_DIR}/plugins-src/TWLuaPlugin)
+# IF ( LUA_FOUND AND TWX_WITH_LUA )
+#   ADD_SUBDIRECTORY(${TeXworks_SOURCE_DIR}/plugins-src/TwxLuaPlugin)
 # ENDIF ()
 
-# IF ( PYTHONLIBS_FOUND AND WITH_PYTHON )
-#   ADD_SUBDIRECTORY(${TeXworks_SOURCE_DIR}/plugins-src/TWPythonPlugin)
+# IF ( PythonLibs_FOUND AND TWX_WITH_PYTHON )
+#   ADD_SUBDIRECTORY(${TeXworks_SOURCE_DIR}/plugins-src/TwxPythonPlugin)
 # ENDIF ()
 
 # # Tests
 # # -----
-# if (WITH_TESTS)
+# if (TWX_WITH_TESTS)
 #   add_subdirectory(unit-tests)
 # endif ()
 
@@ -296,7 +300,7 @@ add_executable (
 )
 target_compile_options (
 	test_BibTeXFile
-	PRIVATE ${WARNING_OPTIONS}
+	PRIVATE ${TWX_WARNING_OPTIONS}
 )
 target_link_libraries (
 	test_BibTeXFile
@@ -333,7 +337,7 @@ if (WITH_QTSCRIPT)
 endif (WITH_QTSCRIPT)
 target_compile_options (
 	test_Scripting
-	PRIVATE ${WARNING_OPTIONS}
+	PRIVATE ${TWX_WARNING_OPTIONS}
 )
 target_link_libraries (
 	test_Scripting
@@ -347,7 +351,7 @@ add_test(
 	WORKING_DIRECTORY "${TWX_DIR_testcases}"
 )
 
-IF ( LUA_FOUND AND WITH_LUA )
+IF ( LUA_FOUND AND TWX_WITH_LUA )
 	add_executable(test_LuaScripting
 		LuaScripting_test.cpp
 		LuaScripting_test.h
@@ -355,9 +359,9 @@ IF ( LUA_FOUND AND WITH_LUA )
 		"${TWX_DIR_src}/scripting/Script.cpp"
 		"${TWX_DIR_src}/Settings.cpp"
 	)
-	target_compile_options(test_LuaScripting PRIVATE ${WARNING_OPTIONS})
-	IF (NOT ${BUILD_SHARED_PLUGINS})
-		target_link_libraries(test_LuaScripting TWLuaPlugin)
+	target_compile_options(test_LuaScripting PRIVATE ${TWX_WARNING_OPTIONS})
+	IF (NOT ${TWX_BUILD_SHARED_PLUGINS})
+		target_link_libraries(test_LuaScripting TwxLuaPlugin)
 	ENDIF()
 
 	target_link_libraries(test_LuaScripting ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TWX_ADDITIONAL_LIBRARIES})
@@ -370,7 +374,7 @@ add_executable(
 )
 target_compile_options (
 	byte_echo_test
-	PRIVATE ${WARNING_OPTIONS}
+	PRIVATE ${TWX_WARNING_OPTIONS}
 )
 
 # UI
@@ -386,7 +390,7 @@ add_executable(test_UI
 )
 target_compile_options (
 	test_UI
-	PRIVATE ${WARNING_OPTIONS}
+	PRIVATE ${TWX_WARNING_OPTIONS}
 )
 target_link_libraries (
 	test_UI
@@ -416,7 +420,7 @@ add_executable(test_Utils
 
 target_compile_options (
 	test_Utils
-	PRIVATE ${WARNING_OPTIONS}
+	PRIVATE ${TWX_WARNING_OPTIONS}
 )
 target_link_libraries (
 	test_Utils
@@ -454,7 +458,7 @@ add_executable(test_Document
 )
 target_compile_options(
 	test_Document
-	PRIVATE ${WARNING_OPTIONS}
+	PRIVATE ${TWX_WARNING_OPTIONS}
 )
 if (WITH_POPPLERQT)
 	target_compile_definitions(test_Document PRIVATE WITH_POPPLERQT)

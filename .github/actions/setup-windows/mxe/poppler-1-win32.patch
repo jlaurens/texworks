@@ -13,11 +13,11 @@ index 1111111..2222222 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -83,7 +83,7 @@ option(USE_FLOAT "Use single precision arithmetic in the Splash backend" OFF)
- option(BUILD_SHARED_LIBS "Build poppler as a shared library" ON)
+ option(TWX_BUILD_SHARED_LIBRARIES "Build poppler as a shared library" ON)
  option(RUN_GPERF_IF_PRESENT "Run gperf if it is found" ON)
  if(WIN32)
 -  option(ENABLE_RELOCATABLE "Do not hardcode the poppler library location (on Windows)." ON)
-+  option(ENABLE_RELOCATABLE "Do not hardcode the poppler library location (on Windows)." ${BUILD_SHARED_LIBS})
++  option(ENABLE_RELOCATABLE "Do not hardcode the poppler library location (on Windows)." ${TWX_BUILD_SHARED_LIBRARIES})
  else()
    set(ENABLE_RELOCATABLE OFF)
  endif()
@@ -36,7 +36,7 @@ index 1111111..2222222 100644
    message(FATAL_ERROR "Invalid ENABLE_LIBOPENJPEG value: ${ENABLE_LIBOPENJPEG}")
  endif()
  set(ENABLE_LIBOPENJPEG "${WITH_OPENJPEG}")
-+if(ENABLE_LIBOPENJPEG AND NOT BUILD_SHARED_LIBS)
++if(ENABLE_LIBOPENJPEG AND NOT TWX_BUILD_SHARED_LIBRARIES)
 +  add_definitions(-DOPJ_STATIC)
 +endif()
  if(ENABLE_CMS STREQUAL "lcms2")

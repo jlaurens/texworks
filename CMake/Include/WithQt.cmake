@@ -112,11 +112,13 @@ set (QT_LIBRARIES)
 
 twx_append_QT (REQUIRED Core)
 
-set(QT_VERSION_MINOR "${${QtMAJOR}_VERSION_MINOR}")
-set(QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}")
+set ( QT_VERSION_MINOR "${${QtMAJOR}_VERSION_MINOR}" )
+set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
 
-if (NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_LESS "5.6.0")
+if ( NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_LESS "5.6.0" )
 	# Old Qt versions were heavily using 0 instead of nullptr, giving lots
 	# of false positives
-	list(APPEND WARNING_OPTIONS -Wzero-as-null-pointer-constant)
+	list ( APPEND TWX_WARNING_OPTIONS
+	  -Wzero-as-null-pointer-constant
+	)
 endif ()

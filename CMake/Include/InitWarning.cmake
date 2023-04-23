@@ -15,13 +15,13 @@ if (NOT TWX_IS_BASED)
   message(FATAL_ERROR "Base not loaded")
 endif ()
 
-if (DEFINED WARNING_OPTIONS)
+if (DEFINED TWX_WARNING_OPTIONS)
   return ()
 endif()
 
 #[=======[
 
-# Initialize `WARNING_OPTIONS`
+# Initialize `TWX_WARNING_OPTIONS`
 
 Usage:
 ```
@@ -31,15 +31,15 @@ Must be included by primary `CMakeLists.txt`.
 
 ## Global variables
 
-* `WARNING_OPTIONS`: adapted to each compiler
+* `TWX_WARNING_OPTIONS`: adapted to each compiler
 
 #]=======]
 
 if (MSVC)
-	set (WARNING_OPTIONS /W4)
+	set (TWX_WARNING_OPTIONS /W4)
 else ()
 	set (
-    WARNING_OPTIONS
+    TWX_WARNING_OPTIONS
     -Wall -Wpedantic -Wextra -Wconversion
     -Wold-style-cast -Woverloaded-virtual
   )

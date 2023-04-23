@@ -56,7 +56,7 @@ if (HUNSPELL_FOUND)
   if (NOT TARGET Hunspell::hunspell)
     add_library(Hunspell::hunspell UNKNOWN IMPORTED)
     set_target_properties(Hunspell::hunspell PROPERTIES IMPORTED_LOCATION ${HUNSPELL_LIBRARIES} INTERFACE_INCLUDE_DIRECTORIES ${HUNSPELL_INCLUDE_DIR})
-    if (NOT BUILD_SHARED_LIBS)
+    if (NOT TWX_BUILD_SHARED_LIBRARIES)
       # At least statically compiled hunspell 1.7.0 requires HUNSPELL_STATIC for
       # the include headers to work correctly
       # For other versions, it should not hurt

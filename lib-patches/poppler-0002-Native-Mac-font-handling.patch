@@ -46,7 +46,7 @@ index b5428237..240386b6 100644
  add_library(poppler ${poppler_SRCS})
  endif()
 +if(WITH_FONTCONFIGURATION_MAC)
-+    if(NOT BUILD_SHARED_LIBS)
++    if(NOT TWX_BUILD_SHARED_LIBRARIES)
 +        find_library(CORE_FOUNDATION CoreFoundation)
 +        set(poppler_LIBS ${poppler_LIBS} ${CORE_FOUNDATION})
 +    endif()
@@ -55,7 +55,7 @@ index b5428237..240386b6 100644
 +endif(WITH_FONTCONFIGURATION_MAC)
 +
  set_target_properties(poppler PROPERTIES VERSION 102.0.0 SOVERSION 102)
- if(MINGW AND BUILD_SHARED_LIBS)
+ if(MINGW AND TWX_BUILD_SHARED_LIBRARIES)
      get_target_property(POPPLER_SOVERSION poppler SOVERSION)
 diff --git a/config.h.cmake b/config.h.cmake
 index c92fc352..af08d974 100644

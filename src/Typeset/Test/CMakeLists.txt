@@ -55,7 +55,7 @@ if (QT_VERSION_MAJOR EQUAL 6)
 	# Check for Qt6
   twx_append_QT (REQUIRED Core5Compat)
 else ()
-	if (WIN32 AND NOT BUILD_SHARED_LIBS)
+	if (WIN32 AND NOT TWX_BUILD_SHARED_LIBRARIES)
     twx_append_QT (REQUIRED WindowsPlatformSupport)
 	endif ()
 endif ()
@@ -88,7 +88,7 @@ target_include_directories (
 )
 target_compile_options (
 	test_TwxTypeset
-	PRIVATE ${WARNING_OPTIONS}
+	PRIVATE ${TWX_WARNING_OPTIONS}
 )
 target_link_libraries (
 	test_TwxTypeset
