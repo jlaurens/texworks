@@ -15,20 +15,6 @@ if (NOT TWX_IS_BASED)
   message(FATAL_ERROR "Base not loaded")
 endif ()
 
-if (TwxTypeset_SOURCES)
-  return ()
-endif ()
-
-include (WithQt)
-twx_append_QT (
-	REQUIRED Test Core
-)
-# TODO: `src/Typeset` should not be hard coded.
-set (
-  TwxTypeset_SOURCES
-  "${CMAKE_CURRENT_LIST_DIR}/TwxTypesetManager.cpp"
-)
-set (
-  TwxTypeset_HEADERS
-  "${CMAKE_CURRENT_LIST_DIR}/TwxTypesetManager.h"
+include (
+  "${TWX_DIR_src}/Setup.cmake"
 )

@@ -18,8 +18,8 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef Twx_Core_PathManager_h
-#define Twx_Core_PathManager_h
+#ifndef TwxCore_PathManager_h
+#define TwxCore_PathManager_h
 
 #include <QString>
 #include <QStringList>
@@ -77,4 +77,4 @@ private:
 } // namespace Core
 } // namespace Twx
 
-#endif // #ifndef Twx_Core_PathManager_h
+#endif // #ifndef TwxCore_PathManager_h

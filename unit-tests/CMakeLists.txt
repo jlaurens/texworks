@@ -24,7 +24,7 @@ if (DEFINED TWX_IS_BASED)
 
 include_directories (
 	"${TWX_DIR_src}"
-	${TeXworks_INCLUDE_DIRS}
+	${${PROJECT_NAME}_INCLUDE_DIRS}
 )
 
 else ()
@@ -178,7 +178,7 @@ FIND_PACKAGE(SyncTeX REQUIRED)
 # Aggregate library names and include directories into variables for easy
 # access.
 
-SET(TeXworks_LIBS
+SET(${PROJECT_NAME}_LIBRARIES
   SyncTeX::synctex
   Hunspell::hunspell
   ${QT_LIBRARIES}
@@ -426,7 +426,7 @@ target_link_libraries (
 )
 add_dependencies(
 	test_Utils
-	GitRev
+	GitRev_target
 )
 add_test(
 	NAME test_Utils
@@ -498,7 +498,7 @@ ${CMAKE_CXX_COMPILER_ID} \
 ${CMAKE_CXX_COMPILER_VERSION}):\n"
 	)
 twx_config_begin(BOLD_MAGENTA "Version info")
-twx_config_log("${PROJECT_NAME}" "${TeXworks_VERSION} (${TeXworks_GIT_HASH}, ${TeXworks_GIT_DATE}, ${TeXworks_GIT_BRANCH})")
+twx_config_log("${PROJECT_NAME}" "${TeXworks_VERSION} (${TWX_GIT_HASH}, ${TWX_GIT_DATE}, ${TWX_GIT_BRANCH})")
 twx_config_log("Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH})
 twx_config_end()
 

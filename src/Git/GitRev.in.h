@@ -19,6 +19,6 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#define GIT_COMMIT_HASH   "@TWX_GIT_COMMIT_HASH@"
-#define GIT_COMMIT_DATE   "@TWX_GIT_COMMIT_DATE@"
-#define GIT_COMMIT_BRANCH "@TWX_GIT_COMMIT_BRANCH@"
+#define GIT_COMMIT_HASH   "@TwxGit_COMMIT_HASH@"
+#define GIT_COMMIT_DATE   "@TwxGit_COMMIT_DATE@"
+#define GIT_COMMIT_BRANCH "@TwxGit_COMMIT_BRANCH@"

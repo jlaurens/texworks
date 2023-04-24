@@ -25,9 +25,9 @@ Input:
 
 Configuration variables, @ONLY
 
-* `TWX_GIT_COMMIT_HASH`
-* `TWX_GIT_COMMIT_DATE`
-* `TWX_GIT_COMMIT_BRANCH`
+* `TwxGit_COMMIT_HASH`
+* `TwxGit_COMMIT_DATE`
+* `TwxGit_COMMIT_BRANCH`
 
 used to configure a header and a source file.
 
@@ -63,7 +63,7 @@ endif ()
 set(OLD_GIT_COMMIT_HASH "")
 set(OLD_GIT_COMMIT_DATE "")
 
-set(TWX_GIT_COMMIT_BRANCH "<Unknown>")
+set(TwxGit_COMMIT_BRANCH "<Unknown>")
 
 set(_success FALSE)
 
@@ -94,29 +94,29 @@ if (GIT_FOUND)
 		COMMAND "${GIT_EXECUTABLE}"
 		"--git-dir=.git" "show" "--no-patch" "--pretty=%h"
 		RESULT_VARIABLE _hash_result
-		OUTPUT_VARIABLE TWX_GIT_COMMIT_HASH
+		OUTPUT_VARIABLE TwxGit_COMMIT_HASH
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 	execute_process(
 		COMMAND "${GIT_EXECUTABLE}"
 		"--git-dir=.git" "show" "--no-patch" "--pretty=%cI"
 		RESULT_VARIABLE _date_result
-		OUTPUT_VARIABLE TWX_GIT_COMMIT_DATE
+		OUTPUT_VARIABLE TwxGit_COMMIT_DATE
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
   # Display the branch too
 	execute_process(
 		COMMAND "${GIT_EXECUTABLE}"
 		"--git-dir=.git" "branch" "--show-current"
-		OUTPUT_VARIABLE TWX_GIT_COMMIT_BRANCH
+		OUTPUT_VARIABLE TwxGit_COMMIT_BRANCH
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 
 	if (
 		${_hash_result} EQUAL 0 AND
 		${_date_result} EQUAL 0 AND
-		NOT "${TWX_GIT_COMMIT_HASH}" STREQUAL "" AND
-		NOT "${TWX_GIT_COMMIT_DATE}" STREQUAL ""
+		NOT "${TwxGit_COMMIT_HASH}" STREQUAL "" AND
+		NOT "${TwxGit_COMMIT_DATE}" STREQUAL ""
 	)
 		set(_success TRUE)
 		execute_process(
@@ -126,7 +126,7 @@ if (GIT_FOUND)
 			RESULT_VARIABLE MODIFIED_RESULT
 		)
 		if ("${MODIFIED_RESULT}" EQUAL 1)
-			set(TWX_GIT_COMMIT_HASH "${TWX_GIT_COMMIT_HASH}*")
+			set(TwxGit_COMMIT_HASH "${TwxGit_COMMIT_HASH}*")
 		endif ()
 	endif ()
 endif (GIT_FOUND)
@@ -141,7 +141,7 @@ if (NOT _success)
 		REGEX "HASH"
 	)
 	if ("${TWX_l}" MATCHES "\"([^\"]*)\"")
-	  set (TWX_GIT_COMMIT_HASH "${CMAKE_MATCH_1}")
+	  set (TwxGit_COMMIT_HASH "${CMAKE_MATCH_1}")
 	endif ()
 	file (
 		STRINGS
@@ -150,19 +150,19 @@ if (NOT _success)
 		REGEX "DATE"
 	)
 	if ("${TWX_l}" MATCHES "\"([^\"]*)\"")
-	  set (TWX_GIT_COMMIT_DATE "${CMAKE_MATCH_1}")
+	  set (TwxGit_COMMIT_DATE "${CMAKE_MATCH_1}")
 	endif ()
 
-	if (NOT "${TWX_GIT_COMMIT_HASH}" STREQUAL "" AND
-	    NOT "${TWX_GIT_COMMIT_DATE}" STREQUAL ""
+	if (NOT "${TwxGit_COMMIT_HASH}" STREQUAL "" AND
+	    NOT "${TwxGit_COMMIT_DATE}" STREQUAL ""
 	)
 		set(_success TRUE)
 	endif ()
 endif (NOT _success)
 
 if (_success)
-	if (NOT "${OLD_GIT_COMMIT_HASH}" STREQUAL "${TWX_GIT_COMMIT_HASH}" OR
-		  NOT "${OLD_GIT_COMMIT_DATE}" STREQUAL "${TWX_GIT_COMMIT_DATE}")
+	if (NOT "${OLD_GIT_COMMIT_HASH}" STREQUAL "${TwxGit_COMMIT_HASH}" OR
+		  NOT "${OLD_GIT_COMMIT_DATE}" STREQUAL "${TwxGit_COMMIT_DATE}")
 		# If everything worked and the data has changed, update the output file
 		configure_file (
 			${SOURCE_IN}
@@ -174,7 +174,7 @@ if (_success)
 			${HEADER_OUT}
 			@ONLY
 		)
-		message (STATUS "Git commit info updated: ${TWX_GIT_COMMIT_HASH}, ${TWX_GIT_COMMIT_DATE}, ${TWX_GIT_COMMIT_BRANCH}")
+		message (STATUS "Git commit info updated: ${TwxGit_COMMIT_HASH}, ${TwxGit_COMMIT_DATE}, ${TwxGit_COMMIT_BRANCH}")
 		message (STATUS "Generated: ${HEADER_OUT}")
 		message (STATUS "Generated: ${SOURCE_OUT}")
 	endif ()

@@ -10,135 +10,35 @@
 # the next time `make` is invoked. When `GLOB` is used, the developer will have
 # to remember to re-run `cmake` if a source file is added._
 
-include (TwxVersionSetup)
-include (TwxGitSetup)
-include (TwxCoreSetup)
-include (TwxTypesetSetup)
+include ( TwxSrcSetup )
 
-set(TEXWORKS_SRCS BibTeXFile.cpp
-                  CitationSelectDialog.cpp
-                  CompletingEdit.cpp
-                  Engine.cpp
-                  FindDialog.cpp
-                  HardWrapDialog.cpp
-                  main.cpp
-                  PDFDocumentWindow.cpp
-                  PrefsDialog.cpp
-                  ResourcesDialog.cpp
-                  ScriptManagerWidget.cpp
-                  Settings.cpp
-                  TemplateDialog.cpp
-                  TeXDocks.cpp
-                  TeXDocumentWindow.cpp
-                  TeXHighlighter.cpp
-                  TWApp.cpp
-                  TWScriptableWindow.cpp
-                  TWScriptManager.cpp
-                  TWSynchronizer.cpp
-                  TWUtils.cpp
-                  document/Document.cpp
-                  document/SpellChecker.cpp
-                  document/TextDocument.cpp
-                  document/TeXDocument.cpp
-                  scripting/ECMAScriptInterface.cpp
-                  scripting/ECMAScript.cpp
-                  scripting/ScriptAPI.cpp
-                  scripting/Script.cpp
-                  ui/ClickableLabel.cpp
-                  ui/ClosableTabWidget.cpp
-                  ui/ColorButton.cpp
-                  ui/ConsoleWidget.cpp
-                  ui/LineNumberWidget.cpp
-                  ui/ListSelectDialog.cpp
-                  ui/RemoveAuxFilesDialog.cpp
-                  ui/ScreenCalibrationWidget.cpp
-                  utils/CmdKeyFilter.cpp
-                  utils/CommandlineParser.cpp
-                  utils/FileVersionDatabase.cpp
-                  utils/FullscreenManager.cpp
-                  utils/ResourcesLibrary.cpp
-                  utils/SystemCommand.cpp
-                  utils/TextCodecs.cpp
-                  utils/TypesetManager.cpp
-                  utils/VersionInfo.cpp
-                  utils/WindowManager.cpp
-                  ${Twx_Version_SOURCES}
-                  ${Twx_Git_SOURCES}
-                  ${Twx_Typeset_SOURCES}
-                  ${Twx_Core_SOURCES}
-                  )
+set (
+  ${PROJECT_NAME}_SOURCES
+  ${TwxSrc_SOURCES}
+)
 
-set(TEXWORKS_HDRS BibTeXFile.h
-                  CitationSelectDialog.h
-                  CompletingEdit.h
-                  DefaultPrefs.h
-                  Engine.h
-                  FindDialog.h
-                  GitRev.h
-                  HardWrapDialog.h
-                  PDFDocumentWindow.h
-                  PrefsDialog.h
-                  ResourcesDialog.h
-                  ScriptManagerWidget.h
-                  Settings.h
-                  TemplateDialog.h
-                  TeXDocks.h
-                  TeXDocumentWindow.h
-                  TeXHighlighter.h
-                  TWApp.h
-                  TWScriptableWindow.h
-                  TWScriptManager.h
-                  TWSynchronizer.h
-                  TWUtils.h
-                  InterProcessCommunicator.h
-                  document/Document.h
-                  document/SpellChecker.h
-                  document/TextDocument.h
-                  document/TeXDocument.h
-                  scripting/ScriptAPIInterface.h
-                  scripting/ScriptLanguageInterface.h
-                  scripting/ScriptAPI.h
-                  scripting/Script.h
-                  ui/ClickableLabel.h
-                  ui/ClosableTabWidget.h
-                  ui/ColorButton.h
-                  ui/ConsoleWidget.h
-                  ui/LineNumberWidget.h
-                  ui/ListSelectDialog.h
-                  ui/RemoveAuxFilesDialog.h
-                  ui/ScreenCalibrationWidget.h
-                  utils/CmdKeyFilter.cpp
-                  utils/CommandlineParser.h
-                  utils/FileVersionDatabase.h
-                  utils/FullscreenManager.h
-                  utils/ResourcesLibrary.h
-                  utils/SystemCommand.h
-                  utils/TextCodecs.h
-                  utils/TypesetManager.h
-                  utils/VersionInfo.h
-                  utils/WindowManager.h
-                  ${Twx_Version_HEADERS}
-                  ${Twx_Git_HEADERS}
-                  ${Twx_Typeset_HEADERS}
-                  ${Twx_Core_HEADERS}
-                  )
+set (
+  ${PROJECT_NAME}_HEADERS
+  ${TwxSrc_HEADERS}
+)
 
-if (WIN32)
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorWin.cpp)
-elseif (APPLE)
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorDummy.cpp)
-  list(APPEND TEXWORKS_SRCS utils/OSVersionInfo_mac.mm)
+
+if ( WIN32 )
+  list ( APPEND ${PROJECT_NAME}_SOURCES InterProcessCommunicatorWin.cpp )
+elseif ( APPLE )
+  list ( APPEND ${PROJECT_NAME}_SOURCES InterProcessCommunicatorDummy.cpp )
+  list ( APPEND ${PROJECT_NAME}_SOURCES utils/OSVersionInfo_mac.mm )
 else ()
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorDBus.cpp)
+  list ( APPEND ${PROJECT_NAME}_SOURCES InterProcessCommunicatorDBus.cpp )
 endif ()
 
-if (WITH_QTSCRIPT)
-  list(APPEND TEXWORKS_SRCS scripting/JSScriptInterface.cpp scripting/JSScript.cpp)
-  list(APPEND TEXWORKS_HDRS scripting/JSScriptInterface.h scripting/JSScript.h)
-  add_definitions(-DWITH_QTSCRIPT)
-endif (WITH_QTSCRIPT)
+if ( WITH_QTSCRIPT )
+  list ( APPEND ${PROJECT_NAME}_SOURCES scripting/JSScriptInterface.cpp scripting/JSScript.cpp )
+  list ( APPEND ${PROJECT_NAME}_HEADERS scripting/JSScriptInterface.h scripting/JSScript.h )
+  add_definitions ( -DWITH_QTSCRIPT )
+endif ()
 
-set(TEXWORKS_UIS CitationSelectDialog.ui
+set (TEXWORKS_UIS CitationSelectDialog.ui
                  CompletingEdit.ui
                  Find.ui
                  HardWrapDialog.ui
@@ -155,31 +55,72 @@ set(TEXWORKS_UIS CitationSelectDialog.ui
                  ui/ListSelectDialog.ui
                  )
 
-set(TEXWORKS_RCS ${TeXworks_SOURCE_DIR}/res/resfiles.qrc
-                 ${TeXworks_SOURCE_DIR}/res/resources.qrc)
+set (TEXWORKS_RCS ${TWX_DIR_res}/resfiles.qrc
+                 ${TWX_DIR_res}/resources.qrc)
 
-FILE(GLOB TEXWORKS_TRANS_TS   "${TeXworks_SOURCE_DIR}/trans/*.ts")
-FILE(GLOB QT_TRANS_QM         "${TeXworks_SOURCE_DIR}/trans/qt/*.qm")
+FILE ( GLOB TEXWORKS_TRANS_TS   "${TWX_DIR_trans}/*.ts" )
+FILE ( GLOB QT_TRANS_QM         "${TWX_DIR_trans}/qt/*.qm" )
 
-IF ( WIN32 )
-  if (NOT MSVC)
-    set(CREATE_MANIFEST TRUE)
-  endif (NOT MSVC)
-  configure_file(${TeXworks_SOURCE_DIR}/res/TeXworks.rc TeXworks.rc)
-  list(APPEND TEXWORKS_SRCS ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.rc)
-ENDIF ( WIN32 )
+# Create the `<...>.rc` file
+if ( WIN32 )
+  set (
+    TWX_out_l
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.rc
+  )
+  if ( NOT EXISTS "${TWX_out_l}" )
+    set (
+      TWX_in_l
+      ${TWX_DIR_res}/TeXworks.in.rc
+    )
+    if ( NOT MSVC )
+      set ( CREATE_MANIFEST TRUE )
+    endif ( NOT MSVC )
+    twx_configure_file_set (
+      APP_ICO       "${TWX_DIR_res}/images/TeXworks.ico"
+      DOC_ICO       "${TWX_DIR_res}/images/TeXworks-doc.ico"
+      VERSION_MAJOR ${PROJECT_NAME}_VERSION_MAJOR
+      VERSION_MINOR ${PROJECT_NAME}_VERSION_MINOR
+      VERSION_PATCH ${PROJECT_NAME}_VERSION_PATCH
+      NAME          ${PROJECT_NAME}
+      COPYRIGHT
+        "Copyright (C) 2007-2023  Jonathan Kew, Stefan L�ffler, Charlie Sharpsteen"
+      VERSION       ${PROJECT_NAME}_VERSION
+      REVISION      ${TWX_GIT_HASH}
+      MANIFEST      "${TWX_DIR_res}/TeXworks.exe.manifest"
+    )
+    configure_file ( ${TWX_in_l} ${TWX_out_l} )
+    list (
+      APPEND ${PROJECT_NAME}_SOURCES
+      ${TWX_out_l}
+    )
+    twx_configure_file_unset (
+      APP_ICO
+      DOC_ICO
+      VERSION_MAJOR
+      VERSION_MINOR
+      VERSION_PATCH
+      NAME
+      VERSION
+      REVISION
+      COPYRIGHT
+      MANIFEST
+    )
+    unset ( TWX_in_l )
+  endif ()
+  unset ( TWX_out_l )
+endif ( WIN32 )
 
 # These source files along with the `.moc` files generated from some headers
 # form the TeXworks scripting API. We export them to variables in the
-# `PARENT_SCOPE` (top level CMake file) so that they will be available to the
+# `PARENT_SCOPE` ( top level CMake file ) so that they will be available to the
 # build processes of the scripting language plugins.
-SET(TeXworks_SCRIPT_API
+SET (TeXworks_SCRIPT_API
   ${CMAKE_CURRENT_SOURCE_DIR}/scripting/Script.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/scripting/ScriptAPI.cpp
   PARENT_SCOPE
 )
 
-SET(TeXworks_SCRIPT_API_H
+SET (TeXworks_SCRIPT_API_H
   ${CMAKE_CURRENT_SOURCE_DIR}/scripting/Script.h
   ${CMAKE_CURRENT_SOURCE_DIR}/scripting/ScriptAPI.h
   ${CMAKE_CURRENT_SOURCE_DIR}/TWSystemCmd.h
@@ -187,19 +128,18 @@ SET(TeXworks_SCRIPT_API_H
   PARENT_SCOPE
 )
 
-
 # App Setup
 # ---------
 
 # On OS X, set GUI type to an `.app` bundle, gather icon files and add core system
 # frameworks to the library link list.
 IF ( APPLE )
-  SET(GUI_TYPE MACOSX_BUNDLE)
+  SET ( GUI_TYPE MACOSX_BUNDLE )
 
-  LIST(APPEND TeXworks_LIBS  "-framework Foundation")
+  LIST ( APPEND ${PROJECT_NAME}_LIBRARIES  "-framework Foundation" )
 
-  set(TeXworks_APP_ICONS "${TeXworks_SOURCE_DIR}/res/TeXworks.icns" "${TeXworks_SOURCE_DIR}/res/TeXworks-doc.icns")
-  SET_SOURCE_FILES_PROPERTIES( ${TeXworks_APP_ICONS}
+  set ( TeXworks_APP_ICONS "${TWX_DIR_res}/TeXworks.icns" "${TWX_DIR_res}/TeXworks-doc.icns" )
+  SET_SOURCE_FILES_PROPERTIES ( ${TeXworks_APP_ICONS}
     PROPERTIES
       MACOSX_PACKAGE_LOCATION Resources
   )
@@ -207,140 +147,252 @@ ENDIF ()
 
 # **WARNING:** _Windows is untested_
 IF ( WIN32 )
-  SET(GUI_TYPE WIN32)
+  SET ( GUI_TYPE WIN32 )
 ENDIF ()
 
 # Compilation
 # -----------
 
-IF (NOT ${BUILD_SHARED_PLUGINS})
-  IF (WITH_LUA AND LUA_FOUND)
-    LIST(INSERT TeXworks_LIBS 0 TWLuaPlugin ${LUA_LIBRARIES})
-  ENDIF()
-  IF (WITH_PYTHON AND PYTHONLIBS_FOUND)
-    LIST(INSERT TeXworks_LIBS 0 TWPythonPlugin ${PYTHON_LIBRARIES})
-  ENDIF()
-ENDIF()
+IF ( NOT ${BUILD_SHARED_PLUGINS} )
+  IF ( WITH_LUA AND LUA_FOUND )
+    LIST ( INSERT ${PROJECT_NAME}_LIBRARIES 0 TWLuaPlugin ${LUA_LIBRARIES} )
+  ENDIF ()
+  IF ( WITH_PYTHON AND PYTHONLIBS_FOUND )
+    LIST ( INSERT ${PROJECT_NAME}_LIBRARIES 0 TWPythonPlugin ${PYTHON_LIBRARIES} )
+  ENDIF ()
+ENDIF ()
 
 # Build the executable
-ADD_EXECUTABLE(TeXworks ${GUI_TYPE}
-  ${TEXWORKS_SRCS} ${TEXWORKS_HDRS}
+ADD_EXECUTABLE (
+  ${PROJECT_NAME}_target
+  ${GUI_TYPE}
+  ${${PROJECT_NAME}_SOURCES}
+  ${${PROJECT_NAME}_HEADERS}
   ${TEXWORKS_RCS}
   ${TeXworks_APP_ICONS}
 )
-add_dependencies(TeXworks GitRev)
+add_dependencies (
+  ${PROJECT_NAME}_target
+  GitRev_target
+)
 
-if (UNIX AND NOT APPLE)
-  set_target_properties(TeXworks PROPERTIES
-    OUTPUT_NAME texworks
+if ( UNIX AND NOT APPLE )
+
+  set_target_properties (
+    ${PROJECT_NAME}_target
+    PROPERTIES OUTPUT_NAME $<LOWER_CASE:${PROJECT_NAME}>
+  )
+else ()
+  set_target_properties (
+    ${PROJECT_NAME}_target
+    PROPERTIES OUTPUT_NAME ${PROJECT_NAME}
   )
 endif ()
 
-target_compile_options(TeXworks PRIVATE ${WARNING_OPTIONS})
+target_compile_options (
+  ${PROJECT_NAME}_target
+  PRIVATE ${WARNING_OPTIONS}
+)
 
 
 # Add translations
-target_add_qt_translations(TeXworks
+target_add_qt_translations (
+  ${PROJECT_NAME}_target
   TS_FILES ${TEXWORKS_TRANS_TS}
   QM_FILES ${QT_TRANS_QM}
   INCLUDEPATH "../src/"
 )
 
-get_target_property(lupdatePath Qt${QT_VERSION_MAJOR}::lupdate LOCATION)
-get_target_property(_sources TeXworks SOURCES)
-add_custom_target(${PROJECT_NAME}_UpdateTranslations COMMAND "${CMAKE_COMMAND}"
-  "-DOUTPUTFILE=\"${CMAKE_SOURCE_DIR}/trans/${PROJECT_NAME}_trans.pro\""
+get_target_property (
+  _lupdatePath
+  ${QtMAJOR}::lupdate LOCATION
+)
+get_target_property (
+  _sources
+  ${PROJECT_NAME}_target
+  SOURCES
+)
+add_custom_target (
+  ${PROJECT_NAME}_UpdateTranslations
+  COMMAND "${CMAKE_COMMAND}"
+  "-DOUTPUTFILE=\"${TWX_DIR_trans}/${PROJECT_NAME}_trans.pro\""
   "-DPROJECT_NAME=\"${PROJECT_NAME}\""
-  "-DQt_LUPDATE_EXECUTABLE=\"${lupdatePath}\""
+  "-DQt_LUPDATE_EXECUTABLE=\"${_lupdatePath}\""
   "-DFILES=\"${_sources};${TEXWORKS_UIS};${TEXWORKS_TRANS_TS}\""
-  "-DINCLUDEPATH=\"../src/\""
-  -P "${PROJECT_SOURCE_DIR}/modules/QtPDF/CMake/Modules/UpdateTranslations.cmake"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-if (NOT TARGET UpdateTranslations)
-  add_custom_target(UpdateTranslations)
-endif (NOT TARGET UpdateTranslations)
-add_dependencies(UpdateTranslations ${PROJECT_NAME}_UpdateTranslations)
+  "-DINCLUDEPATH=\"${TWX_DIR_src}\""
+  -P "${TWX_DIR_modules}/QtPDF/CMake/Modules/UpdateTranslations.cmake"
+  WORKING_DIRECTORY "${TWX_DIR_src}")
 
-IF (UNIX)
-  # Required (at least) on OpenBSD to make scripting plugins work
-  SET_TARGET_PROPERTIES(TeXworks PROPERTIES LINK_FLAGS -rdynamic)
-ENDIF ()
+if ( NOT TARGET UpdateTranslations )
+  add_custom_target (
+    UpdateTranslations
+  )
+endif ()
+add_dependencies (
+  UpdateTranslations
+  ${PROJECT_NAME}_UpdateTranslations
+)
 
-# Specify libraries to be linked to TeXworks.
-target_LINK_LIBRARIES(TeXworks QtPDF::qtpdf ${TeXworks_LIBS} )
-
-# Disallow automatic casts from char* to QString (enforcing the use of tr() or
-# explicitly specifying the string encoding)
-target_compile_definitions(TeXworks PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_BYTEARRAY)
-if (NOT MSVC)
-	# Set QT_STRICT_ITERATORS everywhere except for MSVC (QTBUG-78112)
-	target_compile_definitions(TeXworks PRIVATE QT_STRICT_ITERATORS)
-endif (NOT MSVC)
-
-target_compile_definitions(TeXworks PRIVATE TW_BUILD_ID="${TW_BUILD_ID}")
-
-function (target_add_path_define target name path)
-  if (IS_ABSOLUTE ${path})
-    target_compile_definitions(${target} PRIVATE ${name}="${path}")
-  else ()
-    target_compile_definitions(${target} PRIVATE ${name}="${CMAKE_INSTALL_PREFIX}/${path}")
-  endif ()
-endfunction()
-
-if (UNIX AND NOT APPLE)
-  target_add_path_define(TeXworks "TW_HELPPATH" "${TeXworks_HELP_DIR}")
-  target_add_path_define(TeXworks "TW_PLUGINPATH" "${TeXworks_PLUGIN_DIR}")
-  target_add_path_define(TeXworks "TW_DICPATH" "${TeXworks_DIC_DIR}")
+if ( UNIX )
+  # Required ( at least ) on OpenBSD to make scripting plugins work
+  set_target_properties (
+    ${PROJECT_NAME}_target
+    PROPERTIES LINK_FLAGS -rdynamic )
 endif ()
 
+# Specify libraries to be linked to TeXworks.
+target_link_libraries (
+  ${PROJECT_NAME}_target
+  QtPDF::qtpdf
+  ${${PROJECT_NAME}_LIBRARIES}
+)
 
+# Disallow automatic casts from char* to QString ( enforcing the use of tr ( ) or
+# explicitly specifying the string encoding)
+twx_target_Qt_guards (
+  ${PROJECT_NAME}_target
+)
+
+target_compile_definitions (
+  ${PROJECT_NAME}_target
+  PRIVATE TW_BUILD_ID="${TW_BUILD_ID}"
+)
+
+function ( target_add_path_define target name path )
+  if ( IS_ABSOLUTE ${path} )
+    target_compile_definitions (
+      ${target}
+      PRIVATE ${name}="${path}"
+    )
+  else ()
+    target_compile_definitions (
+      ${target}
+      PRIVATE ${name}="${CMAKE_INSTALL_PREFIX}/${path}"
+    )
+  endif ()
+endfunction ()
+
+if ( UNIX AND NOT APPLE )
+  target_add_path_define (
+    ${PROJECT_NAME}_target
+    "TW_HELPPATH" "${TeXworks_HELP_DIR}"
+  )
+  target_add_path_define (
+    ${PROJECT_NAME}_target
+    "TW_PLUGINPATH" "${TeXworks_PLUGIN_DIR}"
+  )
+  target_add_path_define (
+    ${PROJECT_NAME}_target
+    "TW_DICPATH" "${TeXworks_DIC_DIR}"
+  )
+endif ()
+
+# TODO: move to TwxResSetuptPLIST.cmake
+if ( APPLE )
 # For OS X, generate `Info.plist` and add it to the `.app` bundle.
-IF (APPLE)
-  SET(VER ${TeXworks_VERSION})
-  SET(REV ${TeXworks_GIT_HASH})
-  CONFIGURE_FILE(${TeXworks_SOURCE_DIR}/res/TeXworks.plist.in
-    TeXworks.plist
-    @ONLY
+  set (
+    TWX_out_l
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.plist
   )
+  if ( NOT EXISTS "${TWX_out_l}" )
+    set (
+      TWX_in_l
+      ${TWX_DIR_res}/TeXworks.in.plist
+    )
+    twx_configure_file_set (
+      DOC_ICNS ${PROJECT_NAME}-doc.icns
+      APP_ICNS ${PROJECT_NAME}.icns
+      NAME     ${PROJECT_NAME}
+      VERSION  ${PROJECT_NAME}_VERSION
+      REVISION ${TWX_GIT_HASH}
+    )
+    configure_file ( ${TWX_in_l} ${TWX_out_l} @ONLY )
+    unset ( __TWX_PROJECT_NAME__ )
+    unset ( __TWX_VERSION__ )
+    unset ( __TWX_REVISION__ )
+    set_target_properties (
+      ${PROJECT_NAME}_target
+      PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${TWX_out_l}
+    )
+    twx_configure_file_unset (
+      APP_ICO
+      DOC_ICO
+      NAME
+      VERSION
+      REVISION
+    )
+    unset ( TWX_in_l )
+  endif ()
+  unset ( TWX_out_l )
+endif ()
 
-  SET_TARGET_PROPERTIES( TeXworks PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST
-      ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.plist
+if ( UNIX )
+  set_target_properties (
+    ${PROJECT_NAME}_target
+    PROPERTIES COMPILE_FLAGS -fPIC
   )
-ENDIF ()
-
-IF (UNIX)
-    SET_TARGET_PROPERTIES(TeXworks PROPERTIES COMPILE_FLAGS -fPIC)
-ENDIF ()
+endif ()
 
 # Installation
 # ------------
-if (WIN32)
+if ( WIN32 )
   # On Windows, put everything into the root install directory
-  INSTALL(TARGETS TeXworks
+  install (
+    TARGETS ${PROJECT_NAME}_target
     RUNTIME DESTINATION . COMPONENT
   )
 else ()
-  INSTALL(TARGETS TeXworks
+  install (
+    TARGETS ${PROJECT_NAME}_target
     RUNTIME DESTINATION bin COMPONENT
     BUNDLE DESTINATION . COMPONENT
   )
 endif ()
 
-IF ( UNIX AND NOT APPLE )
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/images/TeXworks.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/512x512/apps)
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/images/TeXworks-128.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/128x128/apps RENAME TeXworks.png)
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/images/TeXworks-64.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/64x64/apps RENAME TeXworks.png)
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/images/TeXworks-48.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/48x48/apps RENAME TeXworks.png)
-  INSTALL(FILES
-    ${TeXworks_SOURCE_DIR}/COPYING
-    ${TeXworks_SOURCE_DIR}/README.md
-    ${TeXworks_SOURCE_DIR}/NEWS
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DOCS_DIR})
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/texworks.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_MAN_DIR})
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/texworks.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DESKTOP_DIR})
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/texworks.appdata.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_APPDATA_DIR})
-ENDIF ( UNIX AND NOT APPLE )
+if ( UNIX AND NOT APPLE )
+  set (
+    TWX_prefix_l
+    "${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}"
+  )
+  install (
+    FILES "${TWX_DIR_res}/images/TeXworks.png"
+    DESTINATION "${TWX_prefix_l}/512x512/apps"
+    RENAME ${PROJECT_NAME}.png
+  )
+  foreach ( _res 48 64 128 )
+    install (
+      FILES "${TWX_DIR_res}/images/TeXworks-${_res}.png"
+      DESTINATION "${TWX_prefix_l}/${_res}x${_res}/apps"
+      RENAME ${PROJECT_NAME}.png
+    )
+  endforeach ()
+  # install ( FILES ${TWX_DIR_res}/images/TeXworks-128.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/128x128/apps RENAME ${PROJECT_NAME}.png )
+  # install ( FILES ${TWX_DIR_res}/images/TeXworks-64.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/64x64/apps RENAME ${PROJECT_NAME}.png )
+  # install ( FILES ${TWX_DIR_res}/images/TeXworks-48.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/48x48/apps RENAME ${PROJECT_NAME}.png )
+  install (
+    FILES
+      "${TWX_DIR_ROOT}/COPYING"
+      "${TWX_DIR_ROOT}/README.md"
+      "${TWX_DIR_ROOT}/NEWS"
+    DESTINATION
+      "${CMAKE_INSTALL_PREFIX}/${${PROJECT_NAME}_DOCS_DIR}"
+  )
+  install (
+    FILES "${TWX_DIR_res}/texworks.1"
+    DESTINATION
+      "${CMAKE_INSTALL_PREFIX}/${${PROJECT_NAME}_MAN_DIR}"
+  )
+  install (
+    FILES "${TWX_DIR_res}/texworks.desktop"
+    DESTINATION
+    "${CMAKE_INSTALL_PREFIX}/${${PROJECT_NAME}_DESKTOP_DIR}"
+  )
+  install (
+    FILES "${TWX_DIR_res}/texworks.appdata.xml"
+    DESTINATION
+      "${CMAKE_INSTALL_PREFIX}/${${PROJECT_NAME}_APPDATA_DIR}"
+  )
+endif ( UNIX AND NOT APPLE )
 
 # On OS X, ensure there is always a `qt.conf` file as all hell will break loose
 # if one isn't there.  This may need to be customized for use on non-Apple
@@ -349,15 +401,20 @@ ENDIF ( UNIX AND NOT APPLE )
 # Protip: If there are wierd errors like "Qt libraries loaded twice" or
 # "looking for a tablet device", then something may have gone pear shaped with
 # `qt.conf`.
-IF ( APPLE )
-  SET(QTCONF_DIR ${PROJECT_NAME}.app/Contents/Resources)
-  SET(QTCONF_CONTENTS "[Paths]\nPlugins = PlugIns")
-
-  INSTALL( CODE
-    "
-    FILE(WRITE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${QTCONF_DIR}/qt.conf\"
-      \"${QTCONF_CONTENTS}\"
-    )
-    "
+if ( APPLE )
+  set (
+    _qtconf_dir
+    ${PROJECT_NAME}.app/Contents/Resources
   )
-ENDIF()
+  set (
+    _qtconf_contents "[Paths]\nPlugins = PlugIns"
+  )
+
+  install ( CODE "
+    file (
+      WRITE
+      \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${_qtconf_dir}/qt.conf\"
+      \"${_qtconf_contents}\"
+    )
+  ")
+endif ()

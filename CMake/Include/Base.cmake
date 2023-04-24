@@ -28,26 +28,26 @@ DO NOT forget `NO_POLICY_SCOPE`!
 
 After a new `project(...)` instruction is executed, issue
 ```
-include (Base)
+include ( Base )
 ```
 
 #]=======]
 
 # Full include only once
-if (DEFINED TWX_IS_BASED)
+if ( DEFINED TWX_IS_BASED )
 # This has already been included
 # Minor changes
-  set (TWX_NAME_CURRENT CMAKE_PROJECT_NAME)
-  if (NOT DEFINED TWX_NAME_ROOT)
-    set (TWX_NAME_ROOT CMAKE_PROJECT_NAME)
+  set ( TWX_NAME_CURRENT CMAKE_PROJECT_NAME )
+  if ( NOT DEFINED TWX_NAME_ROOT )
+    set ( TWX_NAME_ROOT CMAKE_PROJECT_NAME )
   endif ()
-  if (NOT "${TWX_NAME_ROOT}" STREQUAL "${TWX_NAME_CURRENT}")
-    set (TWX_PROJECT_IS_ROOT OFF)
+  if ( NOT "${TWX_NAME_ROOT}" STREQUAL "${TWX_NAME_CURRENT}" )
+    set ( TWX_PROJECT_IS_ROOT OFF )
   endif ()
   return ()
-endif()
+endif ()
 
-set (TWX_IS_BASED ON)
+set ( TWX_IS_BASED ON )
 # Next is run only once per cmake session.
 # A different process can run this however.
 
@@ -85,30 +85,30 @@ the same localtion, in particular when called from a module
 or a sub code unit. `TWX_DIR_ROOT` is always "at the top"
 because it is defined relative to this included file.
 #]=======]
-get_filename_component(
+get_filename_component (
   TWX_DIR_ROOT
   "${CMAKE_CURRENT_LIST_DIR}/../.."
   REALPATH
 )
 ## Convenient paths from root
-set(TWX_DIR_CMake     "${TWX_DIR_ROOT}/CMake")
-set(TWX_DIR_modules   "${TWX_DIR_ROOT}/modules")
-set(TWX_DIR_src       "${TWX_DIR_ROOT}/src")
-set(TWX_DIR_res       "${TWX_DIR_ROOT}/res")
-set(TWX_DIR_trans     "${TWX_DIR_ROOT}/trans")
-set(TWX_DIR_scripting "${TWX_DIR_ROOT}/scripting")
-set(TWX_DIR_testcases "${TWX_DIR_ROOT}/testcases")
+set ( TWX_DIR_CMake     "${TWX_DIR_ROOT}/CMake" )
+set ( TWX_DIR_modules   "${TWX_DIR_ROOT}/modules" )
+set ( TWX_DIR_src       "${TWX_DIR_ROOT}/src" )
+set ( TWX_DIR_res       "${TWX_DIR_ROOT}/res" )
+set ( TWX_DIR_trans     "${TWX_DIR_ROOT}/trans" )
+set ( TWX_DIR_scripting "${TWX_DIR_ROOT}/scripting" )
+set ( TWX_DIR_testcases "${TWX_DIR_ROOT}/testcases" )
 
 #[=======[ setup `CMAKE_MODULE_PATH`
 Make the contents of `CMake/Include` and `CMake/Modules` available.
 The former contains tools and utilities whereas
 the latter only contains modules at a higher level.
 ]=======]
-list(
+list (
   INSERT CMAKE_MODULE_PATH 0
   "${TWX_DIR_CMake}/Include"
   "${TWX_DIR_CMake}/Modules"
 )
 # Then we include shared components
-include (BaseTools)
-include (BaseConfig)
+include ( BaseTools )
+include ( BaseConfig )

@@ -11,15 +11,15 @@ See a copy next to this file or
 
 #]===============================================]
 
-if (NOT TWX_IS_BASED)
-  message(FATAL_ERROR "Base not loaded")
+if ( NOT TWX_IS_BASED )
+  message ( FATAL_ERROR "Base not loaded" )
 endif ()
 
-if (DEFINED TWX_GUARD_CMake_Include_WithQT)
+if ( DEFINED TWX_GUARD_CMake_Include_WithQT )
   return ()
-endif()
+endif ()
 
-set(TWX_GUARD_CMake_Include_WithQT)
+set ( TWX_GUARD_CMake_Include_WithQT )
 
 #[=======[
 # Qt management utilities
@@ -36,87 +36,106 @@ There is no `QT_VERSION_TWEAK`.
 ## Utilities:
 
 * `twx_append_QT`
+* `twx_target_Qt_guards`
 
 The `Core` is always required.
 
 #]=======]
 
-if (NOT DEFINED QT_VERSION_MAJOR)
-	if (DEFINED QT_DEFAULT_MAJOR_VERSION)
-		set(QT_VERSION_MAJOR ${QT_DEFAULT_MAJOR_VERSION})
+if ( NOT DEFINED QT_VERSION_MAJOR )
+	if ( DEFINED QT_DEFAULT_MAJOR_VERSION )
+		set ( QT_VERSION_MAJOR ${QT_DEFAULT_MAJOR_VERSION} )
 	else ()
-	  set(QT_VERSION_MAJOR 5)	  
+	  set ( QT_VERSION_MAJOR 5 )	  
 	endif ()
 endif ()
 
 # Expose the major version number of Qt to the preprocessor. This is necessary
 # to include the correct Qt headers (as QTVERSION is not defined before any Qt
 # headers are included)
-add_definitions(
+add_definitions (
 	-DQT_VERSION_MAJOR=${QT_VERSION_MAJOR}
 )
 
 # Convenience variable
-set(QtMAJOR "Qt${QT_VERSION_MAJOR}")
+set ( QtMAJOR "Qt${QT_VERSION_MAJOR}" )
 
 # 1 utilities to find a package and append a component to the given variable
 # in general QT_LIBRARIES.
 
-include(CMakeParseArguments)
+include ( CMakeParseArguments )
 
+# ANCHOR: twx_append_QT
 #[=======[
 This function will load Qt components.
 The libraries are collected in the `QT_LIBRARIES` variable.
 
 Usage:
 ```
-twx_append_QT(
+twx_append_QT (
 	[REQUIRED <required_1> <required_2> ...]
 	[OPTIONAL <optional_1> <optional_2> ...]
 )
 ```
 #]=======]
-macro (twx_append_QT)
+macro ( twx_append_QT )
 	# this must be a macro because the found packages are likely to
 	# change variables within the caller's scope,
 	# at least the "..._FOUND" ones.
-	cmake_parse_arguments(TWX_l "" "" "REQUIRED;OPTIONAL" ${ARGN})
+	cmake_parse_arguments ( TWX_l "" "" "REQUIRED;OPTIONAL" ${ARGN} )
 	# Find all the packages
-	find_package(
+	find_package (
 		${QtMAJOR}
 		REQUIRED COMPONENTS ${TWX_l_REQUIRED}
 		OPTIONAL_COMPONENTS ${TWX_l_OPTIONAL} QUIET
 	)
 	# Record the libraries, when not already done.
-	foreach(TWX_comp IN ITEMS ${TWX_l_REQUIRED})
-	  list(FIND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} TWX_k)
-		if (${TWX_k} LESS 0)
-		  list (APPEND QT_LIBRARIES ${QtMAJOR}::${TWX_comp})
+	foreach ( TWX_comp IN ITEMS ${TWX_l_REQUIRED} )
+	  list ( FIND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} TWX_k )
+		if ( ${TWX_k} LESS 0 )
+		  list ( APPEND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} )
 		endif ()
 	endforeach ()
-	foreach (TWX_comp IN ITEMS ${TWX_l_OPTIONAL})
+	foreach ( TWX_comp IN ITEMS ${TWX_l_OPTIONAL} )
 # TODO: move to CMake 3.3
-		list (FIND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} TWX_k)
-		if (${TWX_k} LESS 0)
-   		list (APPEND QT_LIBRARIES ${QtMAJOR}::${TWX_comp})
+		list ( FIND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} TWX_k )
+		if ( ${TWX_k} LESS 0 )
+   		list ( APPEND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} )
 		endif ()
 	endforeach ()
 	# unset local variables
-	unset (TWX_l_REQUIRED)
-	unset (TWX_l_OPTIONAL)
-	unset (TWX_comp)
-	unset (TWX_k)
+	unset ( TWX_l_REQUIRED )
+	unset ( TWX_l_OPTIONAL )
+	unset ( TWX_comp )
+	unset ( TWX_k )
 endmacro ()
 
-set (QT_LIBRARIES)
+set ( QT_LIBRARIES )
 
-twx_append_QT (REQUIRED Core)
+twx_append_QT ( REQUIRED Core )
 
-set(QT_VERSION_MINOR "${${QtMAJOR}_VERSION_MINOR}")
-set(QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}")
+set ( QT_VERSION_MINOR "${${QtMAJOR}_VERSION_MINOR}" )
+set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
 
-if (NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_LESS "5.6.0")
+if ( NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_LESS "5.6.0" )
 	# Old Qt versions were heavily using 0 instead of nullptr, giving lots
 	# of false positives
-	list(APPEND WARNING_OPTIONS -Wzero-as-null-pointer-constant)
+	list ( APPEND WARNING_OPTIONS -Wzero-as-null-pointer-constant )
 endif ()
+
+# ANCHOR: twx_target_Qt_guards
+function ( twx_target_Qt_guards _target )
+	# Disallow automatic casts from char* to QString ( enforcing the use of tr ( ) or
+	# explicitly specifying the string encoding)
+	target_compile_definitions (
+		${_target}
+		PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_BYTEARRAY
+	)
+	if ( NOT MSVC )
+	# Set QT_STRICT_ITERATORS everywhere except for MSVC ( QTBUG-78112 )
+		target_compile_definitions (
+			${_target}
+			PRIVATE QT_STRICT_ITERATORS
+		)
+	endif ()
+endfunction ()

@@ -26,12 +26,12 @@
 namespace Twx {
 namespace Version {
 
-const QString major = QStringLiteral("@TWX_VERSION_MAJOR@");
-const QString minor = QStringLiteral("@TWX_VERSION_MINOR@");
-const QString patch = QStringLiteral("@TWX_VERSION_PATCH@");
-const QString tweak = QStringLiteral("@TWX_VERSION_TWEAK@");
-const QString all   = QStringLiteral("@TWX_VERSION_ALL@"); // major.minor.patch
-const QString full  = QStringLiteral("@TWX_VERSION_FULL@"); // major.minor.patch.tweak
+const QString major = QStringLiteral("@TwxVersion_MAJOR@");
+const QString minor = QStringLiteral("@TwxVersion_MINOR@");
+const QString patch = QStringLiteral("@TwxVersion_PATCH@");
+const QString tweak = QStringLiteral("@TwxVersion_TWEAK@");
+const QString all   = QStringLiteral("@TwxVersion_ALL@"); // major.minor.patch
+const QString full  = QStringLiteral("@TwxVersion_FULL@"); // major.minor.patch.tweak
 
 } // namespace Version
 } // namespace Twx

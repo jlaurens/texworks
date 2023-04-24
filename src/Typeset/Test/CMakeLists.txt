@@ -34,42 +34,42 @@ It is also included by `/unit-tests/CMakeLists.txt`.
 # Main files are defined in the `Setup.cmake` of
 # the parent directory.
 
-if (TWX_IS_BASED)
-  message(STATUS "Generating test suite Typeset")
+if ( TWX_IS_BASED )
+  message ( STATUS "Generating test suite Typeset" )
 else ()
 	# This file is primary
-	cmake_minimum_required(VERSION 3.1)
+	cmake_minimum_required ( VERSION 3.1 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/Base.cmake"
 		NO_POLICY_SCOPE
 	)
-	project(TestTwxTypeset)
+	project ( TestTwxTypeset )
 	# Include the base once again to finish setup
-	include (Base)
+	include ( Base )
 	
-	# if (UNIX AND NOT APPLE)
-	# 	twx_append_QT(REQUIRED DBus)
+	# if ( UNIX AND NOT APPLE )
+	# 	twx_append_QT ( REQUIRED DBus )
 	# endif ()
 
-if (QT_VERSION_MAJOR EQUAL 6)
+if ( QT_VERSION_MAJOR EQUAL 6 )
 	# Check for Qt6
-  twx_append_QT (REQUIRED Core5Compat)
+  twx_append_QT ( REQUIRED Core5Compat )
 else ()
-	if (WIN32 AND NOT BUILD_SHARED_LIBS)
-    twx_append_QT (REQUIRED WindowsPlatformSupport)
+	if ( WIN32 AND NOT BUILD_SHARED_LIBS )
+    twx_append_QT ( REQUIRED WindowsPlatformSupport )
 	endif ()
 endif ()
 
-include (InitWARNING)
+include ( InitWARNING )
 
-enable_testing()
+enable_testing ()
 
-set (TWX_TYPESET_TEST_IS_ROOT ON)
+set ( TwxTypeset_TEST_IS_ROOT ON )
 endif ()
 
-set (Twx_Typeset_TEST ON)
+set ( TwxTypeset_TEST ON )
 
-include (TwxTypesetSetup)
+include ( TwxTypesetSetup )
 
 # Add a test target for primary or secondary
 # `CMakeLists`.
@@ -78,8 +78,8 @@ add_executable (
 	test_TwxTypeset
 	"${CMAKE_CURRENT_LIST_DIR}/TwxTypesetTest.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxTypesetTest.h"
-	${Twx_Typeset_SOURCES}
-	${Twx_Typeset_HEADERS}
+	${TwxTypeset_SOURCES}
+	${TwxTypeset_HEADERS}
 )
 target_include_directories (
 	test_TwxTypeset
@@ -96,7 +96,7 @@ target_link_libraries (
 )
 target_compile_definitions (
 	test_TwxTypeset
-	PRIVATE Twx_Typeset_TEST
+	PRIVATE TwxTypeset_TEST
 )
 add_test (
 	NAME test_TwxTypeset
@@ -104,43 +104,43 @@ add_test (
 	WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/TestCase"
 )
 
-if (TWX_TYPESET_TEST_IS_ROOT)
+if ( TwxTypeset_TEST_IS_ROOT )
 
-message("")
+message ( "" )
 
 # Summary
 # =======
 
 # This section displays a nice configuration summary for the user.
 
-twx_config_begin(
+twx_config_begin (
 	BOLD_GREEN
 "${PROJECT_NAME} test suite has been configured \
 (CMake ${CMAKE_VERSION}, \
 ${CMAKE_CXX_COMPILER_ID} \
 ${CMAKE_CXX_COMPILER_VERSION}):\n"
 	)
-twx_config_begin(BOLD_MAGENTA "Version info")
-twx_config_log("Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH})
-twx_config_end()
+twx_config_begin ( BOLD_MAGENTA "Version info" )
+twx_config_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )
+twx_config_end ()
 
-twx_config_log("Compiler optimization" ${CMAKE_BUILD_TYPE})
-twx_config_log("")
+twx_config_log ( "Compiler optimization" ${CMAKE_BUILD_TYPE} )
+twx_config_log ( "" )
 
-twx_config_begin(BOLD_BLUE "Libraries" VERBOSE)
-twx_config_log_kv ("Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES)
-twx_config_end  ()
+twx_config_begin ( BOLD_BLUE "Libraries" VERBOSE )
+twx_config_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )
+twx_config_end ()
 
-twx_config_begin(BOLD_BLUE "Build settings" VERBOSE)
-twx_config_log_kv ("Compile definitions" VAR COMPILE_DEFINITIONS)
-twx_config_log_kv ("Compile options" VAR COMPILE_OPTIONS)
-twx_config_end  ()
+twx_config_begin ( BOLD_BLUE "Build settings" VERBOSE )
+twx_config_log_kv ( "Compile definitions" VAR COMPILE_DEFINITIONS )
+twx_config_log_kv ( "Compile options" VAR COMPILE_OPTIONS )
+twx_config_end ()
 
-twx_config_begin(BOLD_BLUE "Files" VERBOSE)
-twx_config_log_kv ("SOURCES" VAR Twx_Typeset_SOURCES)
-twx_config_log_kv ("HEADERS" VAR Twx_Typeset_HEADERS)
-twx_config_end  ()
+twx_config_begin ( BOLD_BLUE "Files" VERBOSE )
+twx_config_log_kv ( "SOURCES" VAR TwxTypeset_SOURCES )
+twx_config_log_kv ( "HEADERS" VAR TwxTypeset_HEADERS )
+twx_config_end ()
 
-twx_config_end  (NO_EOL)
+twx_config_end  ( NO_EOL )
 
 endif ()

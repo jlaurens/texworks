@@ -15,7 +15,7 @@
 				<string>dtx</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>TeXworks-doc.icns</string>
+			<string>@__TWX_DOC_ICNS__@</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>text/plain</string>
@@ -33,7 +33,7 @@
 				<string>pdf</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>TeXworks-doc.icns</string>
+			<string>@__TWX_DOC_ICNS__@</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>CFBundleTypeMIMETypes</key>
@@ -49,11 +49,11 @@
 		</dict>
 	</array>
 	<key>CFBundleIconFile</key>
-	<string>TeXworks.icns</string>
+	<string>@__TWX_APP_ICNS__@</string>
 	<key>CFBundleGetInfoString</key>
-	<string>TeXworks version @VER@ (r.@REV@)&#xA;(C) 2007-2023 Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen&#xA;Released under GPL (v2.0 or later)</string>
+	<string>@__TWX_NAME__@ version @__TWX_VERSION__@ (r.@__TWX_HASH__@)&#xA;(C) 2007-2023 Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen&#xA;Released under GPL (v2.0 or later)</string>
 	<key>CFBundleExecutable</key>
-	<string>TeXworks</string>
+	<string>@__TWX_NAME__@</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.tug.texworks</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -63,9 +63,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@VER@ (r.@REV@)</string>
+	<string>@__TWX_VERSION__@ (r.@__TWX_REVISION__@)</string>
 	<key>CFBundleVersion</key>
-	<string>@VER@ (r.@REV@)</string>
+	<string>@__TWX_VERSION__@ (r.@__TWX_REVISION__@)</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>NSPrincipalClass</key>

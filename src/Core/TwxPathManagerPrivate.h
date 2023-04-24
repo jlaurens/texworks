@@ -20,7 +20,7 @@
 */
 
 // Private
-#if defined(Twx_Core_TEST)
+#if defined(TwxCore_TEST)
 private:
   static QStringList messages_m;
 	static QStringList altStaticBinaryPaths;

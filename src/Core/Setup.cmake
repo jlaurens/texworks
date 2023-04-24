@@ -15,7 +15,7 @@ if (NOT TWX_IS_BASED)
   message(FATAL_ERROR "Base not loaded")
 endif ()
 
-if (Twx_Core_SOURCES)
+if (TwxCore_SOURCES)
   return ()
 endif ()
 
@@ -29,12 +29,12 @@ twx_append_QT (
 )
 # TODO: `src/Core` should not be hard coded.
 set (
-  Twx_Core_SOURCES
+  TwxCore_SOURCES
   "${CMAKE_CURRENT_LIST_DIR}/TwxConst.cpp"
   "${CMAKE_CURRENT_BINARY_DIR}/src/Core/TwxPathManager.cpp"
 )
 set (
-  Twx_Core_HEADERS
+  TwxCore_HEADERS
   "${CMAKE_CURRENT_LIST_DIR}/TwxConst.h"
   "${CMAKE_CURRENT_LIST_DIR}/TwxPathManager.h"
 )

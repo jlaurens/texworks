@@ -46,7 +46,7 @@ QObject *Manager::getOwnerForRootFile(const QString & rootFile)
 	return running_m.value(rootFile, nullptr);
 }
 
-#if Twx_Typeset_TEST
+#if TwxTypeset_TEST
 int Manager::test_count;
 #endif
 
@@ -63,7 +63,7 @@ bool Manager::startTypesetting(const QString& rootFile, QObject *const owner)
 	QVariant v = owner->property(_key);
 	if (!v.isValid()) {
 		auto c = connect(owner, &QObject::destroyed, [=]() {
-#if Twx_Typeset_TEST
+#if TwxTypeset_TEST
 		++test_count;
 #endif
 			Manager::stopTypesetting(owner);

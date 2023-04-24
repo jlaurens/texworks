@@ -71,7 +71,7 @@ include (
 	"${TWX_DIR_src}/Typeset/Test/CMakeLists.txt"
 )
 
-if (TWX_VERSION_TEST_IS_ROOT)
+if (TwxVersion_TEST_IS_ROOT)
 
 message("")
 
@@ -88,7 +88,7 @@ ${CMAKE_CXX_COMPILER_ID} \
 ${CMAKE_CXX_COMPILER_VERSION}):\n"
 	)
 twx_config_begin(BOLD_MAGENTA "Version info")
-twx_contwx_config_log("${PROJECT_NAME}" "${TeXworks_VERSION} (${TeXworks_GIT_HASH}, ${TeXworks_GIT_DATE}, ${TeXworks_GIT_BRANCH})")
+twx_contwx_config_log("${PROJECT_NAME}" "${TeXworks_VERSION} (${TWX_GIT_HASH}, ${TWX_GIT_DATE}, ${TWX_GIT_BRANCH})")
 fig_log("Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH})
 twx_config_end()
 
@@ -105,14 +105,14 @@ twx_config_log_kv ("Compile options" VAR COMPILE_OPTIONS)
 twx_config_end  ()
 
 twx_config_begin(BOLD_BLUE "Files" VERBOSE)
-twx_config_log_kv ("HEADERS" VAR Twx_Version_HEADERS)
-twx_config_log_kv ("SOURCES" VAR Twx_Version_SOURCES)
-twx_config_log_kv ("HEADERS" VAR Twx_Git_HEADERS)
-twx_config_log_kv ("SOURCES" VAR Twx_Git_SOURCES)
-twx_config_log_kv ("HEADERS" VAR Twx_Core_HEADERS)
-twx_config_log_kv ("SOURCES" VAR Twx_Core_SOURCES)
-twx_config_log_kv ("HEADERS" VAR Twx_Typeset_HEADERS)
-twx_config_log_kv ("SOURCES" VAR Twx_Typeset_SOURCES)
+twx_config_log_kv ("HEADERS" VAR TwxVersion_HEADERS)
+twx_config_log_kv ("SOURCES" VAR TwxVersion_SOURCES)
+twx_config_log_kv ("HEADERS" VAR TwxGit_HEADERS)
+twx_config_log_kv ("SOURCES" VAR TwxGit_SOURCES)
+twx_config_log_kv ("HEADERS" VAR TwxCore_HEADERS)
+twx_config_log_kv ("SOURCES" VAR TwxCore_SOURCES)
+twx_config_log_kv ("HEADERS" VAR TwxTypeset_HEADERS)
+twx_config_log_kv ("SOURCES" VAR TwxTypeset_SOURCES)
 twx_config_end  ()
 
 twx_config_end  (NO_EOL)

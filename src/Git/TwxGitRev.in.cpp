@@ -26,9 +26,9 @@
 namespace Twx {
 namespace Git {
 
-const QString hash   = QStringLiteral("@TWX_GIT_COMMIT_HASH@");
-const QString date   = QStringLiteral("@TWX_GIT_COMMIT_DATE@");
-const QString branch = QStringLiteral("@TWX_GIT_COMMIT_BRANCH@");
+const QString hash   = QStringLiteral("@TwxGit_COMMIT_HASH@");
+const QString date   = QStringLiteral("@TwxGit_COMMIT_DATE@");
+const QString branch = QStringLiteral("@TwxGit_COMMIT_BRANCH@");
 
 } // namespace Git
 } // namespace Twx

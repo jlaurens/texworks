@@ -18,11 +18,11 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef Twx_Typeset_Manager_Private_H
-#define Twx_Typeset_Manager_Private_H
+#ifndef TwxTypeset_Manager_Private_H
+#define TwxTypeset_Manager_Private_H
 
-#if Twx_Typeset_TEST
+#if TwxTypeset_TEST
   static int test_count;
 #endif
 
-#endif // Twx_Typeset_Manager_Private_H
+#endif // TwxTypeset_Manager_Private_H

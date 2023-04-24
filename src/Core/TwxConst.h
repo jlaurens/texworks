@@ -18,8 +18,8 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef Twx_Core_Const_H
-#define Twx_Core_Const_H
+#ifndef TwxCore_Const_H
+#define TwxCore_Const_H
 
 #include <QString>
 
@@ -40,4 +40,4 @@ namespace Key {
 } // namespace Core
 } // namespace Twx
 
-#endif // Twx_Core_Const_H
+#endif // TwxCore_Const_H

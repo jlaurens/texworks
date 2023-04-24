@@ -34,27 +34,27 @@ It is also included by `/unit-tests/CMakeLists.txt`.
 # Main files are defined in the `CMakeLists.txt` of
 # the parent directory.
 
-if (TWX_IS_BASED)
-  message(STATUS "Generating test suite Version")
+if ( TWX_IS_BASED )
+  message ( STATUS "Generating test suite Version" )
 else ()
 	# This file is primary
-	cmake_minimum_required(VERSION 3.1)
+	cmake_minimum_required ( VERSION 3.1 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/Base.cmake"
 		NO_POLICY_SCOPE
 	)
-	project(TestTwxVersion)
+	project ( TestTwxVersion )
 	# Include the base once again to finish setup
-	include (Base)
+	include ( Base )
 
-	include (InitWARNING)
+	include ( InitWARNING )
 
-	enable_testing()
+	enable_testing ()
 
-	set (TWX_VERSION_TEST_IS_ROOT ON)
+	set ( TwxVersion_TEST_IS_ROOT ON )
 endif ()
 
-include (TwxVersionSetup)
+include ( TwxVersionSetup )
 
 # Add a test target for primary or secondary
 # `CMakeLists`.
@@ -63,8 +63,8 @@ add_executable (
 	test_TwxVersion
 	"${CMAKE_CURRENT_LIST_DIR}/TwxVersionTest.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxVersionTest.h"
-	${Twx_Version_SOURCES}
-	${Twx_Version_HEADERS}
+	${TwxVersion_SOURCES}
+	${TwxVersion_HEADERS}
 )
 target_include_directories (
 	test_TwxVersion
@@ -81,7 +81,7 @@ target_link_libraries (
 )
 target_compile_definitions (
 	test_TwxVersion
-	PRIVATE Twx_Version_TEST
+	PRIVATE TwxVersion_TEST
 )
 add_test (
 	NAME test_TwxVersion
@@ -89,44 +89,44 @@ add_test (
 	WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/TestCase"
 )
 
-if (TWX_VERSION_TEST_IS_ROOT)
+if ( TwxVersion_TEST_IS_ROOT )
 
-message("")
+message ( "" )
 
 # Summary
 # =======
 
 # This section displays a nice configuration summary for the user.
 
-twx_config_begin(
+twx_config_begin (
 	BOLD_GREEN
 "${PROJECT_NAME} test suite has been configured \
 (CMake ${CMAKE_VERSION}, \
 ${CMAKE_CXX_COMPILER_ID} \
 ${CMAKE_CXX_COMPILER_VERSION}):\n"
 	)
-twx_config_begin(BOLD_MAGENTA "Version info")
-twx_config_log("${PROJECT_NAME}" "${TeXworks_VERSION}")
-twx_config_log("Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH})
-twx_config_end()
+twx_config_begin ( BOLD_MAGENTA "Version info" )
+twx_config_log ( "${PROJECT_NAME}" "${TeXworks_VERSION}" )
+twx_config_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )
+twx_config_end ()
 
-twx_config_log("Compiler optimization" ${CMAKE_BUILD_TYPE})
-twx_config_log("")
+twx_config_log ( "Compiler optimization" ${CMAKE_BUILD_TYPE} )
+twx_config_log ( "" )
 
-twx_config_begin(BOLD_BLUE "Libraries" VERBOSE)
-twx_config_log_kv ("Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES)
-twx_config_end  ()
+twx_config_begin ( BOLD_BLUE "Libraries" VERBOSE )
+twx_config_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )
+twx_config_end ()
 
-twx_config_begin(BOLD_BLUE "Build settings" VERBOSE)
-twx_config_log_kv ("Compile definitions" VAR COMPILE_DEFINITIONS)
-twx_config_log_kv ("Compile options" VAR COMPILE_OPTIONS)
-twx_config_end  ()
+twx_config_begin ( BOLD_BLUE "Build settings" VERBOSE )
+twx_config_log_kv ( "Compile definitions" VAR COMPILE_DEFINITIONS )
+twx_config_log_kv ( "Compile options" VAR COMPILE_OPTIONS )
+twx_config_end ()
 
-twx_config_begin(BOLD_BLUE "Files" VERBOSE)
-twx_config_log_kv ("SOURCES" VAR Twx_Version_SOURCES)
-twx_config_log_kv ("HEADERS" VAR Twx_Version_HEADERS)
-twx_config_end  ()
+twx_config_begin ( BOLD_BLUE "Files" VERBOSE )
+twx_config_log_kv ( "SOURCES" VAR TwxVersion_SOURCES )
+twx_config_log_kv ( "HEADERS" VAR TwxVersion_HEADERS )
+twx_config_end ()
 
-twx_config_end  (NO_EOL)
+twx_config_end ( NO_EOL )
 
 endif ()

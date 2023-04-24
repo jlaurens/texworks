@@ -36,14 +36,14 @@ namespace Core {
 const QString pathListSeparator = QStringLiteral("@TWX_PATH_LIST_SEPARATOR@");
 
 const QStringList staticBinaryPaths = QStringLiteral("@TWX_STATIC_BINARY_PATHS@").split(pathListSeparator, Qt::SkipEmptyParts);
-#if defined(Twx_Core_TEST)
+#if defined(TwxCore_TEST)
 QStringList PathManager::altStaticBinaryPaths = QStringLiteral("@TWX_ALT_STATIC_BINARY_PATHS@").split(pathListSeparator, Qt::SkipEmptyParts);
 #endif
 
 QStringList PathManager::rawBinaryPaths_m;
 QStringList PathManager::defaultBinaryPaths_m;
 
-#if defined(Twx_Core_TEST)
+#if defined(TwxCore_TEST)
 QStringList PathManager::messages_m;
 #endif
 
@@ -124,7 +124,7 @@ bool PathManager::resetRawBinaryPaths(
 	rawBinaryPaths_m.clear();
 	if (defaultBinaryPaths_m.empty()) {
 		foreach (QString s, staticBinaryPaths) {
-#if Twx_Core_TEST
+#if TwxCore_TEST
       // while testing, DEFAULT_BIN_PATHS needs to be portable
 			// We do not know in advance existing directoris
 			// except those in the source.
@@ -139,7 +139,7 @@ bool PathManager::resetRawBinaryPaths(
 	} else {
 		rawBinaryPaths_m.append(defaultBinaryPaths_m);
 	}
-#if !defined(Q_OS_DARWIN) && !defined(Twx_Core_TEST)
+#if !defined(Q_OS_DARWIN) && !defined(TwxCore_TEST)
 	// on OS X, this will be the path to {TW_APP_PACKAGE}/Contents/MacOS/
 	// which doesn't make any sense as a search dir for TeX binaries
 	// BUT it does make sense if we have to launch `TeXworks` with other
@@ -173,7 +173,7 @@ bool PathManager::resetRawBinaryPaths(
 			rawBinaryPaths_m.removeAt(i);
 	}
 	if (rawBinaryPaths_m.empty()) {
-#if defined(Twx_Core_TEST)
+#if defined(TwxCore_TEST)
     messages_m = QStringList{
 #else
 		QMessageBox::warning(
@@ -183,7 +183,7 @@ bool PathManager::resetRawBinaryPaths(
 			QObject::tr("None of the predefined directories for TeX-related programs could be found."
 				"<p><small>To run any processes, you will need to set the binaries directory (or directories) "
 				"for your TeX distribution using the Typesetting tab of the Preferences dialog.</small>")
-#if !defined(Twx_Core_TEST)
+#if !defined(TwxCore_TEST)
 		);
 #else
     };

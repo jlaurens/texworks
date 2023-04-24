@@ -18,8 +18,8 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef Twx_Typeset_Manager_H
-#define Twx_Typeset_Manager_H
+#ifndef TwxTypeset_Manager_H
+#define TwxTypeset_Manager_H
 
 #include <QMap>
 #include <QObject>
@@ -80,4 +80,4 @@ private:
 } // namespace Typeset
 } // namespace Twx
 
-#endif // Twx_Typeset_Manager_H
+#endif // TwxTypeset_Manager_H

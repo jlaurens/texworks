@@ -51,7 +51,7 @@ else ()
 
 	enable_testing()
 
-	set (TWX_GIT_TEST_IS_ROOT ON)
+	set (TwxGit_TEST_IS_ROOT ON)
 endif ()
 
 include (TwxGitSetup)
@@ -68,10 +68,10 @@ add_executable (
 	test_TwxGit
 	"${CMAKE_CURRENT_LIST_DIR}/TwxGitTest.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxGitTest.h"
-	${Twx_Git_SOURCES}
-	${Twx_Git_HEADERS}
+	${TwxGit_SOURCES}
+	${TwxGit_HEADERS}
 )
-# foreach (_header IN LIST Twx_Git_GENERATER_HEADERS)
+# foreach (_header IN LIST TwxGit_GENERATED_HEADERS)
 # 	get_filename_component(_dir "${_header}" DIRECTORY)
 # 	target_include_directories (
 # 		test_TwxGit
@@ -96,7 +96,7 @@ target_link_libraries (
 )
 target_compile_definitions (
 	test_TwxGit
-	PRIVATE Twx_Git_TEST
+	PRIVATE TwxGit_TEST
 )
 add_test (
 	NAME test_TwxGit
@@ -104,7 +104,7 @@ add_test (
 	WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/TestCase"
 )
 
-if (TWX_GIT_TEST_IS_ROOT)
+if (TwxGit_TEST_IS_ROOT)
 
 message("")
 
@@ -121,7 +121,7 @@ ${CMAKE_CXX_COMPILER_ID} \
 ${CMAKE_CXX_COMPILER_VERSION}):\n"
 )
 twx_config_begin(BOLD_MAGENTA "Git info")
-twx_config_log("${PROJECT_NAME}" "${TeXworks_GIT_HASH}, ${TeXworks_GIT_DATE}, ${TeXworks_GIT_BRANCH}")
+twx_config_log("${PROJECT_NAME}" "${TWX_GIT_HASH}, ${TWX_GIT_DATE}, ${TWX_GIT_BRANCH}")
 twx_config_end()
 
 twx_config_begin(BOLD_MAGENTA "Version info")
@@ -141,8 +141,8 @@ twx_config_log_kv ("Compile options" VAR COMPILE_OPTIONS)
 twx_config_end  ()
 
 twx_config_begin(BOLD_BLUE "Files" VERBOSE)
-twx_config_log_kv ("SOURCES" VAR Twx_Git_SOURCES)
-twx_config_log_kv ("HEADERS" VAR Twx_Git_HEADERS)
+twx_config_log_kv ("SOURCES" VAR TwxGit_SOURCES)
+twx_config_log_kv ("HEADERS" VAR TwxGit_HEADERS)
 twx_config_end  ()
 
 twx_config_end  (NO_EOL)
