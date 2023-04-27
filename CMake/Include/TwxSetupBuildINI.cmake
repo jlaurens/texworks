@@ -60,9 +60,6 @@ to store the same value.
 JL
 #]===============================================]
 
-message ( STATUS "Running TwxSetupBuildINI" )
-return ()
-#[=======[
 if ( NOT PROJECT_NAME )
   message ( FATAL_ERROR "Undefined PROJECT_NAME" )
 endif ()
@@ -74,12 +71,12 @@ if ( TWX_CONFIG_VERBOSE )
   message ( STATUS "TwxSetupBuildINI: ${PROJECT_NAME}" )
   message ( STATUS "TwxSetupBuildINI: ${CMAKE_SOURCE_DIR}" )
   message ( STATUS "TwxSetupBuildINI: ${PROJECT_BINARY_DIR}" )
-else ()
+elseif ( TWX_IS_BASED )
   message ( STATUS "TwxSetupBuildINI" )
 endif ()
 
 if ( TWX_IS_BASED )
-  # Wa are in configure mode
+  # We are in configure mode
   set ( configure_files_twx ON )
 else ()
   include (
@@ -164,6 +161,7 @@ foreach ( line_twx IN LISTS lines_twx )
   endif ()
 endforeach ()
 
+
 # ANCHOR: GIT
 set ( OLD_HASH_twx "" )
 set ( OLD_DATE_twx "" )
@@ -207,6 +205,7 @@ if ( GIT_FOUND )
     OUTPUT_VARIABLE NEW_HASH_twx
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
+  set( ENV{TZ} UTC0 )
 	execute_process (
     COMMAND "${GIT_EXECUTABLE}"
     "--git-dir=.git" "show" "--no-patch" "--pretty=%cI"
@@ -363,10 +362,4 @@ while ( NOT files_twx STREQUAL "" )
   if ( TWX_CONFIG_VERBOSE )
     message ( STATUS "configure_file: ${CMAKE_SOURCE_DIR}/${file} -> ${PROJECT_BINARY_DIR}/${output}" )
   endif ()
-  # Special header, maybe someone relies on the old design
-  twx_configure_file (
-    "${CMAKE_SOURCE_DIR}/src/TWVersion.in.h"
-    "${CMAKE_SOURCE_DIR}/src/TWVersion.h"
-  )
 endwhile ()
-#]=======]

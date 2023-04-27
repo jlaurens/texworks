@@ -64,7 +64,8 @@ add_custom_target(
   TwxSetupBuildINI_target
   ALL
   "${CMAKE_COMMAND}"
-  "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/src"
+  "-DPROJECT_NAME=${PROJECT_NAME}"
+  "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}/src"
   -P "${TWX_DIR_CMake}/Include/TwxSetupBuildINI.cmake"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   COMMENT "TwxSetupBuildINI: Setup build/build_ini"
