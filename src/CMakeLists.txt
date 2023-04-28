@@ -186,8 +186,13 @@ IF ( APPLE )
 
   LIST(APPEND TeXworks_LIBS  "-framework Foundation")
 
-  set(TeXworks_APP_ICONS "${TeXworks_SOURCE_DIR}/res/TeXworks.icns" "${TeXworks_SOURCE_DIR}/res/TeXworks-doc.icns")
-  SET_SOURCE_FILES_PROPERTIES( ${TeXworks_APP_ICONS}
+  set (
+    TeXworks_APP_ICONS
+    "${TWX_DIR_res}/macOS/TeXworks.icns"
+    "${TWX_DIR_res}/macOS/TeXworks-doc.icns"
+  )
+  set_source_files_properties (
+    ${TeXworks_APP_ICONS}
     PROPERTIES
       MACOSX_PACKAGE_LOCATION Resources
   )
@@ -284,16 +289,10 @@ endif ()
 
 # For OS X, generate `Info.plist` and add it to the `.app` bundle.
 IF (APPLE)
-  SET(VER ${TeXworks_VERSION})
-  SET(REV ${TeXworks_GIT_HASH})
-  CONFIGURE_FILE(${TeXworks_SOURCE_DIR}/res/TeXworks.plist.in
-    TeXworks.plist
-    @ONLY
-  )
-
-  SET_TARGET_PROPERTIES( TeXworks PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST
-      ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.plist
+  set_target_properties (
+    TeXworks
+    PROPERTIES MACOSX_BUNDLE_INFO_PLIST
+      ${PROJECT_BINARY_DIR}/res/macOS/${PROJECT_NAME}.plist
   )
 ENDIF ()
 

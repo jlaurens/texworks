@@ -1,6 +1,5 @@
-<!DOCTYPE plist PUBLIC
-	"-//Apple Computer//DTD PLIST 1.0//EN"
-	"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleDocumentTypes</key>
@@ -51,7 +50,12 @@
 	<key>CFBundleIconFile</key>
 	<string>TeXworks.icns</string>
 	<key>CFBundleGetInfoString</key>
-	<string>TeXworks version @VER@ (r.@REV@)&#xA;(C) 2007-2023 Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen&#xA;Released under GPL (v2.0 or later)</string>
+	<string>TeXworks version @__TWX_VERSION__@ (r.@__TWX_GIT_HASH__@)
+©  @__TWX_COPYRIGHT_YEARS__@ @__TWX_COPYRIGHT_HOLDERS__@
+Released under GPL (v2.0 or later)</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>©   @__TWX_COPYRIGHT_YEARS__@ @__TWX_COPYRIGHT_HOLDERS__@
+Released under GPL (v2.0 or later)</string>
 	<key>CFBundleExecutable</key>
 	<string>TeXworks</string>
 	<key>CFBundleIdentifier</key>
@@ -63,9 +67,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@VER@ (r.@REV@)</string>
+	<string>@__TWX_VERSION__@</string>
 	<key>CFBundleVersion</key>
-	<string>@VER@ (r.@REV@)</string>
+	<string>@__TWX_VERSION__@ (r.@__TWX_GIT_HASH__@)</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>NSPrincipalClass</key>

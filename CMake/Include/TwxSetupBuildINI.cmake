@@ -18,7 +18,7 @@ When used in `-P` mode, "CMake sets the variables
 `CMAKE_CURRENT_SOURCE_DIR` to the current working directory."
 
 Implementation details:
-* `<binary_dir>/build_ini/TwxConfigureStatic.ini`
+* `<binary_dir>/build_ini/<ProjectName>Static.ini`
   is a file containing key_twx-value pairs that are
   not subject to change since configuration time.
 * `<binary_dir>/build_ini/TwxConfigureGit.ini`
@@ -36,26 +36,27 @@ Here is the static list of recognized keys.
 Other keys can be used but they must be managed elsewhere.
 For each `<key_twx>` we have `TWX_PROJECT_<key_twx>` and `<project_name>_<key_twx>`
 to store the same value.
-* General info
+* General info (static values)
   - `NAME`
-  - `COPYRIGHT`
+  - `COPYRIGHT_YEARS`
+  - `COPYRIGHT_HOLDERS`
   - `AUTHORS`
-* Version
+* Version (static values)
   - `VERSION`
   - `VERSION_MAJOR`
   - `VERSION_MINOR`
   - `VERSION_PATCH`
   - `VERSION_TWEAK`
-* Git
-  - `GIT_HASH`
-  - `GIT_DATE`
-  - `GIT_BRANCH`
-* Build
+* Build (static values)
   - `BUILD_ID`
-* Packaging
+* Packaging (static values)
   - `DOC_ICO`
   - `APP_ICO`
   - `MANIFEST`
+* Git (dynamic values)
+  - `GIT_HASH`
+  - `GIT_DATE`
+  - `GIT_BRANCH`
 
 JL
 #]===============================================]
@@ -127,7 +128,8 @@ if ( NOT EXISTS "${Static.ini}" )
     "VERSION_PATCH = <<<${PROJECT_VERSION_PATCH}>>>\n"
     "VERSION_TWEAK = <<<${PROJECT_VERSION_TWEAK}>>>\n"
     "NAME          = <<<${PROJECT_NAME}>>>\n"
-    "COPYRIGHT     = <<<${TWX_PROJECT_COPYRIGHT}>>>\n"
+    "COPYRIGHT_YEARS   = <<<${TWX_PROJECT_COPYRIGHT_YEARS}>>>\n"
+    "COPYRIGHT_HOLDERS = <<<${TWX_PROJECT_COPYRIGHT_HOLDERS}>>>\n"
     "AUTHORS       = <<<${TWX_PROJECT_AUTHORS}>>>\n"
     "BUILD_ID      = <<<${TWX_BUILD_ID}>>>\n"
     "DOC_ICO       = <<<${CMAKE_SOURCE_DIR}/res/images/TeXworks-doc.ico>>>\n"
@@ -341,6 +343,7 @@ file (
 while ( NOT files_twx STREQUAL "" )
   list ( GET files_twx 0 file )
   list ( REMOVE_AT files_twx 0 )
+  message ( STATUS "file => ${file}" )
   if ( file MATCHES "(.*)\.in$")
     set (
       output

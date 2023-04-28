@@ -70,7 +70,7 @@ function ( twx_parse_project_INI project_name project_source_dir )
   foreach (
     k_twx
     VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK
-    COPYRIGHT AUTHORS
+    COPYRIGHT_YEARS COPYRIGHT_HOLDERS AUTHORS
     GIT_HASH GIT_DATE
   )
     if ( lines_twx MATCHES "${k_twx}[^<]*<<<([^>]*)>>>" )
@@ -84,18 +84,33 @@ function ( twx_parse_project_INI project_name project_source_dir )
     endif ()
   endforeach ()
 
-  # ANCHOR: Notice
-  foreach ( k_twx COPYRIGHT AUTHORS )
-    set (
-      TWX_PROJECT_${k_twx}
-      "${${k_twx}_value}"
-    )
-    set (
-      TWX_${project_name}_${k_twx}
-      "${${k_twx}_value}"
-    )
-  endforeach ()
-  # ANCHOR: Version
+  if ( TWX_CONFIG_VERBOSE )
+  message ( STATUS "VERSION_MAJOR => ${VERSION_MAJOR_value}" )
+  message ( STATUS "VERSION_MINOR => ${VERSION_MINOR_value}" )
+  message ( STATUS "VERSION_PATCH => ${VERSION_PATCH_value}" )
+  message ( STATUS "VERSION_TWEAK => ${VERSION_TWEAK_value}" )
+  message ( STATUS "COPYRIGHT_YEARS => ${COPYRIGHT_YEARS_value}" )
+  message ( STATUS "COPYRIGHT_HOLDERS => ${COPYRIGHT_HOLDERS_value}" )
+  message ( STATUS "AUTHORS => ${AUTHORS_value}" )
+  message ( STATUS "GIT_HASH_STATIC => ${GIT_HASH_STATIC_value}" )
+  message ( STATUS "GIT_DATE_STATIC => ${GIT_DATE_STATIC_value}" )
+endif ()
+
+# ANCHOR: Notice
+foreach ( k_twx COPYRIGHT_YEARS COPYRIGHT_HOLDERS AUTHORS GIT_HASH_STATIC GIT_DATE_STATIC )
+set (
+  TWX_PROJECT_${k_twx}
+  "${${k_twx}_value}"
+  PARENT_SCOPE
+)
+set (
+  TWX_${PROJECT_NAME}_${k_twx}
+  "${${k_twx}_value}"
+  PARENT_SCOPE
+)
+endforeach ()
+
+# ANCHOR: Version
   # The version numbers, each time we have 2 variables
   # for the same value.
   # It makes 
@@ -103,62 +118,42 @@ function ( twx_parse_project_INI project_name project_source_dir )
     set (
       PROJECT_${k_twx}
       ${${k_twx}_value}
+      PARENT_SCOPE
     )
     set (
       ${project_name}_${k_twx}
       ${PROJECT_${k_twx}}
+      PARENT_SCOPE
     )
   endforeach ()
   # The version strings
   set (
     PROJECT_VERSION
     "${VERSION_MAJOR_value}.${VERSION_MINOR_value}"
+    PARENT_SCOPE
   )
   set (
     ${project_name}_VERSION
     "${PROJECT_VERSION}"
+    PARENT_SCOPE
   )
   # ANCHOR: Git info
   foreach ( k_twx GIT_HASH GIT_DATE )
     if ( ${k_twx}_value MATCHES "\\$Format:.*\\$" )
       set (
         TWX_PROJECT_${k_twx}_STATIC
-      )
-      set (
-        TWX_${project_name}_${k_twx}_STATIC
+        PARENT_SCOPE
       )
     else ()
       set (
         TWX_PROJECT_${k_twx}_STATIC
         "${${k_twx}_value}"
-      )
-      set (
-        TWX_${project_name}_${k_twx}_STATIC
-        "${${k_twx}_value}"
+        PARENT_SCOPE
       )
     endif ()
   endforeach ()
 
-  if ( TWX_CONFIG_VERBOSE )
-    message ( STATUS "PROJECT_VERSION => ${PROJECT_VERSION}" )
-    message ( STATUS "PROJECT_VERSION_MAJOR => ${PROJECT_VERSION_MAJOR}" )
-    message ( STATUS "PROJECT_VERSION_MINOR => ${PROJECT_VERSION_MINOR}" )
-    message ( STATUS "PROJECT_VERSION_PATCH => ${PROJECT_VERSION_PATCH}" )
-    message ( STATUS "PROJECT_VERSION_TWEAK => ${PROJECT_VERSION_TWEAK}" )
-    message ( STATUS "TWX_PROJECT_COPYRIGHT => ${TWX_PROJECT_COPYRIGHT}" )
-    message ( STATUS "TWX_PROJECT_AUTHORS => ${TWX_PROJECT_AUTHORS}" )
-    message ( STATUS "TWX_PROJECT_GIT_HASH_STATIC => ${TWX_PROJECT_GIT_HASH_STATIC}" )
-    message ( STATUS "TWX_PROJECT_GIT_DATE_STATIC => ${TWX_PROJECT_GIT_DATE_STATIC}" )
-  endif ()
   # Export
-  foreach ( k_twx VERSION VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK )
-    set ( PROJECT_${k_twx} "${PROJECT_${k_twx}}" PARENT_SCOPE )
-    set ( ${PROJECT_NAME}_${k_twx} "${${PROJECT_NAME}_${k_twx}}" PARENT_SCOPE )
-  endforeach ()
-  foreach ( k_twx COPYRIGHT AUTHORS GIT_HASH_STATIC GIT_DATE_STATIC )
-    set ( TWX_PROJECT_${k_twx} "${TWX_PROJECT_${k_twx}}" PARENT_SCOPE )
-    set ( TWX_${PROJECT_NAME}_${k_twx} "${TWX_${PROJECT_NAME}_${k_twx}}" PARENT_SCOPE )
-  endforeach ()
   set (
     TWX_${project_name}.ini
     "TWX_${project_name}.ini"
