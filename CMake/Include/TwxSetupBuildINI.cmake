@@ -16,17 +16,19 @@ include ( TwxSetupBuildINI )
 When used in `-P` mode, "CMake sets the variables
 `CMAKE_BINARY_DIR`, `CMAKE_SOURCE_DIR`, `CMAKE_CURRENT_BINARY_DIR` and
 `CMAKE_CURRENT_SOURCE_DIR` to the current working directory."
+Also, no global variable is defined directly:
+it is read from a file.
 
 Implementation details:
 * `<binary_dir>/build_ini/<ProjectName>Static.ini`
-  is a file containing key_twx-value pairs that are
+  is a file containing key-value pairs that are
   not subject to change since configuration time.
-* `<binary_dir>/build_ini/TwxConfigureGit.ini`
-  is a file containing git related key_twx-value pairs
+* `<binary_dir>/build_ini/TwxGit.ini`
+  is a file containing git related key-value pairs
   that may change after configuration time.
-* `<binary_dir>/build_ini/TwxConfigureList.txt`
+* `<binary_dir>/build_ini/TwxInList.txt`
   is a list of input files established at configuration time.
-  This file is encoded in UTF-8.
+  This file respects UTF-8 encoding.
 
 The location of the input file relative to the source directory and
 the location of the output file relative to the binary directory
@@ -38,11 +40,14 @@ For each `<key_twx>` we have `TWX_PROJECT_<key_twx>` and `<project_name>_<key_tw
 to store the same value.
 * General info (static values)
   - `NAME`
+  - `NAME_LOWER`
+  - `NAME_UPPER`
   - `COPYRIGHT_YEARS`
   - `COPYRIGHT_HOLDERS`
   - `AUTHORS`
 * Version (static values)
   - `VERSION`
+  - `VERSION_SHORT`
   - `VERSION_MAJOR`
   - `VERSION_MINOR`
   - `VERSION_PATCH`
@@ -52,7 +57,7 @@ to store the same value.
 * Packaging (static values)
   - `DOC_ICO`
   - `APP_ICO`
-  - `MANIFEST`
+  - `WIN_MANIFEST`
 * Git (dynamic values)
   - `GIT_HASH`
   - `GIT_DATE`
@@ -96,11 +101,11 @@ set (
 )
 set (
   Static.ini
-  "${TWX_DIR_build_ini}/TwxConfigureStatic.ini"
+  "${TWX_DIR_build_ini}/${PROJECT_NAME}Static.ini"
 )
 set (
   Git.ini
-  "${TWX_DIR_build_ini}/TwxConfigureGit.ini"
+  "${TWX_DIR_build_ini}/TwxGit.ini"
 )
 if ( NOT EXISTS "${Readme.md}" )
   file (
@@ -118,23 +123,36 @@ if ( NOT EXISTS "${Static.ini}" )
     "${PROJECT_NAME}"
     "${CMAKE_SOURCE_DIR}"
   )
+  string (
+    TOUPPER
+    "${PROJECT_NAME}"
+    TWX_PROJECT_NAME_UPPER
+  )
+  string (
+    TOLOWER
+    "${PROJECT_NAME}"
+    TWX_PROJECT_NAME_LOWER
+  )
   file (
     WRITE
     "${Static.ini}"
     "[This file is generated automatically by the TeXworks build system]\n"
-    "VERSION       = <<<${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}>>>\n"
+    "VERSION       = <<<${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}>>>\n"
+    "VERSION_SHORT = <<<${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}>>>\n"
     "VERSION_MAJOR = <<<${PROJECT_VERSION_MAJOR}>>>\n"
     "VERSION_MINOR = <<<${PROJECT_VERSION_MINOR}>>>\n"
     "VERSION_PATCH = <<<${PROJECT_VERSION_PATCH}>>>\n"
     "VERSION_TWEAK = <<<${PROJECT_VERSION_TWEAK}>>>\n"
     "NAME          = <<<${PROJECT_NAME}>>>\n"
+    "NAME_UPPER    = <<<${TWX_PROJECT_NAME_UPPER}>>>\n"
+    "NAME_LOWER    = <<<${TWX_PROJECT_NAME_LOWER}>>>\n"
     "COPYRIGHT_YEARS   = <<<${TWX_PROJECT_COPYRIGHT_YEARS}>>>\n"
     "COPYRIGHT_HOLDERS = <<<${TWX_PROJECT_COPYRIGHT_HOLDERS}>>>\n"
     "AUTHORS       = <<<${TWX_PROJECT_AUTHORS}>>>\n"
     "BUILD_ID      = <<<${TWX_BUILD_ID}>>>\n"
     "DOC_ICO       = <<<${CMAKE_SOURCE_DIR}/res/images/TeXworks-doc.ico>>>\n"
     "APP_ICO       = <<<${CMAKE_SOURCE_DIR}/res/images/TeXworks.ico>>>\n"
-    "MANIFEST      = <<<${CMAKE_SOURCE_DIR}/res/TeXworks.exe.manifest>>>\n"
+    "WIN_MANIFEST  = <<<${CMAKE_BINARY_DIR}/res/winOS/TeXworks.exe.manifest>>>\n"
   )
 endif ()
 # ANCHOR: Read the static key_twx/value keys
@@ -170,7 +188,7 @@ set ( OLD_DATE_twx "" )
 set ( OLD_BRANCH_twx "" )
 set ( SUCCESS_twx FALSE )
 
-# Recover old git commit info from `.../TwxConfigureGit.ini` if available.
+# Recover old git commit info from `.../@ONLYGit.ini` if available.
 # We don't want to touch the file if nothing relevant has changed as that would
 # trigger an unnecessary rebuild of parts of the project
 if ( EXISTS "${Git.ini}" )
@@ -314,7 +332,7 @@ endforeach ()
 # ANCHOR: Get the list of all the *.in files (and friends)
 set (
   list.txt
-  "${PROJECT_BINARY_DIR}/build_ini/TwxConfigureList.txt"
+  "${PROJECT_BINARY_DIR}/build_ini/TwxInList.txt"
 )
 if ( NOT EXISTS "${list.txt}" )
   message ( STATUS "GLOB_RECURSE: CMAKE_SOURCE_DIR => ${CMAKE_SOURCE_DIR}")
@@ -357,10 +375,10 @@ while ( NOT files_twx STREQUAL "" )
   else ()
     message ( FATAL_ERROR "Logically unreachable" )
   endif ()
-  configure_file (
+  twx_configure_file (
     "${CMAKE_SOURCE_DIR}/${file}"
     "${PROJECT_BINARY_DIR}/${output}"
-    @ONLY
+    ONLY_CHANGED
   )
   if ( TWX_CONFIG_VERBOSE )
     message ( STATUS "configure_file: ${CMAKE_SOURCE_DIR}/${file} -> ${PROJECT_BINARY_DIR}/${output}" )

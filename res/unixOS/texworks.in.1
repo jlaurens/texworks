@@ -1,0 +1,77 @@
+.TH @__TWX_NAME_UPPER__@ 1
+
+.SH NAME
+.B @__TWX_NAME_LOWER__@
+\- a simple TeX front-end program
+
+.SH SYNOPSIS
+.B @__TWX_NAME_LOWER__@
+[OPTIONS] [FILES]
+
+.SH DESCRIPTION
+.B @__TWX_NAME__@
+is an environment for authoring TeX (LaTeX, ConTeXt, etc) documents, with a Unicode-based, TeX-aware editor, integrated PDF viewer, and a clean, simple interface accessible to casual and non-technical users.
+
+It is inspired by Dick Koch's award-winning TeXShop program for Mac OS X, which has made quality typesetting through TeX accessible to a wider community of users, without a technical or intimidating face. The goal of
+.B @__TWX_NAME__@
+is to deliver a similarly integrated, easy-to-use environment for users on other platforms, especially GNU/Linux and Windows.
+
+.SH OPTIONS
+.TP
+.B --help, -?
+Display a short overview over all command line options
+.TP
+.B --position=, -p
+Open the next specified file at the given position (line or page)
+.TP
+.B --version, -v
+Display version information
+
+.SH ENVIRONMENT
+.TP
+TW_INIPATH
+Overrides the location of the preferences file.
+.TP
+TW_LIBPATH
+Overrides the location of the additional configuration and library files.
+.TP
+TW_DICPATH
+Overrides the location of dictionary files.
+.TP
+TW_HELPPATH
+Overrides the location of help files.
+.TP
+TW_PLUGINPATH
+Overrides the location of plugins.
+
+.SH FILES
+.TP
+.I ~/.config/TUG/@__TWX_NAME__@.conf
+Text file to store the preferences.
+.TP
+.I ~/.@__TWX_NAME__@/*
+Additional configuration and library files (e.g. for auto completion, templates, etc.).
+.TP
+.I /usr/local/bin/@__TWX_NAME_LOWER__@-setup.ini
+Setup file to override the location of the files mentioned above (e.g. for enabling portable operation).
+
+.SH SEE ALSO
+.B @__TWX_NAME__@
+homepage: \%http://tug.org/texworks/
+
+.B @__TWX_NAME__@
+development: \%https://github.com/TeXworks/texworks
+
+.SH BUGS
+If you find a bug, please report it at \%https://github.com/TeXworks/texworks/issues
+
+.SH AUTHORS
+@__TWX_AUTHORS__@
+
+.SH COPYRIGHT
+Copyright (C) @__TWX_COPYRIGHT_YEARS__@  @__TWX_COPYRIGHT_HOLDERS__@
+
+License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>
+
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
