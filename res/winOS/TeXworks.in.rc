@@ -1,11 +1,11 @@
 #include <windows.h>
 
-IDI_ICON1	ICON	DISCARDABLE	"@__TWX_APP_ICO__@"
-IDI_ICON2	ICON	DISCARDABLE	"@__TWX_DOC_ICO__@"
+IDI_ICON1	ICON	DISCARDABLE	"@TWX_INFO_APP_ICO@"
+IDI_ICON2	ICON	DISCARDABLE	"@TWX_INFO_DOC_ICO@"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION    	@__TWX_VERSION_MAJOR__@,@__TWX_VERSION_MINOR__@,@__TWX_VERSION_PATCH__@,@__TWX_VERSION_TWEAK__@
-PRODUCTVERSION 	@__TWX_VERSION_MAJOR__@,@__TWX_VERSION_MINOR__@,@__TWX_VERSION_PATCH__@,@__TWX_VERSION_TWEAK__@
+FILEVERSION    	@TWX_INFO_VERSION_MAJOR@,@TWX_INFO_VERSION_MINOR@,@TWX_INFO_VERSION_PATCH@,@TWX_INFO_VERSION_TWEAK@
+PRODUCTVERSION 	@TWX_INFO_VERSION_MAJOR@,@TWX_INFO_VERSION_MINOR@,@TWX_INFO_VERSION_PATCH@,@TWX_INFO_VERSION_TWEAK@
 FILEFLAGSMASK  	0
 FILEOS         	VOS__WINDOWS32
 FILETYPE       	VFT_APP
@@ -16,13 +16,13 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "CompanyName",      "TeX Users Group"
-            VALUE "FileDescription",  "@__TWX_NAME__@ editor & previewer"
-            VALUE "FileVersion",      "@__TWX_VERSION__@-r.@__TWX_GIT_HASH__@"
-            VALUE "InternalName",     "@__TWX_NAME__@"
-            VALUE "LegalCopyright",   "Copyright (C) @__TWX_COPYRIGHT_YEARS__@  @__TWX_COPYRIGHT_HOLDERS__@"
-            VALUE "OriginalFilename", "@__TWX_NAME__@.exe"
-            VALUE "ProductName",      "@__TWX_NAME__@"
-            VALUE "ProductVersion",   "@__TWX_NAME__@ @__TWX_VERSION__@"
+            VALUE "FileDescription",  "@TWX_INFO_NAME@ editor & previewer"
+            VALUE "FileVersion",      "@TWX_INFO_VERSION@-r.@TWX_INFO_GIT_HASH@"
+            VALUE "InternalName",     "@TWX_INFO_NAME@"
+            VALUE "LegalCopyright",   "Copyright (C) @TWX_INFO_COPYRIGHT_YEARS@  @TWX_INFO_COPYRIGHT_HOLDERS@"
+            VALUE "OriginalFilename", "@TWX_INFO_NAME@.exe"
+            VALUE "ProductName",      "@TWX_INFO_NAME@"
+            VALUE "ProductVersion",   "@TWX_INFO_NAME@ @TWX_INFO_VERSION@"
         END
     END
 
@@ -35,5 +35,5 @@ END
 // Required by MinGW but breaks MSVC; configured by CMake
 #cmakedefine01 CREATE_MANIFEST
 #if CREATE_MANIFEST
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "@__TWX_WIN_MANIFEST__@"
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "@TWX_INFO_WIN_MANIFEST@"
 #endif

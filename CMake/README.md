@@ -13,7 +13,7 @@ Various `CMakeLists.txt`
 This folder contains utilities to build various `CMakeLists.txt`.
 
 ## Problem
-The whole TeXworks code is divided into partially independent modules superseeded by a main `CMakeLists.txt` at the top level.
+The whole TeXworks code is divided into partially independent modules superseeded by a primary `CMakeLists.txt` at the top level.
 In order to build and test the various modules separately,
 we don't always want to start from the top, but from a directory below, mainly one of the modules.
 Then we need to share some configuration settings and tools,
@@ -55,7 +55,7 @@ The other `.cmake` files shall not include `Base.cmake`.
 
 ### Global variables
 All of them are prefixed with `TWX_`.
-`TWX_DIR_ROOT` is the path of the directory containing all the sources. Other variable mimic the directory hierarchy with the exact case sensitive folder names. These folder names may change in the future for a better readability, using a global variable will make any change easier.
+`TWX_DIR` is the path of the directory containing all the sources. Other variable mimic the directory hierarchy with the exact case sensitive folder names. These folder names may change in the future for a better readability, using a global variable will make any change easier.
 
 * `TWX_DIR_CMake`
 * `TWX_DIR_modules`
@@ -98,10 +98,8 @@ according to this quote from `CMake` maintener Brad King
 
 ## Available `.cmake` files description
 
-* `Base`: everyone primary `CMakeLists.txt` must include this.
-* `BasePolicy`: the policy settings.
-* `BaseTools`: various utilities.
-* `BaseConfig`: Global configuration.
+* `TwxBase`: everyone primary `CMakeLists.txt` must include this.
+* `TwxBasePolicy`: the policy settings.
 
 We also have various `Twx<Foo>Setup.cmake` which are very convenient shortcuts to `<...>/src/<Foo>/Setup.cmake`.
 

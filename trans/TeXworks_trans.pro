@@ -12,7 +12,9 @@ SOURCES = \
   "../src/Engine.cpp" \
   "../src/FindDialog.cpp" \
   "../src/HardWrapDialog.cpp" \
-  "../src/InterProcessCommunicatorDBus.cpp" \
+  "../src/IPC/InterProcessCommunicatorMacOS.cpp" \
+  "../src/IPC/InterProcessCommunicatorUnixOS.cpp" \
+  "../src/IPC/InterProcessCommunicatorWinOS.cpp" \
   "../src/PDFDocumentWindow.cpp" \
   "../src/PrefsDialog.cpp" \
   "../src/ResourcesDialog.cpp" \

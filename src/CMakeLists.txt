@@ -30,6 +30,7 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   TWScriptManager.cpp
                   TWSynchronizer.cpp
                   TWUtils.cpp
+                  IPC/InterProcessCommunicator${TWX_OS_SWITCHER}.cpp
                   document/Document.cpp
                   document/SpellChecker.cpp
                   document/TextDocument.cpp
@@ -82,7 +83,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   TWSynchronizer.h
                   TWUtils.h
                   TWVersion.h
-                  InterProcessCommunicator.h
+                  IPC/InterProcessCommunicator.h
                   document/Document.h
                   document/SpellChecker.h
                   document/TextDocument.h
@@ -111,14 +112,9 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   utils/WindowManager.h
                   )
 
-if (WIN32)
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorWin.cpp)
-elseif (APPLE)
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorDummy.cpp)
+if (APPLE)
   list(APPEND TEXWORKS_SRCS utils/OSVersionInfo_mac.mm)
-else ()
-  list(APPEND TEXWORKS_SRCS InterProcessCommunicatorDBus.cpp)
-endif ()
+endif
 
 if (WITH_QTSCRIPT)
   list(APPEND TEXWORKS_SRCS scripting/JSScriptInterface.cpp scripting/JSScript.cpp)
@@ -146,15 +142,18 @@ set(TEXWORKS_UIS CitationSelectDialog.ui
 set(TEXWORKS_RCS ${TeXworks_SOURCE_DIR}/res/resfiles.qrc
                  ${TeXworks_SOURCE_DIR}/res/resources.qrc)
 
-FILE(GLOB TEXWORKS_TRANS_TS   "${TeXworks_SOURCE_DIR}/trans/*.ts")
-FILE(GLOB QT_TRANS_QM         "${TeXworks_SOURCE_DIR}/trans/qt/*.qm")
+FILE( GLOB TEXWORKS_TRANS_TS "${TWX_DIR_trans}/*.ts" )
+FILE( GLOB QT_TRANS_QM       "${TWX_DIR_trans}/qt/*.qm" )
 
 IF ( WIN32 )
-  if (NOT MSVC)
-    set(CREATE_MANIFEST TRUE)
-  endif (NOT MSVC)
-  configure_file(${TeXworks_SOURCE_DIR}/res/TeXworks.rc TeXworks.rc)
-  list(APPEND TEXWORKS_SRCS ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.rc)
+  if ( NOT MSVC )
+    set( CREATE_MANIFEST TRUE )
+  endif ()
+  list(
+    APPEND
+    TEXWORKS_SRCS
+    ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.rc
+  )
 ENDIF ( WIN32 )
 
 # These source files along with the `.moc` files generated from some headers
@@ -296,6 +295,7 @@ IF (APPLE)
   )
 ENDIF ()
 
+# see CMAKE_POSITION_INDEPENDENT_CODE
 IF (UNIX)
     SET_TARGET_PROPERTIES(TeXworks PROPERTIES COMPILE_FLAGS -fPIC)
 ENDIF ()

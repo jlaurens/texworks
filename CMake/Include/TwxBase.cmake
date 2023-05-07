@@ -1,5 +1,5 @@
 #[===============================================[
-This is part of the TeXworks build system.
+This is part of the TWX build and test system.
 See https://github.com/TeXworks/texworks
 (C)  JL 2023
 
@@ -21,19 +21,31 @@ After a new `project(...)` instruction is executed, issue
 ```
 include ( Base )
 ```
+Output:
+* `TWX_DIR`
+* `TWX_OS_SWITCHER`: one of "MacOS", "WinOS", "UnixOS"
+
+Implementation details:
+This script may be called in various situations.
+- from the main `CMakeLists.txt` at configuration time
+- from a target at build time
+- from another script in `-P` mode, at either time.
+
+In any cases, the global variables above are expected to point to
+the same location. For `TWX_DIR` is is easy because its location
+relative to the various `.cmake` script files is well known
+at some early point.
+
 #]===============================================]
 
 
 # Full include only once
 if ( DEFINED TWX_IS_BASED )
-  message ( STATUS "TwxBase: ${CMAKE_PROJECT_NAME}" )
+  message ( STATUS "TwxBase: ${CMAKE_PROJECT_NAME}|${TWX_DIR}" )
 # This has already been included
 # Minor changes
   set ( TWX_NAME_CURRENT CMAKE_PROJECT_NAME )
-  if ( NOT DEFINED TWX_NAME_ROOT )
-    set ( TWX_NAME_ROOT CMAKE_PROJECT_NAME )
-  endif ()
-  if ( NOT "${TWX_NAME_ROOT}" STREQUAL "${TWX_NAME_CURRENT}" )
+  if ( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}" )
     set ( TWX_PROJECT_IS_ROOT OFF )
   endif ()
   return ()
@@ -42,7 +54,7 @@ endif ()
 set ( TWX_IS_BASED ON )
 
 # Next is run only once per cmake session.
-# A different process can run this however.
+# A different process can run this however on its own.
 
 # We load the policies as soon as possible
 # Before using any higher level cmake command
@@ -51,46 +63,21 @@ include (
   NO_POLICY_SCOPE
 )
 
-#[=======[ Global variables
-Some global variable mimic CMake variables in a more semantic way
-* `TWX_NAME_ROOT` is for the main project,
-  defined by the very first `project(...)` instruction.
-  `Base.cmake` should be loaded at the begining of
-  any main `CMakeLists.txt`, and it should be reloaded after each
-  `project(...)` instruction.
-  For example, `TWX_NAME_ROOT` is set to "TeXworks" when
-  building the application.
-  When building submodules, essentially for testing purposes,
-  this name will most certainly be different.
-* `TWX_NAME_CURRENT` is for the current project.
-  It is set from any `CMakeLists.txt` that can be main.
-* `TWX_PROJECT_IS_ROOT` is switched `ON` the first time `Base.cmake`
-  is loaded after a `project` instruction.
-  On subsequent load attempts, this is switched `OFF`. 
-#]=======]
-
 set (TWX_PROJECT_IS_ROOT ON)
 
 #[=======[ Paths setup
 This is called from various locations.
 We cannot assume that `PROJECT_SOURCE_DIR` always represent
-the same localtion, in particular when called from a module
-or a sub code unit. `TWX_DIR_ROOT` is always "at the top"
-because it is defined relative to this included file.
+the same location, in particular when called from a module
+or a sub code unit. The same holds for `CMAKE_SOURCE_DIR`.
+`TWX_DIR` is always "at the top" because it is defined
+relative to this included file.
 #]=======]
 get_filename_component (
-  TWX_DIR_ROOT
+  TWX_DIR
   "${CMAKE_CURRENT_LIST_DIR}/../.."
   REALPATH
 )
-## Convenient paths from root
-set ( TWX_DIR_CMake     "${TWX_DIR_ROOT}/CMake" )
-set ( TWX_DIR_modules   "${TWX_DIR_ROOT}/modules" )
-set ( TWX_DIR_src       "${TWX_DIR_ROOT}/src" )
-set ( TWX_DIR_res       "${TWX_DIR_ROOT}/res" )
-set ( TWX_DIR_trans     "${TWX_DIR_ROOT}/trans" )
-set ( TWX_DIR_scripting "${TWX_DIR_ROOT}/scripting" )
-set ( TWX_DIR_testcases "${TWX_DIR_ROOT}/testcases" )
 
 #[=======[ setup `CMAKE_MODULE_PATH`
 Make the contents of `CMake/Include` and `CMake/Modules` available.
@@ -99,9 +86,17 @@ the latter only contains modules at a higher level.
 ]=======]
 list (
   INSERT CMAKE_MODULE_PATH 0
-  "${TWX_DIR_CMake}/Include"
-  "${TWX_DIR_CMake}/Modules"
-  "${TWX_DIR_modules}/QtPDF/CMake/Modules"
+  "${TWX_DIR}/CMake/Include"
+  "${TWX_DIR}/CMake/Modules"
+  "${TWX_DIR}/modules/QtPDF/CMake/Modules"
 )
 
-message ( STATUS "TwxBase: initialize" )
+if (WIN32)
+  set ( TWX_OS_SWITCHER "WinOS" )
+elseif (APPLE)
+  set ( TWX_OS_SWITCHER "MacOS" )
+else ()
+  set ( TWX_OS_SWITCHER "UnixOS" )
+endif ()
+
+message ( STATUS "TwxBase: initialize(${TWX_DIR})" )

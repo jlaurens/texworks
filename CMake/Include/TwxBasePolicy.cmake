@@ -1,7 +1,7 @@
 #[===============================================[
-This is part of the TeXworks build system.
-See https://github.com/TeXworks/texworks
-( C ) JL 2023
+This is part of the TWX build and test system.
+https://github.com/TeXworks/texworks
+(C)  JL 2023
 
 Automatically loaded by the `Base` module.
 
@@ -54,11 +54,16 @@ if ( POLICY CMP0135 )
   cmake_policy ( SET CMP0135 NEW )
 endif ()
 
+# CMake 3.25: the return() command checks its parameters.
+if ( POLICY CMP0140 )
+  cmake_policy ( SET CMP0140 NEW )
+endif ()
+
 #[=======[ Nota bene
-Use
-````
+On older CMake, to apply policies locally use
+```
 cmake_policy ( PUSH )
 cmake_policy ( POP )
-````
-to apply policies locally.
+```
+Modern CMake (since 3.25) use `block`.
 ]=======]

@@ -22,7 +22,7 @@
 #ifndef TWApp_H
 #define TWApp_H
 
-#include "InterProcessCommunicator.h"
+#include "IPC/InterProcessCommunicator.h"
 #include "utils/TypesetManager.h"
 
 #include <QAction>
