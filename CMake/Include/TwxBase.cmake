@@ -83,6 +83,7 @@ get_filename_component (
 Make the contents of `CMake/Include` and `CMake/Modules` available.
 The former contains tools and utilities whereas
 the latter only contains modules at a higher level.
+We also rely on QtPDF embeded modules.
 ]=======]
 list (
   INSERT CMAKE_MODULE_PATH 0

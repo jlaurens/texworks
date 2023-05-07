@@ -21,22 +21,31 @@
 
 #include "TwxCoreTest.h"
 
-//#include "Core/TwxInfo.h"
+#include "Core/TwxInfo.h"
 
 namespace Twx {
 namespace Core {
 namespace Test {
 
-Main::Main()
-{
-}
+// Main::Main()
+// {
+// }
 
-Main::~Main()
-{
-}
+// Main::~Main()
+// {
+// }
 
 void Main::testInfo()
 {
+	QCOMPARE(Info::name(), QStringLiteral("TwxCoreTest"));
+	QCOMPARE(Info::authors(), QString::fromUtf8("Ò∂ƒﬁ🥹"));
+	QCOMPARE(Info::copyrightYears(), QString::fromUtf8("1234-5678"));
+	QCOMPARE(Info::copyrightHolders(), QString::fromUtf8("æê®†\"Úºîœπ‡Ò∂\"ƒﬁÌÏÈ"));
+
+	QCOMPARE(Info::versionMajor(), 1);
+	QCOMPARE(Info::versionMinor(), 7);
+	QCOMPARE(Info::versionPatch(), 8);
+	QCOMPARE(Info::versionTweak(), 9);
 }
 
 } // namespace Test

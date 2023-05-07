@@ -29,15 +29,28 @@ namespace Twx {
 
 namespace Core {
 
+static const QString name_ = QString::fromUtf8("@TWX_INFO_NAME@");
+static const QString authors_ = QString::fromUtf8("@TWX_INFO_AUTHORS@");
 static const QString copyrightYears_ = QString::fromUtf8("@TWX_INFO_COPYRIGHT_YEARS@");
 static const QString copyrightHolders_ = QString::fromUtf8("@TWX_INFO_COPYRIGHT_HOLDERS@");
-static const QString authors_ = QString::fromUtf8("@TWX_INFO_AUTHORS@");
-static const QString name_ = QString::fromUtf8("@TWX_INFO_NAME@");
 static const QString hash_ = QStringLiteral("@TWX_INFO_GIT_HASH@");
 static const QDateTime date_ = QDateTime::fromString(
 	QStringLiteral("@TWX_INFO_GIT_DATE@"),
 	Qt::ISODate
 ).toUTC();
+static const QString branch_ = QStringLiteral("@TWX_INFO_GIT_BRANCH@");
+
+// static
+const QString Info::name()
+{
+	return name_;
+}
+
+// static
+const QString Info::authors()
+{
+	return authors_;
+}
 
 // static
 const QString Info::copyrightYears()
@@ -51,42 +64,66 @@ const QString Info::copyrightHolders()
 }
 
 // static
-const QString Info::gitCommitHash()
+int Info::versionMNP()
 {
-	return hash_;
+	return  @TWX_INFO_VERSION_MAJOR@ << 16
+	     	| @TWX_INFO_VERSION_MINOR@ << 8
+			 	| @TWX_INFO_VERSION_PATCH@;
 }
 
 // static
-const QString Info::name()
+int Info::versionMNPT()
 {
-	return name_;
+	return  @TWX_INFO_VERSION_MAJOR@ << 24
+	     	| @TWX_INFO_VERSION_MINOR@ << 16
+			 	| @TWX_INFO_VERSION_PATCH@ << 8
+				| @TWX_INFO_VERSION_TWEAK@;
 }
 
 // static
-const QDateTime Info::gitCommitDate()
+int Info::versionMajor()
 {
-	return date_;
+	return @TWX_INFO_VERSION_MAJOR@;
 }
 
 // static
-const QString Info::versionString()
+int Info::versionMinor()
+{
+	return @TWX_INFO_VERSION_MINOR@;
+}
+
+// static
+int Info::versionBugfix()
+{
+	return @TWX_INFO_VERSION_PATCH@;
+}
+
+// static
+int Info::versionPatch()
+{
+	return @TWX_INFO_VERSION_PATCH@;
+}
+
+// static
+int Info::versionTweak()
+{
+	return @TWX_INFO_VERSION_TWEAK@;
+}
+
+// static
+const QString Info::version()
 {
 	return QStringLiteral("@TWX_INFO_PROJECT_VERSION@");
 }
 
-const QString Info::buildIdString()
-{
-	return QStringLiteral("@TWX_INFO_BUILD_ID@");
-}
-// @TWX_INFO_GIT_OK@
-const QString Info::fullVersionString()
+const QString Info::versionFull()
 {
 	static const QString ans = @TWX_INFO_GIT_OK@
 	? QStringLiteral(
 		"%1 (%2) [r.%3, %4]"
 	).arg(
-		versionString(),
-		buildIdString(),
+		version(),
+		buildId(),
 		hash_,
 		QLocale::system().toString(
 			date_.toLocalTime(),
@@ -94,46 +131,33 @@ const QString Info::fullVersionString()
 		)
 	)
 	: QStringLiteral("%1 (%2)").arg(
-		versionString(),
-		buildIdString()
+		version(),
+		buildId()
 	);
 	return ans;
 }
 
-// static
-int Info::getVersion()
+const QString Info::buildId()
 {
-	return (@TWX_INFO_VERSION_MAJOR@ << 16) | (@TWX_INFO_VERSION_MINOR@ << 8) | @TWX_INFO_VERSION_PATCH@;
+	return QStringLiteral("@TWX_INFO_BUILD_ID@");
 }
 
 // static
-int Info::getVersionMajor()
+const QString Info::gitHash()
 {
-	return @TWX_INFO_VERSION_MAJOR@;
+	return hash_;
 }
 
 // static
-int Info::getVersionMinor()
+const QDateTime Info::gitDate()
 {
-	return @TWX_INFO_VERSION_MINOR@;
+	return date_;
 }
 
 // static
-int Info::getVersionBugfix()
+const QString Info::gitBranch()
 {
-	return @TWX_INFO_VERSION_PATCH@;
-}
-
-// static
-int Info::getVersionPatch()
-{
-	return @TWX_INFO_VERSION_PATCH@;
-}
-
-// static
-int Info::getVersionTweak()
-{
-	return @TWX_INFO_VERSION_TWEAK@;
+	return branch_;
 }
 
 } // namespace Core

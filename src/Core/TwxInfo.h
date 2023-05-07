@@ -36,34 +36,33 @@ class Info
 {
 public:
 	static const QString name();
-
+	static const QString authors();
 	static const QString copyrightYears();
 	static const QString copyrightHolders();
-	static const QString authors();
-
-	static const QString gitCommitHash();
-	static const QDateTime gitCommitDate();
-	static const QString gitCommitBranch();
-
-	static const QString versionString();
-	static const QString buildIdString();
-
-	static const QString fullVersionString();
-
+	
+	static int versionMajor();
+	static int versionMinor();
+	static int versionBugfix();
+  static int versionPatch();
+  static int versionTweak();
 	// return the version of Tw (0xMMNNPP)
-	static int getVersion();
+	static int versionMNP();
+	// return the version of Tw (0xMMNNPPTT)
+	static int versionMNPT();
 
-	static int getVersionMajor();
-	static int getVersionMinor();
-	static int getVersionBugfix();
-  static int getVersionPatch();
-  static int getVersionTweak();
+	static const QString version();
+	static const QString versionFull();
+
+	static const QString buildId();
+	
+	static const QString   gitHash();
+	static const QDateTime gitDate();
+	static const QString   gitBranch();
 
   friend class Test::Main;
 };
 
 } // namespace Core
-
 } // namespace Twx
 
 #endif // Twx_Core_Info_h
