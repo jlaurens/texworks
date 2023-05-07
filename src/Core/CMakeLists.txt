@@ -4,29 +4,45 @@ https://github.com/TeXworks/texworks
 
 This is `<...>/src/Core/CMakeLists.txt`
 
+It can be used as standalone testing project,
+testing auxiliary or source provider.
+
+## Standalone testing project
+
 When used as primary `CMakeLists.txt` it defines
 a standalone test suite for `Twx::Core` namespace.
 
-When used when `TWX_TEST` is on, it defines a test suite
-as part of a more general test.
-It is also included by `/unit-tests/CMakeLists.txt`.
-
-Otherwise, it defines the sources and headers.
-
-Usage:
-
-From an external binary directory
+Usage from an external build directory:
 ```
 cmake .../Core
 cmake --build .
 ctest .
 ```
 
+## Subdirectory
+
+When loaded by `add_subdirectory`.
+
+### In testing context
+
+It defines a test suite as part of a more general test.
+See `/unit-tests/CMakeLists.txt`.
+
+### In normal context
+
+Output:
+* `TwxCore_SOURCES`, a `;` separated list of full paths
+* `TwxCore_HEADERS`, a `;` separated list of full paths
+
 #]===============================================]
 
+set ( TwxCore_SOURCES )
+set ( TwxCore_HEADERS )
+
 if ( NOT TWX_IS_BASED )
+
 	# This file is primary
-	cmake_minimum_required ( VERSION 3.1 )
+	cmake_minimum_required ( VERSION 3.25 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
@@ -38,113 +54,95 @@ if ( NOT TWX_IS_BASED )
 		TWX_PROJECT.ini
 		"${CMAKE_CURRENT_LIST_DIR}/Test/${PROJECT_NAME}.ini"
 	)
-	include ( TwxPrepareConfigureFile )
-	
-  include ( withQT )
-	if ( QT_VERSION_MAJOR EQUAL 6 )
-		# Check for Qt6
-		twx_append_QT ( REQUIRED Core5Compat )
-	else ()
-		if ( WIN32 AND NOT BUILD_SHARED_LIBS )
-			twx_append_QT ( REQUIRED WindowsPlatformSupport )
-		endif ()
-	endif ()
-
-	include ( InitWARNING )
+	set (CMAKE_CXX_STANDARD 11 )
+	set ( TWX_TEST ON	)
+	set ( TwxCore_TEST_IS_ROOT ON )
 
 	enable_testing ()
 
-	set ( TWX_TEST ON	)
-	set ( TwxCore_TEST_IS_ROOT ON )
-  
-	# add_custom_target (
-	# 	TwxSetupConfigureFile_target
-	# 	ALL
+	# Tell CMake to run moc when necessary:
+	set ( CMAKE_AUTOMOC ON )
 
-	# 	] [command1 [args1...]]
-  #                 [COMMAND command2 [args2...] ...]
-  #                 [DEPENDS depend depend depend ... ]
-  #                 [WORKING_DIRECTORY dir]
-  #                 [COMMENT comment] [VERBATIM]
-  #                 [SOURCES src1 [src2...]]
-	# )
-	# add_custom_target (
-	# 	TwxSetupConfigureFile_target
-	# 	ALL
-	# 	] [command1 [args1...]]
-  #                 [COMMAND command2 [args2...] ...]
-  #                 [DEPENDS depend depend depend ... ]
-  #                 [WORKING_DIRECTORY dir]
-  #                 [COMMENT comment] [VERBATIM]
-  #                 [SOURCES src1 [src2...]]
-	# )
-endif ()
+	# As moc files are generated in the binary dir, tell CMake
+	# to always look for includes there:
+	set ( CMAKE_INCLUDE_CURRENT_DIR ON )
 
-twx_configure_file_add (
-	out_twx
-  "${CMAKE_CURRENT_LIST_DIR}/TwxInfo.in.cpp"
-)
-twx_configure_file_proceed ( )
-include ( TwxSrc )
+	add_executable ( test_TwxCore )
 
-set (
-	TwxCore_SOURCES
-	${out_twx}
-)
-twx_src_list_append (
-	TwxCore_SOURCES
-	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.cpp"
-)
-set (
-	TwxCore_HEADERS
-)
-twx_src_list_append (
-	TwxCore_HEADERS
-	"${CMAKE_CURRENT_LIST_DIR}/TwxInfo.h"
-	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.h"
-)
-
-if ( TWX_TEST )
-# Add a test target for primary or secondary
-# `CMakeLists`.
-
-	add_executable (
-		test_TwxCore
+	add_test (
+		NAME test_TwxCore
+		COMMAND test_TwxCore
+		WORKING_DIRECTORY
+		"${CMAKE_CURRENT_LIST_DIR}/Test/TestCase"
 	)
 	target_include_directories (
 		test_TwxCore
-		PRIVATE "${TWX_DIR}/src"
-		PRIVATE "${PROJECT_BINARY_DIR}/src"
-	)
-	# The sources need the include directories
-	target_sources (
-		test_TwxCore
-		PRIVATE "${CMAKE_CURRENT_LIST_DIR}/TwxInfo.h"
-		PRIVATE "${PROJECT_BINARY_DIR}/src/Core/TwxInfo.cpp"
-		PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.h"
-		PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.cpp"
-		# PRIVATE ${TwxCore_SOURCES} 
-		# PRIVATE ${TwxCore_HEADERS}
-	)
-	target_compile_options (
-		test_TwxCore
-		PRIVATE ${WARNING_OPTIONS}
-	)
-	target_link_libraries (
-		test_TwxCore
-		${QT_LIBRARIES}
+    PRIVATE ${TWX_DIR}/src ${PROJECT_BUILD_DIR}/src
 	)
 	target_compile_definitions (
 		test_TwxCore
 		PRIVATE TwxCore_TEST
 	)
-	add_test (
-		NAME test_TwxCore
-		COMMAND test_TwxCore
-		WORKING_DIRECTORY
-		"${CMAKE_CURRENT_LIST_DIR}/TestCase"
+
+	include ( WithQT )
+	# if ( QT_VERSION_MAJOR EQUAL 6 )
+	# 	# Check for Qt6
+	# 	twx_append_QT ( REQUIRED Core5Compat )
+	# else ()
+	# 	if ( WIN32 AND NOT BUILD_SHARED_LIBS )
+	# 		twx_append_QT ( REQUIRED WindowsPlatformSupport )
+	# 	endif ()
+	# endif ()
+
+	target_link_libraries (
+		test_TwxCore
+		${QT_LIBRARIES}
 	)
-endif ( TWX_TEST )
+
+	include ( TwxWarning )
+	twx_warning ( test_TwxCore )
+
+endif ()
+
+include ( TwxConfigureFileLib )
+twx_configure_file_prepare ()
+twx_configure_file_add (
+	out_twx
+	"${CMAKE_CURRENT_LIST_DIR}/TwxInfo.in.cpp"
+)
+list (
+	APPEND TwxCore_SOURCES
+	${out_twx}
+)
+twx_configure_file_proceed ( )
+
+
+list (
+	APPEND TwxCore_HEADERS
+	"${CMAKE_CURRENT_LIST_DIR}/TwxInfo.h"
+)
+
+if ( NOT TWX_TEST )
+	return (
+		PROPAGATE TwxCore_SOURCES TwxCore_HEADERS
+	)
+endif ()
+
+list (
+	APPEND
+	TwxCore_SOURCES
+	Test/TwxCoreTest.cpp
+)
+list (
+	APPEND
+	TwxCore_HEADERS
+	Test/TwxCoreTest.h
+)
+
+target_sources (
+	test_TwxCore
+	PRIVATE ${TwxCore_SOURCES} ${TwxCore_HEADERS}
+)
 
 # ANCHOR - Summary
 # =======
@@ -154,7 +152,8 @@ if ( TwxCore_TEST_IS_ROOT )
 message ( "" )
 
 include ( TwxConfigLog )
-include ( TwxInfoGitUpdate )
+include ( TwxInfoLib )
+twx_info_update ()
 twx_info_read ( GIT )
 
 twx_config_begin (

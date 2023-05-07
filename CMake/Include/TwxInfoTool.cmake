@@ -8,7 +8,7 @@ Updated information related to git.
 Usage:
 from a target at build time only
 ```
-include ( TwxUpdateGit )
+include ( TwxInfoUpdate )
 ```
 Input:
 * `PROJECT_NAME`
@@ -55,7 +55,7 @@ endif ()
 
 find_package ( Git QUIET )
 
-function ( twx__update_git )
+function ( twx_info_update )
 
   set ( old_HASH   "${TWX_${PROJECT_NAME}_INFO_GIT_HASH}"   )
   set ( old_DATE   "${TWX_${PROJECT_NAME}_INFO_GIT_DATE}"   )
@@ -118,7 +118,7 @@ Would show the date and time UTC.
         NOT "${new_HASH}" STREQUAL "" AND
         NOT "${new_DATE}" STREQUAL "" AND
         NOT "${new_BRANCH}" STREQUAL "" )
-        set ( new_OK ON )
+        set ( new_OK 1 )
       execute_process (
         COMMAND "${GIT_EXECUTABLE}"
         "--git-dir=.git" "diff" "--ignore-cr-at-eol" "--quiet" "HEAD"
@@ -147,6 +147,6 @@ Would show the date and time UTC.
     message ( STATUS "Git commit info updated" )
   endif ()
 
-endfunction ( twx__update_git )
+endfunction ( twx_info_update )
 
-twx__update_git ()
+twx_info_update ()

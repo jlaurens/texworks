@@ -33,8 +33,8 @@ private slots:
 	void testInfo();
 
 public:
-  Main () = default;
-  ~Main () = default;
+  Main ();
+  ~Main ();
 
 };
 

@@ -39,6 +39,11 @@ if ( POLICY CMP0058 )
   cmake_policy ( SET CMP0058 NEW )
 endif ()
 
+# Let AUTOMOC and AUTOUIC process GENERATED files.
+if ( POLICY CMP0071 )
+  cmake_policy ( SET CMP0071 NEW )
+endif ()
+
 # Prefer newer OpenGL libraries over legacy ones
 if ( POLICY CMP0072 )
   cmake_policy ( SET CMP0072 NEW )

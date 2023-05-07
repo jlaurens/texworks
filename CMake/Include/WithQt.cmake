@@ -133,8 +133,6 @@ function ( twx_target_Qt_guards _target )
 	endif ()
 endfunction ()
 
-if ( WITH_TEST )
+if ( WITH_TEST OR TWX_TEST )
 	twx_append_QT ( REQUIRED Test )
 endif ()
-
-

@@ -8,7 +8,7 @@ the state is properly set beforehands.
 
 Usages:
 ```
-cmake ... -P .../TwxConfigureFiles.cmake
+cmake ... -P .../TwxConfigureFileTool.cmake
 ```
 
 Input state:
@@ -70,18 +70,15 @@ while ( NOT "${SOURCE_IN}" STREQUAL "" )
   )
     continue ()
   endif ()
+  if ( TWX_CONFIG_VERBISE )
+    message (STATUS "configure_file: ${input} => ${output}")
+  endif ()
   configure_file(
     "${input}"
     "${output}"
     ESCAPE_QUOTES
     @ONLY
   )
-  # configure_file(
-  #   "${TWX_DIR}/${input}"
-  #   "${PROJECT_BINARY_DIR}/${output}"
-  #   ESCAPE_QUOTES
-  #   @ONLY
-  # )
   # configure_file( "${input}" "${output}(configured)" ESCAPE_QUOTES @ONLY )
   # execute_process(
   #   COMMAND ${CMAKE_COMMAND}

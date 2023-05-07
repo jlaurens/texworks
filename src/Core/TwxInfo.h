@@ -35,6 +35,8 @@ namespace Test {
 class Info
 {
 public:
+	static const QString name();
+
 	static const QString copyrightYears();
 	static const QString copyrightHolders();
 	static const QString authors();

@@ -62,24 +62,24 @@ const QString Info::name()
 	return name_;
 }
 
-static
+// static
 const QDateTime Info::gitCommitDate()
 {
 	return date_;
 }
 
 // static
-QString Info::versionString()
+const QString Info::versionString()
 {
 	return QStringLiteral("@TWX_INFO_PROJECT_VERSION@");
 }
 
-QString Info::buildIdString()
+const QString Info::buildIdString()
 {
 	return QStringLiteral("@TWX_INFO_BUILD_ID@");
 }
-
-QString Info::fullVersionString()
+// @TWX_INFO_GIT_OK@
+const QString Info::fullVersionString()
 {
 	static const QString ans = @TWX_INFO_GIT_OK@
 	? QStringLiteral(

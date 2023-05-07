@@ -21,16 +21,23 @@
 
 #include "TwxCoreTest.h"
 
-#include "Core/TwxInfo.h"
+//#include "Core/TwxInfo.h"
 
 namespace Twx {
 namespace Core {
 namespace Test {
 
-void Main::testInfo()
+Main::Main()
 {
 }
 
+Main::~Main()
+{
+}
+
+void Main::testInfo()
+{
+}
 
 } // namespace Test
 } // namespace Core
