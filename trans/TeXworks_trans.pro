@@ -9,7 +9,6 @@ SOURCES = \
   "../src/BibTeXFile.cpp" \
   "../src/CitationSelectDialog.cpp" \
   "../src/CompletingEdit.cpp" \
-  "../src/Engine.cpp" \
   "../src/FindDialog.cpp" \
   "../src/HardWrapDialog.cpp" \
   "../src/InterProcessCommunicatorDBus.cpp" \
@@ -38,6 +37,7 @@ SOURCES = \
   "../src/scripting/JSScriptInterface.cpp" \
   "../src/scripting/Script.cpp" \
   "../src/scripting/ScriptAPI.cpp" \
+  "../src/Typeset/TwxEngine.cpp" \
   "../src/ui/ClickableLabel.cpp" \
   "../src/ui/ClosableTabWidget.cpp" \
   "../src/ui/ColorButton.cpp" \
@@ -62,7 +62,6 @@ HEADERS = \
   "../src/CompletingEdit.h" \
   "../src/DefaultBinaryPaths.h" \
   "../src/DefaultPrefs.h" \
-  "../src/Engine.h" \
   "../src/FindDialog.h" \
   "../src/GitRev.h" \
   "../src/HardWrapDialog.h" \
@@ -92,6 +91,7 @@ HEADERS = \
   "../src/scripting/ScriptAPI.h" \
   "../src/scripting/ScriptAPIInterface.h" \
   "../src/scripting/ScriptLanguageInterface.h" \
+  "../src/Typeset/TwxEngine.h" \
   "../src/ui/ClickableLabel.h" \
   "../src/ui/ClosableTabWidget.h" \
   "../src/ui/ColorButton.h" \

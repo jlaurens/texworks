@@ -23,7 +23,6 @@
 
 #include "CitationSelectDialog.h"
 #include "DefaultPrefs.h"
-#include "Engine.h"
 #include "FindDialog.h"
 #include "HardWrapDialog.h"
 #include "PDFDocumentWindow.h"
@@ -38,6 +37,17 @@
 #include "ui/RemoveAuxFilesDialog.h"
 #include "utils/CmdKeyFilter.h"
 #include "utils/WindowManager.h"
+
+#include "Core/TwxPathManager.h"
+using PathManager = Twx::Core::PathManager;
+
+#include "Typeset/TwxEngine.h"
+using Engine = Twx::Typeset::Engine;
+#include "Typeset/TwxEngineManager.h"
+using EngineManager = Twx::Typeset::EngineManager;
+
+#include "Typeset/TwxTypesetManager.h"
+using TypesetManager = Twx::Typeset::Manager;
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
@@ -149,7 +159,7 @@ void TeXDocumentWindow::init()
 	connect(engineActions, &QActionGroup::triggered, this, static_cast<void (TeXDocumentWindow::*)(QAction*)>(&TeXDocumentWindow::selectedEngine));
 
 	codec = TWApp::instance()->getDefaultCodec();
-	engineName = TWApp::instance()->getDefaultEngine().name();
+	engineName = EngineManager::getDefaultEngineName();
 	engine = new QComboBox(this);
 	engine->setEditable(false);
 	engine->setFocusPolicy(Qt::NoFocus);
@@ -162,7 +172,12 @@ void TeXDocumentWindow::init()
 	updateEngineList();
 	connect(engine, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void (TeXDocumentWindow::*)(int)>(&TeXDocumentWindow::selectedEngine));
 
-	connect(TWApp::instance(), &TWApp::engineListChanged, this, &TeXDocumentWindow::updateEngineList);
+	connect(
+		EngineManager::emitter(),
+		&EngineManager::engineListChanged,
+		this,
+		&TeXDocumentWindow::updateEngineList
+	);
 
 	connect(actionNew, &QAction::triggered, this, &TeXDocumentWindow::newFile);
 	connect(actionNew_from_Template, &QAction::triggered, this, &TeXDocumentWindow::newFromTemplate);
@@ -1595,7 +1610,7 @@ void TeXDocumentWindow::updateEngineList()
 	QStandardItemModel * model = qobject_cast<QStandardItemModel*>(engine->model());
 	Q_ASSERT(model);
 	model->clear();
-	foreach (Engine e, TWApp::instance()->getEngineList()) {
+	foreach (Engine e, EngineManager::getEngineList()) {
 		QAction *newAction = new QAction(e.name(), engineActions);
 		newAction->setCheckable(true);
 		bool available{e.isAvailable()};
@@ -1609,7 +1624,7 @@ void TeXDocumentWindow::updateEngineList()
 	connect(engine, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void (TeXDocumentWindow::*)(int)>(&TeXDocumentWindow::selectedEngine));
 	int index = engine->findText(engineName, Qt::MatchFixedString);
 	if (index < 0)
-		index = engine->findText(TWApp::instance()->getDefaultEngine().name(), Qt::MatchFixedString);
+		index = engine->findText(EngineManager::getDefaultEngineName(), Qt::MatchFixedString);
 	if (index >= 0)
 		engine->setCurrentIndex(index);
 }
@@ -2740,12 +2755,12 @@ void TeXDocumentWindow::typeset()
 		return;
 	}
 
-	Engine e = TWApp::instance()->getNamedEngine(engine->currentText());
+	Engine e = EngineManager::getEngineWithName(engine->currentText());
 	if (!e.isAvailable()) {
 		statusBar()->showMessage(tr("%1 is not properly configured").arg(engine->currentText()), kStatusMessageDuration);
 		return;
 	}
-
+#warning ABCDE
 	if (!TWApp::instance()->typesetManager().startTypesetting(rootFilePath, this)) {
 		statusBar()->showMessage(tr("%1 is already being processed").arg(rootFilePath), kStatusMessageDuration);
 		updateTypesettingAction();
@@ -2817,7 +2832,7 @@ void TeXDocumentWindow::typeset()
 							  QMessageBox::Cancel, this);
 		msgBox.setDetailedText(
 		                      tr("Searched in directories:") + QChar::fromLatin1('\n') +
-							  QLatin1String(" * ") + Engine::binPaths().join(QLatin1String("\n * ")) + QChar::fromLatin1('\n') +
+							  QLatin1String(" * ") + PathManager::getBinaryPaths().join(QLatin1String("\n * ")) + QChar::fromLatin1('\n') +
 							  tr("Check the configuration of the %1 tool and the path settings in the Preferences dialog.").arg(e.name()));
 		msgBox.exec();
 	}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tex</string>
+				<string>ltx</string>
+				<string>sty</string>
+				<string>cls</string>
+				<string>dtx</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>TeXworks-doc.icns</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>text/plain</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>TeX Document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSIsAppleDefaultForType</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>pdf</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>TeXworks-doc.icns</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/pdf</string>
+			</array>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.adobe.pdf</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>PDF Document</string>
+		</dict>
+	</array>
+	<key>CFBundleIconFile</key>
+	<string>TeXworks.icns</string>
+	<key>CFBundleGetInfoString</key>
+	<string>TeXworks version @TWX_INFO_VERSION@ (r.@TWX_INFO_GIT_HASH@)
+©  @TWX_INFO_COPYRIGHT_YEARS@ @TWX_INFO_COPYRIGHT_HOLDERS@
+Released under GPL (v2.0 or later)</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>©   @TWX_INFO_COPYRIGHT_YEARS@ @TWX_INFO_COPYRIGHT_HOLDERS@
+Released under GPL (v2.0 or later)</string>
+	<key>CFBundleExecutable</key>
+	<string>TeXworks</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.tug.texworks</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@TWX_INFO_VERSION@</string>
+	<key>CFBundleVersion</key>
+	<string>@TWX_INFO_VERSION@ (r.@TWX_INFO_GIT_HASH@)</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+</dict>
+</plist>

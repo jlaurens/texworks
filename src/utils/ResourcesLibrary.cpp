@@ -21,13 +21,15 @@
 
 #include "utils/ResourcesLibrary.h"
 
-#include "TWApp.h" // for PATH_LIST_SEP
 #include "utils/FileVersionDatabase.h"
 #include "utils/VersionInfo.h"
+
+#include "Core/TwxPathManager.h"
 
 #include <QDebug>
 #include <QDirIterator>
 #include <QStandardPaths>
+#include <QCoreApplication>
 
 namespace Tw {
 
@@ -148,7 +150,7 @@ const QString ResourcesLibrary::getLibraryPath(const QString& subdir, const bool
 // static
 const QStringList ResourcesLibrary::getLibraryPaths(const QString & subdir, const bool updateOnDisk)
 {
-	return getLibraryPath(subdir, updateOnDisk).split(QStringLiteral(PATH_LIST_SEP));
+	return getLibraryPath(subdir, updateOnDisk).split(Twx::Core::pathListSeparator);
 }
 
 // static

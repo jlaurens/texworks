@@ -22,7 +22,7 @@
 #define SETTINGS_H
 
 #include <QSettings>
-
+//TODO: document this class, what is the purpose???
 namespace Tw {
 
 class Settings : public QSettings

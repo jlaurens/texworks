@@ -1,0 +1,32 @@
+{
+  "__": "Engine list for TeXworks",
+  "__type": "EngineList",
+  "__data": [ {
+    "name": "engine_1",
+    "program": "program_1",
+    "arguments": [
+      "argument_1_1",
+      "argument_1_2"
+    ],
+    "showPdf":true
+  }, {
+    "name": "engine_2",
+    "program": "program_2",
+    "arguments": [
+      "argument_2_1",
+      "argument_2_2"
+    ],
+    "showPdf":true
+  }, {
+    "name": "engine_3",
+    "program": "Undefined",
+    "arguments": [
+      "<synctexoption=$synctexoption>",
+      "<fullname=$fullname>",
+      "<basename=$basename>",
+      "<suffix=$suffix>",
+      "<directory=$directory>"
+    ],
+    "showPdf":true
+  } ]
+}

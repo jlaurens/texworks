@@ -30,6 +30,11 @@
 #include "TeXHighlighter.h"
 #include "document/SpellChecker.h"
 
+#include "Core/TwxPathManager.h"
+using PathManager = Twx::Core::PathManager;
+#include "Typeset/TwxEngineManager.h"
+using EngineManager = Twx::Typeset::EngineManager;
+
 #include <QFileDialog>
 #include <QFontDatabase>
 #include <QMainWindow>
@@ -261,7 +266,7 @@ void PrefsDialog::refreshDefaultTool()
 		defaultTool->addItem(e.name());
 		if (e.name() == val)
 			toolIndex = defaultTool->count() - 1;
-		if (e.name() == QString::fromUtf8(DEFAULT_ENGINE_NAME))
+		if (e.name() == EngineManager::getDefaultEngineName())
 			defaultIndex = defaultTool->count() - 1;
 	}
 
@@ -413,8 +418,8 @@ void PrefsDialog::restoreDefaults()
 
 		case 3:
 			// Typesetting
-			TWApp::instance()->setDefaultEngineList();
-			TWApp::instance()->setDefaultPaths();
+			EngineManager::resetEngineListToFactory();
+			PathManager::resetRawBinaryPaths();
 			initPathAndToolLists();
 			autoHideOutput->setCurrentIndex(kDefault_HideConsole);
 			pathsChanged = true;
@@ -436,12 +441,12 @@ void PrefsDialog::initPathAndToolLists()
 {
 	binPathList->clear();
 	toolList->clear();
-	binPathList->addItems(TWApp::instance()->getPrefsBinaryPaths());
-	engineList = TWApp::instance()->getEngineList();
+	binPathList->addItems(PathManager::getRawBinaryPaths());
+	engineList = EngineManager::getEngineList();
 	foreach (Engine e, engineList) {
 		toolList->addItem(e.name());
 		defaultTool->addItem(e.name());
-		if (e.name() == TWApp::instance()->getDefaultEngine().name())
+		if (e.name() == EngineManager::getDefaultEngineName())
 			defaultTool->setCurrentIndex(defaultTool->count() - 1);
 	}
 	if (binPathList->count() > 0)
@@ -874,11 +879,11 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			QStringList paths;
 			for (int i = 0; i < dlg.binPathList->count(); ++i)
 				paths << dlg.binPathList->item(i)->text();
-			TWApp::instance()->setBinaryPaths(paths);
+			PathManager::setRawBinaryPaths(paths);
 		}
 		if (dlg.toolsChanged)
-			TWApp::instance()->setEngineList(dlg.engineList);
-		TWApp::instance()->setDefaultEngine(dlg.defaultTool->currentText());
+			EngineManager::setEngineList(dlg.engineList);
+		EngineManager::setDefaultEngineName(dlg.defaultTool->currentText());
 		settings.setValue(QString::fromLatin1("autoHideConsole"), dlg.autoHideOutput->currentIndex());
 
 		// Scripts

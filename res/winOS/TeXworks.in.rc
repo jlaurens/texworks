@@ -1,0 +1,39 @@
+#include <windows.h>
+
+IDI_ICON1	ICON	DISCARDABLE	"@TWX_INFO_APP_ICO@"
+IDI_ICON2	ICON	DISCARDABLE	"@TWX_INFO_DOC_ICO@"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    	@TWX_INFO_VERSION_MAJOR@,@TWX_INFO_VERSION_MINOR@,@TWX_INFO_VERSION_PATCH@,@TWX_INFO_VERSION_TWEAK@
+PRODUCTVERSION 	@TWX_INFO_VERSION_MAJOR@,@TWX_INFO_VERSION_MINOR@,@TWX_INFO_VERSION_PATCH@,@TWX_INFO_VERSION_TWEAK@
+FILEFLAGSMASK  	0
+FILEOS         	VOS__WINDOWS32
+FILETYPE       	VFT_APP
+FILESUBTYPE    	0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",      "TeX Users Group"
+            VALUE "FileDescription",  "@TWX_INFO_NAME@ editor & previewer"
+            VALUE "FileVersion",      "@TWX_INFO_VERSION@-r.@TWX_INFO_GIT_HASH@"
+            VALUE "InternalName",     "@TWX_INFO_NAME@"
+            VALUE "LegalCopyright",   "Copyright (C) @TWX_INFO_COPYRIGHT_YEARS@  @TWX_INFO_COPYRIGHT_HOLDERS@"
+            VALUE "OriginalFilename", "@TWX_INFO_NAME@.exe"
+            VALUE "ProductName",      "@TWX_INFO_NAME@"
+            VALUE "ProductVersion",   "@TWX_INFO_NAME@ @TWX_INFO_VERSION@"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+// Required by MinGW but breaks MSVC; configured by CMake
+#cmakedefine01 CREATE_MANIFEST
+#if CREATE_MANIFEST
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "@TWX_INFO_WIN_MANIFEST@"
+#endif

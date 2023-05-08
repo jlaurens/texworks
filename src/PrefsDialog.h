@@ -22,7 +22,9 @@
 #ifndef PrefsDialog_H
 #define PrefsDialog_H
 
-#include "Engine.h"
+#include "Typeset/TwxEngine.h"
+using Engine = Twx::Typeset::Engine;
+
 #include "ui_PrefsDialog.h"
 #include "ui_ToolConfig.h"
 

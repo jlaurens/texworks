@@ -12,7 +12,6 @@
 set(TEXWORKS_SRCS BibTeXFile.cpp
                   CitationSelectDialog.cpp
                   CompletingEdit.cpp
-                  Engine.cpp
                   FindDialog.cpp
                   HardWrapDialog.cpp
                   main.cpp
@@ -39,6 +38,7 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   scripting/ScriptAPI.cpp
                   scripting/Script.cpp
                   scripting/ScriptObject.cpp
+                  Typeset/TwxEngine.cpp
                   ui/ClickableLabel.cpp
                   ui/ClosableTabWidget.cpp
                   ui/ColorButton.cpp
@@ -64,7 +64,6 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   CompletingEdit.h
                   DefaultBinaryPaths.h
                   DefaultPrefs.h
-                  Engine.h
                   FindDialog.h
                   GitRev.h
                   HardWrapDialog.h
@@ -93,6 +92,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   scripting/ScriptAPI.h
                   scripting/Script.h
                   scripting/ScriptObject.h
+                  Typeset/TwxEngine.h
                   ui/ClickableLabel.h
                   ui/ClosableTabWidget.h
                   ui/ColorButton.h
@@ -127,6 +127,27 @@ if (WITH_QTSCRIPT)
   list(APPEND TEXWORKS_HDRS scripting/JSScriptInterface.h scripting/JSScript.h)
   add_definitions(-DWITH_QTSCRIPT)
 endif (WITH_QTSCRIPT)
+
+# Core addition
+
+include ( SrcTwxCoreSetup )
+include ( SrcTwxTypesetSetup )
+
+add_subdirectory (
+  Typeset
+)
+list(
+  APPEND TEXWORKS_SRCS
+  ${TwxCore_SOURCES}
+  ${TwxTypeset_SOURCES}
+)
+list(
+  APPEND TEXWORKS_HDRS
+  ${TwxCore_HEADERS}
+  ${TwxTypeset_HEADERS}
+)
+
+list(APPEND TEXWORKS_HDRS scripting/JSScriptInterface.h scripting/JSScript.h)
 
 set(TEXWORKS_UIS CitationSelectDialog.ui
                  CompletingEdit.ui

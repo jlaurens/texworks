@@ -51,37 +51,13 @@
 # Setup and User Options
 # ======================
 
-# Set project name.
-PROJECT(TeXworks)
-
-# CMake 3.1 significantly improves support for imported targets, Qt5, c++11, etc.
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
-CMAKE_POLICY(VERSION 3.1)
-
-# Silence warning about linking to qtmain.lib statically on Windows
-IF(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW)
-ENDIF()
-
-# Silence warning about using @rpath on OS X.
-if(POLICY CMP0042)
-  cmake_policy(SET CMP0042 NEW)
-endif()
-
-# Silence warning about ninja custom command byproducts
-if(POLICY CMP0058)
-  cmake_policy(SET CMP0058 NEW)
-endif()
-
-# Prefer newer OpenGL libraries over legacy ones
-if (POLICY CMP0072)
-  cmake_policy(SET CMP0072 NEW)
-endif ()
-
-# Silence warning about option() treating variables differently on the first run
-if(POLICY CMP0077)
-  cmake_policy(SET CMP0077 NEW)
-endif()
+cmake_minimum_required ( VERSION 3.1 )
+include (
+  "${CMAKE_CURRENT_LIST_DIR}/Cmake/Include/TwxBase.cmake"
+  NO_POLICY_SCOPE
+)
+project ( TeXworks )
+include ( TwxBase )
 
 SET(CMAKE_COLOR_MAKEFILE ON)
 # Always add the current source and binary directories to the header include
@@ -90,15 +66,6 @@ SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 SET(CMAKE_AUTOMOC TRUE)
 SET(CMAKE_AUTORCC TRUE)
 SET(CMAKE_AUTOUIC TRUE)
-
-# Make the contents of `CMake/Modules` available. Among other things, this
-# directory contains scripts that locate project components such as hunspell.
-SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${PROJECT_SOURCE_DIR}/modules/QtPDF/CMake/Modules ${CMAKE_MODULE_PATH})
-SET(
-  CMAKE_MODULE_PATH
-  ${PROJECT_SOURCE_DIR}/CMake/Include
-  ${CMAKE_MODULE_PATH}
-)
 
 IF(WIN32 AND MINGW)
   # Ensure that no cpp flags are passed to windres, the Windows resource compiler.
@@ -235,6 +202,8 @@ set (CMAKE_CXX_STANDARD 11)
 
 # Dependency Configuration
 # ========================
+
+include ( TwxQtLib )
 
 if (QT_DEFAULT_MAJOR_VERSION EQUAL 6)
 	# Check for Qt6

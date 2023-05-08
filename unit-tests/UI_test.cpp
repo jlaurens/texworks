@@ -30,6 +30,7 @@
 #include <QDoubleSpinBox>
 #include <QMouseEvent>
 #include <QTabBar>
+#include <QDebug>
 
 namespace UnitTest {
 
@@ -219,11 +220,15 @@ void TestUI::ScreenCalibrationWidget_drag()
 	}
 	QVERIFY(w.isDragging());
 	QCOMPARE(w.dpi(), newDpi);
+	qDebug() << "w.dpi()" << w.dpi();
+	qDebug() << "newDpi" << newDpi;
 	QCOMPARE(spy.count(), 1);
 	QCOMPARE(spy[0][0].toDouble(), newDpi);
 
 	QTest::mouseRelease(&w, Qt::LeftButton, {}, upPos);
 	QCOMPARE(spy.count(), 1);
+	qDebug() << "w.dpi()" << w.dpi();
+	qDebug() << "newDpi" << newDpi;
 	QCOMPARE(w.dpi(), newDpi);
 	QVERIFY(w.isDragging() == false);
 }

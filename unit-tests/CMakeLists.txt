@@ -1,12 +1,72 @@
 # File to build unit-tests
 
-include_directories("${CMAKE_SOURCE_DIR}/src" ${TeXworks_INCLUDE_DIRS})
+set ( TWX_TEST ON )
+set ( TWX_unit-tests ON )
 
+if ( NOT TWX_IS_BASED )
+
+	cmake_minimum_required ( VERSION 3.1 )
+	include (
+		"${CMAKE_CURRENT_LIST_DIR}/../Cmake/Include/TwxBase.cmake"
+		NO_POLICY_SCOPE
+	)
+	project ( TwxAllTests )
+	include ( TwxBase )
+
+	set ( TWX_unit-tests_IS_ROOT ON )
+
+	set ( CMAKE_CXX_STANDARD 11 )
+	# Tell CMake to run moc when necessary:
+	set ( CMAKE_AUTOMOC ON )
+	set ( CMAKE_AUTOUIC ON )
+	set ( CMAKE_AUTORCC ON )
+	# As moc files are generated in the binary dir, tell CMake
+	# to always look for includes there:
+	set ( CMAKE_INCLUDE_CURRENT_DIR ON )
+	enable_testing ()
+	include ( TwxQTLib )
+
+endif ()
+
+add_subdirectory (
+	../src/Core
+	src/Core
+)
+add_subdirectory (
+	../src/Typeset
+	src/Typeset
+)
+add_subdirectory (
+	../src/ui
+	src/ui
+)
+include_directories (
+	"${TWX_DIR}/src"
+	${TeXworks_INCLUDE_DIRS}
+)
 # BiBTeXFile
-add_executable(test_BibTeXFile BibTeXFile_test.cpp BibTeXFile_test.h "${CMAKE_SOURCE_DIR}/src/BibTeXFile.cpp" "${CMAKE_SOURCE_DIR}/src/BibTeXFile.h")
-target_compile_options(test_BibTeXFile PRIVATE ${WARNING_OPTIONS})
-target_link_libraries(test_BibTeXFile ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
-add_test(NAME test_BibTeXFile COMMAND test_BibTeXFile WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
+add_executable (
+	test_BibTeXFile
+	BibTeXFile_test.cpp
+	BibTeXFile_test.h
+	"${TWX_DIR}/src/BibTeXFile.cpp"
+	"${TWX_DIR}/src/BibTeXFile.h"
+)
+include ( TwxWarning )
+twx_warning_target ( test_BibTeXFile )
+target_link_libraries (
+	test_BibTeXFile
+	${QT_LIBRARIES}	
+)
+add_test (
+	NAME test_BibTeXFile
+	COMMAND test_BibTeXFile
+	WORKING_DIRECTORY "${TWX_DIR}/testcases"
+)
+
+if ( TWX_unit-tests_IS_ROOT )
+  return ()
+endif ()
 
 # Scripting
 add_executable(test_Scripting
@@ -67,6 +127,7 @@ target_link_libraries(test_UI ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDIT
 add_test(NAME test_UI COMMAND test_UI WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
 
 # Utils
+include ( SrcTwxCoreSetup )
 add_executable(test_Utils
 	Utils_test.cpp
 	Utils_test.h
@@ -78,6 +139,7 @@ add_executable(test_Utils
 	"${CMAKE_SOURCE_DIR}/src/utils/TextCodecs.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/TypesetManager.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/VersionInfo.cpp"
+	${TwxCore_SOURCES}
 )
 
 target_compile_options(test_Utils PRIVATE ${WARNING_OPTIONS})

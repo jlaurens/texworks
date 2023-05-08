@@ -21,7 +21,6 @@
 
 #include "TWApp.h"
 
-#include "DefaultBinaryPaths.h"
 #include "DefaultPrefs.h"
 #include "PDFDocumentWindow.h"
 #include "PrefsDialog.h"
@@ -38,6 +37,9 @@
 #include "utils/TextCodecs.h"
 #include "utils/VersionInfo.h"
 #include "utils/WindowManager.h"
+
+#include "Core/TwxPathManager.h"
+using PathManager = Twx::Core::PathManager;
 
 #include <QAction>
 #include <QDesktopServices>
@@ -187,7 +189,7 @@ void TWApp::init()
 		}
 		if (portable.contains(QString::fromLatin1("defaultbinpaths"))) {
 			defaultBinPaths = std::unique_ptr<QStringList>(new QStringList);
-			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts);
+			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(Twx::Core::pathListSeparator, SkipEmptyParts);
 		}
 	}
 	QString envPath = QString::fromLocal8Bit(getenv("TW_INIPATH"));
@@ -609,59 +611,22 @@ unsigned int TWApp::GetWindowsVersion()
 }
 #endif
 
-const QStringList TWApp::getBinaryPaths()
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
-
-	QStringList binPaths = getPrefsBinaryPaths();
-	QProcessEnvironment env{QProcessEnvironment::systemEnvironment()};
-	for(QString & path : binPaths) {
-		path = replaceEnvironmentVariables(path);
-	}
-	for (QString path : env.value(QStringLiteral("PATH")).split(QStringLiteral(PATH_LIST_SEP), SkipEmptyParts)) {
-		path = replaceEnvironmentVariables(path);
-		if (!binPaths.contains(path)) {
-			binPaths.append(path);
-		}
-	}
-	return binPaths;
-}
-
-QString TWApp::findProgram(const QString& program, const QStringList& binPaths)
-{
-	QStringListIterator pathIter(binPaths);
-	bool found = false;
-	QFileInfo fileInfo;
-#if defined(Q_OS_WIN)
-	QStringList executableTypes = QStringList() << QString::fromLatin1("exe") << QString::fromLatin1("com") << QString::fromLatin1("cmd") << QString::fromLatin1("bat");
-#endif
-	while (pathIter.hasNext() && !found) {
-		QString path = pathIter.next();
-		fileInfo = QFileInfo(path, program);
-		found = fileInfo.exists() && fileInfo.isExecutable();
-#if defined(Q_OS_WIN)
-		// try adding common executable extensions, if one was not already present
-		if (!found && !executableTypes.contains(fileInfo.suffix())) {
-			QStringListIterator extensions(executableTypes);
-			while (extensions.hasNext() && !found) {
-				fileInfo = QFileInfo(path, program + QChar::fromLatin1('.') + extensions.next());
-				found = fileInfo.exists() && fileInfo.isExecutable();
-			}
-		}
-#endif
-	}
-	return found ? fileInfo.absoluteFilePath() : QString();
-}
-
 void TWApp::writeToMailingList()
 {
 	// The strings here are deliberately NOT localizable!
 	QString address(QLatin1String("texworks@tug.org"));
-	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
+	QString body(QLatin1String(
+		"Thank you for taking the time to write an email to the TeXworks mailing list. "
+		"Please read the instructions below carefully as following them will greatly facilitate the communication.\n\n"
+		"Instructions:\n"
+		"-) Please write your message in English (it's in your own best interest;"
+		   "otherwise, many people will not be able to understand it and therefore will not answer).\n\n"
+		"-) Please type something meaningful in the subject line.\n\n"
+		"-) If you are having a problem, please describe it step-by-step in detail.\n\n"
+		"-) After reading, please delete these instructions "
+		   "(up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n"
+		"----- configuration info -----\n"
+	));
 
 	body += QStringLiteral("TeXworks version : %1\n").arg(Tw::Utils::VersionInfo::fullVersionString());
 #if defined(Q_OS_DARWIN)
@@ -671,8 +636,7 @@ void TWApp::writeToMailingList()
 #endif
 	body += QLatin1String("Library path     : ") + Tw::Utils::ResourcesLibrary::getLibraryPath(QString()) + QChar::fromLatin1('\n');
 
-	const QStringList binPaths = getBinaryPaths();
-	QString pdftex = findProgram(QString::fromLatin1("pdftex"), binPaths);
+	QString pdftex = PathManager::programPath(QString::fromLatin1("pdftex"));
 	if (pdftex.isEmpty())
 		pdftex = QLatin1String("not found");
 	else {
@@ -937,234 +901,158 @@ bool TWApp::event(QEvent *event)
 	}
 }
 
-void TWApp::setDefaultPaths()
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
+// void TWApp::setDefaultEngineList()
+// {
+// 	if (!engineList)
+// 		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
+// 	else
+// 		engineList->clear();
+// 	*engineList
+// //		<< Engine("LaTeXmk", "latexmk" EXE, QStringList("-e") <<
+// //				  "$pdflatex=q/pdflatex -synctex=1 %O %S/" << "-pdf" << "$fullname", true)
+// 	    << Engine(QString::fromLatin1("pdfTeX"), QString::fromLatin1("pdftex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("pdfLaTeX"), QString::fromLatin1("pdflatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("LuaTeX"), QString::fromLatin1("luatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("LuaLaTeX"), QString::fromLatin1("lualatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("XeTeX"), QString::fromLatin1("xetex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("XeLaTeX"), QString::fromLatin1("xelatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("ConTeXt (LuaTeX)"), QString::fromLatin1("context" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("ConTeXt (pdfTeX)"), QString::fromLatin1("texexec" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("ConTeXt (XeTeX)"), QString::fromLatin1("texexec" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("--xtx") << QString::fromLatin1("$fullname"), true)
+// 	    << Engine(QString::fromLatin1("BibTeX"), QString::fromLatin1("bibtex" EXE), QStringList(QString::fromLatin1("$basename")), false)
+// 	    << Engine(QString::fromLatin1("Biber"), QString::fromLatin1("biber" EXE), QStringList(QString::fromLatin1("$basename")), false)
+// 	    << Engine(QString::fromLatin1("MakeIndex"), QString::fromLatin1("makeindex" EXE), QStringList(QString::fromLatin1("$basename")), false);
+// 	defaultEngineIndex = 1;
+// }
 
-	QDir appDir(applicationDirPath());
-	if (!binaryPaths)
-		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
-	else
-		binaryPaths->clear();
-	if (defaultBinPaths)
-		*binaryPaths = *defaultBinPaths;
-#if !defined(Q_OS_DARWIN)
-	// on OS X, this will be the path to {TW_APP_PACKAGE}/Contents/MacOS/
-	// which doesn't make any sense as a search dir for TeX binaries
-	if (!binaryPaths->contains(appDir.absolutePath()))
-		binaryPaths->append(appDir.absolutePath());
-#endif
-	QString envPath = QString::fromLocal8Bit(getenv("PATH"));
-	if (!envPath.isEmpty()) {
-		foreach (const QString& s, envPath.split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts)) {
-			if (!binaryPaths->contains(s)) {
-				binaryPaths->append(s);
-			}
-		}
-	}
-	if (!defaultBinPaths) {
-		foreach (const QString& s, QString::fromUtf8(DEFAULT_BIN_PATHS).split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts)) {
-			if (!binaryPaths->contains(s))
-				binaryPaths->append(s);
-		}
-	}
-	for (auto i = binaryPaths->count() - 1; i >= 0; --i) {
-		// Note: Only replace the environmental variables for testing directory
-		// existance but do not alter the binaryPaths themselves. Those might
-		// get stored, e.g., in the preferences and we want to keep
-		// environmental variables intact in there (as they may be (re)defined
-		// later on).
-		// All binary paths are properly expanded in getBinaryPaths().
-		QDir dir(replaceEnvironmentVariables(binaryPaths->at(i)));
-		if (!dir.exists())
-			binaryPaths->removeAt(i);
-	}
-	if (binaryPaths->count() == 0) {
-		QMessageBox::warning(nullptr, tr("No default binary directory found"),
-			tr("None of the predefined directories for TeX-related programs could be found."
-				"<p><small>To run any processes, you will need to set the binaries directory (or directories) "
-				"for your TeX distribution using the Typesetting tab of the Preferences dialog.</small>"));
-	}
-}
+// const QList<Engine> TWApp::getEngineList()
+// {
+// 	if (!engineList) {
+// 		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
+// 		bool foundList = false;
+// 		// check for old engine list in Preferences
+// 		Tw::Settings settings;
+// 		int count = settings.beginReadArray(QString::fromLatin1("engines"));
+// 		if (count > 0) {
+// 			for (int i = 0; i < count; ++i) {
+// 				settings.setArrayIndex(i);
+// 				Engine eng;
+// 				eng.setName(settings.value(QString::fromLatin1("name")).toString());
+// 				eng.setProgram(settings.value(QString::fromLatin1("program")).toString());
+// 				eng.setArguments(settings.value(QString::fromLatin1("arguments")).toStringList());
+// 				eng.setShowPdf(settings.value(QString::fromLatin1("showPdf")).toBool());
+// 				engineList->append(eng);
+// 				settings.remove(QString());
+// 			}
+// 			foundList = true;
+// 			saveEngineList();
+// 		}
+// 		settings.endArray();
+// 		settings.remove(QString::fromLatin1("engines"));
 
-const QStringList TWApp::getPrefsBinaryPaths()
-{
-	if (!binaryPaths) {
-		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
-		Tw::Settings settings;
-		if (settings.contains(QString::fromLatin1("binaryPaths")))
-			*binaryPaths = settings.value(QString::fromLatin1("binaryPaths")).toStringList();
-		else
-			setDefaultPaths();
-	}
-	return *binaryPaths;
-}
+// 		if (!foundList) { // read engine list from config file
+// 			QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
+// 			QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
+// 			if (toolsFile.exists()) {
+// 				QSettings toolsSettings(toolsFile.fileName(), QSettings::IniFormat);
+// 				QStringList toolNames = toolsSettings.childGroups();
+// 				foreach (const QString& n, toolNames) {
+// 					toolsSettings.beginGroup(n);
+// 					Engine eng;
+// 					eng.setName(toolsSettings.value(QString::fromLatin1("name")).toString());
+// 					eng.setProgram(toolsSettings.value(QString::fromLatin1("program")).toString());
+// 					eng.setArguments(toolsSettings.value(QString::fromLatin1("arguments")).toStringList());
+// 					eng.setShowPdf(toolsSettings.value(QString::fromLatin1("showPdf")).toBool());
+// 					engineList->append(eng);
+// 					toolsSettings.endGroup();
+// 				}
+// 				foundList = true;
+// 			}
+// 		}
 
-void TWApp::setBinaryPaths(const QStringList& paths)
-{
-	if (!binaryPaths)
-		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
-	*binaryPaths = paths;
-	Tw::Settings settings;
-	settings.setValue(QString::fromLatin1("binaryPaths"), paths);
-}
+// 		if (!foundList)
+// 			setDefaultEngineList();
+// 		setDefaultEngine(settings.value(QString::fromLatin1("defaultEngine"), QString::fromUtf8(DEFAULT_ENGINE_NAME)).toString());
+// 	}
+// 	return *engineList;
+// }
 
-void TWApp::setDefaultEngineList()
-{
-	if (!engineList)
-		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
-	else
-		engineList->clear();
-	*engineList
-//		<< Engine("LaTeXmk", "latexmk" EXE, QStringList("-e") <<
-//				  "$pdflatex=q/pdflatex -synctex=1 %O %S/" << "-pdf" << "$fullname", true)
-	    << Engine(QString::fromLatin1("pdfTeX"), QString::fromLatin1("pdftex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("pdfLaTeX"), QString::fromLatin1("pdflatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("LuaTeX"), QString::fromLatin1("luatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("LuaLaTeX"), QString::fromLatin1("lualatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("XeTeX"), QString::fromLatin1("xetex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("XeLaTeX"), QString::fromLatin1("xelatex" EXE), QStringList(QString::fromLatin1("$synctexoption")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("ConTeXt (LuaTeX)"), QString::fromLatin1("context" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("ConTeXt (pdfTeX)"), QString::fromLatin1("texexec" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("ConTeXt (XeTeX)"), QString::fromLatin1("texexec" EXE), QStringList(QString::fromLatin1("--synctex")) << QString::fromLatin1("--xtx") << QString::fromLatin1("$fullname"), true)
-	    << Engine(QString::fromLatin1("BibTeX"), QString::fromLatin1("bibtex" EXE), QStringList(QString::fromLatin1("$basename")), false)
-	    << Engine(QString::fromLatin1("Biber"), QString::fromLatin1("biber" EXE), QStringList(QString::fromLatin1("$basename")), false)
-	    << Engine(QString::fromLatin1("MakeIndex"), QString::fromLatin1("makeindex" EXE), QStringList(QString::fromLatin1("$basename")), false);
-	defaultEngineIndex = 1;
-}
+// void TWApp::saveEngineList()
+// {
+// 	QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
+// 	QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
+// 	QSettings toolsSettings(toolsFile.fileName(), QSettings::IniFormat);
+// 	toolsSettings.clear();
+// 	int n = 0;
+// 	foreach (const Engine& e, *engineList) {
+// 		toolsSettings.beginGroup(QString::fromLatin1("%1").arg(++n, 3, 10, QChar::fromLatin1('0')));
+// 		toolsSettings.setValue(QString::fromLatin1("name"), e.name());
+// 		toolsSettings.setValue(QString::fromLatin1("program"), e.program());
+// 		toolsSettings.setValue(QString::fromLatin1("arguments"), e.arguments());
+// 		toolsSettings.setValue(QString::fromLatin1("showPdf"), e.showPdf());
+// 		toolsSettings.endGroup();
+// 	}
+// }
 
-const QList<Engine> TWApp::getEngineList()
-{
-	if (!engineList) {
-		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
-		bool foundList = false;
-		// check for old engine list in Preferences
-		Tw::Settings settings;
-		int count = settings.beginReadArray(QString::fromLatin1("engines"));
-		if (count > 0) {
-			for (int i = 0; i < count; ++i) {
-				settings.setArrayIndex(i);
-				Engine eng;
-				eng.setName(settings.value(QString::fromLatin1("name")).toString());
-				eng.setProgram(settings.value(QString::fromLatin1("program")).toString());
-				eng.setArguments(settings.value(QString::fromLatin1("arguments")).toStringList());
-				eng.setShowPdf(settings.value(QString::fromLatin1("showPdf")).toBool());
-				engineList->append(eng);
-				settings.remove(QString());
-			}
-			foundList = true;
-			saveEngineList();
-		}
-		settings.endArray();
-		settings.remove(QString::fromLatin1("engines"));
+// void TWApp::setEngineList(const QList<Engine>& engines)
+// {
+// 	if (!engineList)
+// 		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
+// 	*engineList = engines;
+// 	saveEngineList();
+// 	Tw::Settings settings;
+// 	settings.setValue(QString::fromLatin1("defaultEngine"), getDefaultEngine().name());
+// 	emit engineListChanged();
+// }
 
-		if (!foundList) { // read engine list from config file
-			QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
-			QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
-			if (toolsFile.exists()) {
-				QSettings toolsSettings(toolsFile.fileName(), QSettings::IniFormat);
-				QStringList toolNames = toolsSettings.childGroups();
-				foreach (const QString& n, toolNames) {
-					toolsSettings.beginGroup(n);
-					Engine eng;
-					eng.setName(toolsSettings.value(QString::fromLatin1("name")).toString());
-					eng.setProgram(toolsSettings.value(QString::fromLatin1("program")).toString());
-					eng.setArguments(toolsSettings.value(QString::fromLatin1("arguments")).toStringList());
-					eng.setShowPdf(toolsSettings.value(QString::fromLatin1("showPdf")).toBool());
-					engineList->append(eng);
-					toolsSettings.endGroup();
-				}
-				foundList = true;
-			}
-		}
+// const Engine TWApp::getDefaultEngine()
+// {
+// 	const QList<Engine> engines = getEngineList();
+// 	if (defaultEngineIndex < engines.count())
+// 		return engines[defaultEngineIndex];
+// 	defaultEngineIndex = 0;
+// 	if (engines.empty())
+// 		return Engine();
+// 	return engines[0];
+// }
 
-		if (!foundList)
-			setDefaultEngineList();
-		setDefaultEngine(settings.value(QString::fromLatin1("defaultEngine"), QString::fromUtf8(DEFAULT_ENGINE_NAME)).toString());
-	}
-	return *engineList;
-}
+// void TWApp::setDefaultEngine(const QString& name)
+// {
+// 	const QList<Engine> engines = getEngineList();
+// 	int i{0};
+// 	for (i = 0; i < engines.count(); ++i) {
+// 		if (engines[i].name() == name) {
+// 			Tw::Settings settings;
+// 			settings.setValue(QString::fromLatin1("defaultEngine"), name);
+// 			break;
+// 		}
+// 	}
+// 	// If the engine was not found (e.g., if it has been deleted)
+// 	// try the DEFAULT_ENGINE_NAME instead (should not happen, unless the config
+// 	// was edited manually (or by an updater, copy/paste'ing, etc.)
+// 	if (i == engines.count() && name != QString::fromUtf8(DEFAULT_ENGINE_NAME)) {
+// 		for (i = 0; i < engines.count(); ++i) {
+// 			if (engines[i].name() == QString::fromUtf8(DEFAULT_ENGINE_NAME))
+// 				break;
+// 		}
+// 	}
+// 	// if neither the passed engine name nor DEFAULT_ENGINE_NAME was found,
+// 	// fall back to selecting the first engine
+// 	if (i == engines.count())
+// 		i = 0;
 
-void TWApp::saveEngineList()
-{
-	QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
-	QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
-	QSettings toolsSettings(toolsFile.fileName(), QSettings::IniFormat);
-	toolsSettings.clear();
-	int n = 0;
-	foreach (const Engine& e, *engineList) {
-		toolsSettings.beginGroup(QString::fromLatin1("%1").arg(++n, 3, 10, QChar::fromLatin1('0')));
-		toolsSettings.setValue(QString::fromLatin1("name"), e.name());
-		toolsSettings.setValue(QString::fromLatin1("program"), e.program());
-		toolsSettings.setValue(QString::fromLatin1("arguments"), e.arguments());
-		toolsSettings.setValue(QString::fromLatin1("showPdf"), e.showPdf());
-		toolsSettings.endGroup();
-	}
-}
+// 	defaultEngineIndex = i;
+// }
 
-void TWApp::setEngineList(const QList<Engine>& engines)
-{
-	if (!engineList)
-		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
-	*engineList = engines;
-	saveEngineList();
-	Tw::Settings settings;
-	settings.setValue(QString::fromLatin1("defaultEngine"), getDefaultEngine().name());
-	emit engineListChanged();
-}
-
-const Engine TWApp::getDefaultEngine()
-{
-	const QList<Engine> engines = getEngineList();
-	if (defaultEngineIndex < engines.count())
-		return engines[defaultEngineIndex];
-	defaultEngineIndex = 0;
-	if (engines.empty())
-		return Engine();
-	return engines[0];
-}
-
-void TWApp::setDefaultEngine(const QString& name)
-{
-	const QList<Engine> engines = getEngineList();
-	int i{0};
-	for (i = 0; i < engines.count(); ++i) {
-		if (engines[i].name() == name) {
-			Tw::Settings settings;
-			settings.setValue(QString::fromLatin1("defaultEngine"), name);
-			break;
-		}
-	}
-	// If the engine was not found (e.g., if it has been deleted)
-	// try the DEFAULT_ENGINE_NAME instead (should not happen, unless the config
-	// was edited manually (or by an updater, copy/paste'ing, etc.)
-	if (i == engines.count() && name != QString::fromUtf8(DEFAULT_ENGINE_NAME)) {
-		for (i = 0; i < engines.count(); ++i) {
-			if (engines[i].name() == QString::fromUtf8(DEFAULT_ENGINE_NAME))
-				break;
-		}
-	}
-	// if neither the passed engine name nor DEFAULT_ENGINE_NAME was found,
-	// fall back to selecting the first engine
-	if (i == engines.count())
-		i = 0;
-
-	defaultEngineIndex = i;
-}
-
-const Engine TWApp::getNamedEngine(const QString& name)
-{
-	const QList<Engine> engines = getEngineList();
-	foreach (const Engine& e, engines) {
-		if (e.name().compare(name, Qt::CaseInsensitive) == 0)
-			return e;
-	}
-	return Engine();
-}
+// const Engine TWApp::getNamedEngine(const QString& name)
+// {
+// 	const QList<Engine> engines = getEngineList();
+// 	foreach (const Engine& e, engines) {
+// 		if (e.name().compare(name, Qt::CaseInsensitive) == 0)
+// 			return e;
+// 	}
+// 	return Engine();
+// }
 
 QTextCodec *TWApp::getDefaultCodec()
 {

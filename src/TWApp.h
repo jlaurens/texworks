@@ -41,7 +41,6 @@
 
 #include <memory>
 
-class Engine;
 class TWScriptManager;
 
 #if defined(Q_OS_WIN)
@@ -51,8 +50,6 @@ class TWScriptManager;
 #define PATH_LIST_SEP   ":"
 #define EXE
 #endif
-
-#define DEFAULT_ENGINE_NAME "pdfLaTeX"
 
 // general constants used by multiple document types
 const int kStatusMessageDuration = 3000;
@@ -81,24 +78,16 @@ public:
 
 	QMap<QString,QVariant> getFileProperties(const QString& path);
 
-	void setBinaryPaths(const QStringList& paths);
-	void setEngineList(const QList<Engine>& engines);
+	// void setEngineList(const QList<Engine>& engines);
 
-	const QStringList getBinaryPaths();
-	// runtime paths, including $PATH;
-	// also modifies passed-in sysEnv to include paths from prefs
-	QString findProgram(const QString& program, const QStringList& binPaths);
+	// const QList<Engine> getEngineList();
+	// void saveEngineList();
 
-	const QStringList getPrefsBinaryPaths(); // only paths from prefs
-	const QList<Engine> getEngineList();
-	void saveEngineList();
+	// const Engine getNamedEngine(const QString& name);
+	// const Engine getDefaultEngine();
+	// void setDefaultEngine(const QString& name);
 
-	const Engine getNamedEngine(const QString& name);
-	const Engine getDefaultEngine();
-	void setDefaultEngine(const QString& name);
-
-	void setDefaultPaths();
-	void setDefaultEngineList();
+	// void setDefaultEngineList();
 
 	QTextCodec *getDefaultCodec();
 	void setDefaultCodec(QTextCodec *codec);
@@ -262,8 +251,8 @@ private:
 
 	std::unique_ptr<QStringList> binaryPaths;
 	std::unique_ptr<QStringList> defaultBinPaths;
-	std::unique_ptr< QList<Engine> > engineList;
-	int defaultEngineIndex{0};
+	// std::unique_ptr< QList<Engine> > engineList;
+	// int defaultEngineIndex{0};
 
 	QList<QTranslator*> translators;
 

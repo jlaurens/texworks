@@ -20,13 +20,17 @@
 */
 
 #include "DefaultPrefs.h"
-#include "Engine.h"
 #include "Settings.h"
 #include "TWApp.h"
 #include "document/SpellChecker.h"
 #include "scripting/ScriptObject.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/SystemCommand.h"
+
+#include "Typeset/TwxEngine.h"
+using Engine = Twx::Typeset::Engine;
+#include "Typeset/TwxEngineManager.h"
+using EngineManager = Twx::Typeset::EngineManager;
 
 #include <QBuffer>
 #include <QCoreApplication>
@@ -382,16 +386,16 @@ QMap<QString, QVariant> ScriptAPI::getDictionaryList(const bool forceReload /* =
 }
 
 
-// Wrapper around TWApp::getEngineList()
+// Wrapper around EngineManager::getEngineList()
 Q_INVOKABLE
 QList<QVariant> ScriptAPI::getEngineList() const
 {
 	QList<QVariant> retVal;
-	const QList<Engine> engines = TWApp::instance()->getEngineList();
+	const auto engines = EngineManager::getEngineList();
 
-	foreach (const Engine& e, engines) {
+	for (const auto& e: engines) {
 		QMap<QString, QVariant> s;
-		s[QString::fromLatin1("name")] = e.name();
+		s[QStringLiteral("name")] = e.name();
 		retVal.append(s);
 	}
 
