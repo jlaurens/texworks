@@ -54,7 +54,6 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   utils/ResourcesLibrary.cpp
                   utils/SystemCommand.cpp
                   utils/TextCodecs.cpp
-                  utils/TypesetManager.cpp
                   utils/VersionInfo.cpp
                   utils/WindowManager.cpp
                   )
@@ -62,7 +61,6 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
 set(TEXWORKS_HDRS BibTeXFile.h
                   CitationSelectDialog.h
                   CompletingEdit.h
-                  DefaultBinaryPaths.h
                   DefaultPrefs.h
                   FindDialog.h
                   GitRev.h
@@ -108,7 +106,6 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   utils/ResourcesLibrary.h
                   utils/SystemCommand.h
                   utils/TextCodecs.h
-                  utils/TypesetManager.h
                   utils/VersionInfo.h
                   utils/WindowManager.h
                   )

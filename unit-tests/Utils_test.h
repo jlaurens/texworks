@@ -50,8 +50,6 @@ private slots:
 	void ResourcesLibrary_getLibraryPath();
 	void ResourcesLibrary_portableLibPath();
 
-	void TypesetManager();
-
 #ifdef Q_OS_DARWIN
 	void OSVersionString();
 #endif // defined(Q_OS_DARWIN)

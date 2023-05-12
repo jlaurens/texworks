@@ -35,14 +35,17 @@ namespace Core {
 
 const QString pathListSeparator = QStringLiteral("@TWX_INFO_PATH_LIST_SEPARATOR@");
 
-const QStringList staticBinaryPaths = QStringLiteral("@TWX_INFO_STATIC_BINARY_PATHS@").split(pathListSeparator, Qt::SkipEmptyParts);
+static const QStringList factoryBinaryPaths = QStringLiteral("@TWX_INFO_FACTORY_BINARY_PATHS@").split(pathListSeparator, Qt::SkipEmptyParts);
 
 #if defined(TwxCore_TEST)
-QStringList PathManager::altStaticBinaryPaths = QStringLiteral("@TWX_INFO_STATIC_BINARY_PATHS_TEST@").split(pathListSeparator, Qt::SkipEmptyParts);
+QStringList PathManager::factoryBinaryPathsTest = QStringLiteral("@TWX_INFO_FACTORY_BINARY_PATHS_TEST@").split(pathListSeparator, Qt::SkipEmptyParts);
 #endif
 
-QStringList PathManager::rawBinaryPaths_m;
-QStringList PathManager::defaultBinaryPaths_m;
+namespace P {
+	static QStringList rawBinaryPaths;
+	static QStringList defaultBinaryPaths;
+	static QStringList binaryPaths;
+}
 
 #if defined(TwxCore_TEST)
 QStringList PathManager::messages_m;
@@ -50,13 +53,13 @@ QStringList PathManager::messages_m;
 
 void PathManager::setRawBinaryPaths(const QStringList &paths)
 {
-	rawBinaryPaths_m.clear();
-	rawBinaryPaths_m.append(paths);
+	P::rawBinaryPaths.clear();
+	P::rawBinaryPaths.append(paths);
 	Settings settings;
-	settings.setValue(Key::binaryPaths, rawBinaryPaths_m);
+	settings.setValue(Key::binaryPaths, P::rawBinaryPaths);
 }
 
-void PathManager::resetDefaultBinaryPaths()
+void PathManager::resetDefaultBinaryPathsToSettings()
 {
 	Settings settings;
 	if (settings.contains(Key::defaultBinaryPaths)) {
@@ -65,16 +68,16 @@ void PathManager::resetDefaultBinaryPaths()
 			pathListSeparator,
 			Qt::SkipEmptyParts
 		);
-		defaultBinaryPaths_m.swap(defaultBinaryPaths);
+		P::defaultBinaryPaths.swap(defaultBinaryPaths);
 	} else if (settings.contains(Key::defaultbinpaths)) {
 		auto value = settings.value(Key::defaultbinpaths).toString();
 		auto defaultbinpaths = value.split(
 			pathListSeparator,
 			Qt::SkipEmptyParts
 		);
-		defaultBinaryPaths_m.swap(defaultbinpaths);
+		P::defaultBinaryPaths.swap(defaultbinpaths);
 	} else {
-		defaultBinaryPaths_m.clear();
+		P::defaultBinaryPaths.clear();
 	}
 }
 
@@ -122,9 +125,9 @@ static QString stringByReplacingEnvironmentVariables(
 bool PathManager::resetRawBinaryPaths(
   const QProcessEnvironment &env
 ) {
-	rawBinaryPaths_m.clear();
-	if (defaultBinaryPaths_m.empty()) {
-		foreach (QString s, staticBinaryPaths) {
+	P::rawBinaryPaths.clear();
+	if (P::defaultBinaryPaths.empty()) {
+		foreach (QString s, factoryBinaryPaths) {
 #if TwxCore_TEST
       // while testing, DEFAULT_BIN_PATHS needs to be portable
 			// We do not know in advance existing directoris
@@ -134,11 +137,11 @@ bool PathManager::resetRawBinaryPaths(
 			auto after = QDir::currentPath();
 			s.replace(before, after);
 #endif
-			if (!rawBinaryPaths_m.contains(s))
-				rawBinaryPaths_m.append(s);
+			if (!P::rawBinaryPaths.contains(s))
+				P::rawBinaryPaths.append(s);
 		}
 	} else {
-		rawBinaryPaths_m.append(defaultBinaryPaths_m);
+		P::rawBinaryPaths.append(P::defaultBinaryPaths);
 	}
 #if !defined(Q_OS_DARWIN) && !defined(TwxCore_TEST)
 	// on OS X, this will be the path to {TW_APP_PACKAGE}/Contents/MacOS/
@@ -148,18 +151,18 @@ bool PathManager::resetRawBinaryPaths(
 	// TODO: TEXEDIT support for mac.
 	auto path = QCoreApplication::applicationDirPath();
 	QDir appDir(path);
-	if (!binaryPaths_m.contains(appDir))
-		binaryPaths_m.append(appDir);
+	if (!P::binaryPaths.contains(appDir))
+		P::binaryPaths.append(appDir);
 #endif
   QString PATH = env.value(Key::PATH);
 	if (!PATH.isEmpty()) {
 		foreach (const QString& s, PATH.split(pathListSeparator, Qt::SkipEmptyParts)) {
-			if (!rawBinaryPaths_m.contains(s)) {
-				rawBinaryPaths_m.append(s);
+			if (!P::rawBinaryPaths.contains(s)) {
+				P::rawBinaryPaths.append(s);
 			}
 		}
 	}
-	for (auto i = rawBinaryPaths_m.count() - 1; i >= 0; --i) {
+	for (auto i = P::rawBinaryPaths.count() - 1; i >= 0; --i) {
 		// Note: Only replace the environmental variables for testing directory
 		// existence but do not alter the binaryPaths themselves. Those might
 		// get stored, e.g., in the preferences and we want to keep
@@ -167,13 +170,13 @@ bool PathManager::resetRawBinaryPaths(
 		// later on).
 		// All binary paths are properly expanded in getBinaryPaths().
 		QDir dir(stringByReplacingEnvironmentVariables(
-			rawBinaryPaths_m.at(i),
+			P::rawBinaryPaths.at(i),
 			env)
 		);
 		if (!dir.exists())
-			rawBinaryPaths_m.removeAt(i);
+			P::rawBinaryPaths.removeAt(i);
 	}
-	if (rawBinaryPaths_m.empty()) {
+	if (P::rawBinaryPaths.empty()) {
 #if defined(TwxCore_TEST)
     messages_m = QStringList{
 #else
@@ -197,33 +200,33 @@ bool PathManager::resetRawBinaryPaths(
 const QStringList PathManager::getRawBinaryPaths(
   const QProcessEnvironment &env
 ) {
-	if (rawBinaryPaths_m.empty()) {
+	if (P::rawBinaryPaths.empty()) {
   	Settings settings;
 		if (settings.contains(Key::binaryPaths))
-			rawBinaryPaths_m.append(
+			P::rawBinaryPaths.append(
 				settings.value(Key::binaryPaths).toStringList()
 			);
 		else
 			resetRawBinaryPaths(env);
 	}
-	return rawBinaryPaths_m;
+	return P::rawBinaryPaths;
 }
 
 const QStringList PathManager::getBinaryPaths(
   QProcessEnvironment const& env
 ) {
-	QStringList binPaths = getRawBinaryPaths(env);
-	for (QString & path: binPaths) {
+	QStringList paths = getRawBinaryPaths(env);
+	for (QString & path: paths) {
 		path = stringByReplacingEnvironmentVariables(path, env);
 	}
 	auto PATH = env.value(Key::PATH);
-	for (QString path : PATH.split(pathListSeparator, Qt::SkipEmptyParts)) {
+	for (QString path: PATH.split(pathListSeparator, Qt::SkipEmptyParts)) {
 		path = stringByReplacingEnvironmentVariables(path, env);
-		if (!binPaths.contains(path)) {
-			binPaths.append(path);
+		if (!paths.contains(path)) {
+			paths.append(path);
 		}
 	}
-	return binPaths;
+	return paths;
 }
 
 QString PathManager::programPath (
@@ -259,6 +262,19 @@ QString PathManager::programPath (
 	}
 	return QString();
 }
+
+#if defined(TwxCore_TEST)
+
+QStringList &PathManager::rawBinaryPaths()
+{
+	return P::rawBinaryPaths;
+}
+QStringList &PathManager::defaultBinaryPaths()
+{
+	return P::defaultBinaryPaths;
+}
+
+#endif
 
 } // namespace Core
 } // namespace Twx

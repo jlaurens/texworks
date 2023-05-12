@@ -108,24 +108,6 @@ IF ( LUA_FOUND AND WITH_LUA )
 	add_test(NAME test_LuaScripting COMMAND test_LuaScripting WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
 ENDIF ()
 
-add_executable(byte_echo_test byte_echo_test.cpp)
-target_compile_options(byte_echo_test PRIVATE ${WARNING_OPTIONS})
-
-# UI
-add_executable(test_UI
-	UI_test.cpp
-	UI_test.h
-	"${CMAKE_SOURCE_DIR}/src/ui/ClickableLabel.cpp"
-	"${CMAKE_SOURCE_DIR}/src/ui/ClosableTabWidget.cpp"
-	"${CMAKE_SOURCE_DIR}/src/ui/ColorButton.cpp"
-	"${CMAKE_SOURCE_DIR}/src/ui/ConsoleWidget.cpp"
-	"${CMAKE_SOURCE_DIR}/src/ui/LineNumberWidget.cpp"
-	"${CMAKE_SOURCE_DIR}/src/ui/ScreenCalibrationWidget.cpp"
-)
-target_compile_options(test_UI PRIVATE ${WARNING_OPTIONS})
-target_link_libraries(test_UI ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
-add_test(NAME test_UI COMMAND test_UI WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
-
 # Utils
 include ( SrcTwxCoreSetup )
 add_executable(test_Utils
@@ -137,7 +119,6 @@ add_executable(test_Utils
 	"${CMAKE_SOURCE_DIR}/src/utils/ResourcesLibrary.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/SystemCommand.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/TextCodecs.cpp"
-	"${CMAKE_SOURCE_DIR}/src/utils/TypesetManager.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/VersionInfo.cpp"
 	${TwxCore_SOURCES}
 )

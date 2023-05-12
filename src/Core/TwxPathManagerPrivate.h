@@ -20,8 +20,20 @@
 */
 
 // Private
+
+	PathManager() = delete;
+	~PathManager() = delete;
+	PathManager( const PathManager& ) = delete;
+	PathManager(PathManager&&) = delete;
+  PathManager& operator=(const PathManager&) = delete;
+  PathManager& operator=(PathManager &&) = delete;
+
 #if defined(TwxCore_TEST)
 private:
   static QStringList messages_m;
-	static QStringList altStaticBinaryPaths;
+	static QStringList factoryBinaryPathsTest;
+
+	static QStringList &rawBinaryPaths();
+	static QStringList &defaultBinaryPaths();
+
 #endif

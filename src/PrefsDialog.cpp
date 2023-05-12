@@ -30,8 +30,12 @@
 #include "TeXHighlighter.h"
 #include "document/SpellChecker.h"
 
+#include "Core/TwxSettings.h"
+using Settings = Twx::Core::Settings;
+
 #include "Core/TwxPathManager.h"
 using PathManager = Twx::Core::PathManager;
+
 #include "Typeset/TwxEngineManager.h"
 using EngineManager = Twx::Typeset::EngineManager;
 
@@ -512,7 +516,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	foreach (const DictPair& dict, dictList)
 		dlg.language->addItem(dict.first, dict.second);
 
-	Tw::Settings settings;
+	Settings settings;
 	// initialize controls based on the current settings
 
 	// General

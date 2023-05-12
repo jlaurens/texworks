@@ -343,13 +343,6 @@ IF ( PYTHONLIBS_FOUND AND WITH_PYTHON AND NOT ${BUILD_SHARED_PLUGINS})
   ADD_DEFINITIONS(-DQT_STATICPLUGIN -DSTATIC_PYTHON_SCRIPTING_PLUGIN)
 ENDIF ()
 
-
-# Update Header Templates
-# -----------------------
-
-include(GenerateDefaultBinPaths)
-GenerateDefaultBinPaths()
-
 # Building
 # ========
 

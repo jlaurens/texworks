@@ -21,6 +21,8 @@
 
 #include "TwxCoreTest.h"
 
+#include "DefaultBinaryPaths.h"
+
 #include "Core/TwxConst.h"
 #include "Core/TwxInfo.h"
 #include "Core/TwxSettings.h"
@@ -48,8 +50,8 @@ using PM = PathManager;
 void Main::initTestCase()
 {
 	QStandardPaths::setTestModeEnabled(true);
-	PM::rawBinaryPaths_m.clear();
-	PM::defaultBinaryPaths_m.clear();
+	PM::rawBinaryPaths().clear();
+	PM::defaultBinaryPaths().clear();
 	PE_m = QProcessEnvironment();
 	Settings settings;
 	for (auto key: settings.allKeys()) {
@@ -79,15 +81,15 @@ void Main::testConst()
 
 void Main::testPathManager_setRawBinaryPaths()
 {
-	PM::rawBinaryPaths_m.clear();
-	QVERIFY(PM::rawBinaryPaths_m.empty());
+	PM::rawBinaryPaths().clear();
+	QVERIFY(PM::rawBinaryPaths().empty());
 	QStringList expected {
 		QStringLiteral("//A"),
 		QStringLiteral("//B"),
 		QStringLiteral("//C")
 	};
 	PM::setRawBinaryPaths(expected);
-	QCOMPARE(PM::rawBinaryPaths_m, expected);
+	QCOMPARE(PM::rawBinaryPaths(), expected);
 	Settings settings;
 	QVERIFY(settings.contains(Key::binaryPaths));
   QVariant v = settings.value(Key::binaryPaths);
@@ -97,16 +99,16 @@ void Main::testPathManager_setRawBinaryPaths()
 
 void Main::testPathManager_resetDefaultBinaryPaths()
 {
-	PM::defaultBinaryPaths_m.clear();
+	PM::defaultBinaryPaths().clear();
 	QStringList expected {
 		QStringLiteral("A"),
 		QStringLiteral("B"),
 		QStringLiteral("C")
 	};
-	PM::defaultBinaryPaths_m << expected;
-	QCOMPARE(PM::defaultBinaryPaths_m, expected);
-  PM::resetDefaultBinaryPaths();
-	QVERIFY(PM::defaultBinaryPaths_m.empty());
+	PM::defaultBinaryPaths() << expected;
+	QCOMPARE(PM::defaultBinaryPaths(), expected);
+  PM::resetDefaultBinaryPathsToSettings();
+	QVERIFY(PM::defaultBinaryPaths().empty());
 	Settings settings;
 	expected = QStringList {
 		QStringLiteral("//A"),
@@ -126,37 +128,37 @@ void Main::testPathManager_resetDefaultBinaryPaths()
 			Qt::SkipEmptyParts
 		);
 		QCOMPARE(defaultBinaryPaths, expected);
-		PM::defaultBinaryPaths_m.swap(defaultBinaryPaths);
+		PM::defaultBinaryPaths().swap(defaultBinaryPaths);
 		QVERIFY(defaultBinaryPaths.empty());
-		QCOMPARE(PM::defaultBinaryPaths_m, expected);
-		PM::defaultBinaryPaths_m.clear();
-		QVERIFY(PM::defaultBinaryPaths_m.empty());
+		QCOMPARE(PM::defaultBinaryPaths(), expected);
+		PM::defaultBinaryPaths().clear();
+		QVERIFY(PM::defaultBinaryPaths().empty());
 	}
-  PM::resetDefaultBinaryPaths();
-	QCOMPARE(PM::defaultBinaryPaths_m, expected);
+  PM::resetDefaultBinaryPathsToSettings();
+	QCOMPARE(PM::defaultBinaryPaths(), expected);
 	settings.remove(Key::defaultbinpaths);
-  PM::resetDefaultBinaryPaths();
-	QVERIFY(PM::defaultBinaryPaths_m.empty());
+  PM::resetDefaultBinaryPathsToSettings();
+	QVERIFY(PM::defaultBinaryPaths().empty());
 	settings.setValue(
 		Key::defaultBinaryPaths,
 		expected.join(pathListSeparator)
 	);
-  PM::resetDefaultBinaryPaths();
-	QCOMPARE(PM::defaultBinaryPaths_m, expected);
+  PM::resetDefaultBinaryPathsToSettings();
+	QCOMPARE(PM::defaultBinaryPaths(), expected);
 	settings.remove(Key::defaultBinaryPaths);
-  PM::resetDefaultBinaryPaths();
-	QVERIFY(PM::defaultBinaryPaths_m.empty());
+  PM::resetDefaultBinaryPathsToSettings();
+	QVERIFY(PM::defaultBinaryPaths().empty());
 }
 
 void Main::testPathManager_resetRawBinaryPaths()
 {
-	PM::defaultBinaryPaths_m.clear();
-	PM::rawBinaryPaths_m.clear();
-	QVERIFY(PM::defaultBinaryPaths_m.empty());
+	PM::defaultBinaryPaths().clear();
+	PM::rawBinaryPaths().clear();
+	QVERIFY(PM::defaultBinaryPaths().empty());
 	QProcessEnvironment PE;
 	PE.remove(Key::PATH);
   PM::resetRawBinaryPaths(PE);
-  QVERIFY(PM::defaultBinaryPaths_m.empty());
+  QVERIFY(PM::defaultBinaryPaths().empty());
   QStringList expected;
 	QDir d = QDir::current();
 	qDebug() << "QDir::current(): " << d;
@@ -166,28 +168,28 @@ void Main::testPathManager_resetRawBinaryPaths()
 		<< d.absoluteFilePath("A")
 		<< d.absoluteFilePath("B")
 		<< d.absoluteFilePath("C");
-	PM::defaultBinaryPaths_m.clear();
-	qDebug() << "actual: " << PM::rawBinaryPaths_m;
-  qDebug() << "actual: " << expected;
-  QCOMPARE(PM::rawBinaryPaths_m, expected);
-	// with defaultBinaryPaths_m
-  PM::defaultBinaryPaths_m.clear();
-	PM::rawBinaryPaths_m.clear();
+	PM::defaultBinaryPaths().clear();
+	qDebug() << "actual: " << PM::rawBinaryPaths();
+  qDebug() << "expected: " << expected;
+  QCOMPARE(PM::rawBinaryPaths(), expected);
+	// with defaultBinaryPaths()
+  PM::defaultBinaryPaths().clear();
+	PM::rawBinaryPaths().clear();
 	expected.clear();
 	expected
 		<< d.absoluteFilePath("C")
 		<< d.absoluteFilePath("A")
 		<< d.absoluteFilePath("B");
-	PM::defaultBinaryPaths_m << expected;
-	QCOMPARE(PM::defaultBinaryPaths_m, expected);
+	PM::defaultBinaryPaths() << expected;
+	QCOMPARE(PM::defaultBinaryPaths(), expected);
 	PM::resetRawBinaryPaths(PE);
-	QCOMPARE(PM::rawBinaryPaths_m, expected);
+	QCOMPARE(PM::rawBinaryPaths(), expected);
 	// with PATH
-	PM::rawBinaryPaths_m.clear();
-	PM::defaultBinaryPaths_m.clear();
+	PM::rawBinaryPaths().clear();
+	PM::defaultBinaryPaths().clear();
 	expected.clear();
 	expected << d.absoluteFilePath("C");
-	PM::defaultBinaryPaths_m << d.absoluteFilePath("C");
+	PM::defaultBinaryPaths() << d.absoluteFilePath("C");
 	QStringList PATHs;
 	PATHs 	 << d.absoluteFilePath("A");
 	expected << d.absoluteFilePath("A");
@@ -199,27 +201,27 @@ void Main::testPathManager_resetRawBinaryPaths()
 	PATHs 	 << d.absoluteFilePath("NoDirectoryThere...");
 	PE.insert(Key::PATH, PATHs.join(pathListSeparator));
 	PM::resetRawBinaryPaths(PE);
-	QCOMPARE(PM::rawBinaryPaths_m, expected);
+	QCOMPARE(PM::rawBinaryPaths(), expected);
 	PE.remove(Key::PATH);
 }
 
 void Main::testPathManager_getRawBinaryPaths()
 {
-	PM::rawBinaryPaths_m.clear();
-	// rawBinaryPaths_m already filled
+	PM::rawBinaryPaths().clear();
+	// rawBinaryPaths() already filled
 	QStringList expected {
 		QStringLiteral("ABC")
 	};
-	PM::rawBinaryPaths_m << expected;
+	PM::rawBinaryPaths() << expected;
   auto paths = PM::getRawBinaryPaths();
-	QCOMPARE(PM::rawBinaryPaths_m, expected);
-	// void rawBinaryPaths_m, from settings
+	QCOMPARE(PM::rawBinaryPaths(), expected);
+	// void rawBinaryPaths(), from settings
 	expected << QStringLiteral("DEF");
 	Settings settings;
 	settings.setValue(Key::binaryPaths, expected);
-	PM::rawBinaryPaths_m.clear();
+	PM::rawBinaryPaths().clear();
   paths = PM::getRawBinaryPaths();
-	QCOMPARE(PM::rawBinaryPaths_m, expected);
+	QCOMPARE(PM::rawBinaryPaths(), expected);
 	// Otherwise tested with resetRawBinaryPaths
 }
 
@@ -231,12 +233,12 @@ void Main::testPathManager_getBinaryPaths()
   QProcessEnvironment PE;
 	PE.remove(Key::PATH);
 	PE.insert(QStringLiteral("TWX_DUMMY"), dir);
-  PM::rawBinaryPaths_m.clear();
+  PM::rawBinaryPaths().clear();
 #if defined(Q_OS_WIN)
-	PM::rawBinaryPaths_m
+	PM::rawBinaryPaths()
 		<< QStringLiteral("%TWX_DUMMY%");
 #else
-	PM::rawBinaryPaths_m << QStringLiteral("$TWX_DUMMY");
+	PM::rawBinaryPaths() << QStringLiteral("$TWX_DUMMY");
 #endif
 	QStringList actual = PM::getBinaryPaths(PE);
 	QStringList expected {
@@ -251,8 +253,8 @@ void Main::testPathManager_programPath()
 	auto dir = QCoreApplication::applicationDirPath();
 	auto expected = QCoreApplication::applicationFilePath();
   auto program = QFileInfo(expected).fileName();
-	PM::rawBinaryPaths_m.clear();
-	PM::rawBinaryPaths_m << dir;
+	PM::rawBinaryPaths().clear();
+	PM::rawBinaryPaths() << dir;
 	QProcessEnvironment PE;
 	PE.remove(Key::PATH);
 	auto actual = PM::programPath(program, PE);

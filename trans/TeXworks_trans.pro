@@ -52,7 +52,6 @@ SOURCES = \
   "../src/utils/ResourcesLibrary.cpp" \
   "../src/utils/SystemCommand.cpp" \
   "../src/utils/TextCodecs.cpp" \
-  "../src/utils/TypesetManager.cpp" \
   "../src/utils/VersionInfo.cpp" \
   "../src/utils/WindowManager.cpp"
 
@@ -60,7 +59,6 @@ HEADERS = \
   "../src/BibTeXFile.h" \
   "../src/CitationSelectDialog.h" \
   "../src/CompletingEdit.h" \
-  "../src/DefaultBinaryPaths.h" \
   "../src/DefaultPrefs.h" \
   "../src/FindDialog.h" \
   "../src/GitRev.h" \
@@ -105,7 +103,6 @@ HEADERS = \
   "../src/utils/ResourcesLibrary.h" \
   "../src/utils/SystemCommand.h" \
   "../src/utils/TextCodecs.h" \
-  "../src/utils/TypesetManager.h" \
   "../src/utils/VersionInfo.h" \
   "../src/utils/WindowManager.h"
 
