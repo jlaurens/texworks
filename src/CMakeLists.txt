@@ -49,9 +49,7 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   ui/ScreenCalibrationWidget.cpp
                   utils/CmdKeyFilter.cpp
                   utils/CommandlineParser.cpp
-                  utils/FileVersionDatabase.cpp
                   utils/FullscreenManager.cpp
-                  utils/ResourcesLibrary.cpp
                   utils/SystemCommand.cpp
                   utils/TextCodecs.cpp
                   utils/TypesetManager.cpp
@@ -103,9 +101,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   ui/ScreenCalibrationWidget.h
                   utils/CmdKeyFilter.cpp
                   utils/CommandlineParser.h
-                  utils/FileVersionDatabase.h
                   utils/FullscreenManager.h
-                  utils/ResourcesLibrary.h
                   utils/SystemCommand.h
                   utils/TextCodecs.h
                   utils/TypesetManager.h
@@ -228,6 +224,10 @@ endif ()
 
 target_compile_options(TeXworks PRIVATE ${WARNING_OPTIONS})
 
+target_include_directories (
+  TeXworks
+  PRIVATE "${PROJECT_BINARY_DIR}/TwxModules/TwxCore/TwxProduct/include"
+)
 
 # Add translations
 target_add_qt_translations(TeXworks
@@ -257,7 +257,12 @@ IF (UNIX)
 ENDIF ()
 
 # Specify libraries to be linked to TeXworks.
-target_LINK_LIBRARIES(TeXworks QtPDF::qtpdf ${TeXworks_LIBS} )
+target_LINK_LIBRARIES(
+  TeXworks
+  QtPDF::qtpdf
+  Twx::Core
+  ${TeXworks_LIBS}
+)
 
 # Disallow automatic casts from char* to QString (enforcing the use of tr() or
 # explicitly specifying the string encoding)
@@ -269,7 +274,7 @@ endif (NOT MSVC)
 
 target_compile_definitions(TeXworks PRIVATE TW_BUILD_ID="${TW_BUILD_ID}")
 
-function (target_add_path_define target name path)
+function (twx_target_add_path_define target name path)
   if (IS_ABSOLUTE ${path})
     target_compile_definitions(${target} PRIVATE ${name}="${path}")
   else ()
@@ -278,9 +283,10 @@ function (target_add_path_define target name path)
 endfunction()
 
 if (UNIX AND NOT APPLE)
-  target_add_path_define(TeXworks "TW_HELPPATH" "${TeXworks_HELP_DIR}")
-  target_add_path_define(TeXworks "TW_PLUGINPATH" "${TeXworks_PLUGIN_DIR}")
-  target_add_path_define(TeXworks "TW_DICPATH" "${TeXworks_DIC_DIR}")
+  twx_target_add_path_define(TeXworks "TW_HELPPATH"   "${TeXworks_HELP_DIR}"  )
+  twx_target_add_path_define(TeXworks "TW_PLUGINPATH" "${TeXworks_PLUGIN_DIR}")
+  twx_target_add_path_define(TeXworks "TWX_DICTIONARY_PATH" "${TeXworks_DIC_DIR}"   )
+  twx_target_add_path_define(TeXworks "TW_DICPATH"    "${TeXworks_DIC_DIR}"   )
 endif ()
 
 

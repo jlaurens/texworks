@@ -15,7 +15,7 @@ if ( NOT TWX_IS_BASED )
 	set ( TWX_unit-tests_IS_ROOT ON )
 	enable_testing ()
 	include ( TwxQTLib )
-  twx_fresh_Qt ()
+  twx_Qt_fresh ()
 endif ()
 
 add_subdirectory (
@@ -26,6 +26,7 @@ include_directories (
 	"${TWX_DIR}/src"
 	${TeXworks_INCLUDE_DIRS}
 )
+
 # BiBTeXFile
 add_executable (
 	test_BibTeXFile
@@ -34,6 +35,7 @@ add_executable (
 	"${TWX_DIR}/src/BibTeXFile.cpp"
 	"${TWX_DIR}/src/BibTeXFile.h"
 )
+
 include ( TwxWarning )
 twx_warning_target ( test_BibTeXFile )
 target_link_libraries (
@@ -97,7 +99,6 @@ add_executable(test_Utils
 	"${CMAKE_SOURCE_DIR}/src/utils/CommandlineParser.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/FileVersionDatabase.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/FullscreenManager.cpp"
-	"${CMAKE_SOURCE_DIR}/src/utils/ResourcesLibrary.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/SystemCommand.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/TextCodecs.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/TypesetManager.cpp"
@@ -137,3 +138,5 @@ endif (WITH_POPPLERQT)
 target_link_libraries(test_Document QtPDF::qtpdf SyncTeX::synctex Hunspell::hunspell ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
 add_test(NAME test_Document COMMAND test_Document WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
 
+include ( TwxModuleLib )
+twx_module_add ( Core TARGET test_Document )

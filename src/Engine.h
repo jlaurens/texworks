@@ -46,11 +46,7 @@ public:
 	bool isAvailable() const;
 	QProcess * run(const QFileInfo & input, QObject * parent = nullptr);
 
-	static QStringList binPaths();
-
 private:
-	static QString programPath(const QString & prog);
-
 	QString _name;
 	QString _program;
 	QStringList _arguments;

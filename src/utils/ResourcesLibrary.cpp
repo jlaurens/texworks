@@ -19,7 +19,7 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
 
 #include "TWApp.h" // for PATH_LIST_SEP
 #include "utils/FileVersionDatabase.h"
@@ -37,6 +37,7 @@ QString ResourcesLibrary::m_portableLibPath;
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 // compile-time default paths - customize by defining in the .pro file
+// JL: This assumes that TW_DICPATH is a quoted text
 #	ifndef TW_DICPATH
 #		define TW_DICPATH "/usr/share/hunspell" PATH_LIST_SEP "/usr/share/myspell/dicts"
 #	endif
@@ -202,19 +203,19 @@ void ResourcesLibrary::updateLibraryResources(const QDir& srcRootDir, const QDir
 				// latest version from the internet)
 				if (destHash != srcHash)
 					continue;
-				fvdb.addFileRecord(destPath, srcHash, Tw::Utils::VersionInfo::gitCommitHash());
+				fvdb.addFileRecord(destPath, srcHash, Tw::Utils::VersionInfo::gitCommitHash);
 			}
 			else {
 				// The file matches the record in the database; update it
 				// (copying is only necessary if the contents has changed)
 				if (srcHash == destHash)
-					fvdb.addFileRecord(destPath, srcHash, Tw::Utils::VersionInfo::gitCommitHash());
+					fvdb.addFileRecord(destPath, srcHash, Tw::Utils::VersionInfo::gitCommitHash);
 				else {
 					// we have to remove the file first as QFile::copy doesn't
 					// overwrite existing files
 					QFile::remove(destPath.filePath());
 					if(QFile::copy(srcPath, destPath.filePath()))
-						fvdb.addFileRecord(destPath, srcHash, Tw::Utils::VersionInfo::gitCommitHash());
+						fvdb.addFileRecord(destPath, srcHash, Tw::Utils::VersionInfo::gitCommitHash);
 				}
 			}
 		}
@@ -227,7 +228,7 @@ void ResourcesLibrary::updateLibraryResources(const QDir& srcRootDir, const QDir
 				// might fail
 				destRootDir.mkpath(QFileInfo(destPath).path());
 				QFile(srcPath).copy(destPath.filePath());
-				fvdb.addFileRecord(destPath, srcHash, Tw::Utils::VersionInfo::gitCommitHash());
+				fvdb.addFileRecord(destPath, srcHash, Tw::Utils::VersionInfo::gitCommitHash);
 			}
 			else {
 				// If a file with that name already exists, we don't replace it
@@ -236,7 +237,7 @@ void ResourcesLibrary::updateLibraryResources(const QDir& srcRootDir, const QDir
 				// database so that future updates are applied
 				QByteArray destHash = Tw::Utils::FileVersionDatabase::hashForFile(destPath.filePath());
 				if (srcHash == destHash)
-					fvdb.addFileRecord(destPath, destHash, Tw::Utils::VersionInfo::gitCommitHash());
+					fvdb.addFileRecord(destPath, destHash, Tw::Utils::VersionInfo::gitCommitHash);
 			}
 		}
 	}

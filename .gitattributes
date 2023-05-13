@@ -1,4 +1,6 @@
 GitArchiveInfo.txt	export-subst
-.gitignore	export-ignore
-.gitattributes	export-ignore
-*.pdf	binary
+TeXworks.ini	      export-subst
+TeXworks-dev.ini	  export-subst
+.gitignore	        export-ignore
+.gitattributes	    export-ignore
+*.pdf	              binary

@@ -11,7 +11,7 @@ include ( .../CMake/Include/TwxCoreLib.cmake )
 ```
 `TwxBaseLib` automatically includes `TwxCoreLib`.
 
-NB: This does not load the base.
+NB: This does not load the `TwxBaseLib` on its own.
 *//*
 #]===============================================]
 
@@ -118,14 +118,35 @@ endif ()
 /**
 Raises when the variable is empty.
 @param variable_name a variable name
+@param ... another variable name
 */
-twx_assert_non_void(variable_name) {}
+twx_assert_non_void(variable_name ... ) {}
 /*#]=======]
 function ( twx_assert_non_void _variable )
   if ( "${${_variable}}" STREQUAL "" )
-    message ( FATAL_ERROR "Missing ${_variable}")
+    if ( "${ARGN}" STREQUAL "" )
+      message ( FATAL_ERROR "Missing ${_variable}")
+    elseif ( "${_variable}" MATCHES "^MY_(.*)$" )
+      message ( FATAL_ERROR "Missing ${CMAKE_MATCH_1} ... argument")
+    else ()
+      message ( FATAL_ERROR "Missing ${ARGN}")
+    endif ()
   endif ()
 endfunction ()
+
+# ANCHOR: twx_export
 #[=======[
+*//**
+Convenient shortcut to export variables to the parent scope.
+@param ... the names of the variable to be exported.
 */
+twx_export(...){}
+/*
 #]=======]
+macro ( twx_export )
+  foreach ( var_twx IN ITEMS ${ARGN} )
+    set ( ${var_twx} ${${var_twx}} PARENT_SCOPE )
+  endforeach ()
+endmacro ()
+
+#*/

@@ -77,19 +77,6 @@ if ( POLICY CMP0140 )
   cmake_policy ( SET CMP0140 NEW )
 endif ()
 
-# ANCHOR: twx_export
-#[=======[
-*//**
-Convenient shortcut to export a variable to the parent scope.
-@param variable the name of the variable to be exported.
-*/
-twx_export(variable){}
-/*
-#]=======]
-macro ( twx_export what_ )
-  set ( ${what_} ${${what_}} PARENT_SCOPE )
-endmacro ()
-
 #[=======[ Nota bene
 On older CMake, to apply policies locally use
 ```

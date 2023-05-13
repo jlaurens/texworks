@@ -43,7 +43,7 @@ This is like `set ( ... PARENT_SCOPE )` were postponed to the end of the current
   - `CMAKE_?_DIR`, as well as `CMAKE_CURRENT_?_DIR` are properly set
   - `CMAKE_?_DIR` won't change (normally)
   - `CMAKE_CURRENT_LIST_DIR` value is `CMAKE_SOURCE_DIR`'s as well as
-    `CMAKE_CURENT_SOURCE_DIR`'.
+    `CMAKE_CURRENT_SOURCE_DIR`'.
   - Any `project(<PROJECT-NAME>)` instruction:
     * set `CMAKE_PROJECT_NAME` and `PROJECT_NAME` to `<PROJECT-NAME>`,
     * set variables `PROJECT_?_DIR` and `<PROJECT-NAME>_?_DIR` to
@@ -58,7 +58,7 @@ This is like `set ( ... PARENT_SCOPE )` were postponed to the end of the current
     `CMAKE_CURRENT_?_DIR`. When the control comes back to the callee,
     at the end of the script, these variables take their previous value
     (`add_subdirectory` declares a new scope).
-  - `CMAKE_CURRENT_LIST_DIR`'s value is `CMAKE_CURENT_SOURCE_DIR`'.
+  - `CMAKE_CURRENT_LIST_DIR`'s value is `CMAKE_CURRENT_SOURCE_DIR`'.
   - Any `project(<PROJECT-NAME>)` instruction:
     * set `PROJECT_NAME` to `<PROJECT-NAME>`, but `CMAKE_PROJECT_NAME`
       is left untouched.

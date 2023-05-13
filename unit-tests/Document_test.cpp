@@ -28,7 +28,8 @@
 #include "document/SpellChecker.h"
 #include "document/TeXDocument.h"
 #include "document/TextDocument.h"
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
+#include <TwxAssets.h>
 
 #include <QSignalSpy>
 #include <limits>
@@ -121,10 +122,13 @@ VersionNumber popplerRuntimeVersion() {
 #endif // WITH_POPPLERQT
 
 
-namespace Tw {
-namespace Utils {
+namespace Twx {
+namespace Core {
 // Referenced in Tw::Document::SpellChecker
-const QStringList ResourcesLibrary::getLibraryPaths(const QString & subdir, const bool updateOnDisk) { Q_UNUSED(subdir) Q_UNUSED(updateOnDisk) return QStringList(QDir::currentPath()); }
+const QStringList Assets::dictionaryLocations(const bool updateOnDisk) {
+	Q_UNUSED(updateOnDisk)
+	return QStringList(QDir::currentPath());
+}
 } // namespace Utils
 } // namespace Tw
 

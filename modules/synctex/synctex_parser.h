@@ -93,7 +93,7 @@ extern "C" {
      *      It is the directory where all the auxiliary
      *      stuff is created. Sometimes, the synctex output
      *      file and the pdf, dvi or xdv files are not 
-     *      created in the same location. See MikTeX.
+     *      created in the same location. See MiKTeX.
      *      This directory path can be NULL,
      *      it will be ignored then.
      *      It can be either absolute or relative to the

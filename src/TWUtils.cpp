@@ -25,8 +25,11 @@
 #include "Settings.h"
 #include "TWApp.h"
 #include "TeXDocumentWindow.h"
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
 #include "utils/WindowManager.h"
+
+#include <TwxConst.h>
+#include <TwxAssets.h>
 
 #include <QAction>
 #include <QCompleter>
@@ -373,7 +376,7 @@ void TWUtils::readConfig()
 	pairOpeners.clear();
 	pairClosers.clear();
 
-	QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
+	QDir configDir(Twx::Core::Assets::path(Twx::Key::configuration));
 	QRegularExpression pair(QString::fromLatin1("^([^\\s])\\s+([^\\s])\\s*(?:#.*)?$"));
 
 	QFile pairsFile(configDir.filePath(QString::fromLatin1("delimiter-pairs.txt")));
@@ -496,7 +499,7 @@ void TWUtils::installCustomShortcuts(QWidget * widget, bool recursive /* = true 
 		return;
 
 	if (!map) {
-		QString filename = QDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration"))).absoluteFilePath(QString::fromLatin1("shortcuts.ini"));
+		QString filename = QDir(Twx::Core::Assets::path(Twx::Key::configuration)).absoluteFilePath(QString::fromLatin1("shortcuts.ini"));
 		if (filename.isEmpty() || !QFileInfo(filename).exists())
 			return;
 

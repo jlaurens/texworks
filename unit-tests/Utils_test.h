@@ -46,10 +46,6 @@ private slots:
 
 	void FullscreenManager();
 
-	void ResourcesLibrary_getLibraryPath_data();
-	void ResourcesLibrary_getLibraryPath();
-	void ResourcesLibrary_portableLibPath();
-
 	void TypesetManager();
 
 #ifdef Q_OS_DARWIN

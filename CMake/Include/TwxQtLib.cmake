@@ -8,7 +8,7 @@ https://github.com/TeXworks/texworks
 Usage:
 ```
 include ( TwxQtLib )
-twx_fresh_Qt ()
+twx_Qt_fresh ()
 ...
 ```
 The `TwxBase` is required.
@@ -84,15 +84,15 @@ QT_VERSION_PATCH;
 #]=======]
 set ( QtMAJOR "Qt${QT_VERSION_MAJOR}" )
 
-if ( COMMAND twx_append_QT )
+if ( COMMAND twx_QT_append )
   # Already loaded, only initialize `QT_LIBRARIES`
 	set ( QT_LIBRARIES )
-	twx_append_QT ( REQUIRED Core )
+	twx_QT_append ( REQUIRED Core )
 	if ( QT_VERSION_MAJOR EQUAL 6 )
-		twx_append_QT ( REQUIRED Core5Compat )
+		twx_QT_append ( REQUIRED Core5Compat )
 	endif ()
 	if ( WITH_TEST OR TWX_TEST )
-		twx_append_QT ( REQUIRED Test )
+		twx_QT_append ( REQUIRED Test )
 	endif ()
   return ()
 endif ()
@@ -100,9 +100,7 @@ endif ()
 # 1 utilities to find a package and append a component to the given variable
 # in general QT_LIBRARIES.
 
-include ( CMakeParseArguments )
-
-# ANCHOR: twx_append_QT
+# ANCHOR: twx_QT_append
 #[=======[
 *//**
 This function will load Qt components.
@@ -110,36 +108,37 @@ The libraries are collected in the `QT_LIBRARIES` variable.
 
 Usage:
 ```
-twx_append_QT (
+twx_QT_append (
 	[REQUIRED required ...]
 	[OPTIONAL optional ...]
 )
 ```
-@param required component
-@param optional component
+@param required for key REQUIRED, component
+@param optional for key OPTIONAL, component
 */
-twx_append_QT(...) {}
+twx_QT_append(...) {}
 /*
+this must be a macro because the found packages are likely to
+change variables within the caller's scope,
+at least the "..._FOUND" ones.
 #]=======]
-macro ( twx_append_QT )
-	# this must be a macro because the found packages are likely to
-	# change variables within the caller's scope,
-	# at least the "..._FOUND" ones.
-	cmake_parse_arguments ( TWX_l "" "" "REQUIRED;OPTIONAL" ${ARGN} )
+macro ( twx_QT_append )
+	twx_parse_arguments ( "" "" "REQUIRED;OPTIONAL" ${ARGN} )
+	twx_assert_parsed ()
 	# Find all the packages
 	find_package (
 		${QtMAJOR}
-		REQUIRED COMPONENTS ${TWX_l_REQUIRED}
-		OPTIONAL_COMPONENTS ${TWX_l_OPTIONAL} QUIET
+		REQUIRED COMPONENTS ${my_twx_REQUIRED}
+		OPTIONAL_COMPONENTS ${my_twx_OPTIONAL} QUIET
 	)
 	# Record the libraries, when not already done.
-	foreach ( TWX_comp IN ITEMS ${TWX_l_REQUIRED} )
+	foreach ( TWX_comp IN LISTS my_twx_REQUIRED )
 	  list ( FIND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} TWX_k )
 		if ( ${TWX_k} LESS 0 )
 		  list ( APPEND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} )
 		endif ()
 	endforeach ()
-	foreach ( TWX_comp IN ITEMS ${TWX_l_OPTIONAL} )
+	foreach ( TWX_comp IN LISTS my_twx_OPTIONAL )
 # TODO: move to CMake 3.3
 		list ( FIND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} TWX_k )
 		if ( ${TWX_k} LESS 0 )
@@ -147,13 +146,13 @@ macro ( twx_append_QT )
 		endif ()
 	endforeach ()
 	# unset local variables
-	unset ( TWX_l_REQUIRED )
-	unset ( TWX_l_OPTIONAL )
+	unset ( my_twx_REQUIRED )
+	unset ( my_twx_OPTIONAL )
 	unset ( TWX_comp )
 	unset ( TWX_k )
 endmacro ()
 
-# ANCHOR: twx_target_Qt_guards
+# ANCHOR: twx_Qt_target_guards
 #[=======[
 *//**
 Add macro definition to the given target to 
@@ -161,10 +160,10 @@ disallow automatic casts from `char*` to `QString``
 ( enforcing the use of `tr( )` or explicitly specifying the string encoding)
 @param target a valid target name
 */
-twx_target_Qt_guards(target) {}
+twx_Qt_target_guards(target) {}
 /*
 #]=======]
-function ( twx_target_Qt_guards _target )
+function ( twx_Qt_target_guards _target )
 	target_compile_definitions (
 		${_target}
 		PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_BYTEARRAY
@@ -186,6 +185,9 @@ if ( NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_L
 		-Wzero-as-null-pointer-constant
 	)
 endif ()
+set ( QT_LIBRARIES )
+
+twx_QT_append ( REQUIRED Core )
 
 set ( QT_VERSION_MINOR "${${QtMAJOR}_VERSION_MINOR}" )
 set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
@@ -194,23 +196,27 @@ set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
 *//**
 @brief Setup a fresh `Qt` state.
 
-
+@param TEST optional key, when provided and `TWX_TEST` is not set
+  raise an error.
 */
-twx_fresh_Qt () {}
+twx_Qt_fresh ( [TEST] ) {}
 /*
 #]=======]
-macro ( twx_fresh_Qt )
+macro ( twx_Qt_fresh )
 	set ( QT_LIBRARIES )
-	twx_append_QT ( REQUIRED Core )
+	twx_QT_append ( REQUIRED Core )
 	if ( QT_VERSION_MAJOR EQUAL 6 )
-		twx_append_QT ( REQUIRED Core5Compat )
+		twx_QT_append ( REQUIRED Core5Compat )
 	endif ()
-	if ( WITH_TESTS OR TWX_TEST )
-		twx_append_QT ( OPTIONAL Test )
+	if ( WITH_TESTS OR TWX_TEST OR "${ARGN}" STREQUAL "TEST" )
+		twx_QT_append ( OPTIONAL Test )
 		if ( NOT ${QtMAJOR}Test_FOUND )
 			set ( WITH_TESTS OFF )
 			set ( TWX_TEST OFF )
 		endif ()
+	endif ()
+	if ( "${ARGN}" STREQUAL "TEST" AND NOT WITH_TESTS AND NOT TWX_TEST )
+		message ( FATAL_ERROR "QTest is not available" )
 	endif ()
 endmacro ()
 

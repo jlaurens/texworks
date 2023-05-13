@@ -1,3 +1,4 @@
+#/*
 # Source: https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake
 #
 # Copyright (c) 2012 - 2017, Lars Bilke
@@ -303,3 +304,4 @@ function(APPEND_COVERAGE_COMPILER_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
     message(STATUS "Appending code coverage compiler flags: ${COVERAGE_COMPILER_FLAGS}")
 endfunction() # APPEND_COVERAGE_COMPILER_FLAGS
+#*/

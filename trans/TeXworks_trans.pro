@@ -49,7 +49,6 @@ SOURCES = \
   "../src/utils/CommandlineParser.cpp" \
   "../src/utils/FileVersionDatabase.cpp" \
   "../src/utils/FullscreenManager.cpp" \
-  "../src/utils/ResourcesLibrary.cpp" \
   "../src/utils/SystemCommand.cpp" \
   "../src/utils/TextCodecs.cpp" \
   "../src/utils/TypesetManager.cpp" \
@@ -102,7 +101,6 @@ HEADERS = \
   "../src/utils/CommandlineParser.h" \
   "../src/utils/FileVersionDatabase.h" \
   "../src/utils/FullscreenManager.h" \
-  "../src/utils/ResourcesLibrary.h" \
   "../src/utils/SystemCommand.h" \
   "../src/utils/TextCodecs.h" \
   "../src/utils/TypesetManager.h" \

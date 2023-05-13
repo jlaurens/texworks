@@ -74,7 +74,7 @@ function ( twx_doxydoc BINARY_DIR )
   )
   set (
     twx_out
-    "${BINARY_DIR}/build_data/doxydoc.txt"
+    "${BINARY_DIR}/TwxBuildData/doxydoc.txt"
   )
   set (
     TWX_CFG_DOXYGEN_OUTPUT_DIRECTORY

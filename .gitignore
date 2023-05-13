@@ -1,15 +1,21 @@
+# Main metadata configuration files
+/TeXworks*.ini
+!/TeXworks.ini
+!/TeXworks-dev.ini
+
 # Files auto-generated during build.
-/TeXworks.plist
+/TeXworks*.plist
 
 # Build directories
 /build*/
-/modules/QtPDF/build*/
+/modules/*/build*/
 
 # Files downloaded/extracted as part of OS X packaging task.
+# TODO: Gather these files in one `Download` folder
 /poppler-data-*.tar.gz
 /poppler-data-*/
-/TeXworks-manual-html-*.zip
-/TeXworks-manual-html-*/
+/TeXworks*-manual-html-*.zip
+/TeXworks*-manual-html-*/
 
 # Files created by Qt Creator
 CMakeLists.txt.user*

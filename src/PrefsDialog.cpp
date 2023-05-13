@@ -30,6 +30,9 @@
 #include "TeXHighlighter.h"
 #include "document/SpellChecker.h"
 
+#include <TwxLocate.h>
+using Locate = Twx::Core::Locate;
+
 #include <QFileDialog>
 #include <QFontDatabase>
 #include <QMainWindow>
@@ -414,7 +417,7 @@ void PrefsDialog::restoreDefaults()
 		case 3:
 			// Typesetting
 			TWApp::instance()->setDefaultEngineList();
-			TWApp::instance()->setDefaultPaths();
+			Locate::resetListPATHRaw();
 			initPathAndToolLists();
 			autoHideOutput->setCurrentIndex(kDefault_HideConsole);
 			pathsChanged = true;
@@ -436,7 +439,7 @@ void PrefsDialog::initPathAndToolLists()
 {
 	binPathList->clear();
 	toolList->clear();
-	binPathList->addItems(TWApp::instance()->getPrefsBinaryPaths());
+	binPathList->addItems(Locate::listPATHRaw());
 	engineList = TWApp::instance()->getEngineList();
 	foreach (Engine e, engineList) {
 		toolList->addItem(e.name());
@@ -874,7 +877,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			QStringList paths;
 			for (int i = 0; i < dlg.binPathList->count(); ++i)
 				paths << dlg.binPathList->item(i)->text();
-			TWApp::instance()->setBinaryPaths(paths);
+			Locate::setListPATH(paths);
 		}
 		if (dlg.toolsChanged)
 			TWApp::instance()->setEngineList(dlg.engineList);

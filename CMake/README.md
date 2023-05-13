@@ -26,7 +26,7 @@ It is a minimal set of configuration settings and tools.
 The `TwxBase.cmake` should be included by any main `CMakeLists.txt` at the very top with for example:
 ```
 include(
-  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/Base.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 ```
@@ -41,7 +41,7 @@ this global variable is set to false.
 Such `CMakeLists.txt` will start with
 ```
 include(
-  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/Base.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 if (TWX_PROJECT_IS_ROOT)

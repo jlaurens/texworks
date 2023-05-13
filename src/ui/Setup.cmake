@@ -12,16 +12,11 @@ Output:
 * `TwxUI_SOURCES`, a `;` separated list of full paths
 * `TwxUI_HEADERS`, a `;` separated list of full paths
 
-Includes `TwxConfigureFilePaths`.
 #]===============================================]
 
 set ( TwxUI_SOURCES )
 set ( TwxUI_HEADERS )
 set ( TwxUI_UIS )
-
-# if ( NOT TWX_IS_BASED )
-#   message ( FATAL_ERROR "TwxBase is not included")
-# endif ()
 
 list (
 	APPEND TwxUI_SOURCES

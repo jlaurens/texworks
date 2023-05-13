@@ -47,7 +47,7 @@ FORMS = \
   "../src/GuidelineEditDialog.ui"
 
 RESOURCES = \
-  "../../../build/modules/QtPDF/QtPDF_trans.qrc" \
+  "../../../build/TwxModules/QtPDF/QtPDF_trans.qrc" \
   "../QtPDF_icons.qrc"
 
 TRANSLATIONS = \

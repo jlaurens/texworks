@@ -25,11 +25,12 @@ include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
 # ANCHOR: twx_test_case
 #[=======[
 *//**
-Prepare the TestCase directory for testing executables.
+Prepare the test working directory for testing executables.
 Run from the `CMakeLists.txt` that defines the test.
 We make a copy at a location where we have write access.
-The source test case folder is `Test/TestCase`,
-The destination is `<binary_dir>/<executable>.testCase`.
+The source test case folder is `Test/WorkingDirectory`,
+The destination is `<executable>.WorkingDirectory` near the executable.
+
 
 @param executable the name of a valid executable
 @param variable contains the full directory path
@@ -40,27 +41,48 @@ Includes `TwxCoreLib`
 twx_test_case ( executable variable ) {}
 /*
 #]=======]
-function ( twx_test_case executable_name variable )
+function ( twx_test_case target_ variable_ )
   twx_assert_non_void ( PROJECT_BINARY_DIR )
+  if ( TARGET ${target_} )
+    set (
+      directory_
+      "${PROJECT_BINARY_DIR}/TwxProduct"
+    )
+    set_target_properties (
+      ${target_}
+      PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${directory_}"
+    )
+  else ()
+    set ( directory_ "${PROJECT_BINARY_DIR}" )
+  endif ()
+  file ( MAKE_DIRECTORY "${directory_}" )
+  set ( destination_ "${directory_}/${target_}.WorkingDirectory" )
+  set ( temporaryDir "${PROJECT_BINARY_DIR}/TwxBuildData/Temporary" )
+  message ( STATUS "FORM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
+  if ( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory" )
+    message ( FATAL_ERROR "No WorkingDirectory" )
+  endif ()
   file (
-    COPY
-      "${CMAKE_CURRENT_LIST_DIR}/Test/TestCase"
-    DESTINATION
-      "${PROJECT_BINARY_DIR}/build_data/"
+    COPY "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory"
+    DESTINATION "${temporaryDir}"
   )
+  if ( NOT EXISTS "${temporaryDir}/WorkingDirectory" )
+    message ( FATAL_ERROR "COPY FAILED" )
+  endif ()
   file (
-    REMOVE_RECURSE
-      "${PROJECT_BINARY_DIR}/${executable_name}.TestCase"
+    REMOVE_RECURSE "${destination_}"
   )
-  set (
-    ${variable}
-    "${PROJECT_BINARY_DIR}/${executable_name}.TestCase"
-  )
+  message ( STATUS "DESTINATION: ${destination_}" )
   file (
     RENAME
-      "${PROJECT_BINARY_DIR}/build_data/TestCase"
-      "${${variable}}"
+      "${temporaryDir}/WorkingDirectory"
+      "${destination_}"
   )
-  twx_export ( "${variable}" )
+  file (
+    REMOVE_RECURSE "${temporaryDir}"
+  )
+  set ( ${variable_} "${destination_}" PARENT_SCOPE )
+  message ( STATUS "Test case folder: ${${variable_}}" )
 endfunction ()
 #*/

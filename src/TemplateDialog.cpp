@@ -24,7 +24,10 @@
 #include "TeXHighlighter.h"
 #include "TemplateDialog.h"
 #include "document/TeXDocument.h"
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
+
+#include <TwxConst.h>
+#include <TwxAssets.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -42,7 +45,7 @@ void TemplateDialog::init()
 	Tw::Document::TeXDocument * texDoc = new Tw::Document::TeXDocument(textEdit);
 	textEdit->setDocument(texDoc);
 
-	QString templatePath = Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("templates"));
+	QString templatePath = Twx::Core::Assets::path(Twx::Key::templates);
 		// do this before creating the model, as getLibraryPath might initialize a new dir
 
 	model = new QFileSystemModel(this);

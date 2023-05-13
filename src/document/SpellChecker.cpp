@@ -22,7 +22,10 @@
 #include "document/SpellChecker.h"
 
 #include "TWUtils.h" // for TWUtils::getLibraryPath
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
+
+#include <TwxConst.h>
+#include <TwxAssets.h>
 
 #include <hunspell.h>
 
@@ -43,7 +46,7 @@ QMultiHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceR
 	}
 
 	dictionaryList = new QMultiHash<QString, QString>();
-	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
+	const QStringList dirs = Twx::Core::Assets::dictionaryLocations();
 	foreach (QDir dicDir, dirs) {
 		foreach (QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QString::fromLatin1("*.dic")),
 					QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase)) {
@@ -69,7 +72,7 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
 	if (dictionaries->contains(language))
 		return dictionaries->value(language);
 
-	const QStringList dirs = Tw::Utils::ResourcesLibrary::getLibraryPaths(QStringLiteral("dictionaries"));
+	const QStringList dirs = Twx::Core::Assets::dictionaryLocations();
 	foreach (QDir dicDir, dirs) {
 		QFileInfo affFile(dicDir, language + QLatin1String(".aff"));
 		QFileInfo dicFile(dicDir, language + QLatin1String(".dic"));
