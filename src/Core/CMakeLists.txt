@@ -2,7 +2,7 @@
 This is part of TWX build and test system.
 https://github.com/TeXworks/texworks
 
-This is `<...>/src/ui/CMakeLists.txt`
+This is `<...>/src/Core/CMakeLists.txt`
 
 It can be used as standalone testing project,
 testing auxiliary or source provider.
@@ -10,11 +10,11 @@ testing auxiliary or source provider.
 ## Standalone testing project
 
 When used as primary `CMakeLists.txt` it defines
-a standalone test suite for `Tw` namespace.
+a standalone test suite for `Twx::Core` namespace.
 
 Usage from an external build directory:
 ```
-cmake .../src/ui
+cmake .../Core
 cmake --build .
 ctest .
 ```
@@ -31,11 +31,13 @@ See `/unit-tests/CMakeLists.txt`.
 ### In normal context
 
 Output:
-* `TwxUI_SOURCES`, a `;` separated list of full paths
-* `TwxUI_HEADERS`, a `;` separated list of full paths
+* `TwxCore_SOURCES`, a `;` separated list of full paths
+* `TwxCore_HEADERS`, a `;` separated list of full paths
 
-NB: The transition to Twx is not complete
 #]===============================================]
+
+# Will be unset below when testing
+set ( TWX_TEST_PATHS "<<<pwd>>>/A;<<<pwd>>>/B;<<<pwd>>>/C;" )
 
 if ( NOT TWX_IS_BASED )
 
@@ -45,57 +47,46 @@ if ( NOT TWX_IS_BASED )
 		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
 	)
-	project ( TwxUI_Test )
+	project ( TwxCoreTest ) # Don't change this name just here
 	include ( TwxBase )
-
-  set ( TWX_TEST ON	)
-	set ( TwxUI_TEST_IS_ROOT ON )
+	set ( TWX_TEST ON	)
+	set ( TwxCore_TEST_IS_ROOT ON )
 	enable_testing ()
 	include ( TwxQTLib )
 	twx_fresh_Qt ( TEST )
+
 	include ( TwxDoxydocLib )
-  twx_doxydoc ( ${PROJECT_BINARY_DIR} )
+	twx_doxydoc ( ${CMAKE_CURRENT_BINARY_DIR} )
+	
 elseif ( TWX_TEST )
-	project ( TwxUI_Test )
+	project ( TwxCoreTest ) # Don't change this name just here
 	include ( TwxBase )
+else ()
+  unset ( TWX_TEST_PATHS )
 endif ()
 
-include ( SrcTwxUISetup )
+include ( SrcTwxCoreSetup )
 
-if ( NOT TWX_TEST )
-	twx_export ( TwxUI_SOURCES )
-	twx_export ( TwxUI_HEADERS )
-	twx_export ( TwxUI_UIS )
+if ( NOT TWX_TEST OR TARGET test_TwxCore )
+	twx_export ( TwxCore_SOURCES )
+	twx_export ( TwxCore_HEADERS )
 	return ()
 endif ()
 
-list (
-	APPEND
-	TwxUI_SOURCES
-	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxUITest.cpp"
-)
-list (
-	APPEND
-	TwxUI_HEADERS
-	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxUITest.h"
-)
+add_executable ( test_TwxCore )
 
-# message ( STATUS "TwxUI_SOURCES ====> ${TwxUI_SOURCES}")
-# message ( STATUS "TwxUI_UIS ====> ${TwxUI_UIS}")
-# qt_wrap_ui (
-# 	SOURCES
-# 	ListSelectDialog.ui
-# )
-# message ( STATUS "SOURCES ====> ${SOURCES}")
-
-add_executable ( test_TwxUI )
-
-twx_target_include_src ( test_TwxUI )
+twx_target_include_src ( test_TwxCore )
 
 target_compile_definitions (
-	test_TwxUI
-	PRIVATE TwxUI_TEST
+	test_TwxCore
+	PRIVATE TwxCore_TEST
 )
+if ( DEFINED TWX_TEST_PATHS )
+	target_compile_definitions (
+		test_TwxCore
+		PRIVATE TwxPathManager_TEST
+	)
+endif ()
 
 # if ( QT_VERSION_MAJOR EQUAL 6 )
 # 	# Check for Qt6
@@ -106,39 +97,47 @@ target_compile_definitions (
 # 	endif ()
 # endif ()
 
-twx_append_QT ( REQUIRED Widgets )
-
 target_link_libraries (
-	test_TwxUI
+	test_TwxCore
 	${QT_LIBRARIES}
 )
 
 include ( TwxWarning )
-twx_warning_target ( test_TwxUI )
+twx_warning_target ( test_TwxCore )
+
+list (
+	APPEND
+	TwxCore_SOURCES
+	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.cpp"
+)
+list (
+	APPEND
+	TwxCore_HEADERS
+	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.h"
+)
 
 target_sources (
-	test_TwxUI
-	PRIVATE ${TwxUI_SOURCES} ${TwxUI_HEADERS} ${TwxUI_UIS}
+	test_TwxCore
+	PRIVATE ${TwxCore_SOURCES} ${TwxCore_HEADERS}
 )
 
 include ( TwxTestCase )
-twx_test_case ( test_TwxUI tws_working_directory )
+twx_test_case ( test_TwxCore tws_working_directory )
 
 add_test (
-	NAME test_TwxUI
-	COMMAND test_TwxUI
+	NAME test_TwxCore
+	COMMAND test_TwxCore
 	WORKING_DIRECTORY
 		"${tws_working_directory}"
 )
 
-add_executable(
-	byte_echo_TwxUI
-	${CMAKE_CURRENT_LIST_DIR}/Test/byte_echo_test.cpp
+add_executable (
+	program_TwxCore
+	${CMAKE_CURRENT_LIST_DIR}/Test/main.cpp
 )
-twx_warning_target ( byte_echo_TwxUI )
 
 set_target_properties (
-	byte_echo_TwxUI
+	program_TwxCore
   PROPERTIES
 		RUNTIME_OUTPUT_DIRECTORY
 		"${tws_working_directory}"
@@ -149,11 +148,14 @@ unset ( tws_working_directory )
 # ANCHOR - Summary
 # =======
 
-if ( TwxUI_TEST_IS_ROOT )
+if ( TwxCore_TEST_IS_ROOT )
 
 	message ( "" )
 
 	include ( TwxConfigLog )
+	include ( TwxCfgLib )
+	twx_cfg_update ()
+	twx_cfg_read ( "git" )
 
 	twx_config_begin (
 		BOLD_GREEN
@@ -162,12 +164,17 @@ if ( TwxUI_TEST_IS_ROOT )
 	${CMAKE_CXX_COMPILER_ID} \
 	${CMAKE_CXX_COMPILER_VERSION}):\n"
 		)
-	
+	twx_config_begin ( BOLD_MAGENTA "Git info" )
+	twx_config_log ( "Hash" "${TWX_CFG_GIT_HASH}" )
+	twx_config_log ( "Date" "${TWX_CFG_GIT_DATE}" )
+	twx_config_log ( "Branch" "${TWX_CFG_GIT_BRANCH}" )
+	twx_config_end ()
+
 	twx_config_begin ( BOLD_MAGENTA "Version info" )
 	twx_config_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )
 	twx_config_end ()
 
-	twx_config_log ( "Compiler optimization:" ${CMAKE_BUILD_TYPE} )
+	twx_config_log ( "Compiler optimization" ${CMAKE_BUILD_TYPE} )
 	twx_config_log ( "" )
 
 	twx_config_begin ( BOLD_BLUE "Libraries" VERBOSE )
@@ -177,22 +184,21 @@ if ( TwxUI_TEST_IS_ROOT )
 	twx_config_begin ( BOLD_BLUE "Build settings" VERBOSE )
 	get_target_property (
 		COMPILE_DEFINITIONS
-		test_TwxUI
+		test_TwxCore
 		COMPILE_DEFINITIONS
 	)
 	twx_config_log_kv ( "Compile definitions" VAR COMPILE_DEFINITIONS )
 	get_target_property (
 		COMPILE_OPTIONS
-		test_TwxUI
+		test_TwxCore
 		COMPILE_OPTIONS
 	)
 	twx_config_log_kv ( "Compile options" VAR COMPILE_OPTIONS )
 	twx_config_end ()
 
 	twx_config_begin ( BOLD_BLUE "Files" VERBOSE )
-	twx_config_log_kv ( "SOURCES" VAR TwxUI_SOURCES )
-	twx_config_log_kv ( "HEADERS" VAR TwxUI_HEADERS )
-	twx_config_log_kv ( "UIS"			VAR TwxUI_UIS )
+	twx_config_log_kv ( "SOURCES" VAR TwxCore_SOURCES )
+	twx_config_log_kv ( "HEADERS" VAR TwxCore_HEADERS )
 	twx_config_end ()
 
 	twx_config_end ( NO_EOL )

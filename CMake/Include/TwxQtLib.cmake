@@ -187,6 +187,9 @@ if ( NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_L
 	)
 endif ()
 
+set ( QT_LIBRARIES )
+twx_append_QT ( REQUIRED Core )
+
 set ( QT_VERSION_MINOR "${${QtMAJOR}_VERSION_MINOR}" )
 set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
 
@@ -194,9 +197,10 @@ set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
 *//**
 @brief Setup a fresh `Qt` state.
 
-
+@param TEST optional key, when provided and `TWX_TEST` is not set
+  raise an error.
 */
-twx_fresh_Qt () {}
+twx_fresh_Qt ( [TEST] ) {}
 /*
 #]=======]
 macro ( twx_fresh_Qt )
@@ -211,6 +215,9 @@ macro ( twx_fresh_Qt )
 			set ( WITH_TESTS OFF )
 			set ( TWX_TEST OFF )
 		endif ()
+	endif ()
+	if ( "${ARGN}" STREQUAL "TEST" AND NOT WITH_TESTS AND NOT TWX_TEST )
+		message ( FATAL_ERROR "QTest is not available" )
 	endif ()
 endmacro ()
 
