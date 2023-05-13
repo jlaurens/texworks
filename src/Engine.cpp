@@ -22,6 +22,9 @@
 #include "Engine.h"
 #include "TWApp.h"
 
+#include "Core/TwxPathManager.h"
+using PathManager = Twx::Core::PathManager;
+
 #include <QDir>
 
 Engine::Engine(const QString& name, const QString& program, const QStringList & arguments, bool showPdf)
@@ -85,27 +88,12 @@ void Engine::setShowPdf(bool showPdf)
 
 bool Engine::isAvailable() const
 {
-	return !(programPath(program()).isEmpty());
+	return !(PathManager::programPath(program()).isEmpty());
 }
-
-//static
-QStringList Engine::binPaths()
-{
-	return TWApp::instance()->getBinaryPaths();
-}
-
-// static
-QString Engine::programPath(const QString & prog)
-{
-	if (prog.isEmpty()) return QString();
-
-	return TWApp::instance()->findProgram(prog, binPaths());
-}
-
 
 QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */)
 {
-	QString exeFilePath = programPath(program());
+	QString exeFilePath = PathManager::programPath(program());
 	if (exeFilePath.isEmpty())
 		return nullptr;
 
@@ -152,9 +140,11 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	static bool checkedForSynctex = false;
 	static bool synctexSupported = true;
 	if (!checkedForSynctex) {
-		QString pdftex = programPath(QString::fromLatin1("pdftex"));
+		QString pdftex = PathManager::programPath(QStringLiteral("pdftex"));
 		if (!pdftex.isEmpty()) {
-			int result = QProcess::execute(pdftex, QStringList() << QString::fromLatin1("-synctex=1") << QString::fromLatin1("-version"));
+			int result = QProcess::execute(pdftex, QStringList()
+				<< QStringLiteral("-synctex=1")
+				<< QStringLiteral("-version"));
 			synctexSupported = (result == 0);
 		}
 		checkedForSynctex = true;

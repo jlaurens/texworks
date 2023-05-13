@@ -257,7 +257,7 @@ function ( twx_cfg_read )
     "QUIET;ONLY_CONFIGURE" "" ""
     ${ARGN}
   )
-  if ( "${twx_UNPARSED_ARGUMENTS}" STREQUAL "" )
+  if ( "${MY_UNPARSED_ARGUMENTS}" STREQUAL "" )
     # No file path or name provided: take it all
     twx_assert_non_void ( PROJECT_BINARY_DIR )
     twx_assert_non_void ( PROJECT_NAME )
@@ -267,7 +267,7 @@ function ( twx_cfg_read )
       "${PROJECT_BINARY_DIR}/build_data/*.ini"
     )
   else ()
-    set ( info_list_ ${twx_UNPARSED_ARGUMENTS} )
+    set ( info_list_ ${MY_UNPARSED_ARGUMENTS} )
   endif ()
   foreach ( name_ IN LISTS info_list_ )
     if ( NOT EXISTS "${name_}" )
@@ -275,12 +275,15 @@ function ( twx_cfg_read )
       if ( EXISTS "${p_}" )
         set ( name_ "${p_}" ) 
       elseif ( MY_QUIET )
-        set ( TWX_CFG_READ_FAILED ON )
+        set ( TWX_CFG_READ_FAILED ON PARENT_SCOPE )
         return ()
       else ()
         message ( FATAL_ERROR "No file at ${name_} (${p_})")
       endif ()#
         # readability is not tested
+    endif ()
+    if ( TWX_CONFIG_VERBOSE )
+      message ( STATUS "twx_cfg_read: ${name_}" )
     endif ()
     file (
       STRINGS "${name_}"
@@ -297,7 +300,7 @@ function ( twx_cfg_read )
           PARENT_SCOPE
         )
         if ( TWX_CONFIG_VERBOSE )
-          message ( "twx_cfg_${CMAKE_MATCH_1} => ${CMAKE_MATCH_2}" )
+          message ( "TWX_CFG_${CMAKE_MATCH_1} => ${CMAKE_MATCH_2}" )
         endif ()
         if ( NOT name_ STREQUAL "" AND NOT MY_ONLY_CONFIGURE )
           set (

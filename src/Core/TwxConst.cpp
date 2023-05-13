@@ -30,9 +30,6 @@ namespace Key {
 const QString __type						 = QStringLiteral("__type");
 const QString __data						 = QStringLiteral("__data");
 const QString PATH 							 = QStringLiteral("PATH");
-const QString binaryPaths			   = QStringLiteral("binaryPaths");
-const QString defaultbinpaths    = QStringLiteral("defaultbinpaths");
-const QString defaultBinaryPaths = QStringLiteral("defaultBinaryPaths");
 
 } // namespace Key
 

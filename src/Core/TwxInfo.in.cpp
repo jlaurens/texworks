@@ -20,6 +20,8 @@
 */
 
 // THIS FILE MUST BE IN UTF-8
+// NB: documenting the source and the header at the same time
+// gets doxygen into trouble
 
 #include "Core/TwxInfo.h"
 

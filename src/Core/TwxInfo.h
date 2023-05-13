@@ -18,6 +18,12 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+/** \file
+ * 
+ * \brief Various information
+ * 
+ * Aims to replace `src/TWVersion.h` as well as `GitArchiveInfo.txt`.
+*/
 #ifndef Twx_Core_Info_h
 #define Twx_Core_Info_h
 
@@ -28,35 +34,87 @@ namespace Twx {
 
 namespace Core {
 
+/**
+ * \brief Chord of the Twx testing architecture
+ * 
+ * Quite all these data come from the `TeXworks.ini``
+ * or equivalent. This file is undocumented by itself,
+ * see \ref `TwxConfigureFileLib.cmake` for more details.
+ */
 namespace Test {
   class Main;
 }
 
+/**
+ * \brief Collects various information
+ * 
+ * Only getters.
+ */
 class Info
 {
 public:
+  /** \brief The name of the program
+	 * 
+	 * Appears at different places (dialog and files).
+	*/
 	static const QString name();
+  /** \brief The list of authors
+	 * 
+	 * See \ref copyrightHolders().
+	*/
 	static const QString authors();
+  /** \brief The copyright years
+	 * 
+	 * As a range like "2008-2023".
+	*/
 	static const QString copyrightYears();
+  /** \brief The list of authors
+	 * 
+	 * Appears in various places.
+	 * See \ref authors().
+	*/
 	static const QString copyrightHolders();
 	
+  /** \brief The M in M.m.P.T */
 	static int versionMajor();
+  /** \brief The m in M.m.P.T */
 	static int versionMinor();
-	static int versionBugfix();
+  /** \brief The P in M.m.P.T */
   static int versionPatch();
+  /** \brief Deprecated
+	 * 
+	 * Synonym of `versionPatch()`
+	 */
+	static int versionBugfix();
+  /** \brief The T in M.m.P.T
+	 * 
+	 * Not yet used.
+	*/
   static int versionTweak();
-	// return the version of Tw (0xMMNNPP)
+  /** \brief A 0xMMNNPP version */
 	static int versionMNP();
-	// return the version of Tw (0xMMNNPPTT)
+  /** \brief A 0xMMNNPPTT version */
 	static int versionMNPT();
 
+  /** \brief The  M.m.P version */
 	static const QString version();
+  /** \brief The  M.m.P.T version
+	 * 
+	 * If there is no T, this is equivalent to `version()`
+	 */
 	static const QString versionFull();
 
+  /** \brief The build identifier (CMake TW_BUIL_ID) */
 	static const QString buildId();
 	
+  /** \brief The latest git commit hash at build time */
 	static const QString   gitHash();
+  /** \brief The latest git commit date at build time */
 	static const QDateTime gitDate();
+  /** \brief The git branch at build time
+	 * 
+	 * This is not always `main`.
+	*/
 	static const QString   gitBranch();
 
   friend class Test::Main;

@@ -18,6 +18,10 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+/**
+ * \file
+ * \brief Slightly customized `QSettings`
+*/
 #ifndef TWX_SRC_CORE_SETTINGS_H
 #define TWX_SRC_CORE_SETTINGS_H
 

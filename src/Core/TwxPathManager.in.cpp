@@ -19,6 +19,10 @@
 	see <http://www.tug.org/texworks/>.
 */
 
+/** \file
+ * @brief Path manager
+ */
+
 #include "Core/TwxConst.h"
 #include "Core/TwxPathManager.h"
 #include "Core/TwxSettings.h"
@@ -35,6 +39,11 @@ namespace Core {
 
 const QString pathListSeparator = QStringLiteral("@TWX_CFG_PATH_LIST_SEPARATOR@");
 
+namespace Key {
+	const QString binaryPaths			   = QStringLiteral("binaryPaths");
+	const QString defaultbinpaths    = QStringLiteral("defaultbinpaths");
+}
+
 static const QStringList factoryBinaryPaths = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS@").split(pathListSeparator, Qt::SkipEmptyParts);
 
 #if defined(TwxCore_TEST)
@@ -43,8 +52,6 @@ QStringList PathManager::factoryBinaryPathsTest = QStringLiteral("@TWX_CFG_FACTO
 
 namespace P {
 	static QStringList rawBinaryPaths;
-	static QStringList defaultBinaryPaths;
-	static QStringList binaryPaths;
 }
 
 #if defined(TwxCore_TEST)
@@ -56,28 +63,10 @@ void PathManager::setRawBinaryPaths(const QStringList &paths)
 	P::rawBinaryPaths.clear();
 	P::rawBinaryPaths.append(paths);
 	Settings settings;
-	settings.setValue(Key::binaryPaths, P::rawBinaryPaths);
-}
-
-void PathManager::resetDefaultBinaryPathsToSettings()
-{
-	Settings settings;
-	if (settings.contains(Key::defaultBinaryPaths)) {
-		auto value = settings.value(Key::defaultBinaryPaths).toString();
-		auto defaultBinaryPaths = value.split(
-			pathListSeparator,
-			Qt::SkipEmptyParts
-		);
-		P::defaultBinaryPaths.swap(defaultBinaryPaths);
-	} else if (settings.contains(Key::defaultbinpaths)) {
-		auto value = settings.value(Key::defaultbinpaths).toString();
-		auto defaultbinpaths = value.split(
-			pathListSeparator,
-			Qt::SkipEmptyParts
-		);
-		P::defaultBinaryPaths.swap(defaultbinpaths);
+	if (paths.empty()) {
+		settings.remove(Key::binaryPaths);
 	} else {
-		P::defaultBinaryPaths.clear();
+		settings.setValue(Key::binaryPaths, P::rawBinaryPaths);
 	}
 }
 
@@ -126,33 +115,24 @@ bool PathManager::resetRawBinaryPaths(
   const QProcessEnvironment &env
 ) {
 	P::rawBinaryPaths.clear();
-	if (P::defaultBinaryPaths.empty()) {
-		foreach (QString s, factoryBinaryPaths) {
+	for (auto s: factoryBinaryPaths) {
 #if TwxCore_TEST
-      // while testing, DEFAULT_BIN_PATHS needs to be portable
-			// We do not know in advance existing directoris
-			// except those in the source.
-			// Replace any occurrence of "<<<pwd>>>" with the current working directory.
-			auto before = QStringLiteral("<<<pwd>>>");
-			auto after = QDir::currentPath();
-			s.replace(before, after);
+		// while testing, the factory binary paths need to be portable
+		// We do not know in advance really existing directories
+		// except those actually in the source.
+		// Replace any occurrence of "<<<pwd>>>" with the current working directory.
+		auto before = QStringLiteral("<<<pwd>>>");
+		auto after = QDir::currentPath();
+		s.replace(before, after);
 #endif
-			if (!P::rawBinaryPaths.contains(s))
-				P::rawBinaryPaths.append(s);
-		}
-	} else {
-		P::rawBinaryPaths.append(P::defaultBinaryPaths);
+		if (!P::rawBinaryPaths.contains(s))
+			P::rawBinaryPaths.append(s);
 	}
-#if !defined(Q_OS_DARWIN) && !defined(TwxCore_TEST)
-	// on OS X, this will be the path to {TW_APP_PACKAGE}/Contents/MacOS/
-	// which doesn't make any sense as a search dir for TeX binaries
-	// BUT it does make sense if we have to launch `TeXworks` with other
-	// arguments.
+#if !defined(TwxCore_TEST)
 	// TODO: TEXEDIT support for mac.
 	auto path = QCoreApplication::applicationDirPath();
-	QDir appDir(path);
-	if (!P::binaryPaths.contains(appDir))
-		P::binaryPaths.append(appDir);
+	if (!P::rawBinaryPaths.contains(path))
+		P::rawBinaryPaths.insert(0,path);
 #endif
   QString PATH = env.value(Key::PATH);
 	if (!PATH.isEmpty()) {
@@ -263,15 +243,12 @@ QString PathManager::programPath (
 	return QString();
 }
 
+
 #if defined(TwxCore_TEST)
 
 QStringList &PathManager::rawBinaryPaths()
 {
 	return P::rawBinaryPaths;
-}
-QStringList &PathManager::defaultBinaryPaths()
-{
-	return P::defaultBinaryPaths;
 }
 
 #endif

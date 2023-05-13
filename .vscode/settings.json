@@ -8,6 +8,10 @@
     "string": "cpp",
     "system_error": "cpp",
     "unordered_map": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "functional": "cpp",
+    "string_view": "cpp",
+    "__node_handle": "cpp",
+    "optional": "cpp"
   }
 }

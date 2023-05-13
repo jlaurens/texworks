@@ -1,11 +1,11 @@
-#[===============================================[
+#[===============================================[/*
 This is part of TWX build and test system.
 https://github.com/TeXworks/texworks
+*//** @file
+@brief TwxCore Cmake file
 
-This is `<...>/src/Core/CMakeLists.txt`
-
-It can be used as standalone testing project,
-testing auxiliary or source provider.
+This file can be used as standalone testing project or
+testing subdirectory auxiliary.
 
 ## Standalone testing project
 
@@ -33,7 +33,8 @@ See `/unit-tests/CMakeLists.txt`.
 Output:
 * `TwxCore_SOURCES`, a `;` separated list of full paths
 * `TwxCore_HEADERS`, a `;` separated list of full paths
-
+*/
+/*
 #]===============================================]
 
 # Will be unset below when testing
@@ -131,16 +132,25 @@ add_test (
 		"${tws_working_directory}"
 )
 
-add_executable (
-	program_TwxCore
-	${CMAKE_CURRENT_LIST_DIR}/Test/main.cpp
-)
-
+# define executables, with or without extension.
+# in the current directory or below
+set ( main.cp ${CMAKE_CURRENT_LIST_DIR}/Test/main.cpp )
+add_executable ( TwxCore_auxiliary           ${main.cp} )
+add_executable ( TwxCore_auxiliary_program   ${main.cp} )
 set_target_properties (
-	program_TwxCore
+	TwxCore_auxiliary   TwxCore_auxiliary_program
   PROPERTIES
-		RUNTIME_OUTPUT_DIRECTORY
-		"${tws_working_directory}"
+		RUNTIME_OUTPUT_DIRECTORY "${tws_working_directory}/A"
+)
+set_target_properties (
+ 	TwxCore_auxiliary TwxCore_auxiliary_program
+  PROPERTIES
+	OUTPUT_NAME "program"
+)
+set_target_properties (
+	TwxCore_auxiliary_program
+  PROPERTIES
+		SUFFIX ".program"
 )
 
 unset ( tws_working_directory )
@@ -204,3 +214,4 @@ if ( TwxCore_TEST_IS_ROOT )
 	twx_config_end ( NO_EOL )
 
 endif ()
+#*/

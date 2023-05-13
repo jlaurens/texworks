@@ -163,6 +163,9 @@ function ( twx_configure_file_begin )
   endif ()
   # Parse the ini contents
   include ( TwxCfgLib )
+  if ( TWX_CONFIG_VERBOSE )
+    message ( STATUS "Parsing ${${PROJECT_NAME}.ini}" )
+  endif ()
   twx_cfg_read ( "${${PROJECT_NAME}.ini}" )
   twx_cfg_write_begin ()
   # verify the expectations
@@ -176,7 +179,7 @@ function ( twx_configure_file_begin )
     else ()
       message (
         FATAL_ERROR
-        "Missing value for key ${key} in ${PROJECT_NAME}.ini"
+        "Missing value for key ${key} in ${PROJECT_NAME}.ini (${${PROJECT_NAME}.ini})"
       )
     endif ()
   endforeach ()

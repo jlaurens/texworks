@@ -30,10 +30,24 @@
 
 #if defined(TwxCore_TEST)
 private:
+	/**
+	 * \brief Reset the default binary paths
+	 * 
+	 * Reset to the binary paths stored in the settings
+	 * under key, prepends the directory
+	 * of the current application (executable), and appends the
+	 * contents of the `PATH` environment.
+	 * 
+	 * If there are no default binary paths, the factory binary list is used.
+	 * 
+	 * \param env is an optional `QProcessEnvironment` instance that
+	 *    defaults to the system environment. 
+	 */
+  static void resetDefaultBinaryPathsToSettings();
+	
   static QStringList messages_m;
 	static QStringList factoryBinaryPathsTest;
 
 	static QStringList &rawBinaryPaths();
-	static QStringList &defaultBinaryPaths();
 
 #endif

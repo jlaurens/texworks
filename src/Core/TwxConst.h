@@ -18,24 +18,44 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+/** \file
+ * \brief General purpose constants
+ * 
+ * 
+*/
 #ifndef TwxCore_Const_H
 #define TwxCore_Const_H
 
 #include <QString>
 
+/** \brief Alternate to `TW`
+ * 
+ * \note New technologies belong here.
+ * Old technologies should migrate to this new namespace
+ * once properly refactored and documented.
+*/
 namespace Twx {
+/** \brief Core technologies
+*/
 namespace Core {
 
 extern const QString dot;
 
+/** \brief
+ * Strings that are used as keys in various places,
+ * for example in the settings.
+ * 
+ * \note Using keys instead of `QStringLiteral` and friends
+ * let the compiler check for typing errors.
+*/
 namespace Key {
 
 	extern const QString __type;
 	extern const QString __data;
-	extern const QString binaryPaths;
-	extern const QString defaultbinpaths;
-	extern const QString defaultBinaryPaths;
+
 	extern const QString PATH;
+
+// Settings
 
 } // namespace Key
 

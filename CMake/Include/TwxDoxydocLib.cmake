@@ -89,7 +89,7 @@ function ( twx_doxydoc BINARY_DIR )
   if ( TWX_DOCUMENT_TEST_SUITES )
     set ( TWX_CFG_DOXYGEN_EXCLUDE_PATTERNS )
   else ()
-    set ( TWX_CFG_DOXYGEN_EXCLUDE_PATTERNS */Test/* )
+    set ( TWX_CFG_DOXYGEN_EXCLUDE_PATTERNS "*/Test/* *Private.h" )
   endif ()
   configure_file ( ${twx_in} ${twx_out} @ONLY )
   add_custom_target(

@@ -1,26 +1,29 @@
-#[===============================================[
+#[===============================================[/*
 This is part of the TWX build and test system.
 See https://github.com/TeXworks/texworks
 (C)  JL 2023
+*//** @file
+@brief Configure files.
 
 It uses `configure_file` with given arguments ensuring that
 the state is properly set beforehands.
 
-Usages:
+Usage:
 ```
 cmake ... -P .../TwxConfigureFileTool.cmake
 ```
 
-Input state:
-* `PROJECT_NAME`,
-* `PROJECT_BINARY_DIR`,
-* `SOURCE_IN`, list of input full paths denoted `<input_k>`
-* `BINARY_OUT`, list of corresponding output full paths denoted `<output_k>`
-* required file: each one of the `SOURCE_IN` list
+Expected input state:
+- `PROJECT_NAME`,
+- `PROJECT_BINARY_DIR`,
+- `SOURCE_IN`, list of input full paths denoted `<input_k>`
+- `BINARY_OUT`, list of corresponding output full paths denoted `<output_k>`
+- required file: each one of the `SOURCE_IN` list
 
-Reads both `.ini` files for `<key_i> = <value_i>` mapping.
-Then replace in any `<input_k>` all occurrences of `@twx_cfg_<key_i>@`
-by `<value_i>` and store the result in the coresponding `<output_k>`.
+Reads both `.ini` files of the `build_data` folder for
+`<key_i> = <value_i>` mapping. Then replace in any `<input_k>`
+all occurrences of `@TWX_CFG_<key_i>@` by `<value_i>`
+and store the result in the coresponding `<output_k>`.
 
 Concerning the keys, one level of indirection
 is deliberately chosen to ensure more code logic independance.
@@ -30,8 +33,7 @@ semantic.
 
 Concerning the values, double quotes `"` will be escaped
 by the call to `configure_file`.
-
-JL
+*//*
 #]===============================================]
 
 include (
@@ -41,13 +43,13 @@ include (
 twx_assert_non_void ( SOURCE_IN )
 twx_assert_non_void ( BINARY_OUT )
 
-include ( TwxCoreLib )
 include ( TwxCfgLib )
 
 twx_cfg_read ( ONLY_CONFIGURE )
 
-# Known timestamps
-# TWX_CFG_TIMESTAMP_STATICs
+# TODO: verify next
+# Known timestamps:
+# TWX_CFG_TIMESTAMP_STATIC
 # TWX_CFG_TIMESTAMP_GIT
 
 while ( NOT "${SOURCE_IN}" STREQUAL "" )
@@ -64,9 +66,9 @@ while ( NOT "${SOURCE_IN}" STREQUAL "" )
     continue ()
   endif ()
   if ( TWX_CONFIG_VERBOSE )
-    message (STATUS "configure_file: ${input} => ${output}")
+    message ( STATUS "configure_file: ${input} => ${output}" )
   endif ()
-  configure_file(
+  configure_file (
     "${input}"
     "${output}"
     ESCAPE_QUOTES
@@ -90,3 +92,5 @@ while ( NOT "${SOURCE_IN}" STREQUAL "" )
   #   )
   # endif()
 endwhile ()
+
+#*/

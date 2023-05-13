@@ -1,27 +1,38 @@
-#[===============================================[
+#[===============================================[/*
 This is part of TWX build and test system.
 https://github.com/TeXworks/texworks
+(C) 2023 JL
+*//** @file
+@brief Set variables to use the contents of this folder
 
-This is `<...>/src/Core/Setup.cmake`
-
-Usage from an external build directory:
+Usage from an external build directory,
+provided `TwxBase` is included:
 ```
-include ( .../Setup.cmake )
+include ( SrcTwxCoreSetup )
 ```
 Output:
-* `TwxCore_SOURCES`, a `;` separated list of full paths
-* `TwxCore_HEADERS`, a `;` separated list of full paths
+- `TwxCore_SOURCES`, a `;` separated list of full paths to sources
+- `TwxCore_HEADERS`, a `;` separated list of full paths to headers
+- necessary `Qt` libs are appended
 
-Includes `TwxConfigureFilePaths`. The `TWX_TEST_PATHS` variable
+Files have been configured as necessary with `TwxConfigureFileLib`.
+
+Needs `TwxConfigureFilePaths`, and the `TWX_TEST_PATHS` variable
 must be defined beforehands for testing the path manager.
-#]===============================================]
 
-set ( TwxCore_SOURCES )
-set ( TwxCore_HEADERS )
+@see
+- `TwxConfigureFileLib.cmake`
+- `TwxConfigureFilePaths.cmake`
+*/
+/*
+#]===============================================]
 
 if ( NOT TWX_IS_BASED )
   message ( FATAL_ERROR "TwxBase is not included")
 endif ()
+
+set ( TwxCore_SOURCES )
+set ( TwxCore_HEADERS )
 
 include (	TwxConfigureFilePaths )
 
@@ -55,3 +66,5 @@ list (
 )
 
 twx_append_QT ( REQUIRED Widgets )
+
+#*/

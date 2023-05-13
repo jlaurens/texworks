@@ -81,15 +81,8 @@ public:
 
 	QMap<QString,QVariant> getFileProperties(const QString& path);
 
-	void setBinaryPaths(const QStringList& paths);
 	void setEngineList(const QList<Engine>& engines);
 
-	const QStringList getBinaryPaths();
-	// runtime paths, including $PATH;
-	// also modifies passed-in sysEnv to include paths from prefs
-	QString findProgram(const QString& program, const QStringList& binPaths);
-
-	const QStringList getPrefsBinaryPaths(); // only paths from prefs
 	const QList<Engine> getEngineList();
 	void saveEngineList();
 
@@ -97,7 +90,6 @@ public:
 	const Engine getDefaultEngine();
 	void setDefaultEngine(const QString& name);
 
-	void setDefaultPaths();
 	void setDefaultEngineList();
 
 	QTextCodec *getDefaultCodec();
@@ -260,8 +252,6 @@ private:
 
 	QTextCodec *defaultCodec{nullptr};
 
-	std::unique_ptr<QStringList> binaryPaths;
-	std::unique_ptr<QStringList> defaultBinPaths;
 	std::unique_ptr< QList<Engine> > engineList;
 	int defaultEngineIndex{0};
 

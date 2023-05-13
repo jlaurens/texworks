@@ -24,10 +24,11 @@
 /*! \file TwxPathManager.h
  *  \brief Some kind of `PATH` manager.
  *  
- *  Every method is a static method of `PathManager`.
- *  The main method is `programPath()` to give the full path of a program.
- *  For that we have various utilities and we maintain different `PATH` like
- *  variables.
+ *  `TwxPathManager` is a static object which main method
+ *  is `programPath()` to retrieve the full path of a program.
+ * 
+ *  In addition, \see `TwxPathFinder` instances also implement
+ *  `programPath()` but with a per instance approach.
  */
 
 #include <QString>
@@ -37,6 +38,15 @@
 namespace Twx {
 namespace Core {
 
+namespace Key {
+	/** \brief Settings key for the list of binary paths */
+	extern const QString binaryPaths;
+	/** \brief Settings key for the list of binary paths (Deprecated)
+	 * 
+	 * Use \ref `binaryPaths` instead.
+	 */
+	extern const QString defaultbinpaths;
+}
 namespace Test {
 	class Main;
 }
@@ -47,42 +57,101 @@ namespace Test {
  */
 extern const QString pathListSeparator;
 
+/*! \brief Path manager
+ *
+ * The main purpose of the path manager is `programPath()`.
+ * This method gives the full path to an executable given its name,
+ * if any.
+ * 
+ * To achieve this, the manager maintains lists of binary paths,
+ * similar to the `PATH` environment variable contents.
+ * - in the raw binary paths list, components are allowed to
+ *   contain special placeholder like `${foo}` 
+ *   (`$foo` is supported only to some extent).
+ *   These will be replaced before usage with environment values
+ *   or state values.
+ *
+ * The path lists can be managed from the settings dialogs.
+ */
 class PathManager
 {
-	using QProcEnv = QProcessEnvironment;
-
+// Using a shortcut to QProcessEnvironment
+// troubles Doxygen
 public:
 	/*! \brief Get the full path of a program
 	 *
-	 *  Used by engines to resolve programs like `pdfTeX`, `BibTeX`...
-	 *  \param program a case sensitive program name
+	 * Used by engines to resolve programs like `pdfTeX`, `BibTeX`...
+	 * Based on `getBinaryPaths()`.
+	 * 
+	 *  \param program a case sensitive program name. On windows extension
+	 *    can be omitted.
 	 *  \param env is an optional `QProcessEnvironment` instance that
 	 *    defaults to the system environment.
 	 */
+	// Engine::programPath
 	static QString programPath(
 		const QString& program,	
-		const QProcEnv& env = QProcEnv::systemEnvironment()
+		const QProcessEnvironment& env =
+		  QProcessEnvironment::systemEnvironment()
 	);
 
-	/*! \brief Get the binary paths
+	/*! \brief Get the binary paths used by `programPath()`
 	 *
-	 *  Get the list of the directories where programs are looked for.
-	 *  \param env is an optional `QProcessEnvironment` instance that
-	 *    defaults to the system environment.
+	 * Get the list of the directories where programs are looked for.
+	 * Take the raw binary paths and the `PATH` ones,
+	 * resolve the environment variables, remove duplicates.
+	 * 
+	 * Store this list in the settings under key \see `Key::binaryPaths`.
+	 * 
+	 * \param env is an optional `QProcessEnvironment` instance that
+	 *   defaults to the system environment.
 	 */
 	static const QStringList getBinaryPaths(
-		const QProcEnv& env = QProcEnv::systemEnvironment()
+		const QProcessEnvironment& env
+		  = QProcessEnvironment::systemEnvironment()
 	);
-
+	/*!
+	 * \brief set the list of raw binary paths
+	 *
+	 * Store this list in the settings under key \see `Key::binaryPaths`.
+	 * \param paths is a list of paths, possibly including placeholders
+	 *   like `${foo}` on unix like systems, and `%foo%` on windows.
+	 */
 	static void setRawBinaryPaths(
 		const QStringList& paths
 	);
-	static void resetDefaultBinaryPathsToSettings();
-  static bool resetRawBinaryPaths(
-		const QProcEnv& env = QProcEnv::systemEnvironment()
+	/*! \brief get the list of raw binary paths
+	 *
+	 * This is a lazy getter.
+	 * If the settings stores a list of raw binary paths
+	 * for key `Twx::Core::Key::binaryPaths`, it is used.
+   * Otherwise, `resetRawBinaryPaths(env)` is used.
+	 * 
+	 * \param env is an optional `QProcessEnvironment` instance that
+	 *    defaults to the system environment. 
+	 */
+	static const QStringList getRawBinaryPaths(
+		const QProcessEnvironment& env =
+			QProcessEnvironment::systemEnvironment()
 	);
-  static const QStringList getRawBinaryPaths(
-		const QProcEnv& env = QProcEnv::systemEnvironment()
+
+	/**
+	 * \brief Reset the list of raw binary paths
+	 * 
+	 * Reset to the default binary paths, prepends the directory
+	 * of the current application (executable), and appends the
+	 * contents of the `PATH` environment.
+	 * 
+	 * If there are no default binary paths, the factory binary list is used.
+	 * 
+	 * Used by \ref `PrefsDialog`.
+	 * 
+	 * \param env is an optional `QProcessEnvironment` instance that
+	 *    defaults to the system environment. 
+	 */
+	static bool resetRawBinaryPaths(
+		const QProcessEnvironment& env
+			= QProcessEnvironment::systemEnvironment()
 	);
 
 private:

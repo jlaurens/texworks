@@ -60,12 +60,12 @@ void Main::cleanupTestCase()
 void Main::init()
 {
 	PM::rawBinaryPaths().clear();
-	PM::defaultBinaryPaths().clear();
 	PE_m = QProcessEnvironment();
 	Settings settings;
 	for (auto key: settings.allKeys()) {
 		settings.remove(key);
 	}
+	qDebug() << "===> CWD:" << QDir::currentPath();
 }
 
 void Main::cleanup()
@@ -79,7 +79,6 @@ void Main::testConst()
 
 	QCOMPARE(Key::binaryPaths, QStringLiteral("binaryPaths"));
 	QCOMPARE(Key::defaultbinpaths, QStringLiteral("defaultbinpaths"));
-	QCOMPARE(Key::defaultBinaryPaths, QStringLiteral("defaultBinaryPaths"));
 	QCOMPARE(Key::PATH, QStringLiteral("PATH"));
 }
 
@@ -102,109 +101,25 @@ void Main::testPathManager_setRawBinaryPaths()
 
 void Main::testPathManager_resetDefaultBinaryPaths()
 {
-	QStringList expected {
-		QStringLiteral("A"),
-		QStringLiteral("B"),
-		QStringLiteral("C")
-	};
-	PM::defaultBinaryPaths() << expected;
-	QCOMPARE(PM::defaultBinaryPaths(), expected);
-  PM::resetDefaultBinaryPathsToSettings();
-	QVERIFY(PM::defaultBinaryPaths().empty());
-	Settings settings;
-	expected = QStringList {
-		QStringLiteral("//A"),
-		QStringLiteral("//B"),
-		QStringLiteral("//C")
-	};
-	settings.setValue(
-		Key::defaultbinpaths,
-		expected.join(pathListSeparator)
-	);
-	{
-		Settings settings;
-		QVERIFY(settings.contains(Key::defaultbinpaths));
-		auto value = settings.value(Key::defaultbinpaths).toString();
-		auto defaultBinaryPaths = value.split(
-			pathListSeparator,
-			Qt::SkipEmptyParts
-		);
-		QCOMPARE(defaultBinaryPaths, expected);
-		PM::defaultBinaryPaths().swap(defaultBinaryPaths);
-		QVERIFY(defaultBinaryPaths.empty());
-		QCOMPARE(PM::defaultBinaryPaths(), expected);
-		PM::defaultBinaryPaths().clear();
-		QVERIFY(PM::defaultBinaryPaths().empty());
-	}
-  PM::resetDefaultBinaryPathsToSettings();
-	QCOMPARE(PM::defaultBinaryPaths(), expected);
-	settings.remove(Key::defaultbinpaths);
-  PM::resetDefaultBinaryPathsToSettings();
-	QVERIFY(PM::defaultBinaryPaths().empty());
-	settings.setValue(
-		Key::defaultBinaryPaths,
-		expected.join(pathListSeparator)
-	);
-  PM::resetDefaultBinaryPathsToSettings();
-	QCOMPARE(PM::defaultBinaryPaths(), expected);
-	settings.remove(Key::defaultBinaryPaths);
-  PM::resetDefaultBinaryPathsToSettings();
-	QVERIFY(PM::defaultBinaryPaths().empty());
 }
 
 void Main::testPathManager_resetRawBinaryPaths()
 {
-	PM::defaultBinaryPaths().clear();
 	PM::rawBinaryPaths().clear();
-	QVERIFY(PM::defaultBinaryPaths().empty());
 	QProcessEnvironment PE;
 	PE.remove(Key::PATH);
   PM::resetRawBinaryPaths(PE);
-  QVERIFY(PM::defaultBinaryPaths().empty());
-  QStringList expected;
 	QDir d = QDir::current();
-	qDebug() << "QDir::current(): " << d;
-	// d is .../src/Core/Test/TestCase
-	// It is expected to contain directories A, B and C
+	// All was made for d to contain directories A, B and C
+  QStringList expected;
 	expected
 		<< d.absoluteFilePath("A")
 		<< d.absoluteFilePath("B")
 		<< d.absoluteFilePath("C");
-	PM::defaultBinaryPaths().clear();
-	qDebug() << "actual: " << PM::rawBinaryPaths();
-  qDebug() << "expected: " << expected;
   QCOMPARE(PM::rawBinaryPaths(), expected);
-	// with defaultBinaryPaths()
-  PM::defaultBinaryPaths().clear();
 	PM::rawBinaryPaths().clear();
-	expected.clear();
-	expected
-		<< d.absoluteFilePath("C")
-		<< d.absoluteFilePath("A")
-		<< d.absoluteFilePath("B");
-	PM::defaultBinaryPaths() << expected;
-	QCOMPARE(PM::defaultBinaryPaths(), expected);
-	PM::resetRawBinaryPaths(PE);
+  PM::resetRawBinaryPaths(PE);
 	QCOMPARE(PM::rawBinaryPaths(), expected);
-	// with PATH
-	PM::rawBinaryPaths().clear();
-	PM::defaultBinaryPaths().clear();
-	expected.clear();
-	expected << d.absoluteFilePath("C");
-	PM::defaultBinaryPaths() << d.absoluteFilePath("C");
-	QStringList PATHs;
-	PATHs 	 << d.absoluteFilePath("A");
-	expected << d.absoluteFilePath("A");
-	PATHs 	 << d.absoluteFilePath("B");
-	expected << d.absoluteFilePath("B");
-	// Redundant components are ignores
-	PATHs 	 << d.absoluteFilePath("B");
-	// No existing directories are ignored
-	PATHs 	 << d.absoluteFilePath("NoDirectoryThere...");
-	PE.insert(Key::PATH, PATHs.join(pathListSeparator));
-	PM::resetRawBinaryPaths(PE);
-	QCOMPARE(PM::rawBinaryPaths(), expected);
-	PE.remove(Key::PATH);
 }
 
 void Main::testPathManager_getRawBinaryPaths()
@@ -249,7 +164,7 @@ void Main::testPathManager_getBinaryPaths()
 	QCOMPARE(actual, expected);
 }
 
-void Main::testPathManager_programPath()
+void Main::testPathManager_programPath_1()
 {
 	// We can rely on the test itself
 	auto dir = QCoreApplication::applicationDirPath();
@@ -263,13 +178,29 @@ void Main::testPathManager_programPath()
 	QCOMPARE(actual, expected);
 	actual = PM::programPath(QString(), PE);
 	QVERIFY(actual.isEmpty());
-	// test program_TwxCore in the current directory
-	program = QStringLiteral("program_TwxCore");
-	actual = PM::programPath(program, PE);
-	QVERIFY(actual.isEmpty());
-	PM::rawBinaryPaths() << QDir::currentPath();
-	actual = PM::programPath(program, PE);
-	expected = QDir::current().filePath(program);
+}
+
+void Main::testPathManager_programPath_2()
+{
+	auto program = QStringLiteral("program");
+	QProcessEnvironment PE;
+	PE.remove(Key::PATH);
+	auto actual = PM::programPath(program, PE);
+	auto d = QDir();
+	QVERIFY(d.cd(QStringLiteral("A")));
+	auto expected = d.absoluteFilePath(program);
+	QCOMPARE(actual, expected);
+}
+
+void Main::testPathManager_programPath_3()
+{
+	auto program = QStringLiteral("program.program");
+	QProcessEnvironment PE;
+	PE.remove(Key::PATH);
+	auto actual = PM::programPath(program, PE);
+	auto d = QDir();
+	QVERIFY(d.cd(QStringLiteral("A")));
+	auto expected = d.absoluteFilePath(program);
 	QCOMPARE(actual, expected);
 }
 

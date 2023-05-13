@@ -39,6 +39,9 @@
 #include "utils/CmdKeyFilter.h"
 #include "utils/WindowManager.h"
 
+#include "Core/TwxPathManager.h"
+using PathManager = Twx::Core::PathManager;
+
 #include <QAbstractButton>
 #include <QAbstractItemView>
 #include <QAbstractTextDocumentLayout>
@@ -2817,7 +2820,7 @@ void TeXDocumentWindow::typeset()
 							  QMessageBox::Cancel, this);
 		msgBox.setDetailedText(
 		                      tr("Searched in directories:") + QChar::fromLatin1('\n') +
-							  QLatin1String(" * ") + Engine::binPaths().join(QLatin1String("\n * ")) + QChar::fromLatin1('\n') +
+							  QLatin1String(" * ") + PathManager::getBinaryPaths().join(QLatin1String("\n * ")) + QChar::fromLatin1('\n') +
 							  tr("Check the configuration of the %1 tool and the path settings in the Preferences dialog.").arg(e.name()));
 		msgBox.exec();
 	}

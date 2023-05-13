@@ -43,7 +43,9 @@ private slots:
 	void testPathManager_resetRawBinaryPaths();
 	void testPathManager_getRawBinaryPaths();	
 	void testPathManager_getBinaryPaths();
-	void testPathManager_programPath();
+	void testPathManager_programPath_1();
+	void testPathManager_programPath_2();
+	void testPathManager_programPath_3();
 
 	void testInfo();
 

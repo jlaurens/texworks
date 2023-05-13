@@ -39,6 +39,8 @@
 #include "utils/VersionInfo.h"
 #include "utils/WindowManager.h"
 
+#include "Core/TwxPathManager.h"
+using PathManager = Twx::Core::PathManager;
 #include <QAction>
 #include <QDesktopServices>
 #include <QEvent>
@@ -609,54 +611,6 @@ unsigned int TWApp::GetWindowsVersion()
 }
 #endif
 
-const QStringList TWApp::getBinaryPaths()
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
-
-	QStringList binPaths = getPrefsBinaryPaths();
-	QProcessEnvironment env{QProcessEnvironment::systemEnvironment()};
-	for(QString & path : binPaths) {
-		path = replaceEnvironmentVariables(path);
-	}
-	for (QString path : env.value(QStringLiteral("PATH")).split(QStringLiteral(PATH_LIST_SEP), SkipEmptyParts)) {
-		path = replaceEnvironmentVariables(path);
-		if (!binPaths.contains(path)) {
-			binPaths.append(path);
-		}
-	}
-	return binPaths;
-}
-
-QString TWApp::findProgram(const QString& program, const QStringList& binPaths)
-{
-	QStringListIterator pathIter(binPaths);
-	bool found = false;
-	QFileInfo fileInfo;
-#if defined(Q_OS_WIN)
-	QStringList executableTypes = QStringList() << QString::fromLatin1("exe") << QString::fromLatin1("com") << QString::fromLatin1("cmd") << QString::fromLatin1("bat");
-#endif
-	while (pathIter.hasNext() && !found) {
-		QString path = pathIter.next();
-		fileInfo = QFileInfo(path, program);
-		found = fileInfo.exists() && fileInfo.isExecutable();
-#if defined(Q_OS_WIN)
-		// try adding common executable extensions, if one was not already present
-		if (!found && !executableTypes.contains(fileInfo.suffix())) {
-			QStringListIterator extensions(executableTypes);
-			while (extensions.hasNext() && !found) {
-				fileInfo = QFileInfo(path, program + QChar::fromLatin1('.') + extensions.next());
-				found = fileInfo.exists() && fileInfo.isExecutable();
-			}
-		}
-#endif
-	}
-	return found ? fileInfo.absoluteFilePath() : QString();
-}
-
 void TWApp::writeToMailingList()
 {
 	// The strings here are deliberately NOT localizable!
@@ -671,8 +625,7 @@ void TWApp::writeToMailingList()
 #endif
 	body += QLatin1String("Library path     : ") + Tw::Utils::ResourcesLibrary::getLibraryPath(QString()) + QChar::fromLatin1('\n');
 
-	const QStringList binPaths = getBinaryPaths();
-	QString pdftex = findProgram(QString::fromLatin1("pdftex"), binPaths);
+	QString pdftex = PathManager::programPath(QStringLiteral("pdftex"));
 	if (pdftex.isEmpty())
 		pdftex = QLatin1String("not found");
 	else {
@@ -935,82 +888,6 @@ bool TWApp::event(QEvent *event)
 		default:
 			return QApplication::event(event);
 	}
-}
-
-void TWApp::setDefaultPaths()
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
-
-	QDir appDir(applicationDirPath());
-	if (!binaryPaths)
-		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
-	else
-		binaryPaths->clear();
-	if (defaultBinPaths)
-		*binaryPaths = *defaultBinPaths;
-#if !defined(Q_OS_DARWIN)
-	// on OS X, this will be the path to {TW_APP_PACKAGE}/Contents/MacOS/
-	// which doesn't make any sense as a search dir for TeX binaries
-	if (!binaryPaths->contains(appDir.absolutePath()))
-		binaryPaths->append(appDir.absolutePath());
-#endif
-	QString envPath = QString::fromLocal8Bit(getenv("PATH"));
-	if (!envPath.isEmpty()) {
-		foreach (const QString& s, envPath.split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts)) {
-			if (!binaryPaths->contains(s)) {
-				binaryPaths->append(s);
-			}
-		}
-	}
-	if (!defaultBinPaths) {
-		foreach (const QString& s, QString::fromUtf8(DEFAULT_BIN_PATHS).split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts)) {
-			if (!binaryPaths->contains(s))
-				binaryPaths->append(s);
-		}
-	}
-	for (auto i = binaryPaths->count() - 1; i >= 0; --i) {
-		// Note: Only replace the environmental variables for testing directory
-		// existance but do not alter the binaryPaths themselves. Those might
-		// get stored, e.g., in the preferences and we want to keep
-		// environmental variables intact in there (as they may be (re)defined
-		// later on).
-		// All binary paths are properly expanded in getBinaryPaths().
-		QDir dir(replaceEnvironmentVariables(binaryPaths->at(i)));
-		if (!dir.exists())
-			binaryPaths->removeAt(i);
-	}
-	if (binaryPaths->count() == 0) {
-		QMessageBox::warning(nullptr, tr("No default binary directory found"),
-			tr("None of the predefined directories for TeX-related programs could be found."
-				"<p><small>To run any processes, you will need to set the binaries directory (or directories) "
-				"for your TeX distribution using the Typesetting tab of the Preferences dialog.</small>"));
-	}
-}
-
-const QStringList TWApp::getPrefsBinaryPaths()
-{
-	if (!binaryPaths) {
-		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
-		Tw::Settings settings;
-		if (settings.contains(QString::fromLatin1("binaryPaths")))
-			*binaryPaths = settings.value(QString::fromLatin1("binaryPaths")).toStringList();
-		else
-			setDefaultPaths();
-	}
-	return *binaryPaths;
-}
-
-void TWApp::setBinaryPaths(const QStringList& paths)
-{
-	if (!binaryPaths)
-		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
-	*binaryPaths = paths;
-	Tw::Settings settings;
-	settings.setValue(QString::fromLatin1("binaryPaths"), paths);
 }
 
 void TWApp::setDefaultEngineList()

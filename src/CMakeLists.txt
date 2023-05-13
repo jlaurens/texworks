@@ -4,6 +4,8 @@
 # Collect Source Files
 # --------------------
 
+add_subdirectory ( Core )
+
 # **NOTE:** _A `GLOB` operation is quick, but may not be appropriate. It may be
 # better to maintain an explicit list of source files. Particularly, adding a
 # new file to an explicit list will cause CMake to automatically reconfigure
@@ -57,6 +59,7 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   utils/TypesetManager.cpp
                   utils/VersionInfo.cpp
                   utils/WindowManager.cpp
+                  ${TwxCore_SOURCES}
                   )
 
 set(TEXWORKS_HDRS BibTeXFile.h
@@ -111,6 +114,7 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   utils/TypesetManager.h
                   utils/VersionInfo.h
                   utils/WindowManager.h
+                  ${TwxCore_SOURCES}
                   )
 
 if (WIN32)
