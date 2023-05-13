@@ -87,9 +87,9 @@ function ( twx_doxydoc BINARY_DIR )
     ${BINARY_DIR}/doxydoc/
   )
   if ( TWX_DOCUMENT_TEST_SUITES )
-    set ( TWX_CFG_DOXYGEN_EXCLUDE )
+    set ( TWX_CFG_DOXYGEN_EXCLUDE_PATTERNS )
   else ()
-    set ( TWX_CFG_DOXYGEN_EXCLUDE */Test/* )
+    set ( TWX_CFG_DOXYGEN_EXCLUDE_PATTERNS */Test/* )
   endif ()
   configure_file ( ${twx_in} ${twx_out} @ONLY )
   add_custom_target(

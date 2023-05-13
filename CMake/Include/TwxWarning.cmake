@@ -3,14 +3,14 @@ This is part of the TWX build and test system.
 https://github.com/TeXworks/texworks
 (C)  JL 2023
 *//** @file
-Convenient shortcuts to manage warnings.
+@brief Convenient shortcuts to manage warnings.
 
 Usage:
 ```
-include (TwxWarning)
+include ( TwxWarning )
 ```
-*//**
-Adapted to each compiler.
+*//** @brief Adapted to each compiler.
+
 Values are reset to factory defaults
 each time the script is included.
 */
