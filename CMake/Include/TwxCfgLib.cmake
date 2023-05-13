@@ -1,82 +1,94 @@
-#[===============================================[
+#[===============================================[/*
 This is part of the TWX build and test system.
 See https://github.com/TeXworks/texworks
 (C)  JL 2023
+*//** @file
+@brief Cfg data writer and reader.
 
-Info file writer and reader.
+Low level controller to read, build and write Cfg data.
+A Cfg data file is quite like an INI file, hence the file extension used.
+It is saved in the `build_data` subfolder of the binary directory
+of the project.
 
 Usage:
 ```
 include ( TwxCfgLib )
 ```
-Output:
-* `twx_cfg_write_begin` function
-* `twx_cfg_set` function
-* `twx_cfg_write_end` function
-* `twx_cfg_read` function
-
+*/
+/*
+NB: We need high control and cannot benefit from
+QSettings.
 #]===============================================]
 
-# guard
-
-if ( TwxCfgLib_ALREADY )
+# Guard
+if ( COMMAND twx_cfg_setup )
   return ()
 endif ()
 
-set ( TwxCfgLib_ALREADY ON )
+#[=======[
+*//**
+@brief Truthy c++ value
 
+Expression used in `.in.cpp` files for a thuthy value.
+*/
+TWX_CFG_CPP_TRUTHY;
+/*
+#]=======]
 set (
   TWX_CFG_CPP_TRUTHY 1
 )
 
 # ANCHOR: twx_cfg_setup
 #[=======[
-Add a target to allways rebuild dynamic information
-for the current project.
+*//**
+@brief To automatically update dynamic Cfg data (git)
 
-Usage:
-```
-twx_cfg_setup ()
-```
+Add a target to allways rebuild dynamic data
+for the current project.
+Use at least once per project that needs `configuration_file`.
+Essentially concerns `git`.
+*/
+twx_cfg_setup () {}
+/*
 #]=======]
 function ( twx_cfg_setup )
-  if ( NOT TARGET TwxInfo_${PROJECT_NAME}_target )
-    twx_cfg_path ( _path "git" )
-    add_custom_command(
-      OUTPUT ${_path}
-      COMMAND "${CMAKE_COMMAND}"
-        "-DPROJECT_NAME=${PROJECT_NAME}"
-        "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-        -P "${TWX_DIR}/CMake/Include/TwxInfoTool.cmake"
-      COMMENT
-        "Update ${PROJECT_NAME} Git information"
-    )
-    add_custom_target (
-      TwxInfo_${PROJECT_NAME}_target ALL
-      DEPENDS ${_path}
-    )
+  if ( TARGET TwxCfg_${PROJECT_NAME}_target )
+    return ()
   endif ()
+  twx_cfg_path ( _path "git" )
+  add_custom_command(
+    OUTPUT ${_path}
+    COMMAND "${CMAKE_COMMAND}"
+      "-DPROJECT_NAME=${PROJECT_NAME}"
+      "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+      -P "${TWX_DIR}/CMake/Include/TwxCfgTool.cmake"
+    COMMENT
+      "Update ${PROJECT_NAME} cfg information (git)"
+  )
+  add_custom_target (
+    TwxCfg_${PROJECT_NAME}_target ALL
+    DEPENDS ${_path}
+  )
 endfunction ()
 # ANCHOR: twx_cfg_path
 #[=======[
-Get the standard locations for static and git info
-```
-twx_cfg_path ( <variable> <name> [STAMPED])
-```
-Set the `<variable>` to the path for the given `<name>`
+*//**
+@brief Get the standard location for Cfg data files
 
-Input arguments:
-* `<variable>` will contain the output
-* `<name>` shortcut or full path.
-
-The `STAMPED` optional argument changes the `ini` extension
-for `stamped`.
+@param variable name where the result is stored
+@param id a spaceless string, the storage location is
+  `<binary_dir>/build_data/<project_name>_<id>.ini` (or `.stamped`)
+@param STAMPED optional key, when provided change the
+  `ini` file extension for `stamped`.
+*/
+twx_cfg_path (variable id [STAMPED]) {}
+/*
 #]=======]
-function ( twx_cfg_path ans_ name_ )
-  if ( EXISTS "${name_}" )
+function ( twx_cfg_path ans_ id_ )
+  if ( EXISTS "${id_}" )
     set (
       ${ans_}
-      "${name_}"
+      "${id_}"
     )
   else ()
     twx_assert_non_void ( PROJECT_BINARY_DIR )
@@ -89,7 +101,7 @@ function ( twx_cfg_path ans_ name_ )
     endif ()
     set (
       ${ans_}
-      "${PROJECT_BINARY_DIR}/build_data/${PROJECT_NAME}_${name_}.${extension}"
+      "${PROJECT_BINARY_DIR}/build_data/${PROJECT_NAME}_${id_}.${extension}"
     )
   endif ()
   twx_export ( ${ans_} )
@@ -98,6 +110,12 @@ endfunction ()
 
 # ANCHOR: Utility `twx_cfg_write_begin`
 #[=======[
+*//** @brief Start a cfg write sequence
+
+Must be balanced by a `twx_cfg_write_end()` instruction.
+
+Nesting of write sequences is not supported.
+
 Usage:
 ```
 twx_cfg_write_begin ()
@@ -106,70 +124,77 @@ twx_cfg_set ( ... )
 twx_cfg_set ( ... )
 twx_cfg_write_end ( ... )
 ```
-
+*/
+twx_cfg_write_begin () {}
+/** @brief Reserved variable*/ cfg_keys_twx;
+/** @brief Reserved variable*/ cfg_values_twx;
+/*
 #]=======]
 function ( twx_cfg_write_begin )
-  set ( info_keys_twx )
-  set ( info_values_twx )
+  if ( DEFINED cfg_keys_twx )
+    message ( FATAL_ERROR "Missing `twx_cfg_write_end(...)`" )
+  endif ()
+  set ( cfg_keys_twx )
+  set ( cfg_values_twx )
 endfunction ()
 
 # ANCHOR: Utility `twx_cfg_set`
 #[=======[
-Usage:
-```
-twx_cfg_set ( key value )
-```
-Feed `info_keys_twx` with `<key>` and `info_values_twx` with `<value>`.
+*//** @brief Set a cfg key/value pair
+@param key a spaceless key, usually uppercase
+@param value a possibly empty string, one line only
+*/
+twx_cfg_set ( key value ) {}
+/*
+Feed `cfg_keys_twx` with `<key>` and `cfg_values_twx` with `<value>`.
 #]=======]
-function ( twx_cfg_set _key _value )
-  list ( APPEND info_keys_twx "${_key}" )
-  list ( APPEND info_values_twx "${_value}" )
+macro ( twx_cfg_set _key _value )
+  list ( APPEND cfg_keys_twx "${_key}" )
+  list ( APPEND cfg_values_twx "${_value}" )
   if ( TWX_CONFIG_VERBOSE )
-    message ( STATUS "TWXInfo: ${_key} => <${_value}>" )
+    message ( STATUS "TWXCfg: ${_key} => <${_value}>" )
   endif ()
-  return (
-    PROPAGATE
-    info_keys_twx
-    info_values_twx
-  )
-endfunction ()
+endmacro ()
 
 # ANCHOR: Utility `twx_cfg_write_end`
 #[=======[
-Usage:
-```
-twx_cfg_write_end ( <info_name> )
-```
+*//** @brief balance previous `twx_cfg_write_begin()`
+
 Do the writing...
+@param id defines the storage location through `twx_cfg_path ()`.
+*/
+twx_cfg_write_end ( id ) {}
+/*
 #]=======]
-function ( twx_cfg_write_end name_ )
-  twx_cfg_path ( path_ "${name_}" )
+function ( twx_cfg_write_end id_ )
+  twx_cfg_path ( path_ "${id_}" )
   set (
     contents_ "\
 ;READ ONLY
 ;This file was generated automatically by the TWX build system
-[${PROJECT_NAME} ${name_} informations]
+[${PROJECT_NAME} ${id_} informations]
 "
   )
-  # find the largest key
+  # find the largest key for pretty printing
   set ( length 0 )
-  foreach ( key IN LISTS info_keys_twx )
+  foreach ( key IN LISTS cfg_keys_twx )
     string ( LENGTH "${key}" l )
     if ( l GREATER length )
       set ( length "${l}" )
     endif ()
   endforeach ()
-  while ( NOT "${info_keys_twx}" STREQUAL "" )
-    list ( GET info_keys_twx 0 key )
-    list ( REMOVE_AT info_keys_twx 0 )
-    if ( "${info_values_twx}" STREQUAL "" )
+  # Set the contents
+  while ( NOT "${cfg_keys_twx}" STREQUAL "" )
+    list ( GET cfg_keys_twx 0 key )
+    list ( REMOVE_AT cfg_keys_twx 0 )
+    if ( "${cfg_values_twx}" STREQUAL "" )
       set ( value "" )
-      if ( NOT "${info_keys_twx}" STREQUAL "" )
+      if ( NOT "${cfg_keys_twx}" STREQUAL "" )
         message ( FATAL_ERROR "Internal inconsistency")
       endif ()
     else ()
-      list ( GET info_values_twx 0 value )
-      list ( REMOVE_AT info_values_twx 0 )
+      list ( GET cfg_values_twx 0 value )
+      list ( REMOVE_AT cfg_values_twx 0 )
     endif ()
     string ( LENGTH "${key}" l )
     math ( EXPR l "${length}-${l}" )
@@ -183,6 +208,7 @@ function ( twx_cfg_write_end name_ )
       "${contents_}${key} = ${value}\n"
     )
   endwhile ()
+  # write the file
   file (
     WRITE
     "${path_}(new)"
@@ -195,46 +221,39 @@ function ( twx_cfg_write_end name_ )
     RESULT_VARIABLE ans
   )
   if ( ans GREATER 0 )
-    message ( STATUS "Updated: ${path_}")
     file ( RENAME "${path_}(new)" "${path_}" )
+    message ( STATUS "Updated: ${path_}")
   else ()
     file ( REMOVE "${path_}(new)" )
   endif ()
-  unset ( info_keys_twx )
-  unset ( info_values_twx )
+  unset ( cfg_keys_twx PARENT_SCOPE)
+  unset ( cfg_values_twx PARENT_SCOPE )
+  # Now we cand start another write sequence
 endfunction ()
 
 # ANCHOR: Utility `twx_cfg_read`
 #[=======[
-Usage:
-```
-twx_cfg_read ( [ <info_name> | <file_path> ...] [QUIET] [ONLY_CONFIGURE] )
-```
-Argument: one of
-* `info_name`: one info name
-* `file_path`: parse the file at `<file_path>` which is encoded in UTF-8
-  and must be readable.
-
-When no arguments are provided, read all the available files.
-
-Output:
-* With `QUIET`, `TWX_CFG_READ_FAILED` is true when the read failed.
-  In all other situations, it is false. Also, only one file is read,
-  if any.
+*//** @brief Parse a Cfg data file
 
 Parses the file lines matching `<key> = <value>`.
 `<key>` contains no `=` nor space character, it is not empty whereas
 `<value>` can be empty.
 Set `twx_cfg_<key>` to `<value>`.
-When `QUIET` is provided, no error is raised.
-When `ONLY_CONFIGURE` is not provided, and in `GIT` or `STATIC` mode, 
-also set `TWX_<project_name>_<key>` to `<value>`.
 
+@param ... optional list of id or full path.
+  When not provided all available Cfg data files are read.
+  Each file is encoded in UTF-8
+@param QUIET optional key, no error is raised when provided but `TWX_CFG_READ_FAILED` is set when the read failed and no more than one file is read.
+@param ONLY_CONFIGURE optional key, no `TWX_<project_name>_<key>`
+is set when provided
+*/
+twx_cfg_read ( ... [QUIET] [ONLY_CONFIGURE] ) {}
+/*
 #]=======]
 function ( twx_cfg_read )
   set ( TWX_CFG_READ_FAILED OFF )
   cmake_parse_arguments (
-    twx
+    MY
     "QUIET;ONLY_CONFIGURE" "" ""
     ${ARGN}
   )
@@ -255,7 +274,7 @@ function ( twx_cfg_read )
       twx_cfg_path ( p_ "${name_}" )
       if ( EXISTS "${p_}" )
         set ( name_ "${p_}" ) 
-      elseif ( twx_QUIET )
+      elseif ( MY_QUIET )
         set ( TWX_CFG_READ_FAILED ON )
         return ()
       else ()
@@ -280,61 +299,60 @@ function ( twx_cfg_read )
         if ( TWX_CONFIG_VERBOSE )
           message ( "twx_cfg_${CMAKE_MATCH_1} => ${CMAKE_MATCH_2}" )
         endif ()
-        if ( NOT name_ STREQUAL "" AND NOT twx_ONLY_CONFIGURE )
+        if ( NOT name_ STREQUAL "" AND NOT MY_ONLY_CONFIGURE )
           set (
-            TWX_${PROJECT_NAME}_INFO_${CMAKE_MATCH_1}
+            TWX_${PROJECT_NAME}_CFG_${CMAKE_MATCH_1}
             "${CMAKE_MATCH_2}"
             PARENT_SCOPE
           )
         endif ()
       endif ()
     endforeach ()
-    if ( twx_ONLY_CONFIGURE )
+    if ( MY_ONLY_CONFIGURE )
       include ( TwxCoreLib )
       twx_core_timestamp (
         "${name_}"
         TWX_CFG_TIMESTAMP_${name_}
       )
     endif ()
-    if ( twx_QUIET )
+    if ( MY_QUIET )
       return ()
     endif ()
   endforeach ()
 endfunction ()
 
-#[===============================================[
-Updated information, mainly related to git.
+# ANCHOR: twx_cfg_update
+#[=======[
+*//** @brief Updated Cfg data, mainly related to git.
 
-Usage:
-from a target at build time only
-```
-twx_cfg_update ()
-```
-Input:
-* `PROJECT_NAME`
-* `PROJECT_BINARY_DIR`
+Expected input state:
 
-Output:
-* `<binary_dir>/build_data/<project name>Git.ini`
-  is touched any time some info changes such that files must be reconfigured.
-* `TWX_<project name>_INFO_<key>` when `<key>` is one of
+- `PROJECT_NAME`
+- `PROJECT_BINARY_DIR`
+- `TWX_DIR`
+
+Expected side effects:
+
+- `<binary_dir>/build_data/<project name>-git.ini`
+  is touched any time some data changes such that files must be reconfigured.
+- `TWX_<project name>_CFG_<key>` when `<key>` is one of
   - `GIT_HASH`
   - `Git_DATE`
   - `GIT_BRANCH`
   - `GIT_OK`
-
-#]===============================================]
-
-# ANCHOR: twx_cfg_update
+*/
+twx_cfg_update () {}
+/*
+#]=======]
 function ( twx_cfg_update )
   twx_assert_non_void ( PROJECT_NAME )
   twx_assert_non_void ( PROJECT_BINARY_DIR )
   if ( TWX_CONFIG_VERBOSE )
-    message ( STATUS "TwxInfoUpdate: ${PROJECT_NAME}" )
-    message ( STATUS "TwxInfoUpdate: ${PROJECT_BINARY_DIR}" )
-    message ( STATUS "TwxInfoUpdate: ${TWX_DIR}" )
+    message ( STATUS "TwxCfgUpdate: ${PROJECT_NAME}" )
+    message ( STATUS "TwxCfgUpdate: ${PROJECT_BINARY_DIR}" )
+    message ( STATUS "TwxCfgUpdate: ${TWX_DIR}" )
   else ()
-    message ( STATUS "TwxInfoUpdate..." )
+    message ( STATUS "TwxCfgUpdate..." )
   endif ()
 
   include ( TwxCfgLib )
@@ -368,7 +386,7 @@ Would show the date and time UTC.
 #]=======]
     execute_process (
       COMMAND "${GIT_EXECUTABLE}"
-      "--git-dir=.git" "show" "--no-patch" "--pretty=%cI"
+        "--git-dir=.git" "show" "--no-patch" "--pretty=%cI"
       WORKING_DIRECTORY "${TWX_DIR}"
       RESULT_VARIABLE result_DATE
       OUTPUT_VARIABLE new_DATE
@@ -376,22 +394,22 @@ Would show the date and time UTC.
     )
     execute_process (
       COMMAND "${GIT_EXECUTABLE}"
-      "--git-dir=.git" "branch" "--show-current"
+        "--git-dir=.git" "branch" "--show-current"
       WORKING_DIRECTORY "${TWX_DIR}"
       RESULT_VARIABLE result_BRANCH
       OUTPUT_VARIABLE new_BRANCH
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     if ( result_HASH EQUAL 0 AND
-        result_DATE EQUAL 0 AND
-        result_BRANCH EQUAL 0 AND
-        NOT "${new_HASH}" STREQUAL "" AND
-        NOT "${new_DATE}" STREQUAL "" AND
-        NOT "${new_BRANCH}" STREQUAL "" )
-        set ( new_OK ${TWX_CFG_CPP_TRUTHY} )
+      result_DATE EQUAL 0 AND
+      result_BRANCH EQUAL 0 AND
+      NOT "${new_HASH}" STREQUAL "" AND
+      NOT "${new_DATE}" STREQUAL "" AND
+      NOT "${new_BRANCH}" STREQUAL "" )
+      set ( new_OK ${TWX_CFG_CPP_TRUTHY} )
       execute_process (
         COMMAND "${GIT_EXECUTABLE}"
-        "--git-dir=.git" "diff" "--ignore-cr-at-eol" "--quiet" "HEAD"
+          "--git-dir=.git" "diff" "--ignore-cr-at-eol" "--quiet" "HEAD"
         WORKING_DIRECTORY "${TWX_DIR}"
         RESULT_VARIABLE MODIFIED_RESULT_twx
       )
@@ -402,22 +420,23 @@ Would show the date and time UTC.
   endif ( GIT_FOUND )
 
   twx_cfg_write_begin ()
-  twx_cfg_set ( GIT_HASH   "${new_HASH}"   )
-  twx_cfg_set ( GIT_DATE   "${new_DATE}"   )
-  twx_cfg_set ( GIT_BRANCH "${new_BRANCH}" )
-  twx_cfg_set ( GIT_OK     "${new_OK}"     )
+  foreach (key_ HASH DATE BRANCH OK)
+    twx_cfg_set ( GIT_${key_} "${new_${key_}}" )
+  endforeach ()
   twx_cfg_write_end ( "git" )
   message ( STATUS "Git commit info updated" )
-
 endfunction ( twx_cfg_update )
 
 # ANCHOR: twx_cfg_return_if_exists
 #[=======[
-Usage:
-```
-twx_cfg_return_if_exists ( name )
-```
-`name` is the argument of `twx_cfg_path`.
+*//** @brief convenient macro
+
+Return if the Cfg data file with the given id already exists.
+
+@param id is the argument of `twx_cfg_path()`.
+*/
+twx_cfg_return_if_exists ( id ) {}
+/*
 #]=======]
 macro (twx_cfg_return_if_exists _name )
   twx_cfg_path ( TWX_path ${_name} )
@@ -427,3 +446,4 @@ macro (twx_cfg_return_if_exists _name )
   endif ()
   unset ( TWX_path )
 endmacro ()
+#*/

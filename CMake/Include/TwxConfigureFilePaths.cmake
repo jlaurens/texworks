@@ -1,28 +1,38 @@
-#[===============================================[
+#[===============================================[/*
 This is part of TWX build and test system.
 https://github.com/TeXworks/texworks
+(C) 2023 JL
+*//** @file
 
-Writes a configuration `ini` file in the `build_data` section
-to store the static binary paths and path separator.
+@brief Manage Cfg data related to paths
+
+The only purpose is to write a Cfg data file
+to store the path list separator and the static list
+of binary paths elaborated at build time.
 
 Usage:
 ```
-include ( TwxConfigurationFilePaths )
+include ( TwxConfigureFilePaths )
 ```
 Input state:
-* `TWX_TEST_PATHS` is a list of paths useful for testing.
+- `TWX_TEST_PATHS` is a list of paths useful for testing.
 
 Output:
-* `build_data/<project_name>_paths.ini`, will be automatically read by
-  the configure file commands.
+- `build_data/<project_name>_paths.ini`, will be automatically read by
+  the `configure_file` related commands. In that case, will be defined
+  - `TWX_CFG_PATH_LIST_SEPARATOR`
+  - `TWX_CFG_FACTORY_BINARY_PATHS`
+  - `TWX_CFG_FACTORY_BINARY_PATHS_TEST` See @ref TWX_TEST_PATHS
 
+Any subsequent try to include this script in the same project
+is a noop.
+
+**//*
 #]===============================================]
 
 # Guard
 include ( TwxCfgLib )
 twx_cfg_return_if_exists ( "paths" )
-
-# The easy part
 
 # Binary Directories available in TL (https://www.tug.org/svn/texlive/trunk/Master/bin/)
 # aarch64-linux/
@@ -200,7 +210,8 @@ twx_cfg_write_end ( "paths" )
 if ( TWX_CONFIG_VERBOSE )
   message ( STATUS "Paths updated" )
 endif ()
-if ( TWX_CONFIG_VERBOSE AND TWX_paths )
+
+if ( TWX_CONFIG_VERBOSE AND NOT "${TWX_paths}" STREQUAL "" )
 	if ( WIN32 )
 		string(REPLACE ";" "', '" TWX_paths "${TWX_paths}")
 	else ()
@@ -213,3 +224,16 @@ if ( TWX_CONFIG_VERBOSE AND TWX_paths )
 endif ()
 
 unset ( TWX_paths )
+
+#[=======[
+*//** @brief For tests
+
+If `TWX_TEST_PATHS` is not void, it is used as list of paths
+instead of the generate one.
+Moreover, this list generated at build time is still available through
+`TWX_CFG_BINARY_PATHS_TEST`.
+*/
+TWX_TEST_PATHS;
+/*
+#]=======]
+#*/

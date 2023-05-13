@@ -63,7 +63,7 @@ while ( NOT "${SOURCE_IN}" STREQUAL "" )
   )
     continue ()
   endif ()
-  if ( TWX_CONFIG_VERBISE )
+  if ( TWX_CONFIG_VERBOSE )
     message (STATUS "configure_file: ${input} => ${output}")
   endif ()
   configure_file(
