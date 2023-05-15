@@ -24,12 +24,43 @@
 #include "DefaultBinaryPaths.h"
 
 #include "Core/TwxConst.h"
+#include "Core/TwxTool.h"
+#include "Core/TwxFileRecordDB.h"
 #include "Core/TwxInfo.h"
 #include "Core/TwxSettings.h"
 #include "Core/TwxPathManager.h"
 
 namespace Twx {
 namespace Core {
+
+bool operator==(const Hash & h1, const Hash & h2)
+{
+	return h1.bytes == h2.bytes;
+}
+bool operator==(const Checksum & c1, const Checksum & c2)
+{
+	return c1.bytes == c2.bytes;
+}
+bool operator==(const FileRecord & r1, const FileRecord & r2)
+{
+	return r1.fileInfo.absolutePath() == r2.fileInfo.absolutePath()
+		&& r1.version  == r2.version
+		&& r1.checksum == r2.checksum
+		&& r1.hash     == r2.hash;
+}
+bool operator==(const FileRecordDB & frdb1, const FileRecordDB & frdb2)
+{
+	return frdb1.getList() == frdb2.getList();
+}
+QDebug operator<< (QDebug d, const FileRecord &model) {
+    d << Qt::endl << model.fileInfo.filePath()
+		  << ":{" << model.version
+		  << "," << model.checksum.bytes
+		  << "," << model.hash.bytes 
+		  << "}" << model.hash.bytes;
+    return d;
+}
+
 namespace Test {
 
 Main::Main(): QObject()
@@ -65,7 +96,6 @@ void Main::init()
 	for (auto key: settings.allKeys()) {
 		settings.remove(key);
 	}
-	qDebug() << "===> CWD:" << QDir::currentPath();
 }
 
 void Main::cleanup()
@@ -74,12 +104,170 @@ void Main::cleanup()
 
 void Main::testConst()
 {
-	QCOMPARE(pathListSeparator.length(), 1);
 	QCOMPARE(Core::dot, QStringLiteral("."));
 
 	QCOMPARE(Key::binaryPaths, QStringLiteral("binaryPaths"));
 	QCOMPARE(Key::defaultbinpaths, QStringLiteral("defaultbinpaths"));
 	QCOMPARE(Key::PATH, QStringLiteral("PATH"));
+}
+
+void Main::testTool()
+{
+	auto input = QStringLiteral("Whatever");
+	auto input_hash =  md5Hash(input);
+	QVERIFY(input_hash.bytes.length() > 0);
+	auto dots = QStringLiteral("..........");
+	auto empty = QStringLiteral("empty.txt");
+	auto path = QStringLiteral("checksum.md");
+  {
+		auto actual = hashForFilePath(dots);
+		auto expected = Hash();
+		QCOMPARE(actual, expected);
+		actual = hashForFilePath(empty);
+		expected = Hash{"d41d8cd98f00b204e9800998ecf8427e"};
+		QCOMPARE(actual, expected);
+		actual = hashForFilePath(path);
+		expected = Hash{"66f76eb1eaed0527a943a0e9e45d09e4"};
+		QCOMPARE(actual, expected);
+	}
+  {
+		auto actual = checksumForFilePath(dots);
+		auto expected = Checksum();
+		QCOMPARE(actual, expected);
+		actual = checksumForFilePath(empty);
+		expected = Checksum{"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"};
+		QCOMPARE(actual, expected);
+		actual = checksumForFilePath(path);
+		expected = Checksum{"278660e88c824d3bfe581c0171547002e176855aad23179e3441efede0d32e7c"};
+		QCOMPARE(actual, expected);
+	}
+}
+
+using FRDB = FileRecordDB;
+
+void Main::testFileRecordDB()
+{
+  QDir dir;
+  QVERIFY(dir.cd(QStringLiteral("FileRecordDB")));
+	QVERIFY(dir.cd(QStringLiteral("A")));
+  auto frdb = FileRecordDB::load(dir);
+	frdb.removeStorage();
+	frdb = FileRecordDB::load(dir);
+	QVERIFY(frdb.getList().empty());
+	QVERIFY(frdb.save());
+	frdb = FileRecordDB::load(dir);
+	QVERIFY(frdb.getList().empty());
+	auto path = QStringLiteral("1");
+	auto fileInfo = QFileInfo(dir.absolutePath(), path);
+	auto checksum = Checksum{"1789"};
+	auto version = QStringLiteral("9871");
+	frdb.add(fileInfo, version, checksum);
+	QVERIFY(frdb.knows(fileInfo));
+	auto record = frdb.get(fileInfo);
+	QCOMPARE(record, (FileRecord{
+		fileInfo,
+		version,
+		checksum,
+		Hash{}
+	}));
+	QVERIFY(frdb.save());
+	frdb = FileRecordDB::load(dir);
+	QVERIFY(frdb.knows(fileInfo));
+	record = frdb.get(fileInfo);
+	QCOMPARE(record, (FileRecord{
+		fileInfo,
+		version,
+		checksum,
+		Hash{}
+	}));
+  version = QStringLiteral("1789");
+	checksum = Checksum{"9871"};
+	QCOMPARE(frdb.getList().size(), 1);
+	frdb.add(fileInfo, version, checksum);
+	QCOMPARE(frdb.getList().size(), 1);
+	QVERIFY(frdb.knows(fileInfo));
+	record = frdb.get(fileInfo);
+	QCOMPARE(record, (FileRecord{
+		fileInfo,
+		version,
+		checksum,
+		Hash{}
+	}));
+}
+
+void Main::testFileRecordDB_comparisons()
+{
+	auto fileInfo = QFileInfo(QStringLiteral("blablabla"));
+	auto version  = QStringLiteral("9871");
+	auto checksum = Checksum{"2023"};
+	auto hash     = Hash{"1789"};
+
+	FileRecord r1 = { fileInfo,    version,   checksum,     Hash{} };
+	FileRecord r2 = { fileInfo,    version,   Checksum{},   hash   };
+	FileRecord r3 = { fileInfo,    QString(), checksum,     hash   };
+	FileRecord r4 = { QFileInfo(), version,   checksum,     hash   };
+
+	QVERIFY(r1 == r1);
+	QVERIFY(r2 == r2);
+	QVERIFY(r3 == r3);
+	QVERIFY(r4 == r4);
+
+	QVERIFY(!(r1 == r2));
+	QVERIFY(!(r1 == r3));
+	QVERIFY(!(r1 == r4));
+	QVERIFY(!(r2 == r3));
+	QVERIFY(!(r2 == r4));
+	QVERIFY(!(r3 == r4));
+}
+
+void Main::testFileRecordDB_add()
+{
+	FileRecordDB frdb((QDir()));
+	QFileInfo fileInfo(QStringLiteral(".........."));
+	FileRecord empty;
+	FileRecord r1 =    { fileInfo,    QStringLiteral("v1"), Checksum{}, Hash{}};
+	FileRecord r2 =    { fileInfo,    QString(), Checksum{}, Hash{"814514754a5680a57d172b6720d48a8d"}};
+
+	QVERIFY (frdb.knows(r1.fileInfo) == false);
+	QCOMPARE(frdb.get(r1.fileInfo), empty);
+	QCOMPARE(frdb.getList(), QList<FileRecord>());
+	frdb.add(r1.fileInfo, r1.version, r1.checksum, r1.hash);
+	QVERIFY(frdb.knows(r1.fileInfo));
+	QCOMPARE(frdb.get(r1.fileInfo), r1);
+	QCOMPARE(frdb.getList(), QList<FileRecord>{r1});
+	frdb.add(r2.fileInfo, r2.version, r2.checksum, r2.hash);
+	QVERIFY(frdb.knows(r2.fileInfo));
+	QCOMPARE(frdb.get(r2.fileInfo), r2);
+	QCOMPARE(frdb.getList(), QList<FileRecord>{r2});
+}
+
+void Main::testFileRecordDB_load()
+{
+	QCOMPARE(FileRecordDB::load(QStringLiteral("does-not-exist")).getList(), QList<FileRecord>());
+
+	FileRecordDB frdb((QDir()));
+	frdb.add(QFileInfo(QStringLiteral("/spaces test.tex")), QStringLiteral("v1"),  Checksum{}, Hash{"d41d8cd98f00b204e9800998ecf8427e"});
+	frdb.add(QFileInfo(QStringLiteral("base14-fonts.pdf")), QStringLiteral("4.2"), Checksum{}, Hash{"814514754a5680a57d172b6720d48a8d"});
+
+	QCOMPARE(FileRecordDB::load_legacy(QStringLiteral("fileversion.db")), frdb);
+
+	// QEXPECT_FAIL("", "Invalid file version databases are not recognized", Continue);
+	QCOMPARE(FileRecordDB::load(QStringLiteral("script.js")), FileRecordDB(QDir()));
+}
+
+void Main::testFileRecordDB_save()
+{
+	FileRecordDB frdb((QDir()));
+	frdb.add(QFileInfo(QStringLiteral("/spaces test.tex")), QStringLiteral("v1"), Checksum{}, Hash{"d41d8cd98f00b204e9800998ecf8427e"});
+	frdb.add(QFileInfo(QStringLiteral("base14-fonts.pdf")), QStringLiteral("4.2"), Checksum{}, Hash{"814514754a5680a57d172b6720d48a8d"});
+
+	QVERIFY(frdb.save(QStringLiteral("does/not/exist.frdb")) == false);
+
+	QTemporaryFile tmpFile;
+	tmpFile.open();
+	tmpFile.close();
+	QVERIFY(frdb.save_legacy(tmpFile.fileName()));
+	QCOMPARE(FileRecordDB::load_legacy(tmpFile.fileName()), frdb);
 }
 
 void Main::testPathManager_setRawBinaryPaths()

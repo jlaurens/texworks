@@ -129,9 +129,9 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	// Appending the path to the typesetting tool to PATH acts as a fallback and
 	// implicitly assumes that the tool itself and all tools it relies on are in
 	// the same (standard) location.
-	QStringList envPaths = env.value(QStringLiteral("PATH")).split(QStringLiteral(PATH_LIST_SEP));
+	QStringList envPaths = env.value(QStringLiteral("PATH")).split(QDir::listSeparator());
 	envPaths.append(QFileInfo(exeFilePath).dir().absolutePath());
-	env.insert(QStringLiteral("PATH"), envPaths.join(QStringLiteral(PATH_LIST_SEP)));
+	env.insert(QStringLiteral("PATH"), envPaths.join(QDir::listSeparator()));
 #endif
 
 	QStringList args = arguments();

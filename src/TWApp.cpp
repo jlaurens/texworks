@@ -189,7 +189,7 @@ void TWApp::init()
 		}
 		if (portable.contains(QString::fromLatin1("defaultbinpaths"))) {
 			defaultBinPaths = std::unique_ptr<QStringList>(new QStringList);
-			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts);
+			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(QDir::listSeparator(), SkipEmptyParts);
 		}
 	}
 	QString envPath = QString::fromLocal8Bit(getenv("TW_INIPATH"));

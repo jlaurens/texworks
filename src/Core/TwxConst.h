@@ -50,8 +50,10 @@ extern const QString dot;
 */
 namespace Key {
 
-	extern const QString __type;
 	extern const QString __data;
+	extern const QString __status;
+	extern const QString __type;
+	extern const QString __version;
 
 	extern const QString PATH;
 

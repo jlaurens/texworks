@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2018-2023  Jonathan Kew, Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2008-2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,17 +23,13 @@
 
 private:
 
-	PathManager() = delete;
-	~PathManager() = delete;
-	PathManager( const PathManager& ) = delete;
-	PathManager(PathManager&&) = delete;
-	PathManager& operator=(const PathManager&) = delete;
-	PathManager& operator=(PathManager &&) = delete;
+	static const QString getLibraryRootPath();
+	// the return value is sorted from new to old
+	static const QStringList getLegacyLibraryRootPaths();
+	static bool shouldMigrateLegacyLibrary();
+	static void migrateLegacyLibrary();
+	static void updateLibraryResources(const QDir& srcRootDir, const QDir& destRootDir, const QString& libPath);
 
 #if defined(TwxCore_TEST)
 	friend class Test::Main;
-
-  static QStringList messages_m;
-	static QStringList factoryBinaryPathsTest;
-	static QStringList &rawBinaryPaths();
 #endif

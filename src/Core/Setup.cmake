@@ -52,7 +52,9 @@ twx_configure_files (
 list (
 	APPEND TwxCore_SOURCES
 	"${CMAKE_CURRENT_LIST_DIR}/TwxConst.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxTool.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxSettings.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxFileRecordDB.cpp"
 	${out_twx}
 )
 unset ( out_twx )
@@ -60,7 +62,9 @@ unset ( out_twx )
 list (
 	APPEND TwxCore_HEADERS
 	"${CMAKE_CURRENT_LIST_DIR}/TwxConst.h"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxTool.h"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxSettings.h"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxFileRecordDB.h"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxInfo.h"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxPathManager.h"
 )

@@ -27,8 +27,12 @@
  *  `TwxPathManager` is a static object which main method
  *  is `programPath()` to retrieve the full path of a program.
  * 
- *  In addition, \see `TwxPathFinder` instances also implement
+ *  In addition, \ref `TwxPathFinder` instances also implement
  *  `programPath()` but with a per instance approach.
+ *  
+ *  Whereas `TwxPathManager` will be used as general purpose path provider,
+ *  different documents may need there own customized `TwxPathFinder` instance
+ *  to suit their particular needs.
  */
 
 #include <QString>
@@ -47,15 +51,12 @@ namespace Key {
 	 */
 	extern const QString defaultbinpaths;
 }
+
+#if defined(TwxCore_TEST)
 namespace Test {
 	class Main;
 }
-
-/*! \brief Path list separator
- *
- *  `;` on windows and `:` otherwise.
- */
-extern const QString pathListSeparator;
+#endif
 
 /*! \brief Path manager
  *
@@ -90,8 +91,8 @@ public:
 	 */
 	// Engine::programPath
 	static QString programPath(
-		const QString& program,	
-		const QProcessEnvironment& env =
+		const QString & program,	
+		const QProcessEnvironment & env =
 		  QProcessEnvironment::systemEnvironment()
 	);
 
@@ -107,58 +108,67 @@ public:
 	 *   defaults to the system environment.
 	 */
 	static const QStringList getBinaryPaths(
-		const QProcessEnvironment& env
+		const QProcessEnvironment & env
 		  = QProcessEnvironment::systemEnvironment()
 	);
 	/*!
 	 * \brief set the list of raw binary paths
 	 *
-	 * Store this list in the settings under key \see `Key::binaryPaths`.
 	 * \param paths is a list of paths, possibly including placeholders
 	 *   like `${foo}` on unix like systems, and `%foo%` on windows.
+	 * 
+	 * \see `getRawBinaryPaths()`
 	 */
 	static void setRawBinaryPaths(
-		const QStringList& paths
+		const QStringList & paths
 	);
 	/*! \brief get the list of raw binary paths
 	 *
 	 * This is a lazy getter.
-	 * If the settings stores a list of raw binary paths
+	 * If the settings store a list of raw binary paths
 	 * for key `Twx::Core::Key::binaryPaths`, it is used.
    * Otherwise, `resetRawBinaryPaths(env)` is used.
+	 * 
+	 * This list can be edited with the GUI by `PrefsDialog`,
+	 * or by hand under key "binaryPaths". The location and
+	 * storage format of the settings is system dependent.
+	 * See the `QSettings` documentation for
+	 * [Qt5](https://doc.qt.io/qt-5/qsettings.html#platform-specific-notes) or
+	 * [Qt6](https://doc.qt.io/qt-6/qsettings.html#platform-specific-notes).
 	 * 
 	 * \param env is an optional `QProcessEnvironment` instance that
 	 *    defaults to the system environment. 
 	 */
 	static const QStringList getRawBinaryPaths(
-		const QProcessEnvironment& env =
+		const QProcessEnvironment & env =
 			QProcessEnvironment::systemEnvironment()
 	);
 
-	/**
-	 * \brief Reset the list of raw binary paths
-	 * 
-	 * Reset to the default binary paths, prepends the directory
-	 * of the current application (executable), and appends the
-	 * contents of the `PATH` environment.
-	 * 
-	 * If there are no default binary paths, the factory binary list is used.
-	 * 
-	 * Used by \ref `PrefsDialog`.
-	 * 
-	 * \param env is an optional `QProcessEnvironment` instance that
-	 *    defaults to the system environment. 
-	 */
+/**
+	* \brief Reset the list of raw binary paths
+	* 
+	* The new list consists of, in order,
+	* <ul>
+	* <li> the directory of the current application (executable)
+	* <li> standard path locations for TeX distributions:
+	* 	<ul>
+	* 	<li> on macOS `/Library/TeX/texbin` and `/usr/texbin` standard locations
+	*   <li> TeXlive or MikTeX standard related paths
+	* 	</ul>
+	* <li> factory paths
+	* <li> the contents of the `PATH` variable of `env`
+	* </ul>
+	*
+	* \param env is an optional `QProcessEnvironment` instance that
+	*    defaults to the system environment.
+	* \see `getRawBinaryPaths()`
+	*/
 	static bool resetRawBinaryPaths(
-		const QProcessEnvironment& env
+		const QProcessEnvironment & env
 			= QProcessEnvironment::systemEnvironment()
 	);
 
-private:
-
 #include "Core/TwxPathManagerPrivate.h"
-
-	friend class Test::Main;
 };
 
 } // namespace Core

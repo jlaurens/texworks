@@ -27,9 +27,12 @@ const QString dot = QStringLiteral(".");
 
 namespace Key {
 
-const QString __type						 = QStringLiteral("__type");
-const QString __data						 = QStringLiteral("__data");
-const QString PATH 							 = QStringLiteral("PATH");
+const QString __data    = QStringLiteral("__data");
+const QString __status  = QStringLiteral("__status");
+const QString __type    = QStringLiteral("__type");
+const QString __version = QStringLiteral("__version");
+
+const QString PATH      = QStringLiteral("PATH");
 
 } // namespace Key
 

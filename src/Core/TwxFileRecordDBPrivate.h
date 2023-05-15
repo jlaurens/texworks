@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2018-2023  Jonathan Kew, Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2023  Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,20 +20,28 @@
 */
 
 /** \brief Private interface */
-
 private:
 
-	PathManager() = delete;
-	~PathManager() = delete;
-	PathManager( const PathManager& ) = delete;
-	PathManager(PathManager&&) = delete;
-	PathManager& operator=(const PathManager&) = delete;
-	PathManager& operator=(PathManager &&) = delete;
+  static const int version;
+
+	FileRecordDB(const QDir & dir);
+	virtual ~FileRecordDB() = default;
+
+  QList<FileRecord> fileRecords_m;
+  QDir              dir_m;
+
+	bool save(const QString & path) const;
+	static FileRecordDB load(const QString & path);
+	bool save_legacy(const QString & path) const;
+  static FileRecordDB load_legacy(const QString & path);
 
 #if defined(TwxCore_TEST)
-	friend class Test::Main;
+	static const QString saveComponent;
+	QList<FileRecord> & getList();
+	const QList<FileRecord> & getList() const;
+  void removeStorage() const;
 
-  static QStringList messages_m;
-	static QStringList factoryBinaryPathsTest;
-	static QStringList &rawBinaryPaths();
+  friend class Test::Main;
+	friend bool operator==(const FileRecordDB & frdb1, const FileRecordDB & frdb2);
+
 #endif

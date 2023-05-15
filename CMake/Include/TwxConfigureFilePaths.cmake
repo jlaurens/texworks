@@ -20,7 +20,6 @@ Input state:
 Output:
 - `build_data/<project_name>_paths.ini`, will be automatically read by
   the `configure_file` related commands. In that case, will be defined
-  - `TWX_CFG_PATH_LIST_SEPARATOR`
   - `TWX_CFG_FACTORY_BINARY_PATHS`
   - `TWX_CFG_FACTORY_BINARY_PATHS_TEST` See @ref TWX_TEST_PATHS
 
@@ -171,12 +170,6 @@ endfunction ( twx__add_system_default_binary_paths pathsVar )
 # ANCHOR: Generate the info .ini
 
 twx_cfg_write_begin ()
-
-if (WIN32)
-	twx_cfg_set ( PATH_LIST_SEPARATOR ";" )
-else ()
-	twx_cfg_set ( PATH_LIST_SEPARATOR ":" )
-endif ()
 
 # only one local variable used
 set ( TWX_paths )

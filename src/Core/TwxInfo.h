@@ -34,6 +34,7 @@ namespace Twx {
 
 namespace Core {
 
+#if defined(TwxCore_TEST)
 /**
  * \brief Chord of the Twx testing architecture
  * 
@@ -42,8 +43,9 @@ namespace Core {
  * see \ref `TwxConfigureFileLib.cmake` for more details.
  */
 namespace Test {
-  class Main;
+	class Main;
 }
+#endif
 
 /**
  * \brief Collects various information
@@ -117,7 +119,10 @@ public:
 	*/
 	static const QString   gitBranch();
 
+#if defined(TwxCore_TEST)
   friend class Test::Main;
+#endif
+
 };
 
 } // namespace Core

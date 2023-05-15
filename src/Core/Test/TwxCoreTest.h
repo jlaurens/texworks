@@ -38,6 +38,14 @@ private slots:
 
 	void testConst();
 
+	void testTool();
+	
+	void testFileRecordDB();
+	void testFileRecordDB_comparisons();
+	void testFileRecordDB_add();
+	void testFileRecordDB_load();
+	void testFileRecordDB_save();
+
 	void testPathManager_setRawBinaryPaths();
 	void testPathManager_resetDefaultBinaryPaths();
 	void testPathManager_resetRawBinaryPaths();

@@ -37,17 +37,15 @@
 namespace Twx {
 namespace Core {
 
-const QString pathListSeparator = QStringLiteral("@TWX_CFG_PATH_LIST_SEPARATOR@");
-
 namespace Key {
 	const QString binaryPaths			   = QStringLiteral("binaryPaths");
 	const QString defaultbinpaths    = QStringLiteral("defaultbinpaths");
 }
 
-static const QStringList factoryBinaryPaths = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS@").split(pathListSeparator, Qt::SkipEmptyParts);
+static const QStringList factoryBinaryPaths = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
 
 #if defined(TwxCore_TEST)
-QStringList PathManager::factoryBinaryPathsTest = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS_TEST@").split(pathListSeparator, Qt::SkipEmptyParts);
+QStringList PathManager::factoryBinaryPathsTest = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS_TEST@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
 #endif
 
 namespace P {
@@ -111,6 +109,136 @@ static QString stringByReplacingEnvironmentVariables(
 	return parts.join(sep);
 }
 
+/*
+// Migrated from CMake build system
+static  add_TeXLive_default_binary_paths ( QStringList & pathsVar )
+#if defined(Q_OS_WIN)
+	QStringLiteral("c:/w32tex/bin"),
+	QStringLiteral("c:/texlive/%1/bin").arg(year);
+#endif
+QStringList OSList{
+	QStringLiteral("freebsd"),
+	QStringLiteral("netbsd"),
+	QStringLiteral("solaris"),
+	QStringLiteral("linux"),
+	QStringLiteral("cygwin"),
+};
+// if this list does not fit, read a configuration
+
+
+	QStringList ArchList{
+		QStringLiteral("i386"),
+		QStringLiteral("x86_64"),
+		QStringLiteral("amd64"),
+		QStringLiteral("arm64"),
+	}
+	for (const auto & OS: QStringList)
+	  )
+		endforeach()
+	else ()
+		if ( ${CMAKE_SIZEOF_VOID_P} EQUAL 4)
+			set(ARCH "i386")
+		else ()
+			set(ARCH "x86_64")
+		endif ()
+		if (CYGWIN)
+			set(OS "cygwin")
+		elseif (APPLE)
+			set(OS "darwin")
+		elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+			set(OS "freebsd")
+			if ("${ARCH}" STREQUAL "x86_64")
+				set(ARCH "amd64")
+			endif ()
+		elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "NetBSD")
+			set(OS "netbsd")
+			if ("${ARCH}" STREQUAL "x86_64")
+				set(ARCH "amd64")
+			endif ()
+		elseif ( "${CMAKE_SYSTEM_NAME}" STREQUAL "SunOS" )
+			set ( OS "solaris" )
+		# FIXME: darwinlegacy, linuxmusl
+		else ()
+			set( OS "linux" )
+		endif ()
+		set( _path "" )
+		foreach( year RANGE ${yearMin} ${yearMax} )
+			list( INSERT _path 0 "/usr/local/texlive/${year}/bin/${ARCH}-${OS}" )
+		endforeach()
+		if ( APPLE )
+			foreach( year RANGE ${yearMin} ${yearMax} )
+				list( INSERT _path 0 "/usr/local/texlive/${year}/bin/x86_64-darwinlegacy" )
+			endforeach ()
+			foreach ( year RANGE ${yearMin} ${yearMax} )
+				list ( INSERT _path 0 "/usr/local/texlive/${year}/bin/universal-darwin" )
+			endforeach ()
+		endif ()
+	endif ()
+	list ( APPEND ${pathsVar} ${_path} )
+	twx_export ( ${pathsVar} )
+endfunction (twx__add_TeXLive_default_binary_paths pathsVar )
+
+# ANCHOR: twx__add_MiKTeX_default_binary_paths
+# MiKTeX
+# Windows: Installs to "%LOCALAPPDATA%\Programs\MiKTeX" or "C:\Program Files\MiKTeX"
+# (previously, versioned folders such as "C:\Program Files\MiKTeX 2.9" were used)
+# Linux: Installs miktex-* binaries to /usr/bin and symlinks them to ~/bin or
+# /usr/local/bin (https://miktex.org/howto/install-miktex-unx)
+# Mac OS X uses the same symlink locations as Linux (https://miktex.org/howto/install-miktex-mac)
+function (twx__add_MiKTeX_default_binary_paths pathsVar)
+	if (WIN32)
+		list(APPEND ${pathsVar} "%LOCALAPPDATA%/Programs/MiKTeX/miktex/bin")
+		list(APPEND ${pathsVar} "%SystemDrive%/Program Files/MiKTeX/miktex/bin")
+		list(APPEND ${pathsVar} "%SystemDrive%/Program Files (x86)/MiKTeX/miktex/bin")
+		foreach(_miktex_version IN ITEMS 3.0 2.9 2.8)
+			# TODO: replace hard coded program files path with
+			# %ProgramFiles% (might cause problems when running a 32bit application
+			# on 64bit Windows) or %ProgramW6432% (added in Win7)
+			list(APPEND ${pathsVar} "%LOCALAPPDATA%/Programs/MiKTeX ${_miktex_version}/miktex/bin")
+			list(APPEND ${pathsVar} "%SystemDrive%/Program Files/MiKTeX ${_miktex_version}/miktex/bin")
+			list(APPEND ${pathsVar} "%SystemDrive%/Program Files (x86)/MiKTeX ${_miktex_version}/miktex/bin")
+		endforeach()
+	else ()
+		list(APPEND ${pathsVar} "\${HOME}/bin" "/usr/local/bin")
+	endif ()
+	twx_export ( ${pathsVar} )
+endfunction ( twx__add_MiKTeX_default_binary_paths pathsVar )
+
+# ANCHOR: twx__add_TeX_binary_paths
+#[=======[
+This is only relevant when building the application on your own,
+because it relies on an installed TeX distribution
+available in the PATH while building the application.
+Ignored when CMake is cross compiling.
+#]=======]
+function ( twx__add_TeX_binary_paths pathsVar )
+	if ( CMAKE_CROSSCOMPILING )
+		return()
+	endif ()
+	if ( WIN32 )
+		get_filename_component ( _tex tex.exe PROGRAM )
+	else ()
+		get_filename_component ( _tex tex PROGRAM )
+	endif ()
+	if ( NOT _tex )
+		return ()
+	endif ()
+	get_filename_component ( _path "${_tex}" DIRECTORY )
+	list ( INSERT ${pathsVar} 0 "${_path}" )
+	twx_export ( ${pathsVar} )
+endfunction (twx__add_TeX_binary_paths pathsVar)
+
+# ANCHOR: twx__add_system_default_binary_paths
+function ( twx__add_system_default_binary_paths pathsVar )
+	if ( APPLE )
+		list ( INSERT ${pathsVar} 0 "/Library/TeX/texbin" "/usr/texbin" )
+	endif ()
+	if ( UNIX )
+		list( APPEND ${pathsVar} "/usr/local/bin" "/usr/bin" )
+	endif ()
+	twx_export ( ${pathsVar} )
+endfunction ( twx__add_system_default_binary_paths pathsVar )
+*/
 bool PathManager::resetRawBinaryPaths(
   const QProcessEnvironment &env
 ) {
@@ -136,7 +264,7 @@ bool PathManager::resetRawBinaryPaths(
 #endif
   QString PATH = env.value(Key::PATH);
 	if (!PATH.isEmpty()) {
-		foreach (const QString& s, PATH.split(pathListSeparator, Qt::SkipEmptyParts)) {
+		foreach (const QString& s, PATH.split(QDir::listSeparator(), Qt::SkipEmptyParts)) {
 			if (!P::rawBinaryPaths.contains(s)) {
 				P::rawBinaryPaths.append(s);
 			}
@@ -200,7 +328,7 @@ const QStringList PathManager::getBinaryPaths(
 		path = stringByReplacingEnvironmentVariables(path, env);
 	}
 	auto PATH = env.value(Key::PATH);
-	for (QString path: PATH.split(pathListSeparator, Qt::SkipEmptyParts)) {
+	for (QString path: PATH.split(QDir::listSeparator(), Qt::SkipEmptyParts)) {
 		path = stringByReplacingEnvironmentVariables(path, env);
 		if (!paths.contains(path)) {
 			paths.append(path);
