@@ -25,6 +25,15 @@
 #include <QDir>
 
 namespace Twx {
+
+/** \brief Collection of paths */
+namespace Path {
+/** \brief Factory paths to the application image */
+  extern const QString & applicationImage;
+/** \brief Factory paths to the application image of size 128 */
+  extern const QString & applicationImage128;
+}
+
 namespace Core {
 
 #if defined(TwxCore_TEST)
@@ -33,30 +42,33 @@ namespace Test {
 }
 #endif
 
+class Settings;
+
 /** \brief Resources manager
  	* 
 	* 
 	*/
-class ResourcesManager
+class AssetsLookup
 {
 public:
-/** \brief The path to a resources folder
+/** \brief Setup the manager
  	* 
+	* \param settings is a `QSettings` instance.
+	*/
+	static void setup(const Settings & settings);
+
+/** \brief The flat list of paths to a resources folder
+ 	* 
+	* What is the meaning of synchronization?
 	* \param subdir is one of "completion", "configuration",
 	* "dictionaries", "scripts", "templates"...
 	* \param synchronize tells whether synchonization should occur
 	* \return the full path to the subdirectory
 	*/
-	static const QString getPath(const QString& subdir, const bool synchronize = true);
-
-	// same as getLibraryPath(), but splits the return value by the path list separator
-	static const QStringList getPaths(const QString& subdir, const bool updateOnDisk = true);
-
-	static const QString & getPortableLibPath();
-	static void setPortableLibPath(const QString & path);
+	static const QStringList getPathList(const QString& subdir, const bool updateOnDisk = true);
 
 private:
-  #include "Core/TwxResourcesLibraryPrivate.h"
+  #include "Core/TwxAssetsLookupPrivate.h"
 };
 
 } // namespace Utils

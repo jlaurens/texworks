@@ -40,11 +40,11 @@ private slots:
 
 	void testTool();
 	
-	void testFileRecordDB();
-	void testFileRecordDB_comparisons();
-	void testFileRecordDB_add();
-	void testFileRecordDB_load();
-	void testFileRecordDB_save();
+	void testAssetsTrackDB();
+	void testAssetsTrackDB_comparisons();
+	void testAssetsTrackDB_add();
+	void testAssetsTrackDB_load();
+	void testAssetsTrackDB_save();
 
 	void testPathManager_setRawBinaryPaths();
 	void testPathManager_resetDefaultBinaryPaths();

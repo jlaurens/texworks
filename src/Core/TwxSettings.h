@@ -19,11 +19,10 @@
 	see <http://www.tug.org/texworks/>.
 */
 /**
- * \file
- * \brief Slightly customized `QSettings`
-*/
-#ifndef TWX_SRC_CORE_SETTINGS_H
-#define TWX_SRC_CORE_SETTINGS_H
+  * \brief Slightly customized `QSettings`
+  */
+#ifndef TwxCore_Settings_H
+#define TwxCore_Settings_H
 
 #include <QSettings>
 //TODO: document this class, what is the purpose???
@@ -43,4 +42,4 @@ public:
 } // namespace Core
 } // namespace Twx
 
-#endif // TWX_SRC_CORE_SETTINGS_H
+#endif // TwxCore_Settings_H

@@ -35,6 +35,8 @@ static const QString name_ = QString::fromUtf8("@TWX_CFG_NAME@");
 static const QString authors_ = QString::fromUtf8("@TWX_CFG_AUTHORS@");
 static const QString copyrightYears_ = QString::fromUtf8("@TWX_CFG_COPYRIGHT_YEARS@");
 static const QString copyrightHolders_ = QString::fromUtf8("@TWX_CFG_COPYRIGHT_HOLDERS@");
+static const QString organization_domain_ = QStringLiteral("@TWX_CFG_ORGANIZATION_DOMAIN@");
+static const QString organization_name_   = QStringLiteral("@TWX_CFG_ORGANIZATION_NAME@");
 static const QString hash_ = QStringLiteral("@TWX_CFG_GIT_HASH@");
 static const QDateTime date_ = QDateTime::fromString(
 	QStringLiteral("@TWX_CFG_GIT_DATE@"),
@@ -46,6 +48,18 @@ static const QString branch_ = QStringLiteral("@TWX_CFG_GIT_BRANCH@");
 const QString Info::name()
 {
 	return name_;
+}
+
+// static
+const QString Info::organizationName()
+{
+	return organization_name_;
+}
+
+// static
+const QString Info::organizationDomain()
+{
+	return organization_domain_;
 }
 
 // static
@@ -160,6 +174,16 @@ const QDateTime Info::gitDate()
 const QString Info::gitBranch()
 {
 	return branch_;
+}
+
+void Info::initApplication ()
+{
+	QIcon::setThemeName(QStringLiteral("tango-texworks"));
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN) || defined (TWX_TEST)
+	setOrganizationName(organisationName());
+	setOrganizationDomain(organisationDomain());
+	setApplicationName(name());
+#endif
 }
 
 } // namespace Core

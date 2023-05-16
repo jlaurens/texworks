@@ -29,6 +29,26 @@
 namespace Twx {
 namespace Core {
 
+bool Hash::operator==(const Hash & rhs)
+{
+	return bytes == rhs.bytes;
+}
+
+bool Hash::operator!=(const Hash & rhs)
+{
+	return bytes != rhs.bytes;
+}
+
+bool Checksum::operator==(const Checksum & rhs)
+{
+	return bytes == rhs.bytes;
+}
+
+bool Checksum::operator!=(const Checksum & rhs)
+{
+	return bytes != rhs.bytes;
+}
+
 /*static*/
 Hash md5Hash (const QByteArray & bytes)
 {

@@ -51,6 +51,7 @@ if ( NOT TWX_IS_BASED )
 	project ( TwxCoreTest ) # Don't change this name just here
 	include ( TwxBase )
 	set ( TWX_TEST ON	)
+	set ( TWXCore_TEST ON	)
 	set ( TwxCore_TEST_IS_ROOT ON )
 	enable_testing ()
 	include ( TwxQTLib )
@@ -62,6 +63,7 @@ if ( NOT TWX_IS_BASED )
 elseif ( TWX_TEST )
 	project ( TwxCoreTest ) # Don't change this name just here
 	include ( TwxBase )
+	set ( TWXCore_TEST ON	)
 else ()
   unset ( TWX_TEST_PATHS )
 endif ()
@@ -80,8 +82,9 @@ twx_target_include_src ( test_TwxCore )
 
 target_compile_definitions (
 	test_TwxCore
-	PRIVATE TwxCore_TEST
+	PRIVATE TWX_TEST TwxCore_TEST
 )
+# Testing the path manager is special
 if ( DEFINED TWX_TEST_PATHS )
 	target_compile_definitions (
 		test_TwxCore
@@ -133,7 +136,7 @@ add_test (
 )
 
 # define executables, with or without extension.
-# in the current directory or below
+# in the working directory or below
 set ( main.cp ${CMAKE_CURRENT_LIST_DIR}/Test/main.cpp )
 add_executable ( TwxCore_auxiliary           ${main.cp} )
 add_executable ( TwxCore_auxiliary_program   ${main.cp} )

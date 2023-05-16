@@ -18,7 +18,7 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#include "Core/TwxFileRecordDB.h"
+#include "Core/TwxAssetsTrackDB.h"
 #include "Core/TwxConst.h"
 #include "Core/TwxTool.h"
 
@@ -35,24 +35,25 @@
 namespace Twx {
 namespace Core {
 
-const int FileRecordDB::version = 1;
+const int AssetsTrackDB::version = 1;
 
 #if defined(TwxCore_TEST)
-const QString FileRecordDB::saveComponent = 
+const QString AssetsTrackDB::saveComponent = 
 #else
 static auto const saveComponent = 
 #endif
-QStringLiteral("TwxFileRecordDB.json");
+QStringLiteral("TwxAssetsTrackDB.json");
 
+// next are static keys local to this code unit
 namespace Key {
 	static const QString path     = QStringLiteral("path");
 	static const QString version  = QStringLiteral("version");
 	static const QString checksum = QStringLiteral("checksum");
 	static const QString hash     = QStringLiteral("hash");
-	static const QString FileRecordDB = QStringLiteral("TwxFileRecordDB");
+	static const QString AssetsTrackDB = QStringLiteral("TwxAssetsTrackDB");
 }
 
-FileRecordDB::FileRecordDB( const QDir & dir)
+AssetsTrackDB::AssetsTrackDB( const QDir & dir)
 : dir_m(dir)
 {}
 
@@ -60,16 +61,16 @@ FileRecordDB::FileRecordDB( const QDir & dir)
  * Each line starting with a `#` is a comment
  * Other lines: <version><space><hash><space><file path>
  */
-FileRecordDB FileRecordDB::load(const QString & path)
+AssetsTrackDB AssetsTrackDB::load(const QString & path)
 {	
 	QDir rootDir(QFileInfo(path).absoluteDir());
 	QDir rootPath(rootDir.absolutePath());
-	FileRecordDB frdb(rootDir);
+	AssetsTrackDB frdb(rootDir);
   QFile f(path);
 	if (f.open(QIODevice::ReadOnly)) {
 		auto bytes = f.readAll();
 		auto o = QJsonDocument::fromJson(bytes).object();
-		if (o.value(Key::__type) == Key::FileRecordDB) {
+		if (o.value(Key::__type) == Key::AssetsTrackDB) {
 			auto ra = o.value(Key::__data).toArray();
       for (auto v: ra) {
 				auto o = v.toObject();
@@ -85,10 +86,10 @@ FileRecordDB FileRecordDB::load(const QString & path)
 	return frdb;
 }
 
-FileRecordDB FileRecordDB::load_legacy(const QString & path)
+AssetsTrackDB AssetsTrackDB::load_legacy(const QString & path)
 {
 	QDir rootDir(QFileInfo(path).absoluteDir());
-	FileRecordDB frdb(rootDir);
+	AssetsTrackDB frdb(rootDir);
 
 	QFile f(path);
 	if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -112,7 +113,7 @@ FileRecordDB FileRecordDB::load_legacy(const QString & path)
 	return frdb;
 }
 
-bool FileRecordDB::save_legacy(const QString & path) const
+bool AssetsTrackDB::save_legacy(const QString & path) const
 {
 	QFile f(path);
 	if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -120,32 +121,32 @@ bool FileRecordDB::save_legacy(const QString & path) const
 	}
 	QTextStream strm(&f);
 	QDir rootDir(QFileInfo(path).absoluteDir());
-	for ( const auto & record: fileRecords_m ) {
-		QString filePath = record.fileInfo.absoluteFilePath();
-		strm << record.version      << " "
-		     << record.hash.bytes << " "
+	for ( const auto & track: assetsTracks_m ) {
+		QString filePath = track.fileInfo.absoluteFilePath();
+		strm << track.version      << " "
+		     << track.hash.bytes << " "
 				 << rootDir.relativeFilePath(filePath) << Qt::endl;
 	}
 	f.close();
 	return true;
 }
 
-bool FileRecordDB::save(const QString & path) const
+bool AssetsTrackDB::save(const QString & path) const
 {
 	QDir rootDir(QFileInfo(path).absoluteDir());
 
 	QJsonArray ra;
-	for (auto const & record: fileRecords_m) {
+	for (auto const & track: assetsTracks_m) {
 		ra.append(QJsonObject{
-			{Key::path, rootDir.relativeFilePath(record.fileInfo.absoluteFilePath())},
-			{Key::version, record.version},
-			{Key::checksum, QString(record.checksum.bytes)},
+			{Key::path, rootDir.relativeFilePath(track.fileInfo.absoluteFilePath())},
+			{Key::version, track.version},
+			{Key::checksum, QString(track.checksum.bytes)},
 		});
 	};
 	QJsonDocument d(QJsonObject{
     {Key::__status, QStringLiteral("READ ONLY file for Twx")},
     {Key::__version, version},
-    {Key::__type, Key::FileRecordDB},
+    {Key::__type, Key::AssetsTrackDB},
     {Key::__data, ra},
 	});
 	QSaveFile f(path);
@@ -157,12 +158,12 @@ bool FileRecordDB::save(const QString & path) const
 	return false;
 }
 
-FileRecordDB FileRecordDB::load(const QDir & dir)
+AssetsTrackDB AssetsTrackDB::load(const QDir & dir)
 {
 	auto frdb = load(
 		dir.absoluteFilePath(saveComponent)
 	);
-  if (frdb.fileRecords_m.empty()) {
+  if (frdb.assetsTracks_m.empty()) {
 		frdb = load_legacy(
 			dir.absoluteFilePath(QStringLiteral("TwFileVersion.db"))
 		);
@@ -170,12 +171,12 @@ FileRecordDB FileRecordDB::load(const QDir & dir)
 	return frdb;
 }
 
-bool FileRecordDB::save() const
+bool AssetsTrackDB::save() const
 {
 	return save (dir_m.absoluteFilePath(saveComponent));
 }
 
-void FileRecordDB::add(
+void AssetsTrackDB::add(
 	const QFileInfo & fileInfo,
 	const QString   & version,
 	const Checksum  & checksum,
@@ -183,51 +184,81 @@ void FileRecordDB::add(
 )
 {
 	// remove all existing entries for this file
-	QMutableListIterator<FileRecord> it(fileRecords_m);
+	QMutableListIterator<AssetsTrack> it(assetsTracks_m);
 	while (it.hasNext()) {
-		const FileRecord & fileRecord = it.next();
+		const AssetsTrack & fileRecord = it.next();
 		if (fileInfo.absoluteFilePath() == fileRecord.fileInfo.absoluteFilePath()) {
 			it.remove();
 		}
 	}
-	fileRecords_m.append(FileRecord{
+	assetsTracks_m.append(AssetsTrack{
 		fileInfo, version, checksum, hash
 	});
 }
 
-bool FileRecordDB::knows(const QFileInfo & fileInfo) const
+bool AssetsTrackDB::knows(const QFileInfo & fileInfo) const
 {
-	for ( const auto & fileRecord: fileRecords_m) {
+	for ( const auto & fileRecord: assetsTracks_m) {
 		if (fileInfo.filePath() == fileRecord.fileInfo.filePath())
 			return true;
 	}
 	return false;
 }
 
-const FileRecord & FileRecordDB::get(const QFileInfo & fileInfo) const
+const AssetsTrack & AssetsTrackDB::get(const QFileInfo & fileInfo) const
 {
-	for ( const auto & fileRecord: fileRecords_m) {
+	for ( const auto & fileRecord: assetsTracks_m) {
 		if (fileInfo.filePath() == fileRecord.fileInfo.filePath())
 			return fileRecord;
 	}
-	static FileRecord fileRecord;
+	static AssetsTrack fileRecord;
 	return fileRecord;
 }
 
+void AssetsTrackDB::adjust(const QDir & factoryDir)
+{
+	// Now, remove all tracked files that are no longer in the factory
+	// that are unmodified on disk and were
+	// removed upstream
+	QMutableListIterator<AssetsTrack> it(assetsTracks_m);
+	while (it.hasNext()) {
+		const auto & track = it.next();
+		QString trackPath  = track.fileInfo.absoluteFilePath();
+
+		// If the factory file still exists there is nothing to do here
+		QString relativePath = dir_m.relativeFilePath(trackPath);
+		if (factoryDir.exists(relativePath))
+			continue;
+
+		// If the factory file no longer exists but the track is up to
+		// date, remove the track and its associate file
+		if (track.fileInfo.exists()) {
+			if ( (!track.hash.bytes.isEmpty()
+						&& hashForFilePath(trackPath) == track.hash)
+			  || (!track.checksum.bytes.isEmpty()
+						&& checksumForFilePath(trackPath) == track.checksum)	)
+			{
+				QFile(trackPath).remove();
+				it.remove();
+			}
+		}
+	}
+}
+
 #if defined (TwxCore_TEST)
-void FileRecordDB::removeStorage() const
+void AssetsTrackDB::removeStorage() const
 {
   QFile::remove(
 		dir_m.absolutePath() + QDir::separator() + saveComponent
 	);
 }
-QList<FileRecord> & FileRecordDB::getList()
+QList<AssetsTrack> & AssetsTrackDB::getList()
 {
-	return fileRecords_m;
+	return assetsTracks_m;
 }
-const QList<FileRecord> & FileRecordDB::getList() const
+const QList<AssetsTrack> & AssetsTrackDB::getList() const
 {
-	return fileRecords_m;
+	return assetsTracks_m;
 }
 #endif
 

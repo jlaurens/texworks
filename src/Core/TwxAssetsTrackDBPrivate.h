@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2023  Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2023  Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,16 +20,25 @@
 */
 
 /** \brief Private interface */
-
 private:
 
-	static const QString getLibraryRootPath();
-	// the return value is sorted from new to old
-	static const QStringList getLegacyLibraryRootPaths();
-	static bool shouldMigrateLegacyLibrary();
-	static void migrateLegacyLibrary();
-	static void updateLibraryResources(const QDir& srcRootDir, const QDir& destRootDir, const QString& libPath);
+  static const int version;
+
+  QList<AssetsTrack> assetsTracks_m;
+  QDir              dir_m;
+
+	bool save(const QString & path) const;
+	static AssetsTrackDB load(const QString & path);
+	bool save_legacy(const QString & path) const;
+  static AssetsTrackDB load_legacy(const QString & path);
 
 #if defined(TwxCore_TEST)
-	friend class Test::Main;
+	static const QString saveComponent;
+	QList<AssetsTrack> & getList();
+	const QList<AssetsTrack> & getList() const;
+  void removeStorage() const;
+
+  friend class Test::Main;
+	friend bool operator==(const AssetsTrackDB & frdb1, const AssetsTrackDB & frdb2);
+
 #endif

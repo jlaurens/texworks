@@ -29,25 +29,25 @@
 #include <QString>
 
 /** \brief Alternate to `TW`
- * 
- * \note New technologies belong here.
- * Old technologies should migrate to this new namespace
- * once properly refactored and documented.
-*/
+ 	* 
+ 	* \note New technologies belong here.
+ 	* Old technologies should migrate to this new namespace
+ 	* once properly refactored and documented.
+	*/
 namespace Twx {
 /** \brief Core technologies
-*/
+	*/
 namespace Core {
 
 extern const QString dot;
 
 /** \brief
- * Strings that are used as keys in various places,
- * for example in the settings.
- * 
- * \note Using keys instead of `QStringLiteral` and friends
- * let the compiler check for typing errors.
-*/
+ 	* Strings that are used as keys in various places,
+ 	* for example in the settings.
+ 	* 
+ 	* \note Using keys instead of `QStringLiteral` and friends
+ 	* let the compiler check for typing errors.
+	*/
 namespace Key {
 
 	extern const QString __data;

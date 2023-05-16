@@ -31,6 +31,7 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QMessageBox>
+#include <QCoreApplication>
 
 #include <QDebug>
 
@@ -42,15 +43,35 @@ namespace Key {
 	const QString defaultbinpaths    = QStringLiteral("defaultbinpaths");
 }
 
+namespace P {
+	static QStringList rawBinaryPaths;
+}
+
+void PathManager::setup(const Settings & settings)
+{
+	if (settings.contains(Key::defaultbinpaths)) {
+		P::rawBinaryPaths = settings.value(Key::defaultbinpaths).toString().split(QDir::listSeparator(), Qt::SkipEmptyParts);
+	}
+}
+
+QDir PathManager::getApplicationDir()
+{
+	static QString path;
+	if (path.isEmpty()) {
+#if defined(Q_OS_DARWIN)
+	return path = QDir(QCoreApplication::applicationDirPath() + QStringLiteral("/../../..")).absolutePath(); // move up to dir containing the .app package
+#else
+	return path = QDir(QCoreApplication::applicationDirPath()).absolutePath();
+#endif
+	}
+  return QDir(path);
+}
+
 static const QStringList factoryBinaryPaths = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
 
 #if defined(TwxCore_TEST)
 QStringList PathManager::factoryBinaryPathsTest = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS_TEST@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
 #endif
-
-namespace P {
-	static QStringList rawBinaryPaths;
-}
 
 #if defined(TwxCore_TEST)
 QStringList PathManager::messages_m;

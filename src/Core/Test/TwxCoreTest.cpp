@@ -25,7 +25,7 @@
 
 #include "Core/TwxConst.h"
 #include "Core/TwxTool.h"
-#include "Core/TwxFileRecordDB.h"
+#include "Core/TwxAssetsTrackDB.h"
 #include "Core/TwxInfo.h"
 #include "Core/TwxSettings.h"
 #include "Core/TwxPathManager.h"
@@ -41,18 +41,18 @@ bool operator==(const Checksum & c1, const Checksum & c2)
 {
 	return c1.bytes == c2.bytes;
 }
-bool operator==(const FileRecord & r1, const FileRecord & r2)
+bool operator==(const AssetsTrack & r1, const AssetsTrack & r2)
 {
 	return r1.fileInfo.absolutePath() == r2.fileInfo.absolutePath()
 		&& r1.version  == r2.version
 		&& r1.checksum == r2.checksum
 		&& r1.hash     == r2.hash;
 }
-bool operator==(const FileRecordDB & frdb1, const FileRecordDB & frdb2)
+bool operator==(const AssetsTrackDB & frdb1, const AssetsTrackDB & frdb2)
 {
 	return frdb1.getList() == frdb2.getList();
 }
-QDebug operator<< (QDebug d, const FileRecord &model) {
+QDebug operator<< (QDebug d, const AssetsTrack &model) {
     d << Qt::endl << model.fileInfo.filePath()
 		  << ":{" << model.version
 		  << "," << model.checksum.bytes
@@ -143,19 +143,19 @@ void Main::testTool()
 	}
 }
 
-using FRDB = FileRecordDB;
+using FRDB = AssetsTrackDB;
 
-void Main::testFileRecordDB()
+void Main::testAssetsTrackDB()
 {
   QDir dir;
-  QVERIFY(dir.cd(QStringLiteral("FileRecordDB")));
+  QVERIFY(dir.cd(QStringLiteral("AssetsTrackDB")));
 	QVERIFY(dir.cd(QStringLiteral("A")));
-  auto frdb = FileRecordDB::load(dir);
+  auto frdb = AssetsTrackDB::load(dir);
 	frdb.removeStorage();
-	frdb = FileRecordDB::load(dir);
+	frdb = AssetsTrackDB::load(dir);
 	QVERIFY(frdb.getList().empty());
 	QVERIFY(frdb.save());
-	frdb = FileRecordDB::load(dir);
+	frdb = AssetsTrackDB::load(dir);
 	QVERIFY(frdb.getList().empty());
 	auto path = QStringLiteral("1");
 	auto fileInfo = QFileInfo(dir.absolutePath(), path);
@@ -164,17 +164,17 @@ void Main::testFileRecordDB()
 	frdb.add(fileInfo, version, checksum);
 	QVERIFY(frdb.knows(fileInfo));
 	auto record = frdb.get(fileInfo);
-	QCOMPARE(record, (FileRecord{
+	QCOMPARE(record, (AssetsTrack{
 		fileInfo,
 		version,
 		checksum,
 		Hash{}
 	}));
 	QVERIFY(frdb.save());
-	frdb = FileRecordDB::load(dir);
+	frdb = AssetsTrackDB::load(dir);
 	QVERIFY(frdb.knows(fileInfo));
 	record = frdb.get(fileInfo);
-	QCOMPARE(record, (FileRecord{
+	QCOMPARE(record, (AssetsTrack{
 		fileInfo,
 		version,
 		checksum,
@@ -187,7 +187,7 @@ void Main::testFileRecordDB()
 	QCOMPARE(frdb.getList().size(), 1);
 	QVERIFY(frdb.knows(fileInfo));
 	record = frdb.get(fileInfo);
-	QCOMPARE(record, (FileRecord{
+	QCOMPARE(record, (AssetsTrack{
 		fileInfo,
 		version,
 		checksum,
@@ -195,17 +195,17 @@ void Main::testFileRecordDB()
 	}));
 }
 
-void Main::testFileRecordDB_comparisons()
+void Main::testAssetsTrackDB_comparisons()
 {
 	auto fileInfo = QFileInfo(QStringLiteral("blablabla"));
 	auto version  = QStringLiteral("9871");
 	auto checksum = Checksum{"2023"};
 	auto hash     = Hash{"1789"};
 
-	FileRecord r1 = { fileInfo,    version,   checksum,     Hash{} };
-	FileRecord r2 = { fileInfo,    version,   Checksum{},   hash   };
-	FileRecord r3 = { fileInfo,    QString(), checksum,     hash   };
-	FileRecord r4 = { QFileInfo(), version,   checksum,     hash   };
+	AssetsTrack r1 = { fileInfo,    version,   checksum,     Hash{} };
+	AssetsTrack r2 = { fileInfo,    version,   Checksum{},   hash   };
+	AssetsTrack r3 = { fileInfo,    QString(), checksum,     hash   };
+	AssetsTrack r4 = { QFileInfo(), version,   checksum,     hash   };
 
 	QVERIFY(r1 == r1);
 	QVERIFY(r2 == r2);
@@ -220,44 +220,44 @@ void Main::testFileRecordDB_comparisons()
 	QVERIFY(!(r3 == r4));
 }
 
-void Main::testFileRecordDB_add()
+void Main::testAssetsTrackDB_add()
 {
-	FileRecordDB frdb((QDir()));
+	AssetsTrackDB frdb((QDir()));
 	QFileInfo fileInfo(QStringLiteral(".........."));
-	FileRecord empty;
-	FileRecord r1 =    { fileInfo,    QStringLiteral("v1"), Checksum{}, Hash{}};
-	FileRecord r2 =    { fileInfo,    QString(), Checksum{}, Hash{"814514754a5680a57d172b6720d48a8d"}};
+	AssetsTrack empty;
+	AssetsTrack r1 =    { fileInfo,    QStringLiteral("v1"), Checksum{}, Hash{}};
+	AssetsTrack r2 =    { fileInfo,    QString(), Checksum{}, Hash{"814514754a5680a57d172b6720d48a8d"}};
 
 	QVERIFY (frdb.knows(r1.fileInfo) == false);
 	QCOMPARE(frdb.get(r1.fileInfo), empty);
-	QCOMPARE(frdb.getList(), QList<FileRecord>());
+	QCOMPARE(frdb.getList(), QList<AssetsTrack>());
 	frdb.add(r1.fileInfo, r1.version, r1.checksum, r1.hash);
 	QVERIFY(frdb.knows(r1.fileInfo));
 	QCOMPARE(frdb.get(r1.fileInfo), r1);
-	QCOMPARE(frdb.getList(), QList<FileRecord>{r1});
+	QCOMPARE(frdb.getList(), QList<AssetsTrack>{r1});
 	frdb.add(r2.fileInfo, r2.version, r2.checksum, r2.hash);
 	QVERIFY(frdb.knows(r2.fileInfo));
 	QCOMPARE(frdb.get(r2.fileInfo), r2);
-	QCOMPARE(frdb.getList(), QList<FileRecord>{r2});
+	QCOMPARE(frdb.getList(), QList<AssetsTrack>{r2});
 }
 
-void Main::testFileRecordDB_load()
+void Main::testAssetsTrackDB_load()
 {
-	QCOMPARE(FileRecordDB::load(QStringLiteral("does-not-exist")).getList(), QList<FileRecord>());
+	QCOMPARE(AssetsTrackDB::load(QStringLiteral("does-not-exist")).getList(), QList<AssetsTrack>());
 
-	FileRecordDB frdb((QDir()));
+	AssetsTrackDB frdb((QDir()));
 	frdb.add(QFileInfo(QStringLiteral("/spaces test.tex")), QStringLiteral("v1"),  Checksum{}, Hash{"d41d8cd98f00b204e9800998ecf8427e"});
 	frdb.add(QFileInfo(QStringLiteral("base14-fonts.pdf")), QStringLiteral("4.2"), Checksum{}, Hash{"814514754a5680a57d172b6720d48a8d"});
 
-	QCOMPARE(FileRecordDB::load_legacy(QStringLiteral("fileversion.db")), frdb);
+	QCOMPARE(AssetsTrackDB::load_legacy(QStringLiteral("fileversion.db")), frdb);
 
 	// QEXPECT_FAIL("", "Invalid file version databases are not recognized", Continue);
-	QCOMPARE(FileRecordDB::load(QStringLiteral("script.js")), FileRecordDB(QDir()));
+	QCOMPARE(AssetsTrackDB::load(QStringLiteral("script.js")), AssetsTrackDB(QDir()));
 }
 
-void Main::testFileRecordDB_save()
+void Main::testAssetsTrackDB_save()
 {
-	FileRecordDB frdb((QDir()));
+	AssetsTrackDB frdb((QDir()));
 	frdb.add(QFileInfo(QStringLiteral("/spaces test.tex")), QStringLiteral("v1"), Checksum{}, Hash{"d41d8cd98f00b204e9800998ecf8427e"});
 	frdb.add(QFileInfo(QStringLiteral("base14-fonts.pdf")), QStringLiteral("4.2"), Checksum{}, Hash{"814514754a5680a57d172b6720d48a8d"});
 
@@ -267,7 +267,7 @@ void Main::testFileRecordDB_save()
 	tmpFile.open();
 	tmpFile.close();
 	QVERIFY(frdb.save_legacy(tmpFile.fileName()));
-	QCOMPARE(FileRecordDB::load_legacy(tmpFile.fileName()), frdb);
+	QCOMPARE(AssetsTrackDB::load_legacy(tmpFile.fileName()), frdb);
 }
 
 void Main::testPathManager_setRawBinaryPaths()

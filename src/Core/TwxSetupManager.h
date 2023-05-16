@@ -18,30 +18,35 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+/** \file
+  * \brief Setup support
+  * 
+  * 
+  */
+#ifndef TwxCore_Setup_H
+#define TwxCore_Setup_H
 
-/** \brief Private interface */
-private:
+#include <QString>
 
-  static const int version;
+namespace Twx {
+namespace Core {
 
-	FileRecordDB(const QDir & dir);
-	virtual ~FileRecordDB() = default;
+/** \brief Setup manager
+ 	* 
+ 	* Manage the `texworks-setup.ini` that is read very early.
+	* This file does not depend on the operating system.
+	*/
+class SetupManager
+{
+public:
+/** \brief Initialize the state with `texworks-setup.ini`
+ 	* 
+ 	* 
+	*/
+	static void initialize();
+};
 
-  QList<FileRecord> fileRecords_m;
-  QDir              dir_m;
+} // namespace Core
+} // namespace Twx
 
-	bool save(const QString & path) const;
-	static FileRecordDB load(const QString & path);
-	bool save_legacy(const QString & path) const;
-  static FileRecordDB load_legacy(const QString & path);
-
-#if defined(TwxCore_TEST)
-	static const QString saveComponent;
-	QList<FileRecord> & getList();
-	const QList<FileRecord> & getList() const;
-  void removeStorage() const;
-
-  friend class Test::Main;
-	friend bool operator==(const FileRecordDB & frdb1, const FileRecordDB & frdb2);
-
-#endif
+#endif // TwxCore_Setup_H

@@ -39,8 +39,11 @@
 #include "utils/VersionInfo.h"
 #include "utils/WindowManager.h"
 
+#include "Core/TwxInfo.h"
 #include "Core/TwxPathManager.h"
 using PathManager = Twx::Core::PathManager;
+#include "Core/AssetsLookup.h"
+using AssetsLookup = Twx::Core::AssetsLookup;
 #include <QAction>
 #include <QDesktopServices>
 #include <QEvent>
@@ -69,8 +72,6 @@ extern QString GetMacOSVersionString();
 #define VER_SUITE_WH_SERVER 0x00008000
 #endif
 #endif
-
-#define SETUP_FILE_NAME "texworks-setup.ini"
 
 TWApp *TWApp::theAppInstance = nullptr;
 
@@ -146,13 +147,8 @@ TWApp::~TWApp()
 
 void TWApp::init()
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
+	Info::initApplication();
 
-	QIcon::setThemeName(QStringLiteral("tango-texworks"));
 	QIcon appIcon;
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 	// The Compiz window manager doesn't seem to support icons larger than
@@ -162,51 +158,14 @@ void TWApp::init()
 	appIcon.addFile(QString::fromLatin1(":/images/images/TeXworks.png"));
 	setWindowIcon(appIcon);
 
-	setOrganizationName(QString::fromLatin1("TUG"));
-	setOrganizationDomain(QString::fromLatin1("tug.org"));
-	setApplicationName(QStringLiteral("TeXworks"));
+	SetupManager::initialize();
 
-	// <Check for portable mode>
-#if defined(Q_OS_DARWIN)
-	QDir appDir(applicationDirPath() + QLatin1String("/../../..")); // move up to dir containing the .app package
-#else
-	QDir appDir(applicationDirPath());
-#endif
-	QDir iniPath(appDir.absolutePath());
-	QDir libPath(appDir.absolutePath());
-	if (appDir.exists(QString::fromLatin1(SETUP_FILE_NAME))) {
-		QSettings portable(appDir.filePath(QString::fromLatin1(SETUP_FILE_NAME)), QSettings::IniFormat);
-		if (portable.contains(QString::fromLatin1("inipath"))) {
-			if (iniPath.cd(portable.value(QString::fromLatin1("inipath")).toString())) {
-				Tw::Settings::setDefaultFormat(QSettings::IniFormat);
-				Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniPath.absolutePath());
-			}
-		}
-		if (portable.contains(QString::fromLatin1("libpath"))) {
-			if (libPath.cd(portable.value(QString::fromLatin1("libpath")).toString())) {
-				Tw::Utils::ResourcesLibrary::setPortableLibPath(libPath.absolutePath());
-			}
-		}
-		if (portable.contains(QString::fromLatin1("defaultbinpaths"))) {
-			defaultBinPaths = std::unique_ptr<QStringList>(new QStringList);
-			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(QDir::listSeparator(), SkipEmptyParts);
-		}
-	}
-	QString envPath = QString::fromLocal8Bit(getenv("TW_INIPATH"));
-	if (!envPath.isNull() && iniPath.cd(envPath)) {
-		Tw::Settings::setDefaultFormat(QSettings::IniFormat);
-		Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniPath.absolutePath());
-	}
-	envPath = QString::fromLocal8Bit(getenv("TW_LIBPATH"));
-	if (!envPath.isNull() && libPath.cd(envPath)) {
-		Tw::Utils::ResourcesLibrary::setPortableLibPath(libPath.absolutePath());
-	}
 	// </Check for portable mode>
 
 	// Required for TWUtils::getLibraryPath()
 	theAppInstance = this;
 
-	Tw::Settings settings;
+	Twx::Core::Settings settings;
 
 	QString locale = settings.value(QString::fromLatin1("locale"), QLocale::system().name()).toString();
 	applyTranslation(locale);

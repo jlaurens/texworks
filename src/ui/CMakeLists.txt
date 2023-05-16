@@ -49,6 +49,7 @@ if ( NOT TWX_IS_BASED )
 	include ( TwxBase )
 
   set ( TWX_TEST ON	)
+  set ( TwxUI_TEST ON	)
 	set ( TwxUI_TEST_IS_ROOT ON )
 	enable_testing ()
 	include ( TwxQTLib )
@@ -58,6 +59,7 @@ if ( NOT TWX_IS_BASED )
 elseif ( TWX_TEST )
 	project ( TwxUI_Test )
 	include ( TwxBase )
+  set ( TwxUI_TEST ON	)
 endif ()
 
 include ( SrcTwxUISetup )
@@ -97,7 +99,7 @@ twx_target_include_src ( test_TwxUI )
 
 target_compile_definitions (
 	test_TwxUI
-	PRIVATE TwxUI_TEST
+	PRIVATE TWX_TEST TwxUI_TEST
 )
 
 # if ( QT_VERSION_MAJOR EQUAL 6 )

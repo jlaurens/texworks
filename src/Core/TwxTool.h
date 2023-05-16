@@ -31,14 +31,24 @@
 namespace Twx {
 namespace Core {
 
-/** \brief A md5 checksum wrapper */
+/** \brief A md5 checksum wrapper
+ * 
+ * `==` and `!=` operators are implemented.
+ */
 struct Hash {
   QByteArray bytes;
+  bool operator==(const Hash &);
+  bool operator!=(const Hash &);
 };
 
-/** \brief A sha 256 wrapper */
+/** \brief A sha 256 wrapper
+ * 
+ * `==` and `!=` operators are implemented.
+ */
 struct Checksum {
   QByteArray bytes;
+  bool operator==(const Checksum &);
+  bool operator!=(const Checksum &);
 };
 
 /** \brief md5 checksum of a byte array

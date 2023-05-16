@@ -40,6 +40,9 @@ Input files will preferably contain `@TWX_CFG_<key>@` placeholders.
   - `COPYRIGHT_YEARS`
   - `COPYRIGHT_HOLDERS`
   - `AUTHORS`
+- Organization (static values)
+  - `ORGANIZATION_DOMAIN`
+  - `ORGANIZATION_NAME`
 - Version (static values)
   - `VERSION_MAJOR`
   - `VERSION_MINOR`
@@ -63,14 +66,15 @@ From these are built
   - `DOC_ICO`
   - `APP_ICO`
   - `WIN_MANIFEST`
+  - `APPLICATION_IMAGE`
+  - `APPLICATION_IMAGE_128`
 
-NB: This is not base dependent.
-*/
+NB: This does not depend on `TwxBase`.
+*//*
 
 Implementation detail:
 - one key is not a substring of another.
 
-/*
 #]===============================================]
 
 # ANCHOR: twx_configure_file_default_ini
@@ -231,6 +235,9 @@ ${TWX_CFG_VERSION_MINOR}"
     twx_export ( TWX_BUILD_ID )
   endif ()
   twx_cfg_set ( BUILD_ID "${TWX_BUILD_ID}" )
+  twx_cfg_set ( APPLICATION_IMAGE ":/images/images/${PROJECT_NAME}.png" )
+  twx_cfg_set ( APPLICATION_IMAGE_128 ":/images/images/${PROJECT_NAME}-128.png")
+  "");
   twx_cfg_write_end ( "static" )
   set (
     TWX_${PROJECT_NAME}_PREPARE_CONFIGURE_FILE_DONE
