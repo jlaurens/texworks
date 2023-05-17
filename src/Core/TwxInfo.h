@@ -29,6 +29,7 @@
 
 #include <QDateTime>
 #include <QString>
+#include <QCoreApplication>
 
 namespace Twx {
 
@@ -59,99 +60,100 @@ public:
 	* 
 	* Appears at different places (dialog and files).
 	*/
-	static const QString name();
+	static const QString name;
   
+/** \brief The name of the organization
+	* 
+	* Appears at different places (dialog and files).
+	*/
+	static const QString organizationName;
+  
+/** \brief The domain of the organization
+	* 
+	* Appears at different places (dialog and files).
+	*/
+	static const QString organizationDomain;
+  
+/** \brief The list of authors
+	* 
+	* See \ref copyrightHolders.
+	*/
+	static const QString authors;
+
+/** \brief The copyright years
+	* 
+	* As a range like "2008-2023".
+	*/
+	static const QString copyrightYears;
+
+/** \brief The list of authors
+	* 
+	* Appears in various places.
+	* See \ref authors.
+	*/
+	static const QString copyrightHolders;
+	
+/** \brief The M in M.m.P.T */
+	static int versionMajor;
+
+/** \brief The m in M.m.P.T */
+	static int versionMinor;
+
+/** \brief The P in M.m.P.T */
+  static int versionPatch;
+
+/** \brief Deprecated
+	* 
+	* Synonym of `versionPatch`
+	*/
+	static int versionBugfix;
+
+/** \brief The T in M.m.P.T
+	* 
+	* Not yet used.
+	*/
+  static int versionTweak;
+
+/** \brief A 0xMMNNPP version */
+	static int versionMNP;
+
+/** \brief A 0xMMNNPPTT version */
+	static int versionMNPT;
+
+/** \brief The  M.m.P version */
+	static const QString version;
+
+/** \brief The  M.m.P.T version
+	* 
+	* If there is no T, this is equivalent to `version`
+	*/
+	static const QString versionFull;
+
+/** \brief The build identifier (CMake TW_BUIL_ID) */
+	static const QString buildId;
+	
+/** \brief The latest git commit hash at build time */
+	static const QString gitHash;
+
+/** \brief The latest git commit date at build time */
+	static const QDateTime gitDate;
+
+/** \brief The git branch at build time
+	* 
+	* This is not always `main`.
+	*/
+	static const QString gitBranch;
+
 /** \brief Initialize the applications
 	* 
 	* Set the application name, organization name and domain.
 	* \note
 	* On windows and macOS these are also set while testing because
 	* the manifest and the plist are not available.
+	* \param application
 	*/
-	static void initApplication ();
+	static void initApplication(QCoreApplication & application);
   
-/** \brief The name of the organization
-	* 
-	* Appears at different places (dialog and files).
-	*/
-	static const QString organizationName();
-  
-/** \brief The domain of the organization
-	* 
-	* Appears at different places (dialog and files).
-	*/
-	static const QString organizationDomain();
-  
-/** \brief The list of authors
-	* 
-	* See \ref copyrightHolders().
-	*/
-	static const QString authors();
-
-/** \brief The copyright years
-	* 
-	* As a range like "2008-2023".
-	*/
-	static const QString copyrightYears();
-
-/** \brief The list of authors
-	* 
-	* Appears in various places.
-	* See \ref authors().
-	*/
-	static const QString copyrightHolders();
-	
-/** \brief The M in M.m.P.T */
-	static int versionMajor();
-
-/** \brief The m in M.m.P.T */
-	static int versionMinor();
-
-/** \brief The P in M.m.P.T */
-  static int versionPatch();
-
-/** \brief Deprecated
-	* 
-	* Synonym of `versionPatch()`
-	*/
-	static int versionBugfix();
-
-/** \brief The T in M.m.P.T
-	* 
-	* Not yet used.
-	*/
-  static int versionTweak();
-
-/** \brief A 0xMMNNPP version */
-	static int versionMNP();
-
-/** \brief A 0xMMNNPPTT version */
-	static int versionMNPT();
-
-/** \brief The  M.m.P version */
-	static const QString version();
-
-/** \brief The  M.m.P.T version
-	* 
-	* If there is no T, this is equivalent to `version()`
-	*/
-	static const QString versionFull();
-
-/** \brief The build identifier (CMake TW_BUIL_ID) */
-	static const QString buildId();
-	
-/** \brief The latest git commit hash at build time */
-	static const QString   gitHash();
-
-/** \brief The latest git commit date at build time */
-	static const QDateTime gitDate();
-
-/** \brief The git branch at build time
-	* 
-	* This is not always `main`.
-	*/
-	static const QString   gitBranch();
-
 #if defined(TwxCore_TEST)
   friend class Test::Main;
 #endif

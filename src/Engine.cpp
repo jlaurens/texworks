@@ -103,7 +103,7 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	QString workingDir = input.canonicalPath();
 #if defined(Q_OS_WIN)
 	// files in the root directory of the current drive have to be handled specially
-	// because QFileInfo::canonicalPath() returns a path without trailing slash
+	// because QFileInfo::canonicalPath returns a path without trailing slash
 	// (i.e., a bare drive letter)
 	if (workingDir.length() == 2 && workingDir.endsWith(QChar::fromLatin1(':')))
 		workingDir.append(QChar::fromLatin1('/'));

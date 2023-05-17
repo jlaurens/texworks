@@ -29,7 +29,7 @@ This process will transform `foo.in.bar` from the source
 directory into `foo.bar` of the binary directory
 through `configure_file`.
 
-Here is the static list of recognized keys from `<project name>.ini`.
+Here is the factory list of recognized keys from `<project name>.ini`.
 Other keys can be used but they must be managed elsewhere.
 For each `<key>` we have both `TWX_<project_name>_<key>` and
 `TWX_CFG_<key>` to store the value.
@@ -177,6 +177,7 @@ function ( twx_configure_file_begin )
     key
     VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK
     COPYRIGHT_YEARS COPYRIGHT_HOLDERS AUTHORS
+    ORGANIZATION_DOMAIN ORGANIZATION_NAME
   )
     if ( DEFINED TWX_CFG_${key} )
       twx_cfg_set ( "${key}" "${TWX_CFG_${key}}" )
@@ -206,9 +207,9 @@ function ( twx_configure_file_begin )
     endif ()
   endforeach ()
   if ( "${GIT_OK}" STREQUAL "" )
-    set ( GIT_OK 0 )
+    set ( GIT_OK ${TWX_CFG_CPP_FALSY} )
   else ()
-    set ( GIT_OK 1 )
+    set ( GIT_OK ${TWX_CFG_CPP_TRUTHY} )
   endif()
   twx_cfg_set ( GIT_OK "${GIT_OK}" )
   # ANCHOR: Derived version strings, including a short one
@@ -237,8 +238,7 @@ ${TWX_CFG_VERSION_MINOR}"
   twx_cfg_set ( BUILD_ID "${TWX_BUILD_ID}" )
   twx_cfg_set ( APPLICATION_IMAGE ":/images/images/${PROJECT_NAME}.png" )
   twx_cfg_set ( APPLICATION_IMAGE_128 ":/images/images/${PROJECT_NAME}-128.png")
-  "");
-  twx_cfg_write_end ( "static" )
+  twx_cfg_write_end ( "factory" )
   set (
     TWX_${PROJECT_NAME}_PREPARE_CONFIGURE_FILE_DONE
     ON
@@ -385,6 +385,8 @@ function ( twx_configure_file_end )
           "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
           "-DSOURCE_IN=${${PROJECT_NAME}_configure_file.in}"
           "-DBINARY_OUT=${${PROJECT_NAME}_configure_file.out}"
+          "-DTWX_CONFIG_VERBOSE=${TWX_CONFIG_VERBOSE}"
+          "-DTWX_TEST=${TWX_TEST}"
           -P "${TWX_DIR}/CMake/Include/TwxConfigureFileTool.cmake"
       COMMAND
         "${CMAKE_COMMAND}"

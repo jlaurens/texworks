@@ -40,11 +40,7 @@ private slots:
 
 	void testTool();
 	
-	void testAssetsTrackDB();
-	void testAssetsTrackDB_comparisons();
-	void testAssetsTrackDB_add();
-	void testAssetsTrackDB_load();
-	void testAssetsTrackDB_save();
+	void testInfo();
 
 	void testPathManager_setRawBinaryPaths();
 	void testPathManager_resetDefaultBinaryPaths();
@@ -55,7 +51,13 @@ private slots:
 	void testPathManager_programPath_2();
 	void testPathManager_programPath_3();
 
-	void testInfo();
+	void testAssetsTrackDB();
+	void testAssetsTrackDB_comparisons();
+	void testAssetsTrackDB_add();
+	void testAssetsTrackDB_load();
+	void testAssetsTrackDB_save();
+
+	void testAssets_getPath();
 
 public:
   Main();

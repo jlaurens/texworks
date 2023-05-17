@@ -18,45 +18,51 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#include "Core/TwxSupportManager.h"
+#include "Core/TwxSetup.h"
 
+#include "Core/TwxInfo.h"
 #include "Core/TwxAssetsLookup.h"
+#include "Core/TwxPathManager.h"
 #include "Core/TwxSettings.h"
 
 namespace Twx {
 namespace Core {
 
-namespace Key {
-	static const QString setup   = QStringLiteral("%1-setup.ini").arg(TwxInfo::name().toLower());
+namespace P {
+	static const QString setup   = QStringLiteral("%1-setup.ini").arg(Info::name.toLower());
+}
+namespace K {
 	static const QString inipath = QStringLiteral("inipath");
 }
 /*
 PROBLEM: the TW_INIPATH and <app name>-setup.ini are in conflict.
 */
-static void SetupManager::initialize()
+void Setup::initialize()
 {
-	// <Check for portable mode>
+	// <Check for setup mode>
   QDir appDir = PathManager::getApplicationDir();
 	QDir iniDir(appDir);
-	if (appDir.exists(Key::setup)) {
-		Settings portable(appDir.filePath(Key::setup), QSettings::IniFormat);
-		if (portable.contains(Key::inipath)) {
-			if (iniDir.cd(portable.value(Key::inipath).toString())) {
-				Settings::setDefaultFormat(QSettings::IniFormat);
-				Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniDir.absolutePath());
+	if (appDir.exists(P::setup)) {
+		// this is very unlikely to happen on natural macOS usage
+		// contrary to testing situations.
+		QSettings setupSettings(appDir.filePath(P::setup), QSettings::IniFormat);
+		if (setupSettings.contains(K::inipath)) {
+			if (iniDir.cd(setupSettings.value(K::inipath).toString())) {
+				QSettings::setDefaultFormat(QSettings::IniFormat);
+				QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, iniDir.absolutePath());
 			}
 		}
-		AssetsLookup::setup(portable);
-		PathManager::setup(portable);
+		AssetsLookup::setup(setupSettings);
+		PathManager::setup(setupSettings);
 	}
 	QString envPath = QString::fromLocal8Bit(getenv("TW_INIPATH"));
 	if (!envPath.isNull() && iniDir.cd(envPath)) {
-		Settings::setDefaultFormat(QSettings::IniFormat);
-		Settings::setPath(QSettings::IniFormat, QSettings::UserScope, iniDir.absolutePath());
+		QSettings::setDefaultFormat(QSettings::IniFormat);
+		QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, iniDir.absolutePath());
 	}
 	envPath = QString::fromLocal8Bit(getenv("TW_LIBPATH"));
 	if (!envPath.isNull() && appDir.cd(envPath)) {
-		AssetsLookup::setSetupPath(appDir.absolutePath());
+		AssetsLookup::setSetupLocation(appDir.absolutePath());
 	}
 }
 

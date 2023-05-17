@@ -92,8 +92,8 @@ Mac, packages are self-contained and don't usually install into (separate)
 system directories):
    TeXworks_HELP_DIR     Path where TeXworks looks for help files
                          [share/doc/texworks-help]
-   TeXworks_DIC_DIR      Path where TeXworks looks for spellchecking
-                         dictionaries [/usr/share/myspell/dicts]
+   TeXworks_DIC_DIR      Flat list of paths where TeXworks looks for spellchecking
+                         dictionaries [/usr/share/hunspell:/usr/share/myspell/dicts]
    TeXworks_DOCS_DIR     Path in which documentation files are installed
                          [share/doc/texworks]
    TeXworks_ICON_DIR     Path in which icons are installed [share/pixmaps]

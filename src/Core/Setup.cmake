@@ -45,19 +45,19 @@ twx_configure_file_default_ini (
 
 twx_configure_files (
 	out_twx
+	"${CMAKE_CURRENT_LIST_DIR}/TwxConst.in.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxInfo.in.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxPathManager.in.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxAssetsLookup.in.cpp"
+	 "${CMAKE_CURRENT_LIST_DIR}/TwxPathManager.in.cpp"
 )
 
 list (
 	APPEND TwxCore_SOURCES
-	"${CMAKE_CURRENT_LIST_DIR}/TwxConst.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxTool.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxSettings.cpp"
+	 "${CMAKE_CURRENT_LIST_DIR}/TwxSettings.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxAssetsTrackDB.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxAssets.cpp"
+	# "${CMAKE_CURRENT_LIST_DIR}/TwxSetup.cpp"
 	${out_twx}
-	"${CMAKE_CURRENT_LIST_DIR}/TwxSetupManager.cpp"
 )
 unset ( out_twx )
 
@@ -65,12 +65,12 @@ list (
 	APPEND TwxCore_HEADERS
 	"${CMAKE_CURRENT_LIST_DIR}/TwxConst.h"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxTool.h"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxSettings.h"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxAssetsTrackDB.h"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxInfo.h"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxPathManager.h"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxAssetsLookup.h"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxSetupManager.h"
+	 "${CMAKE_CURRENT_LIST_DIR}/TwxSettings.h"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxAssetsTrackDB.h"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxAssets.h"
+	# "${CMAKE_CURRENT_LIST_DIR}/TwxSetup.h"
 )
 
 twx_append_QT ( REQUIRED Widgets )

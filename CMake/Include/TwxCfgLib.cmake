@@ -38,6 +38,19 @@ set (
   TWX_CFG_CPP_TRUTHY 1
 )
 
+#[=======[
+*//**
+@brief Falsy c++ value
+
+Expression used in `.in.cpp` files for a falsy value.
+*/
+TWX_CFG_CPP_FALSY;
+/*
+#]=======]
+set (
+  TWX_CFG_CPP_FALSY 0
+)
+
 # ANCHOR: twx_cfg_setup
 #[=======[
 *//**
@@ -61,6 +74,7 @@ function ( twx_cfg_setup )
     COMMAND "${CMAKE_COMMAND}"
       "-DPROJECT_NAME=${PROJECT_NAME}"
       "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+      "-DTWX_TEST=${TWX_TEST}"
       -P "${TWX_DIR}/CMake/Include/TwxCfgTool.cmake"
     COMMENT
       "Update ${PROJECT_NAME} cfg information (git)"
@@ -168,9 +182,11 @@ twx_cfg_write_end ( id ) {}
 #]=======]
 function ( twx_cfg_write_end id_ )
   twx_cfg_path ( path_ "${id_}" )
+  string ( TIMESTAMP t UTC )
   set (
     contents_ "\
 ;READ ONLY
+;${t}
 ;This file was generated automatically by the TWX build system
 [${PROJECT_NAME} ${id_} informations]
 "
@@ -263,9 +279,21 @@ function ( twx_cfg_read )
     twx_assert_non_void ( PROJECT_NAME )
     file (
       GLOB
-      info_list_
-      "${PROJECT_BINARY_DIR}/build_data/*.ini"
+      raw_list_
+      "${PROJECT_BINARY_DIR}/build_data/${PROJECT_NAME}*.ini"
     )
+    # older files first:
+    set ( info_list_ )
+    while ( NOT "${raw_list_}" STREQUAL "" )
+      list ( GET raw_list_ 0 older_ )
+      foreach ( item IN LISTS raw_list_ )
+        if ( ${older_} IS_NEWER_THAN ${item} )
+          set ( older_ ${item} )
+        endif ()
+      endforeach ()
+      list ( REMOVE_ITEM raw_list_ ${older_} )
+      list ( APPEND info_list_ ${older_} )
+    endwhile ()
   else ()
     set ( info_list_ ${MY_UNPARSED_ARGUMENTS} )
   endif ()
@@ -333,6 +361,7 @@ Expected input state:
 - `PROJECT_NAME`
 - `PROJECT_BINARY_DIR`
 - `TWX_DIR`
+- `TWX_TEST` optional
 
 Expected side effects:
 
@@ -340,7 +369,7 @@ Expected side effects:
   is touched any time some data changes such that files must be reconfigured.
 - `TWX_<project name>_CFG_<key>` when `<key>` is one of
   - `GIT_HASH`
-  - `Git_DATE`
+  - `GIT_DATE`
   - `GIT_BRANCH`
   - `GIT_OK`
 */
@@ -359,7 +388,7 @@ function ( twx_cfg_update )
   endif ()
 
   include ( TwxCfgLib )
-  twx_cfg_read ( "static" ONLY_CONFIGURE )
+  twx_cfg_read ( "factory" ONLY_CONFIGURE )
   twx_cfg_read ( "git" QUIET ONLY_CONFIGURE )
 
   foreach ( key HASH DATE BRANCH OK )
@@ -422,12 +451,23 @@ Would show the date and time UTC.
     endif ()
   endif ( GIT_FOUND )
 
-  twx_cfg_write_begin ()
-  foreach (key_ HASH DATE BRANCH OK)
-    twx_cfg_set ( GIT_${key_} "${new_${key_}}" )
-  endforeach ()
-  twx_cfg_write_end ( "git" )
-  message ( STATUS "Git commit info updated" )
+  if ( TWX_TEST )
+    twx_cfg_write_begin ()
+    foreach (key_ HASH BRANCH)
+      twx_cfg_set ( GIT_${key_} "TEST(${key_}):${new_${key_}}" )
+    endforeach ()
+    twx_cfg_set ( GIT_DATE "1978-07-06T05:04:03+02:01" )
+    twx_cfg_set ( GIT_OK ${TWX_CFG_CPP_TRUTHY} )
+    twx_cfg_write_end ( "git" )
+    message ( STATUS "Git commit info updated (TEST)" )
+  else ()
+    twx_cfg_write_begin ()
+    foreach (key_ HASH DATE BRANCH OK)
+      twx_cfg_set ( GIT_${key_} "${new_${key_}}" )
+    endforeach ()
+    twx_cfg_write_end ( "git" )
+    message ( STATUS "Git commit info updated" )
+  endif ()
 endfunction ( twx_cfg_update )
 
 # ANCHOR: twx_cfg_return_if_exists

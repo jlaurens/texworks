@@ -40,21 +40,11 @@
 #include <QDir>
 #include <QProcessEnvironment>
 
+class QSettings;
+
 namespace Twx {
 
-namespace Key {
-/** \brief Settings key for the list of binary paths */
-	extern const QString binaryPaths;
-/** \brief Settings key for the list of binary paths (Deprecated)
-  * 
-	* Use \ref `binaryPaths` instead.
-	*/
-	extern const QString defaultbinpaths;
-}
-
 namespace Core {
-
-class Settings;
 
 #if defined(TwxCore_TEST)
 namespace Test {
@@ -85,9 +75,9 @@ class PathManager
 public:
 /** \brief Setup the manager
 	* 
-	* \param settings is a `Settings` instance.
+	* \param settings is a `QSettings` instance.
 	*/
-	static void setup(const Settings & settings);
+	static void setup(const QSettings & settings);
 
 /** \brief The directory of the application
 	* 

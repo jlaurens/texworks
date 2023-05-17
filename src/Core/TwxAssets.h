@@ -18,22 +18,16 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef ResourcesLibrary_H
-#define ResourcesLibrary_H
+#ifndef TwxCore_Assets_H
+#define TwxCore_Assets_H
 
 #include <QString>
 #include <QDir>
 
+class QSettings;
+class QProcessEnvironment;
+
 namespace Twx {
-
-/** \brief Collection of paths */
-namespace Path {
-/** \brief Factory paths to the application image */
-  extern const QString & applicationImage;
-/** \brief Factory paths to the application image of size 128 */
-  extern const QString & applicationImage128;
-}
-
 namespace Core {
 
 #if defined(TwxCore_TEST)
@@ -42,37 +36,53 @@ namespace Test {
 }
 #endif
 
-class Settings;
-
-/** \brief Resources manager
+/** \brief Assets manager and location lookup
  	* 
 	* 
 	*/
-class AssetsLookup
+class Assets
 {
 public:
 /** \brief Setup the manager
  	* 
 	* \param settings is a `QSettings` instance.
 	*/
-	static void setup(const Settings & settings);
+	static void setup(const QSettings & settings);
+
+/** \brief The setup path when in "-setup.ini" mode
+ 	* 
+	* \return the full path to an assets folder defined at setup.
+	*/
+	static const QString & getSetupLocation();
+
+/** \brief Set the assets location in "-setup.ini" mode
+ 	* 
+	* \param path the full path to the assets
+	*/
+	static void setSetupLocation(const QString & path);
+
+/** \brief The list of paths to dictionary folders
+ 	* 
+	* \param synchronize tells whether synchonization should occur
+	* \return a QStringList filled with the full paths to the dictionary folders
+	*/
+	static const QStringList dictionaryLocations(const bool synchronize = true);
 
 /** \brief The flat list of paths to a resources folder
  	* 
 	* What is the meaning of synchronization?
-	* \param subdir is one of "completion", "configuration",
-	* "dictionaries", "scripts", "templates"...
+	* \param category is one of "completion", "configuration",
+	* "scripts", "templates"...
 	* \param synchronize tells whether synchonization should occur
-	* \return the full path to the subdirectory
+	* \return the full path to the directory where the files are stored
 	*/
-	static const QStringList getPathList(const QString& subdir, const bool updateOnDisk = true);
+	static const QString getPath(const QString& category, const bool synchronize = true);
 
 private:
-  #include "Core/TwxAssetsLookupPrivate.h"
+  #include "Core/TwxAssetsPrivate.h"
 };
 
-} // namespace Utils
+} // namespace Core
+} // namespace Twx
 
-} // namespace Tw
-
-#endif // !defined(ResourcesLibrary)
+#endif // TwxCore_Assets_H

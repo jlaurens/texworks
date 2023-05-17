@@ -33,7 +33,17 @@
 #include <QDebug>
 
 namespace Twx {
+
 namespace Core {
+
+// next are static keys local to this code unit
+namespace K {
+	static const QString path     = QStringLiteral("path");
+	static const QString version  = QStringLiteral("version");
+	static const QString checksum = QStringLiteral("checksum");
+	static const QString hash     = QStringLiteral("hash");
+	static const QString AssetsTrackDB = QStringLiteral("TwxAssetsTrackDB");
+}
 
 const int AssetsTrackDB::version = 1;
 
@@ -43,15 +53,6 @@ const QString AssetsTrackDB::saveComponent =
 static auto const saveComponent = 
 #endif
 QStringLiteral("TwxAssetsTrackDB.json");
-
-// next are static keys local to this code unit
-namespace Key {
-	static const QString path     = QStringLiteral("path");
-	static const QString version  = QStringLiteral("version");
-	static const QString checksum = QStringLiteral("checksum");
-	static const QString hash     = QStringLiteral("hash");
-	static const QString AssetsTrackDB = QStringLiteral("TwxAssetsTrackDB");
-}
 
 AssetsTrackDB::AssetsTrackDB( const QDir & dir)
 : dir_m(dir)
@@ -70,14 +71,14 @@ AssetsTrackDB AssetsTrackDB::load(const QString & path)
 	if (f.open(QIODevice::ReadOnly)) {
 		auto bytes = f.readAll();
 		auto o = QJsonDocument::fromJson(bytes).object();
-		if (o.value(Key::__type) == Key::AssetsTrackDB) {
+		if (o.value(Key::__type) == K::AssetsTrackDB) {
 			auto ra = o.value(Key::__data).toArray();
       for (auto v: ra) {
 				auto o = v.toObject();
 				frdb.add(
-					QFileInfo(rootPath, o.value(Key::path).toString()),
-					o.value(Key::version).toString(),
-					Checksum{o.value(Key::checksum).toString().toLatin1()}
+					QFileInfo(rootPath, o.value(K::path).toString()),
+					o.value(K::version).toString(),
+					Checksum{o.value(K::checksum).toString().toLatin1()}
 				);
 			}
 		}
@@ -138,15 +139,15 @@ bool AssetsTrackDB::save(const QString & path) const
 	QJsonArray ra;
 	for (auto const & track: assetsTracks_m) {
 		ra.append(QJsonObject{
-			{Key::path, rootDir.relativeFilePath(track.fileInfo.absoluteFilePath())},
-			{Key::version, track.version},
-			{Key::checksum, QString(track.checksum.bytes)},
+			{K::path, rootDir.relativeFilePath(track.fileInfo.absoluteFilePath())},
+			{K::version, track.version},
+			{K::checksum, QString(track.checksum.bytes)},
 		});
 	};
 	QJsonDocument d(QJsonObject{
     {Key::__status, QStringLiteral("READ ONLY file for Twx")},
     {Key::__version, version},
-    {Key::__type, Key::AssetsTrackDB},
+    {Key::__type, K::AssetsTrackDB},
     {Key::__data, ra},
 	});
 	QSaveFile f(path);

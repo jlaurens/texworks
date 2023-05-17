@@ -23,25 +23,19 @@
 
 private:
 
-/** \brief The setup path
- 	* 
-	* \return the full path to an assets folder defined at setup.
-	*/
-	static const QString & getSetupPath();
+	static void possiblyMigrateLegacy();
+	static int update(const QDir & assetsDir, const QString& category);
+	const QStringList rawUnixDictionaryLocations(
+		const QProcessEnvironment & PE
+	);
 
-/** \brief Set the setup assets path
- 	* 
-	* \param path the full path to the assets
-	*/
-	static void setSetupPath(const QString & path);
-
-	static const QString getPath();
-	// the return value is sorted from new to old
-	static const QString getLegacyPath();
-	static bool shouldMigrateLegacy();
-	static void migrateLegacy();
-	static void update(const QDir & srcRootDir, const QDir & destRootDir, const QString& libPath);
-
-#if defined(TwxCore_TEST)
+#if defined(TwxAssets_TEST)
 	friend class Test::Main;
+  #define TWX_CONST_NO_TEST
+#else
+	#define TWX_CONST_NO_TEST const
 #endif
+
+	static TWX_CONST_NO_TEST QDir factoryDir;
+	static TWX_CONST_NO_TEST QString standardLocation;
+	static TWX_CONST_NO_TEST QString legacyLocation;

@@ -21,9 +21,6 @@
 #include "Core/TwxConst.h"
 
 namespace Twx {
-namespace Core {
-
-const QString dot = QStringLiteral(".");
 
 namespace Key {
 
@@ -34,7 +31,20 @@ const QString __version = QStringLiteral("__version");
 
 const QString PATH      = QStringLiteral("PATH");
 
+// Assets keys and categories
+const QString dictionaries = QStringLiteral("dictionaries");
+const QString libpath = QStringLiteral("libpath");
+
+// Settings keys
+const QString binaryPaths			   = QStringLiteral("binaryPaths");
+const QString defaultbinpaths    = QStringLiteral("defaultbinpaths");
+
 } // namespace Key
 
-} // namespace Core
+namespace Path {
+	const QString dot = QStringLiteral(".");
+  const QString applicationImage    = QStringLiteral("@TWX_CFG_APPLICATION_IMAGE_128@");
+  const QString applicationImage128 = QStringLiteral("@TWX_CFG_APPLICATION_IMAGE@");
+}
+
 } // namespace Twx

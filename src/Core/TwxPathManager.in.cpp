@@ -36,18 +36,14 @@
 #include <QDebug>
 
 namespace Twx {
-namespace Core {
 
-namespace Key {
-	const QString binaryPaths			   = QStringLiteral("binaryPaths");
-	const QString defaultbinpaths    = QStringLiteral("defaultbinpaths");
-}
+namespace Core {
 
 namespace P {
 	static QStringList rawBinaryPaths;
 }
 
-void PathManager::setup(const Settings & settings)
+void PathManager::setup(const QSettings & settings)
 {
 	if (settings.contains(Key::defaultbinpaths)) {
 		P::rawBinaryPaths = settings.value(Key::defaultbinpaths).toString().split(QDir::listSeparator(), Qt::SkipEmptyParts);
@@ -59,7 +55,9 @@ QDir PathManager::getApplicationDir()
 	static QString path;
 	if (path.isEmpty()) {
 #if defined(Q_OS_DARWIN)
-	return path = QDir(QCoreApplication::applicationDirPath() + QStringLiteral("/../../..")).absolutePath(); // move up to dir containing the .app package
+// CFURLRef url = (CFURLRef)CFAutorelease((CFURLRef)CFBundleCopyBundleURL(CFBundleGetMainBundle()));
+// return QUrl::fromCFURL(url).path();
+	return path = QDir(path + QStringLiteral("/../../..")).absolutePath(); // move up to dir containing the .app package
 #else
 	return path = QDir(QCoreApplication::applicationDirPath()).absolutePath();
 #endif

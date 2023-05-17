@@ -147,15 +147,17 @@ TWApp::~TWApp()
 
 void TWApp::init()
 {
-	Info::initApplication();
+	Info::initApplication(this);
 
 	QIcon appIcon;
+	QIcon::setThemeName(QStringLiteral("tango-texworks"));
+
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 	// The Compiz window manager doesn't seem to support icons larger than
 	// 128x128, so we add a suitable one first
-	appIcon.addFile(QString::fromLatin1(":/images/images/TeXworks-128.png"));
+	appIcon.addFile(Path::applicationImage128);
 #endif
-	appIcon.addFile(QString::fromLatin1(":/images/images/TeXworks.png"));
+	appIcon.addFile(Path::applicationImage);
 	setWindowIcon(appIcon);
 
 	SetupManager::initialize();

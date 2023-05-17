@@ -25,6 +25,7 @@
 #define TwxCore_Settings_H
 
 #include <QSettings>
+
 //TODO: document this class, what is the purpose???
 namespace Twx {
 namespace Core {

@@ -51,7 +51,6 @@ if ( NOT TWX_IS_BASED )
 	project ( TwxCoreTest ) # Don't change this name just here
 	include ( TwxBase )
 	set ( TWX_TEST ON	)
-	set ( TWXCore_TEST ON	)
 	set ( TwxCore_TEST_IS_ROOT ON )
 	enable_testing ()
 	include ( TwxQTLib )
@@ -63,7 +62,6 @@ if ( NOT TWX_IS_BASED )
 elseif ( TWX_TEST )
 	project ( TwxCoreTest ) # Don't change this name just here
 	include ( TwxBase )
-	set ( TWXCore_TEST ON	)
 else ()
   unset ( TWX_TEST_PATHS )
 endif ()
@@ -82,7 +80,7 @@ twx_target_include_src ( test_TwxCore )
 
 target_compile_definitions (
 	test_TwxCore
-	PRIVATE TWX_TEST TwxCore_TEST
+	PRIVATE TWX_TEST TwxCore_TEST TwxAssets_TEST
 )
 # Testing the path manager is special
 if ( DEFINED TWX_TEST_PATHS )

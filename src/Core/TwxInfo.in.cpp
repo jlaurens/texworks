@@ -26,163 +26,72 @@
 #include "Core/TwxInfo.h"
 
 #include <QLocale>
+#include <QCoreApplication>
 
 namespace Twx {
 
 namespace Core {
 
-static const QString name_ = QString::fromUtf8("@TWX_CFG_NAME@");
-static const QString authors_ = QString::fromUtf8("@TWX_CFG_AUTHORS@");
-static const QString copyrightYears_ = QString::fromUtf8("@TWX_CFG_COPYRIGHT_YEARS@");
-static const QString copyrightHolders_ = QString::fromUtf8("@TWX_CFG_COPYRIGHT_HOLDERS@");
-static const QString organization_domain_ = QStringLiteral("@TWX_CFG_ORGANIZATION_DOMAIN@");
-static const QString organization_name_   = QStringLiteral("@TWX_CFG_ORGANIZATION_NAME@");
-static const QString hash_ = QStringLiteral("@TWX_CFG_GIT_HASH@");
-static const QDateTime date_ = QDateTime::fromString(
+const QString Info::name = QString::fromUtf8("@TWX_CFG_NAME@");
+const QString Info::authors = QString::fromUtf8("@TWX_CFG_AUTHORS@");
+const QString Info::copyrightYears = QString::fromUtf8("@TWX_CFG_COPYRIGHT_YEARS@");
+const QString Info::copyrightHolders = QString::fromUtf8("@TWX_CFG_COPYRIGHT_HOLDERS@");
+const QString Info::organizationDomain = QStringLiteral("@TWX_CFG_ORGANIZATION_DOMAIN@");
+const QString Info::organizationName   = QStringLiteral("@TWX_CFG_ORGANIZATION_NAME@");
+const QString Info::gitHash = QStringLiteral("@TWX_CFG_GIT_HASH@");
+const QDateTime Info::gitDate = QDateTime::fromString(
 	QStringLiteral("@TWX_CFG_GIT_DATE@"),
 	Qt::ISODate
 ).toUTC();
-static const QString branch_ = QStringLiteral("@TWX_CFG_GIT_BRANCH@");
+const QString Info::gitBranch = QStringLiteral("@TWX_CFG_GIT_BRANCH@");
 
-// static
-const QString Info::name()
-{
-	return name_;
-}
 
-// static
-const QString Info::organizationName()
-{
-	return organization_name_;
-}
+const QString Info::buildId = QStringLiteral("@TWX_CFG_BUILD_ID@");
 
-// static
-const QString Info::organizationDomain()
-{
-	return organization_domain_;
-}
-
-// static
-const QString Info::authors()
-{
-	return authors_;
-}
-
-// static
-const QString Info::copyrightYears()
-{
-	return copyrightYears_;
-}
-// static
-const QString Info::copyrightHolders()
-{
-	return copyrightHolders_;
-}
-
-// static
-int Info::versionMNP()
-{
-	return  @TWX_CFG_VERSION_MAJOR@ << 16
+int Info::versionMNP = @TWX_CFG_VERSION_MAJOR@ << 16
 	     	| @TWX_CFG_VERSION_MINOR@ << 8
 			 	| @TWX_CFG_VERSION_PATCH@;
-}
 
-// static
-int Info::versionMNPT()
-{
-	return  @TWX_CFG_VERSION_MAJOR@ << 24
+int Info::versionMNPT = @TWX_CFG_VERSION_MAJOR@ << 24
 	     	| @TWX_CFG_VERSION_MINOR@ << 16
 			 	| @TWX_CFG_VERSION_PATCH@ << 8
 				| @TWX_CFG_VERSION_TWEAK@;
-}
 
-// static
-int Info::versionMajor()
-{
-	return @TWX_CFG_VERSION_MAJOR@;
-}
+int Info::versionMajor = @TWX_CFG_VERSION_MAJOR@;
 
-// static
-int Info::versionMinor()
-{
-	return @TWX_CFG_VERSION_MINOR@;
-}
+int Info::versionMinor = @TWX_CFG_VERSION_MINOR@;
 
-// static
-int Info::versionBugfix()
-{
-	return @TWX_CFG_VERSION_PATCH@;
-}
+int Info::versionBugfix = @TWX_CFG_VERSION_PATCH@;
 
-// static
-int Info::versionPatch()
-{
-	return @TWX_CFG_VERSION_PATCH@;
-}
+int Info::versionPatch = @TWX_CFG_VERSION_PATCH@;
 
-// static
-int Info::versionTweak()
-{
-	return @TWX_CFG_VERSION_TWEAK@;
-}
+int Info::versionTweak = @TWX_CFG_VERSION_TWEAK@;
 
-// static
-const QString Info::version()
-{
-	return QStringLiteral("@TWX_CFG_PROJECT_VERSION@");
-}
+const QString Info::version = QStringLiteral("@TWX_CFG_PROJECT_VERSION@");
 
-const QString Info::versionFull()
-{
-	static const QString ans = @TWX_CFG_GIT_OK@
+const QString Info::versionFull = @TWX_CFG_GIT_OK@
 	? QStringLiteral(
 		"%1 (%2) [r.%3, %4]"
 	).arg(
-		version(),
-		buildId(),
-		hash_,
+		Info::version,
+		Info::buildId,
+		Info::gitHash,
 		QLocale::system().toString(
-			date_.toLocalTime(),
+			gitDate.toLocalTime(),
 			QLocale::ShortFormat
 		)
 	)
 	: QStringLiteral("%1 (%2)").arg(
-		version(),
-		buildId()
+		Info::version,
+		Info::buildId
 	);
-	return ans;
-}
 
-const QString Info::buildId()
+void Info::initApplication (QCoreApplication & application)
 {
-	return QStringLiteral("@TWX_CFG_BUILD_ID@");
-}
-
-// static
-const QString Info::gitHash()
-{
-	return hash_;
-}
-
-// static
-const QDateTime Info::gitDate()
-{
-	return date_;
-}
-
-// static
-const QString Info::gitBranch()
-{
-	return branch_;
-}
-
-void Info::initApplication ()
-{
-	QIcon::setThemeName(QStringLiteral("tango-texworks"));
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN) || defined (TWX_TEST)
-	setOrganizationName(organisationName());
-	setOrganizationDomain(organisationDomain());
-	setApplicationName(name());
+	application.setOrganizationName(Info::organizationName);
+	application.setOrganizationDomain(Info::organizationDomain);
+	application.setApplicationName(Info::name);
 #endif
 }
 

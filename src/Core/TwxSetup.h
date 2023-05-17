@@ -36,7 +36,7 @@ namespace Core {
  	* Manage the `texworks-setup.ini` that is read very early.
 	* This file does not depend on the operating system.
 	*/
-class SetupManager
+class Setup
 {
 public:
 /** \brief Initialize the state with `texworks-setup.ini`

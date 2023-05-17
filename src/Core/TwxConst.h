@@ -35,11 +35,21 @@
  	* once properly refactored and documented.
 	*/
 namespace Twx {
-/** \brief Core technologies
-	*/
-namespace Core {
 
-extern const QString dot;
+/** \brief Core technologies */
+namespace Core {
+}
+
+/** \brief Path related constants */
+namespace Path {
+	extern const QString dot;
+  extern const QString applicationImage;
+  extern const QString applicationImage128;
+}
+
+/** \brief Constants */
+namespace Const {
+}
 
 /** \brief
  	* Strings that are used as keys in various places,
@@ -57,11 +67,33 @@ namespace Key {
 
 	extern const QString PATH;
 
-// Settings
+/** \brief Settings key for the list of binary paths */
+	extern const QString binaryPaths;
+
+/** \brief Settings key for the list of binary paths (Deprecated)
+  * 
+	* Use \ref `binaryPaths` instead.
+	*/
+	extern const QString defaultbinpaths;
+
+/** \brief Assets category
+  * 
+	* Where dictionaries are stored. System dependent.
+	*/
+	extern const QString dictionaries;
+
+/** \brief Settings key
+  * 
+	*  In "-setup.ini" mode.
+	*/
+	extern const QString libpath;
+
+/** \brief Assets category */
+	extern const QString translations;
 
 } // namespace Key
 
-} // namespace Core
 } // namespace Twx
+
 
 #endif // TwxCore_Const_H

@@ -8,7 +8,7 @@ https://github.com/TeXworks/texworks
 
 The only purpose is to write a Cfg data file
 to store the path list separator and the static list
-of binary paths elaborated at build time.
+of factory binary paths elaborated at build time.
 
 Usage:
 ```
