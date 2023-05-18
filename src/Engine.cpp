@@ -20,7 +20,6 @@
 */
 
 #include "Engine.h"
-#include "TWApp.h"
 
 #include "Core/TwxConst.h"
 #include "Core/TwxLocate.h"
@@ -119,21 +118,7 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	env.insert(QStringLiteral("MIKTEX_EDITOR"), QStringLiteral("\"%1\" --position=%l \"%f\"").arg(QCoreApplication::applicationFilePath()));
 #endif
 
-#if defined(Q_OS_DARWIN)
-	// On Mac OS X, append the path to the typesetting tool to the PATH
-	// environment variable.
-	// In recent versions of Mac OS X and Qt, GUI applications (like Tw) get
-	// different values for PATH than console applications (because .bashrc etc.
-	// don't get parsed). Typesetting tools still run correctly (as they are
-	// invoked with a full path), but if they in turn try to run other tools
-	// (like epstopdf) without full path, the process will fail.
-	// Appending the path to the typesetting tool to PATH acts as a fallback and
-	// implicitly assumes that the tool itself and all tools it relies on are in
-	// the same (standard) location.
-	QStringList envPaths = env.value(Twx::Env::PATH).split(QDir::listSeparator());
-	envPaths.append(QFileInfo(exeFilePath).dir().absolutePath());
-	env.insert(Twx::Env::PATH, envPaths.join(QDir::listSeparator()));
-#endif
+	Locate::setPATH(env);
 
 	QStringList args = arguments();
 

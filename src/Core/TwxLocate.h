@@ -92,7 +92,7 @@ public:
 /** \brief Get the full path of a program
 	*
 	* Used by engines to resolve programs like `pdfTeX`, `BibTeX`...
-	* Based on `getBinaryPaths()`.
+	* Based on `PATHList()`.
 	* 
 	*  \param program a case sensitive program name. On windows extension
 	*    can be omitted.
@@ -109,7 +109,7 @@ public:
 /** \brief Get the binary paths used by `programPath()`
 	*
 	* Get the list of the directories where programs are looked for.
-	* Take the raw binary paths and the `PATH` ones,
+	* Take the raw binary paths and the environment's `PATH` ones,
 	* resolve the environment variables, remove duplicates.
 	* 
 	* Store this list in the settings under key \see `Key::binaryPaths`.
@@ -117,10 +117,20 @@ public:
 	* \param env is an optional `QProcessEnvironment` instance that
 	*   defaults to the system environment.
 	*/
-	static const QStringList getBinaryPaths(
+	static const QStringList PATHList(
 		const QProcessEnvironment & env
 		  = QProcessEnvironment::systemEnvironment()
 	);
+
+/** \brief Set the `PATH` of the environment
+	*
+	* Set the `PATH` variable of the given environment to
+	* the items of `PATHList` joined by the native path list separator.
+	* 
+	* \param env is an `QProcessEnvironment` to amend.
+	*/
+	static void setPATH(QProcessEnvironment & env);
+
 /**
 	* \brief set the list of raw binary paths
 	*
@@ -227,13 +237,14 @@ private:
 	Locate& operator=(const Locate&) = delete;
 	Locate& operator=(Locate &&) = delete;
 
+	static QStringList rawBinaryPaths_m;
+
 #if defined(TwxCore_TEST)
 
 	friend class Test::Main;
 
   static QStringList messages_m;
-	static QStringList factoryBinaryPathsTest;
-	static QStringList &rawBinaryPaths();
+	static QStringList factoryBinaryPathsTest_m;
 
   static const QFileInfo TwxCore_TEST_fileInfoMustExist;
   static const QFileInfo TwxCore_TEST_fileInfoNone;

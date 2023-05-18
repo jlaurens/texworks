@@ -2820,7 +2820,7 @@ void TeXDocumentWindow::typeset()
 							  QMessageBox::Cancel, this);
 		msgBox.setDetailedText(
 		                      tr("Searched in directories:") + QChar::fromLatin1('\n') +
-							  QLatin1String(" * ") + Locate::getBinaryPaths().join(QLatin1String("\n * ")) + QChar::fromLatin1('\n') +
+							  QLatin1String(" * ") + Locate::PATHList().join(QLatin1String("\n * ")) + QChar::fromLatin1('\n') +
 							  tr("Check the configuration of the %1 tool and the path settings in the Preferences dialog.").arg(e.name()));
 		msgBox.exec();
 	}

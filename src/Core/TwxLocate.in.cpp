@@ -40,14 +40,18 @@ namespace Twx {
 
 namespace Core {
 
-namespace P {
-	static QStringList rawBinaryPaths;
-}
+QStringList Locate::rawBinaryPaths_m;
+
+#if defined(TwxCore_TEST)
+QStringList Locate::factoryBinaryPathsTest_m = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS_TEST@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
+QStringList Locate::messages_m;
+#endif
+
 
 void Locate::setup(const QSettings & settings)
 {
 	if (settings.contains(Key::defaultbinpaths)) {
-		P::rawBinaryPaths = settings.value(Key::defaultbinpaths).toString().split(QDir::listSeparator(), Qt::SkipEmptyParts);
+		rawBinaryPaths_m = settings.value(Key::defaultbinpaths).toString().split(QDir::listSeparator(), Qt::SkipEmptyParts);
 	}
 }
 
@@ -73,23 +77,15 @@ QDir Locate::applicationDir()
 
 static const QStringList factoryBinaryPaths = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
 
-#if defined(TwxCore_TEST)
-QStringList Locate::factoryBinaryPathsTest = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS_TEST@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
-#endif
-
-#if defined(TwxCore_TEST)
-QStringList Locate::messages_m;
-#endif
-
 void Locate::setRawBinaryPaths(const QStringList &paths)
 {
-	P::rawBinaryPaths.clear();
-	P::rawBinaryPaths.append(paths);
+	rawBinaryPaths_m.clear();
+	rawBinaryPaths_m.append(paths);
 	Settings settings;
 	if (paths.empty()) {
 		settings.remove(Key::binaryPaths);
 	} else {
-		settings.setValue(Key::binaryPaths, P::rawBinaryPaths);
+		settings.setValue(Key::binaryPaths, rawBinaryPaths_m);
 	}
 }
 
@@ -267,7 +263,7 @@ endfunction ( twx__add_system_default_binary_paths pathsVar )
 bool Locate::resetRawBinaryPaths(
   const QProcessEnvironment &env
 ) {
-	P::rawBinaryPaths.clear();
+	rawBinaryPaths_m.clear();
 	for (auto s: factoryBinaryPaths) {
 #if TwxCore_TEST
 		// while testing, the factory binary paths need to be portable
@@ -278,38 +274,38 @@ bool Locate::resetRawBinaryPaths(
 		auto after = QDir::currentPath();
 		s.replace(before, after);
 #endif
-		if (!P::rawBinaryPaths.contains(s))
-			P::rawBinaryPaths.append(s);
+		if (!rawBinaryPaths_m.contains(s))
+			rawBinaryPaths_m.append(s);
 	}
 #if !defined(TwxCore_TEST)
 	// TODO: TEXEDIT support for mac.
 	auto path = QCoreApplication::applicationDirPath();
-	if (!P::rawBinaryPaths.contains(path))
-		P::rawBinaryPaths.insert(0,path);
+	if (!rawBinaryPaths_m.contains(path))
+		rawBinaryPaths_m.insert(0,path);
 #endif
   QString PATH = env.value(Env::PATH);
 	if (!PATH.isEmpty()) {
 		foreach (const QString& s, PATH.split(QDir::listSeparator(), Qt::SkipEmptyParts)) {
-			if (!P::rawBinaryPaths.contains(s)) {
-				P::rawBinaryPaths.append(s);
+			if (!rawBinaryPaths_m.contains(s)) {
+				rawBinaryPaths_m.append(s);
 			}
 		}
 	}
-	for (auto i = P::rawBinaryPaths.count() - 1; i >= 0; --i) {
+	for (auto i = rawBinaryPaths_m.count() - 1; i >= 0; --i) {
 		// Note: Only replace the environmental variables for testing directory
 		// existence but do not alter the binaryPaths themselves. Those might
 		// get stored, e.g., in the preferences and we want to keep
 		// environmental variables intact in there (as they may be (re)defined
 		// later on).
-		// All binary paths are properly expanded in getBinaryPaths().
+		// All binary paths are properly expanded in PATHList().
 		QDir dir(stringByReplacingEnvironmentVariables(
-			P::rawBinaryPaths.at(i),
+			rawBinaryPaths_m.at(i),
 			env)
 		);
 		if (!dir.exists())
-			P::rawBinaryPaths.removeAt(i);
+			rawBinaryPaths_m.removeAt(i);
 	}
-	if (P::rawBinaryPaths.empty()) {
+	if (rawBinaryPaths_m.empty()) {
 #if defined(TwxCore_TEST)
     messages_m = QStringList{
 #else
@@ -333,19 +329,19 @@ bool Locate::resetRawBinaryPaths(
 const QStringList Locate::getRawBinaryPaths(
   const QProcessEnvironment &env
 ) {
-	if (P::rawBinaryPaths.empty()) {
+	if (rawBinaryPaths_m.empty()) {
   	Settings settings;
 		if (settings.contains(Key::binaryPaths))
-			P::rawBinaryPaths.append(
+			rawBinaryPaths_m.append(
 				settings.value(Key::binaryPaths).toStringList()
 			);
 		else
 			resetRawBinaryPaths(env);
 	}
-	return P::rawBinaryPaths;
+	return rawBinaryPaths_m;
 }
 
-const QStringList Locate::getBinaryPaths(
+const QStringList Locate::PATHList(
   QProcessEnvironment const& env
 ) {
 	QStringList paths = getRawBinaryPaths(env);
@@ -360,6 +356,15 @@ const QStringList Locate::getBinaryPaths(
 		}
 	}
 	return paths;
+}
+
+void Locate::setPATH(
+  QProcessEnvironment & env
+) {
+	env.insert(
+		Env::PATH,
+		PATHList(env).join(QDir::listSeparator())
+	);
 }
 
 QString Locate::programPath (
@@ -377,7 +382,7 @@ QString Locate::programPath (
 		QStringLiteral("bat")
 	};
 #endif
-  for (auto path: getBinaryPaths(env)) {
+  for (auto path: PATHList(env)) {
 		fileInfo = QFileInfo(path, program);
 		if (fileInfo.exists() && fileInfo.isExecutable())
 		  return fileInfo.absoluteFilePath();
@@ -446,15 +451,6 @@ const Locate::Resolved Locate::resolve(
 #endif
 	};
 }
-
-#if defined(TwxCore_TEST)
-
-QStringList &Locate::rawBinaryPaths()
-{
-	return P::rawBinaryPaths;
-}
-
-#endif
 
 } // namespace Core
 } // namespace Twx

@@ -92,7 +92,7 @@ void Main::cleanupTestCase()
 
 void Main::init()
 {
-	Locate::rawBinaryPaths().clear();
+	Locate::rawBinaryPaths_m.clear();
 	PE_m = QProcessEnvironment();
 	QSettings settings;
 	for (auto key: settings.allKeys()) {
@@ -240,14 +240,14 @@ void Main::testLocate_applicationDir()
 
 void Main::testLocate_setRawBinaryPaths()
 {
-	QVERIFY(Locate::rawBinaryPaths().empty());
+	QVERIFY(Locate::rawBinaryPaths_m.empty());
 	QStringList expected {
 		"//A",
 		"//B",
 		"//C"
 	};
 	Locate::setRawBinaryPaths(expected);
-	QCOMPARE(Locate::rawBinaryPaths(), expected);
+	QCOMPARE(Locate::rawBinaryPaths_m, expected);
 	Settings settings;
 	QVERIFY(settings.contains(Key::binaryPaths));
   QVariant v = settings.value(Key::binaryPaths);
@@ -261,7 +261,7 @@ void Main::testLocate_resetDefaultBinaryPaths()
 
 void Main::testLocate_resetRawBinaryPaths()
 {
-	Locate::rawBinaryPaths().clear();
+	Locate::rawBinaryPaths_m.clear();
 	QProcessEnvironment PE;
 	PE.remove(Env::PATH);
   Locate::resetRawBinaryPaths(PE);
@@ -272,33 +272,33 @@ void Main::testLocate_resetRawBinaryPaths()
 		<< d.absoluteFilePath("A")
 		<< d.absoluteFilePath("B")
 		<< d.absoluteFilePath("C");
-  QCOMPARE(Locate::rawBinaryPaths(), expected);
-	Locate::rawBinaryPaths().clear();
+  QCOMPARE(Locate::rawBinaryPaths_m, expected);
+	Locate::rawBinaryPaths_m.clear();
   Locate::resetRawBinaryPaths(PE);
-	QCOMPARE(Locate::rawBinaryPaths(), expected);
+	QCOMPARE(Locate::rawBinaryPaths_m, expected);
 }
 
 void Main::testLocate_getRawBinaryPaths()
 {
-	Locate::rawBinaryPaths().clear();
-	// rawBinaryPaths() already filled
+	Locate::rawBinaryPaths_m.clear();
+	// rawBinaryPaths_m already filled
 	QStringList expected {
 		"ABC"
 	};
-	Locate::rawBinaryPaths() << expected;
+	Locate::rawBinaryPaths_m << expected;
   auto paths = Locate::getRawBinaryPaths();
-	QCOMPARE(Locate::rawBinaryPaths(), expected);
-	// void rawBinaryPaths(), from settings
+	QCOMPARE(Locate::rawBinaryPaths_m, expected);
+	// void rawBinaryPaths_m, from settings
 	expected << "DEF";
 	Settings settings;
 	settings.setValue(Key::binaryPaths, expected);
-	Locate::rawBinaryPaths().clear();
+	Locate::rawBinaryPaths_m.clear();
   paths = Locate::getRawBinaryPaths();
-	QCOMPARE(Locate::rawBinaryPaths(), expected);
+	QCOMPARE(Locate::rawBinaryPaths_m, expected);
 	// Otherwise tested with resetRawBinaryPaths
 }
 
-void Main::testLocate_getBinaryPaths()
+void Main::testLocate_PATHList()
 {
 	// No PATH
 	auto dir = QCoreApplication::applicationDirPath();
@@ -306,14 +306,14 @@ void Main::testLocate_getBinaryPaths()
   QProcessEnvironment PE;
 	PE.remove(Env::PATH);
 	PE.insert("TWX_DUMMY", dir);
-  Locate::rawBinaryPaths().clear();
+  Locate::rawBinaryPaths_m.clear();
 #if defined(Q_OS_WIN)
-	Locate::rawBinaryPaths()
+	Locate::rawBinaryPaths_m
 		<< "%TWX_DUMMY%";
 #else
-	Locate::rawBinaryPaths() << "$TWX_DUMMY";
+	Locate::rawBinaryPaths_m << "$TWX_DUMMY";
 #endif
-	QStringList actual = Locate::getBinaryPaths(PE);
+	QStringList actual = Locate::PATHList(PE);
 	QStringList expected {
 		dir
 	};
@@ -326,8 +326,8 @@ void Main::testLocate_programPath_1()
 	auto dir = QCoreApplication::applicationDirPath();
 	auto expected = QCoreApplication::applicationFilePath();
   auto program = QFileInfo(expected).fileName();
-	Locate::rawBinaryPaths().clear();
-	Locate::rawBinaryPaths() << dir;
+	Locate::rawBinaryPaths_m.clear();
+	Locate::rawBinaryPaths_m << dir;
 	QProcessEnvironment PE;
 	PE.remove(Env::PATH);
 	auto actual = Locate::programPath(program, PE);

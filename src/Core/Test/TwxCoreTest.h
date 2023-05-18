@@ -47,7 +47,7 @@ private slots:
 	void testLocate_resetDefaultBinaryPaths();
 	void testLocate_resetRawBinaryPaths();
 	void testLocate_getRawBinaryPaths();	
-	void testLocate_getBinaryPaths();
+	void testLocate_PATHList();
 	void testLocate_programPath_1();
 	void testLocate_programPath_2();
 	void testLocate_programPath_3();
