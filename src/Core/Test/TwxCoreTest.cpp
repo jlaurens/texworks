@@ -613,8 +613,25 @@ void Main::testAssets_path()
 
 void Main::testAssets_setup_PE()
 {
-	QProcessEnvironment PE;
-
+	QFileInfo fileInfo = QFileInfo("Assets/AppDataLocation/");
+	{
+		QProcessEnvironment PE;
+		PE.insert(
+			Env::TWX_ASSETS_LIBRARY_PATH,
+			fileInfo.filePath()
+		);
+		Assets::setup(PE);
+		QCOMPARE(Assets::setupLocation(),fileInfo.absoluteFilePath());
+	}
+	{
+		QProcessEnvironment PE;
+		PE.insert(
+			Env::TW_LIBPATH,
+			fileInfo.filePath()
+		);
+		Assets::setup(PE);
+		QCOMPARE(Assets::setupLocation(),fileInfo.absoluteFilePath());
+	}
 }
 
 void Main::testAssets_setup_settings()

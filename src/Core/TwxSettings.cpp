@@ -53,32 +53,14 @@ static bool setup(const QFileInfo & fileInfo)
 	* \param mustExist similar to other method/function
 	*/
 static bool setup_1(
-	const QFileInfo & fileInfo,
+	const QString & path,
 	const QDir & dir,
 	bool mustExist
 )
 {
-	if (fileInfo.isAbsolute()) {
-		if (setup(fileInfo) || mustExist) {
-			 // we found something but it can point to nothing
-			return true;
-		}
-	}
-	auto dirs = QList<QDir>{
-		QDir::current(),
-		QDir::home(),
-		Locate::applicationDir()
-	};
-	if (dir.isAbsolute()) {
-		dirs.insert(0, dir);
-	}
-	const QString path = fileInfo.path();
-	for (auto d: dirs) {
-		const auto fi = QFileInfo(d, path);
-		if (fi.exists()) {
-			setup(fi);
-			return true;
-		}
+	auto resolved = Locate::resolve(path, dir, mustExist);
+	if (resolved.success) {
+		return setup(resolved.fileInfo) || mustExist;
 	}
 	return false;
 }
@@ -88,12 +70,12 @@ void Settings::setup(const QString & setup_ini_path, bool mustExist)
 	QSettings settings(setup_ini_path, QSettings::IniFormat);
 	QDir dir = QFileInfo(setup_ini_path).absoluteDir();
 	setup_1(
-		QFileInfo(settings.value(Key::settings_ini, mustExist).toString()),
+		settings.value(Key::settings_ini, mustExist).toString(),
 		dir,
 		mustExist
 	) ||
 	setup_1(
-		QFileInfo(settings.value(Key::inipath, mustExist).toString()),
+		settings.value(Key::inipath, mustExist).toString(),
 		dir,
 		mustExist
 	);
@@ -109,7 +91,7 @@ void Settings::setup(const QProcessEnvironment & PE)
 			return;
 		}
 	}
-	setup_1(QFileInfo(path), dir, true);
+	setup_1(path, dir, true);
 }
 
 } // namespace Core

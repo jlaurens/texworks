@@ -87,9 +87,9 @@ void Assets::setup(const QProcessEnvironment & PE)
 			return;
 		}
 	}
-	auto dir = Locate::applicationDir();
-	if (dir.cd(path)) {
-		setupLocation_m = dir.absolutePath();
+	auto resolved = Locate::resolve(path, QDir(), true);
+	if (resolved.success) {
+		setupLocation_m = resolved.fileInfo.absoluteFilePath();
 	}
 }
 
