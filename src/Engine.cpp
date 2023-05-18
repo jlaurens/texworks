@@ -22,8 +22,8 @@
 #include "Engine.h"
 #include "TWApp.h"
 
-#include "Core/TwxPathManager.h"
-using PathManager = Twx::Core::PathManager;
+#include "Core/TwxLocate.h"
+using Locate = Twx::Core::Locate;
 
 #include <QDir>
 
@@ -88,12 +88,12 @@ void Engine::setShowPdf(bool showPdf)
 
 bool Engine::isAvailable() const
 {
-	return !(PathManager::programPath(program()).isEmpty());
+	return !(Locate::programPath(program()).isEmpty());
 }
 
 QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */)
 {
-	QString exeFilePath = PathManager::programPath(program());
+	QString exeFilePath = Locate::programPath(program());
 	if (exeFilePath.isEmpty())
 		return nullptr;
 
@@ -129,9 +129,9 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	// Appending the path to the typesetting tool to PATH acts as a fallback and
 	// implicitly assumes that the tool itself and all tools it relies on are in
 	// the same (standard) location.
-	QStringList envPaths = env.value(QStringLiteral("PATH")).split(QDir::listSeparator());
+	QStringList envPaths = env.value(Env::PATH).split(QDir::listSeparator());
 	envPaths.append(QFileInfo(exeFilePath).dir().absolutePath());
-	env.insert(QStringLiteral("PATH"), envPaths.join(QDir::listSeparator()));
+	env.insert(Env::PATH, envPaths.join(QDir::listSeparator()));
 #endif
 
 	QStringList args = arguments();
@@ -140,7 +140,7 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	static bool checkedForSynctex = false;
 	static bool synctexSupported = true;
 	if (!checkedForSynctex) {
-		QString pdftex = PathManager::programPath(QStringLiteral("pdftex"));
+		QString pdftex = Locate::programPath(QStringLiteral("pdftex"));
 		if (!pdftex.isEmpty()) {
 			int result = QProcess::execute(pdftex, QStringList()
 				<< QStringLiteral("-synctex=1")

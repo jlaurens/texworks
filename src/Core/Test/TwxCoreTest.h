@@ -42,14 +42,16 @@ private slots:
 	
 	void testInfo();
 
-	void testPathManager_setRawBinaryPaths();
-	void testPathManager_resetDefaultBinaryPaths();
-	void testPathManager_resetRawBinaryPaths();
-	void testPathManager_getRawBinaryPaths();	
-	void testPathManager_getBinaryPaths();
-	void testPathManager_programPath_1();
-	void testPathManager_programPath_2();
-	void testPathManager_programPath_3();
+	void testLocate_applicationDir();
+	void testLocate_setRawBinaryPaths();
+	void testLocate_resetDefaultBinaryPaths();
+	void testLocate_resetRawBinaryPaths();
+	void testLocate_getRawBinaryPaths();	
+	void testLocate_getBinaryPaths();
+	void testLocate_programPath_1();
+	void testLocate_programPath_2();
+	void testLocate_programPath_3();
+	void testLocate_resolve();
 
 	void testAssetsTrackDB();
 	void testAssetsTrackDB_comparisons();
@@ -57,7 +59,9 @@ private slots:
 	void testAssetsTrackDB_load();
 	void testAssetsTrackDB_save();
 
-	void testAssets_getPath();
+	void testAssets_path();
+	void testAssets_setup_PE();
+	void testAssets_setup_settings();
 
 public:
   Main();

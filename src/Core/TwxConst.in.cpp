@@ -20,31 +20,52 @@
 */
 #include "Core/TwxConst.h"
 
+#define TWX_DECLARE_EPONYM(WHAT)\
+const QString WHAT = QStringLiteral(#WHAT)
+
 namespace Twx {
 
 namespace Key {
 
-const QString __data    = QStringLiteral("__data");
-const QString __status  = QStringLiteral("__status");
-const QString __type    = QStringLiteral("__type");
-const QString __version = QStringLiteral("__version");
-
-const QString PATH      = QStringLiteral("PATH");
+TWX_DECLARE_EPONYM(__data);
+TWX_DECLARE_EPONYM(__status);
+TWX_DECLARE_EPONYM(__type);
+TWX_DECLARE_EPONYM(__version);
 
 // Assets keys and categories
-const QString dictionaries = QStringLiteral("dictionaries");
-const QString libpath = QStringLiteral("libpath");
+TWX_DECLARE_EPONYM(translations);
+TWX_DECLARE_EPONYM(dictionaries);
+TWX_DECLARE_EPONYM(libpath);
 
 // Settings keys
-const QString binaryPaths			   = QStringLiteral("binaryPaths");
-const QString defaultbinpaths    = QStringLiteral("defaultbinpaths");
+TWX_DECLARE_EPONYM(binaryPaths);
+TWX_DECLARE_EPONYM(defaultbinpaths);
+TWX_DECLARE_EPONYM(settings_ini);
+TWX_DECLARE_EPONYM(inipath);
 
-} // namespace Key
+}
+namespace Env {
+
+// Environment variables
+TWX_DECLARE_EPONYM(PATH);
+TWX_DECLARE_EPONYM(TWX_DICTIONARY_PATH);
+TWX_DECLARE_EPONYM(TW_DICPATH);
+TWX_DECLARE_EPONYM(TWX_SETUP_INI_PATH);
+TWX_DECLARE_EPONYM(TWX_SETTINGS_INI_PATH);
+TWX_DECLARE_EPONYM(TW_INIPATH);
+TWX_DECLARE_EPONYM(TWX_ASSETS_LIBRARY_PATH);
+TWX_DECLARE_EPONYM(TW_LIBPATH);
+
+} // namespace Env
 
 namespace Path {
 	const QString dot = QStringLiteral(".");
   const QString applicationImage    = QStringLiteral("@TWX_CFG_APPLICATION_IMAGE_128@");
   const QString applicationImage128 = QStringLiteral("@TWX_CFG_APPLICATION_IMAGE@");
+
+	const QString setup_ini           = QStringLiteral("@TWX_CFG_NAME_LOWER@-setup.ini");
 }
 
 } // namespace Twx
+
+#undef TWX_DECLARE_EPONYM

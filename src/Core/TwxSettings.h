@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2020  Stefan Löffler
+	Copyright (C) 2023  Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,6 +26,9 @@
 
 #include <QSettings>
 
+class QDir;
+class QProcessEnvironment;
+
 //TODO: document this class, what is the purpose???
 namespace Twx {
 namespace Core {
@@ -34,10 +37,24 @@ class Settings: public QSettings
 {
 	Q_OBJECT
 public:
+/** \brief Setup the manager
+	* 
+	* When in "-setup.ini" mode.
+	* \param path is a absolute path to a potential settings file.
+	* \param mustExist defaults to false. In mustExist mode, when a full path
+	*   is provided we do not fall back to deprecated keys.
+	*/
+	static void setup(const QString & settings_ini_path, bool mustExist=false);
+
+/** \brief Setup the manager
+	* 
+	* When in "-setup.ini" mode.
+	* \param PE is a QProcessEnvironment instance.
+	*/
+	static void setup(const QProcessEnvironment & PE);
+
 	Settings() = default;
 
-	using QSettings::defaultFormat;
-	using QSettings::setDefaultFormat;
 };
 
 } // namespace Core

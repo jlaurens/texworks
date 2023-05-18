@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2018-2023  Jonathan Kew, Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,22 +18,25 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+#include <QtTest>
 
-/** \brief Private interface */
+namespace Twx {
+namespace Core {
+namespace Test {
 
-private:
+class Main: public QObject
+{
+	Q_OBJECT
+	QProcessEnvironment PE_m;
 
-	PathManager() = delete;
-	~PathManager() = delete;
-	PathManager( const PathManager& ) = delete;
-	PathManager(PathManager&&) = delete;
-	PathManager& operator=(const PathManager&) = delete;
-	PathManager& operator=(PathManager &&) = delete;
+private slots:
+	void testLocate_applicationDir();
+	
+public:
+  Main();
+  ~Main();
+};
 
-#if defined(TwxCore_TEST)
-	friend class Test::Main;
-
-  static QStringList messages_m;
-	static QStringList factoryBinaryPathsTest;
-	static QStringList &rawBinaryPaths();
-#endif
+} // namespace Test
+} // namespace Core
+} // namespace Twx

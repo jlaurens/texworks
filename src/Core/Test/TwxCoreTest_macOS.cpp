@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2023  Jérôme Laurens
+	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,35 +18,33 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-/** \file
-  * \brief Setup support
-  * 
-  * 
-  */
-#ifndef TwxCore_Setup_H
-#define TwxCore_Setup_H
 
-#include <QString>
+#include "TwxCoreTest_macOS.h"
+
+#include "Core/TwxLocate.h"
 
 namespace Twx {
 namespace Core {
+namespace Test {
 
-/** \brief Setup manager
- 	* 
- 	* Manage the `texworks-setup.ini` that is read very early.
-	* This file does not depend on the operating system.
-	*/
-class Setup
+Main::Main(): QObject()
 {
-public:
-/** \brief Initialize the state with `texworks-setup.ini`
- 	* 
- 	* 
-	*/
-	static void initialize();
-};
+	QCoreApplication::setOrganizationName("org.tug.TWX");
+  QCoreApplication::setOrganizationDomain("TWX.tug.org");
+  QCoreApplication::setApplicationName("You can trash me");
+}
 
+Main::~Main()
+{
+}
+
+void Main::testLocate_applicationDir()
+{
+	QCOMPARE(Locate::applicationDir().dirName(),"ExpectedDirName_macOS");
+}
+
+} // namespace Test
 } // namespace Core
 } // namespace Twx
 
-#endif // TwxCore_Setup_H
+QTEST_MAIN(Twx::Core::Test::Main)

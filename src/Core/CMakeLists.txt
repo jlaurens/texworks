@@ -75,18 +75,24 @@ if ( NOT TWX_TEST OR TARGET test_TwxCore )
 endif ()
 
 add_executable ( test_TwxCore )
+add_executable ( test_TwxCore_macOS )
 
 twx_target_include_src ( test_TwxCore )
+twx_target_include_src ( test_TwxCore_macOS )
 
 target_compile_definitions (
 	test_TwxCore
+	PRIVATE TWX_TEST TwxCore_TEST TwxAssets_TEST
+)
+target_compile_definitions (
+	test_TwxCore_macOS
 	PRIVATE TWX_TEST TwxCore_TEST TwxAssets_TEST
 )
 # Testing the path manager is special
 if ( DEFINED TWX_TEST_PATHS )
 	target_compile_definitions (
 		test_TwxCore
-		PRIVATE TwxPathManager_TEST
+		PRIVATE TwxLocate_TEST
 	)
 endif ()
 
@@ -103,28 +109,37 @@ target_link_libraries (
 	test_TwxCore
 	${QT_LIBRARIES}
 )
+target_link_libraries (
+	test_TwxCore_macOS
+	${QT_LIBRARIES}
+)
 
 include ( TwxWarning )
-twx_warning_target ( test_TwxCore )
-
-list (
-	APPEND
-	TwxCore_SOURCES
-	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.cpp"
-)
-list (
-	APPEND
-	TwxCore_HEADERS
-	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.h"
-)
+twx_warning_target ( test_TwxCore test_TwxCore_macOS )
 
 target_sources (
 	test_TwxCore
 	PRIVATE ${TwxCore_SOURCES} ${TwxCore_HEADERS}
+	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest.h"
+)
+
+target_sources (
+	test_TwxCore_macOS
+	PRIVATE	${TwxCore_SOURCES} ${TwxCore_HEADERS}
+	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest_macOS.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/Test/TwxCoreTest_macOS.h"
 )
 
 include ( TwxTestCase )
 twx_test_case ( test_TwxCore tws_working_directory )
+
+set_target_properties (
+	test_TwxCore_macOS
+  PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY
+			"${tws_working_directory}/ExpectedDirName_macOS/Fake.app/Contents/MacOS"
+)
 
 add_test (
 	NAME test_TwxCore
@@ -132,17 +147,24 @@ add_test (
 	WORKING_DIRECTORY
 		"${tws_working_directory}"
 )
+add_test (
+	NAME test_TwxCore_macOS
+	COMMAND test_TwxCore_macOS
+	WORKING_DIRECTORY
+	"${tws_working_directory}"
+)
 
 # define executables, with or without extension.
 # in the working directory or below
-set ( main.cp ${CMAKE_CURRENT_LIST_DIR}/Test/main.cpp )
-add_executable ( TwxCore_auxiliary           ${main.cp} )
-add_executable ( TwxCore_auxiliary_program   ${main.cp} )
+set ( main.cpp ${CMAKE_CURRENT_LIST_DIR}/Test/main.cpp )
+add_executable ( TwxCore_auxiliary           ${main.cpp} )
+add_executable ( TwxCore_auxiliary_program   ${main.cpp} )
 set_target_properties (
 	TwxCore_auxiliary   TwxCore_auxiliary_program
   PROPERTIES
 		RUNTIME_OUTPUT_DIRECTORY "${tws_working_directory}/A"
 )
+
 set_target_properties (
  	TwxCore_auxiliary TwxCore_auxiliary_program
   PROPERTIES

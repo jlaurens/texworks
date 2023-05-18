@@ -26,10 +26,13 @@
 #include "Core/TwxConst.h"
 #include "Core/TwxTool.h"
 #include "Core/TwxInfo.h"
-#include "Core/TwxPathManager.h"
+#include "Core/TwxLocate.h"
 #include "Core/TwxAssetsTrackDB.h"
 #include "Core/TwxAssets.h"
 #include "Core/TwxSettings.h"
+
+#include <QFileInfo>
+#include <QDir>
 
 namespace Twx {
 namespace Core {
@@ -77,8 +80,6 @@ Main::~Main()
 	QFile::remove(settings.fileName());
 }
 
-using PM = PathManager;
-
 void Main::initTestCase()
 {
 	QStandardPaths::setTestModeEnabled(true);
@@ -91,19 +92,41 @@ void Main::cleanupTestCase()
 
 void Main::init()
 {
-	PM::rawBinaryPaths().clear();
+	Locate::rawBinaryPaths().clear();
 	PE_m = QProcessEnvironment();
 	QSettings settings;
 	for (auto key: settings.allKeys()) {
 		settings.remove(key);
 	}
-	Assets::factoryDir = QDir("Assets/factoryDir");
-	Assets::legacyLocation = QDir("Assets/legacyLocation").absolutePath();
-	Assets::standardLocation = QDir("Assets/AppDataLocation").absolutePath();
+	Assets::setupLocation_m    = QString();
+	Assets::factoryDir_m       = QDir("Assets/factoryDir");
+	Assets::legacyLocation_m   = QDir("Assets/legacyLocation").absolutePath();
+	Assets::standardLocation_m = QDir("Assets/AppDataLocation").absolutePath();
+	QStandardPaths::setTestModeEnabled(true);
 }
 
 void Main::cleanup()
 {
+	QStandardPaths::setTestModeEnabled(false);
+/*!void QStandardPaths::setTestModeEnabled(bool testMode)
+If testMode is true, this enables a special "test mode" in QStandardPaths, which changes writable locations to point to test directories. This prevents auto tests from reading or writing to the current user's configuration.
+It affects the locations into which test programs might write files: GenericDataLocation, DataLocation, ConfigLocation, GenericConfigLocation, AppConfigLocation, GenericCacheLocation, and CacheLocation. Other locations are not affected.
+On Unix, XDG_DATA_HOME is set to ~/.qttest/share, XDG_CONFIG_HOME is set to ~/.qttest/config, and XDG_CACHE_HOME is set to ~/.qttest/cache.
+On macOS, data goes to ~/.qttest/Application Support, cache goes to ~/.qttest/Cache, and config goes to ~/.qttest/Preferences.
+On Windows, everything goes to a "qttest" directory under %APPDATA%.
+[static]
+*/
+#if defined(Q_OS_UNIX)
+  // remove the whole ~/.qttest folder
+  // On Unix, XDG_DATA_HOME is set to ~/.qttest/share, XDG_CONFIG_HOME is set to ~/.qttest/config, and XDG_CACHE_HOME is set to ~/.qttest/cache.
+	// On macOS, data goes to ~/.qttest/Application Support, cache goes to ~/.qttest/Cache, and config goes to ~/.qttest/Preferences.
+	QDir d = QDir::home().absoluteFilePath(QStringLiteral(".qttest"));
+	QVERIFY(d.removeRecursively());
+#else
+	// rempove the whole "qttest" directory under %APPDATA%
+	QDir d = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+	QVERIFY(d.removeRecursively());
+#endif
 }
 
 void Main::testConst()
@@ -112,7 +135,34 @@ void Main::testConst()
 
 	QCOMPARE(Key::binaryPaths, "binaryPaths");
 	QCOMPARE(Key::defaultbinpaths, "defaultbinpaths");
-	QCOMPARE(Key::PATH, "PATH");
+	QCOMPARE(Env::PATH, "PATH");
+	for (const auto & s: QStringList{
+		Path::dot,
+		Path::applicationImage,
+		Path::applicationImage128,
+		Path::setup_ini,
+		Key::__data,
+		Key:: __status,
+		Key::__type,
+		Key::__version,
+		Env::PATH,
+		Key::binaryPaths,
+		Key::defaultbinpaths,
+		Key::dictionaries,
+		Key::libpath,
+		Key::inipath,
+		Key::settings_ini,
+		Key::translations,
+		Env::TWX_DICTIONARY_PATH,
+		Env::TW_DICPATH,
+		Env::TWX_SETUP_INI_PATH,
+		Env::TWX_SETTINGS_INI_PATH,
+		Env::TW_INIPATH,
+		Env::TWX_ASSETS_LIBRARY_PATH,
+		Env::TW_LIBPATH
+	}) {
+		QVERIFY(!s.isEmpty());
+	}
 }
 
 void Main::testTool()
@@ -177,16 +227,23 @@ void Main::testInfo()
 	QCOMPARE(Info::gitDate, date);
 }
 
-void Main::testPathManager_setRawBinaryPaths()
+void Main::testLocate_applicationDir()
 {
-	QVERIFY(PM::rawBinaryPaths().empty());
+	QDir d;
+	QVERIFY(d.cdUp());
+	QCOMPARE(Locate::applicationDir(),d);
+}
+
+void Main::testLocate_setRawBinaryPaths()
+{
+	QVERIFY(Locate::rawBinaryPaths().empty());
 	QStringList expected {
 		"//A",
 		"//B",
 		"//C"
 	};
-	PM::setRawBinaryPaths(expected);
-	QCOMPARE(PM::rawBinaryPaths(), expected);
+	Locate::setRawBinaryPaths(expected);
+	QCOMPARE(Locate::rawBinaryPaths(), expected);
 	Settings settings;
 	QVERIFY(settings.contains(Key::binaryPaths));
   QVariant v = settings.value(Key::binaryPaths);
@@ -194,16 +251,16 @@ void Main::testPathManager_setRawBinaryPaths()
 	QCOMPARE(actual, expected);
 }
 
-void Main::testPathManager_resetDefaultBinaryPaths()
+void Main::testLocate_resetDefaultBinaryPaths()
 {
 }
 
-void Main::testPathManager_resetRawBinaryPaths()
+void Main::testLocate_resetRawBinaryPaths()
 {
-	PM::rawBinaryPaths().clear();
+	Locate::rawBinaryPaths().clear();
 	QProcessEnvironment PE;
-	PE.remove(Key::PATH);
-  PM::resetRawBinaryPaths(PE);
+	PE.remove(Env::PATH);
+  Locate::resetRawBinaryPaths(PE);
 	QDir d = QDir::current();
 	// All was made for d to contain directories A, B and C
   QStringList expected;
@@ -211,92 +268,215 @@ void Main::testPathManager_resetRawBinaryPaths()
 		<< d.absoluteFilePath("A")
 		<< d.absoluteFilePath("B")
 		<< d.absoluteFilePath("C");
-  QCOMPARE(PM::rawBinaryPaths(), expected);
-	PM::rawBinaryPaths().clear();
-  PM::resetRawBinaryPaths(PE);
-	QCOMPARE(PM::rawBinaryPaths(), expected);
+  QCOMPARE(Locate::rawBinaryPaths(), expected);
+	Locate::rawBinaryPaths().clear();
+  Locate::resetRawBinaryPaths(PE);
+	QCOMPARE(Locate::rawBinaryPaths(), expected);
 }
 
-void Main::testPathManager_getRawBinaryPaths()
+void Main::testLocate_getRawBinaryPaths()
 {
-	PM::rawBinaryPaths().clear();
+	Locate::rawBinaryPaths().clear();
 	// rawBinaryPaths() already filled
 	QStringList expected {
 		"ABC"
 	};
-	PM::rawBinaryPaths() << expected;
-  auto paths = PM::getRawBinaryPaths();
-	QCOMPARE(PM::rawBinaryPaths(), expected);
+	Locate::rawBinaryPaths() << expected;
+  auto paths = Locate::getRawBinaryPaths();
+	QCOMPARE(Locate::rawBinaryPaths(), expected);
 	// void rawBinaryPaths(), from settings
 	expected << "DEF";
 	Settings settings;
 	settings.setValue(Key::binaryPaths, expected);
-	PM::rawBinaryPaths().clear();
-  paths = PM::getRawBinaryPaths();
-	QCOMPARE(PM::rawBinaryPaths(), expected);
+	Locate::rawBinaryPaths().clear();
+  paths = Locate::getRawBinaryPaths();
+	QCOMPARE(Locate::rawBinaryPaths(), expected);
 	// Otherwise tested with resetRawBinaryPaths
 }
 
-void Main::testPathManager_getBinaryPaths()
+void Main::testLocate_getBinaryPaths()
 {
 	// No PATH
 	auto dir = QCoreApplication::applicationDirPath();
   auto program = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
   QProcessEnvironment PE;
-	PE.remove(Key::PATH);
+	PE.remove(Env::PATH);
 	PE.insert("TWX_DUMMY", dir);
-  PM::rawBinaryPaths().clear();
+  Locate::rawBinaryPaths().clear();
 #if defined(Q_OS_WIN)
-	PM::rawBinaryPaths()
+	Locate::rawBinaryPaths()
 		<< "%TWX_DUMMY%";
 #else
-	PM::rawBinaryPaths() << "$TWX_DUMMY";
+	Locate::rawBinaryPaths() << "$TWX_DUMMY";
 #endif
-	QStringList actual = PM::getBinaryPaths(PE);
+	QStringList actual = Locate::getBinaryPaths(PE);
 	QStringList expected {
 		dir
 	};
 	QCOMPARE(actual, expected);
 }
 
-void Main::testPathManager_programPath_1()
+void Main::testLocate_programPath_1()
 {
 	// We can rely on the test itself
 	auto dir = QCoreApplication::applicationDirPath();
 	auto expected = QCoreApplication::applicationFilePath();
   auto program = QFileInfo(expected).fileName();
-	PM::rawBinaryPaths().clear();
-	PM::rawBinaryPaths() << dir;
+	Locate::rawBinaryPaths().clear();
+	Locate::rawBinaryPaths() << dir;
 	QProcessEnvironment PE;
-	PE.remove(Key::PATH);
-	auto actual = PM::programPath(program, PE);
+	PE.remove(Env::PATH);
+	auto actual = Locate::programPath(program, PE);
 	QCOMPARE(actual, expected);
-	actual = PM::programPath(QString(), PE);
+	actual = Locate::programPath(QString(), PE);
 	QVERIFY(actual.isEmpty());
 }
 
-void Main::testPathManager_programPath_2()
+void Main::testLocate_programPath_2()
 {
 	QString program = "program";
 	QProcessEnvironment PE;
-	PE.remove(Key::PATH);
-	auto actual = PM::programPath(program, PE);
+	PE.remove(Env::PATH);
+	auto actual = Locate::programPath(program, PE);
 	auto d = QDir("A");
 	QVERIFY(d.exists());
 	auto expected = d.absoluteFilePath(program);
 	QCOMPARE(actual, expected);
 }
 
-void Main::testPathManager_programPath_3()
+void Main::testLocate_programPath_3()
 {
 	QString program = "program.program";
 	QProcessEnvironment PE;
-	PE.remove(Key::PATH);
-	auto actual = PM::programPath(program, PE);
+	PE.remove(Env::PATH);
+	auto actual = Locate::programPath(program, PE);
 	auto d = QDir("A");
 	QVERIFY(d.exists());
 	auto expected = d.absoluteFilePath(program);
 	QCOMPARE(actual, expected);
+}
+
+void Main::testLocate_resolve()
+{
+	// For locate:
+	// Find the file info targets in the current, home and application directory
+	QFileInfo fileInfoCustom;
+	QFileInfo fileInfoKnown;
+	QFileInfo fileInfoUnknown;
+	QFileInfo fileInfoApplication;
+	QFileInfo fileInfoCurrent;
+	QFileInfo fileInfoHome;
+	QFileInfo fileInfoMustExist;
+	QFileInfo fileInfoNone;
+	QDir dirCustom;
+	QDir dirOther;
+	fileInfoNone = Locate::TwxCore_TEST_fileInfoNone;
+	QVERIFY(!fileInfoNone.exists());
+	QVERIFY(!fileInfoNone.filePath().isEmpty());
+	fileInfoMustExist = Locate::TwxCore_TEST_fileInfoMustExist;
+	QVERIFY(!fileInfoMustExist.exists());
+	QVERIFY(!fileInfoMustExist.filePath().isEmpty());
+	fileInfoCustom = QFileInfo("./LocateCustom/d2f4f7504c2b514ce1fd1de7d4f6e1fd8cdfefa6.md");
+	fileInfoCustom.makeAbsolute();
+	QVERIFY(fileInfoCustom.exists());
+	fileInfoKnown = QFileInfo("./LocateKnown/e7d4f6e1fd8cdfefa6d2f4f7504c2b514ce1fd1d.md");
+	fileInfoKnown.makeAbsolute();
+	QVERIFY(fileInfoKnown.exists());
+	fileInfoUnknown = QFileInfo("14ce1fd1de7d4f6ed2f4f7504c2b51fd8cdfefa6");
+	// fileInfoUnknown.makeAbsolute();
+	QVERIFY(!fileInfoUnknown.exists());
+	fileInfoApplication = QFileInfo(QCoreApplication::applicationFilePath());
+	fileInfoApplication.makeAbsolute();
+	QVERIFY(fileInfoApplication.exists());
+	fileInfoCurrent = QFileInfo("./e2a7fb8a7d6b6103f2284b221fb00ca350be4f01.md");
+	fileInfoCurrent.makeAbsolute();
+	QVERIFY(fileInfoCurrent.exists());
+	QSet<QString> fis{
+		fileInfoCustom.absoluteFilePath(),
+		fileInfoKnown.absoluteFilePath(),
+		fileInfoUnknown.absoluteFilePath(),
+		fileInfoCurrent.absoluteFilePath(),
+		fileInfoApplication.absoluteFilePath()
+	};
+	QCOMPARE(fis.size(), 5);
+  // Things are more complex for the home
+	QDirIterator it(QDir::home());
+	while (it.hasNext()) {
+	  (void)it.next();
+    fileInfoHome = it.fileInfo();
+		if (fileInfoHome.fileName().size() < 3)
+		  continue;
+		fileInfoHome.makeAbsolute();
+		if ( !fis.contains(fileInfoHome.absoluteFilePath()))
+			break;
+		else
+		  fileInfoHome = fileInfoUnknown;
+	}
+	// The contrary is extremely unlikely to happen
+	QVERIFY(fileInfoHome.exists());
+	dirCustom = fileInfoCustom.absoluteDir();
+	dirOther = QDir("Some true relative path");
+
+	Locate::Resolved actual;
+	for (const auto & fileInfo: QList<QFileInfo>{
+		fileInfoCurrent,
+		fileInfoHome,
+		fileInfoApplication,
+	}) {
+		actual = Locate::resolve(fileInfo.fileName(), dirOther, false);
+		QVERIFY(actual.success);
+		QCOMPARE(actual.fileInfo, fileInfo);
+		actual = Locate::resolve(fileInfo.fileName(), dirOther, true);
+		QVERIFY(actual.success);
+		QCOMPARE(actual.fileInfo, fileInfo);
+		actual = Locate::resolve(fileInfo.fileName(), dirCustom, false);
+		QVERIFY(actual.success);
+		QCOMPARE(actual.fileInfo, fileInfo);
+		actual = Locate::resolve(fileInfo.fileName(), dirCustom, true);
+		QVERIFY(actual.success);
+		QCOMPARE(actual.fileInfo, fileInfo);
+	}
+	QFileInfo fileInfo = fileInfoCustom;
+	actual = Locate::resolve(fileInfo.fileName(), dirOther, false);
+	QVERIFY(!actual.success);
+	QCOMPARE(actual.fileInfo, fileInfoNone);
+	actual = Locate::resolve(fileInfo.fileName(), dirOther, true);
+	QVERIFY(!actual.success);
+	QCOMPARE(actual.fileInfo, fileInfoNone);
+	actual = Locate::resolve(fileInfo.fileName(), dirCustom, false);
+	QVERIFY(actual.success);
+	QCOMPARE(actual.fileInfo, fileInfo);
+	actual = Locate::resolve(fileInfo.fileName(), dirCustom, true);
+	QVERIFY(actual.success);
+	QCOMPARE(actual.fileInfo, fileInfo);
+	qDebug() << "====> Known";
+	fileInfo = fileInfoKnown;
+	actual = Locate::resolve(fileInfo.filePath(), dirOther, false);
+	QVERIFY(actual.success);
+	QCOMPARE(actual.fileInfo, fileInfo);
+	actual = Locate::resolve(fileInfo.filePath(), dirOther, true);
+	QVERIFY(actual.success);
+	QCOMPARE(actual.fileInfo, fileInfo);
+	actual = Locate::resolve(fileInfo.filePath(), dirCustom, false);
+	QVERIFY(actual.success);
+	QCOMPARE(actual.fileInfo, fileInfo);
+	actual = Locate::resolve(fileInfo.filePath(), dirCustom, true);
+	QVERIFY(actual.success);
+	QCOMPARE(actual.fileInfo, fileInfo);
+	qDebug() << "====> Unknown";
+	fileInfo = fileInfoUnknown;
+	actual = Locate::resolve(fileInfo.filePath(), dirOther, false);
+	QVERIFY(!actual.success);
+	QCOMPARE(actual.fileInfo, fileInfoNone);
+	actual = Locate::resolve(fileInfo.filePath(), dirOther, true);
+	QVERIFY(!actual.success);
+	QCOMPARE(actual.fileInfo, fileInfoMustExist);
+	actual = Locate::resolve(fileInfo.filePath(), dirCustom, false);
+	QVERIFY(!actual.success);
+	QCOMPARE(actual.fileInfo, fileInfoNone);
+	actual = Locate::resolve(fileInfo.filePath(), dirCustom, true);
+	QVERIFY(!actual.success);
+	QCOMPARE(actual.fileInfo, fileInfoMustExist);
 }
 
 void Main::testAssetsTrackDB()
@@ -422,16 +602,34 @@ void Main::testAssetsTrackDB_save()
 	QCOMPARE(AssetsTrackDB::load_legacy(tmpFile.fileName()), frdb);
 }
 
-void Main::testAssets_getPath()
+void Main::testAssets_path()
 {
-	QVERIFY(Assets::factoryDir.exists());
-	QVERIFY(QDir(Assets::legacyLocation).exists());
-	QVERIFY(QDir(Assets::standardLocation).exists());
-	QVERIFY(QDir(Assets::getPath("Category_A")).exists());
+	QCOMPARE(Assets::setupLocation(), "");
+	QVERIFY(Assets::factoryDir().exists());
+	QVERIFY(QDir(Assets::legacyLocation()).exists());
+	QVERIFY(QDir(Assets::standardLocation()).exists());
+	QVERIFY(QDir(Assets::path("Category_A")).exists());
 }
 
+void Main::testAssets_setup_PE()
+{
+	QProcessEnvironment PE;
 
+}
 
+void Main::testAssets_setup_settings()
+{
+	QSettings settings;
+	Assets::setup(settings);
+	QCOMPARE(Assets::setupLocation(), "");
+	settings.setValue(Key::libpath, "..........");
+	Assets::setup(settings);
+	QCOMPARE(Assets::setupLocation(), "");
+	settings.setValue(Key::libpath, "test_TwxCore.TestCase/Assets/setupLocation");
+	Assets::setup(settings);
+	QCOMPARE(QDir(Assets::setupLocation()).dirName(), "setupLocation");
+	QVERIFY(QDir(Assets::path("Category_B")).exists());
+}
 
 } // namespace Test
 } // namespace Core

@@ -20,11 +20,97 @@
 */
 #include "Core/TwxSettings.h"
 
+#include "Core/TwxConst.h"
 #include "Core/TwxInfo.h"
-#include "Core/TwxPathManager.h"
+#include "Core/TwxLocate.h"
+
+#include <QSettings>
+#include <QProcessEnvironment>
 
 namespace Twx {
 namespace Core {
+
+static bool setup(const QFileInfo & fileInfo)
+{
+	Q_ASSERT(fileInfo.isAbsolute());
+	if (fileInfo.exists() ) {
+		QSettings::setDefaultFormat(QSettings::IniFormat);
+		QSettings::setPath(
+			QSettings::IniFormat,
+			QSettings::UserScope,
+			fileInfo.absoluteFilePath()
+		);
+		return true;
+	}
+	return false;
+}
+
+/** \brief setup de settings state
+ 	* 
+ 	*	This is where relative path are resolved
+ 	*	\param fileInfo is a `QFileInfo` instance, absolute or relative
+  * \param dir is a `QDir` instance, ignored when not absolute
+	* \param mustExist similar to other method/function
+	*/
+static bool setup_1(
+	const QFileInfo & fileInfo,
+	const QDir & dir,
+	bool mustExist
+)
+{
+	if (fileInfo.isAbsolute()) {
+		if (setup(fileInfo) || mustExist) {
+			 // we found something but it can point to nothing
+			return true;
+		}
+	}
+	auto dirs = QList<QDir>{
+		QDir::current(),
+		QDir::home(),
+		Locate::applicationDir()
+	};
+	if (dir.isAbsolute()) {
+		dirs.insert(0, dir);
+	}
+	const QString path = fileInfo.path();
+	for (auto d: dirs) {
+		const auto fi = QFileInfo(d, path);
+		if (fi.exists()) {
+			setup(fi);
+			return true;
+		}
+	}
+	return false;
+}
+
+void Settings::setup(const QString & setup_ini_path, bool mustExist)
+{
+	QSettings settings(setup_ini_path, QSettings::IniFormat);
+	QDir dir = QFileInfo(setup_ini_path).absoluteDir();
+	setup_1(
+		QFileInfo(settings.value(Key::settings_ini, mustExist).toString()),
+		dir,
+		mustExist
+	) ||
+	setup_1(
+		QFileInfo(settings.value(Key::inipath, mustExist).toString()),
+		dir,
+		mustExist
+	);
+}
+
+void Settings::setup(const QProcessEnvironment & PE)
+{
+	QDir dir = Locate::applicationDir();
+	QString path = PE.value(Env::TWX_SETTINGS_INI_PATH);
+	if (path.isNull()) {
+		path = PE.value(Env::TW_INIPATH);
+		if (path.isNull()) {
+			return;
+		}
+	}
+	setup_1(QFileInfo(path), dir, true);
+}
 
 } // namespace Core
 } // namespace Twx

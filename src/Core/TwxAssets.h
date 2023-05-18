@@ -18,6 +18,9 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+/** \file
+ 	* \brief Location of assets.
+	*/
 #ifndef TwxCore_Assets_H
 #define TwxCore_Assets_H
 
@@ -49,37 +52,71 @@ public:
 	*/
 	static void setup(const QSettings & settings);
 
-/** \brief The setup path when in "-setup.ini" mode
+/** \brief Setup the manager
  	* 
-	* \return the full path to an assets folder defined at setup.
+	* Retrieve the value of the environment variable
+	* `Env::TWX_ASSETS_LIBRARY_PATH`
+	* (or `Env::TW_LIBPATH` when the former is empty).
+	* This is the return value of `Assets::setupLocation()`.
+	*
+	* If the location is a relative path, it is resolved
+	* by `Locate::resolve()`.
+	*
+	* \param PE is a `QProcessEnvironment` instance.
 	*/
-	static const QString & getSetupLocation();
+	static void setup(const QProcessEnvironment & PE);
 
-/** \brief Set the assets location in "-setup.ini" mode
+/** \brief The path to an assets folder
  	* 
-	* \param path the full path to the assets
+	* \param category is one of "completion", "configuration",
+	* "scripts", "templates"...
+	* \param updateLocal tells whether the local asserts folder should
+	* update to mirror the factory assets.
+	* \return the full path to the directory where the assets files are stored
 	*/
-	static void setSetupLocation(const QString & path);
+	static const QString path(const QString& category, const bool updateLocal = true);
 
 /** \brief The list of paths to dictionary folders
  	* 
-	* \param synchronize tells whether synchonization should occur
+	* For windows and macOS, This is the `Assets::path("dictionaries",updateLocal)` output.
+
+	* For raw unix OS, except in "-setup.ini" mode, the `TWX_DICTIONARY_PATH`
+	* environment variable can contain a colon separated list of paths.
+	* Notice that:
+	*   * The build and test system allows to customize this list at build time
+	*     using `-DTWX_DICTIONARY_PATH="..."` when invoking `cmake`.
+	*   * The former `TW_DICPATH` is deprecated since version 0.7.0.
+	* 	* By default, this list is `/usr/share/hunspell/` and
+	*		`/usr/share/myspell/dicts/`.
+	* \param updateLocal tells whether the local asserts folder should
+	* update to mirror the factory assets.
 	* \return a QStringList filled with the full paths to the dictionary folders
 	*/
-	static const QStringList dictionaryLocations(const bool synchronize = true);
-
-/** \brief The flat list of paths to a resources folder
- 	* 
-	* What is the meaning of synchronization?
-	* \param category is one of "completion", "configuration",
-	* "scripts", "templates"...
-	* \param synchronize tells whether synchonization should occur
-	* \return the full path to the directory where the files are stored
-	*/
-	static const QString getPath(const QString& category, const bool synchronize = true);
+	static const QStringList dictionaryLocations(const bool updateLocal = true);
 
 private:
-  #include "Core/TwxAssetsPrivate.h"
+
+	static void possiblyMigrateLegacy();
+	static int update(const QDir & assetsDir, const QString& category);
+	const QStringList rawUnixDictionaryLocations(
+		const QProcessEnvironment & PE
+	);
+
+	static QDir factoryDir_m;
+	static QString setupLocation_m;
+	static QString standardLocation_m;
+	static QString legacyLocation_m;
+
+// lazy initializers
+	static const QDir factoryDir();
+	static const QString setupLocation();
+	static const QString standardLocation();
+	static const QString legacyLocation();
+
+#if defined(TwxAssets_TEST)
+	friend class Test::Main;
+#endif
+
 };
 
 } // namespace Core

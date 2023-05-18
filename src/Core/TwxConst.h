@@ -45,6 +45,7 @@ namespace Path {
 	extern const QString dot;
   extern const QString applicationImage;
   extern const QString applicationImage128;
+  extern const QString setup_ini;
 }
 
 /** \brief Constants */
@@ -64,8 +65,6 @@ namespace Key {
 	extern const QString __status;
 	extern const QString __type;
 	extern const QString __version;
-
-	extern const QString PATH;
 
 /** \brief Settings key for the list of binary paths */
 	extern const QString binaryPaths;
@@ -88,12 +87,103 @@ namespace Key {
 	*/
 	extern const QString libpath;
 
+/** \brief `...-setup.ini` settings key
+  * 
+	*  Deprecated, see \ref Twx::Key::settings_ini.
+	*/
+	extern const QString inipath;
+
+/** \brief `...-setup.ini` settings key
+  * 
+	* This makes sense mainly on raw unix (no macOS).
+	*	The value is the path of a `.ini` file where the application
+	*	is expected to read and write its settings.
+	* The setup file and the settings are assumed to be different.
+	*
+	* When not absolute, this settings location is relative to
+	* * the directory of the `...-setup.ini` file itself
+	* * the current directory
+	* * the home directory
+	* * the directory of the application
+	* \warning
+	* To developers: changing the current directory may have bad consequences.
+	*/
+	extern const QString settings_ini;
+
 /** \brief Assets category */
 	extern const QString translations;
 
 } // namespace Key
 
-} // namespace Twx
+/** \brief
+ 	* Strings that are used as environment variable names in various places.
+	* 
+ 	* The identifier is also the environment variable name.
+	* The contents of the variable overrides the built in state.
+	*/
+namespace Env {
+/** \brief The standard PATH environment variable.
+ 	* 
+ 	* Used by `Core::Locate` to find the full path to programs.
+ 	*/
+	extern const QString PATH;
 
+/** \brief Locations of spell checking dictionaries.
+ 	* 
+ 	* On raw unix, the eponym environment variable overrides
+	* the locations of the spell checking dictionaries.
+	*
+	* This locations are unused on macOS and windows.
+	* See `Core::Assets::dictionaryLocations()`.
+ 	*/
+	extern const QString TWX_DICTIONARY_PATH;
+	
+/** \brief Locations of spell checking dictionaries.
+ 	* 
+ 	* Deprecated in favor of `Env::TWX_DICTIONARY_PATH`.
+ 	*/
+	extern const QString TW_DICPATH;
+	
+/** \brief Location of a setup ini file
+ 	* 
+ 	* On raw unix, the eponym environment variable determines
+	* the locations of a "...-setup.ini" file.
+	*
+	* Makes sense mainly on raw unix (not on macOS)
+	*/
+	extern const QString TWX_SETUP_INI_PATH;
+	
+/** \brief Location of the settings ini file
+ 	* 
+ 	* On raw unix, the eponym environment variable overrides
+	* the location of the settings ini file.
+	*
+	* Makes sense mainly on raw unix (not on macOS)
+	*/
+	extern const QString TWX_SETTINGS_INI_PATH;
+	
+/** \brief Environment variable
+ 	* 
+ 	* Not recommended, use `Env::TWX_SETTINGS_INI_PATH` instead
+	*/
+	extern const QString TW_INIPATH;
+
+/** \brief Environment variable
+ 	* 
+ 	* On raw unix, the eponym environment variable overrides
+	* the location of the local assets library.
+	*
+	* Makes sense mainly on raw unix (not on macOS)
+	*/
+	extern const QString TWX_ASSETS_LIBRARY_PATH;
+	
+/** \brief Environment variable
+ 	* 
+ 	* Not recommended, use `TWX_ASSETS_LIBRARY_PATH` instead
+	*/
+	extern const QString TW_LIBPATH;
+
+} // namespace Env
+} // namespace Twx
 
 #endif // TwxCore_Const_H

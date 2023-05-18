@@ -20,11 +20,11 @@
 */
 
 /** \file
- * @brief Path manager
+ * @brief Path locator
  */
 
 #include "Core/TwxConst.h"
-#include "Core/TwxPathManager.h"
+#include "Core/TwxLocate.h"
 #include "Core/TwxSettings.h"
 
 #include <QDir>
@@ -32,6 +32,7 @@
 #include <QRegularExpression>
 #include <QMessageBox>
 #include <QCoreApplication>
+#include <QUrl>
 
 #include <QDebug>
 
@@ -43,23 +44,28 @@ namespace P {
 	static QStringList rawBinaryPaths;
 }
 
-void PathManager::setup(const QSettings & settings)
+void Locate::setup(const QSettings & settings)
 {
 	if (settings.contains(Key::defaultbinpaths)) {
 		P::rawBinaryPaths = settings.value(Key::defaultbinpaths).toString().split(QDir::listSeparator(), Qt::SkipEmptyParts);
 	}
 }
 
-QDir PathManager::getApplicationDir()
+QDir Locate::applicationDir()
 {
 	static QString path;
 	if (path.isEmpty()) {
+		path = QDir(QCoreApplication::applicationDirPath()).absolutePath();
 #if defined(Q_OS_DARWIN)
-// CFURLRef url = (CFURLRef)CFAutorelease((CFURLRef)CFBundleCopyBundleURL(CFBundleGetMainBundle()));
-// return QUrl::fromCFURL(url).path();
-	return path = QDir(path + QStringLiteral("/../../..")).absolutePath(); // move up to dir containing the .app package
-#else
-	return path = QDir(QCoreApplication::applicationDirPath()).absolutePath();
+  // problem with the bundle (iOS not supported)
+	// Next is clean but needs to link with the extra core foundation framework
+	// which is not very efficient
+	// CFURLRef url = (CFURLRef)CFAutorelease((CFURLRef)CFBundleCopyBundleURL(CFBundleGetMainBundle()));
+	// return QUrl::fromCFURL(url).path();
+	auto fileInfo = QFileInfo(path, QStringLiteral("../.."));
+	if (fileInfo.isBundle()) {
+		path = fileInfo.absolutePath();
+	}
 #endif
 	}
   return QDir(path);
@@ -68,14 +74,14 @@ QDir PathManager::getApplicationDir()
 static const QStringList factoryBinaryPaths = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
 
 #if defined(TwxCore_TEST)
-QStringList PathManager::factoryBinaryPathsTest = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS_TEST@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
+QStringList Locate::factoryBinaryPathsTest = QStringLiteral("@TWX_CFG_FACTORY_BINARY_PATHS_TEST@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
 #endif
 
 #if defined(TwxCore_TEST)
-QStringList PathManager::messages_m;
+QStringList Locate::messages_m;
 #endif
 
-void PathManager::setRawBinaryPaths(const QStringList &paths)
+void Locate::setRawBinaryPaths(const QStringList &paths)
 {
 	P::rawBinaryPaths.clear();
 	P::rawBinaryPaths.append(paths);
@@ -258,7 +264,7 @@ function ( twx__add_system_default_binary_paths pathsVar )
 	twx_export ( ${pathsVar} )
 endfunction ( twx__add_system_default_binary_paths pathsVar )
 */
-bool PathManager::resetRawBinaryPaths(
+bool Locate::resetRawBinaryPaths(
   const QProcessEnvironment &env
 ) {
 	P::rawBinaryPaths.clear();
@@ -281,7 +287,7 @@ bool PathManager::resetRawBinaryPaths(
 	if (!P::rawBinaryPaths.contains(path))
 		P::rawBinaryPaths.insert(0,path);
 #endif
-  QString PATH = env.value(Key::PATH);
+  QString PATH = env.value(Env::PATH);
 	if (!PATH.isEmpty()) {
 		foreach (const QString& s, PATH.split(QDir::listSeparator(), Qt::SkipEmptyParts)) {
 			if (!P::rawBinaryPaths.contains(s)) {
@@ -324,7 +330,7 @@ bool PathManager::resetRawBinaryPaths(
 	return true;
 }
 
-const QStringList PathManager::getRawBinaryPaths(
+const QStringList Locate::getRawBinaryPaths(
   const QProcessEnvironment &env
 ) {
 	if (P::rawBinaryPaths.empty()) {
@@ -339,14 +345,14 @@ const QStringList PathManager::getRawBinaryPaths(
 	return P::rawBinaryPaths;
 }
 
-const QStringList PathManager::getBinaryPaths(
+const QStringList Locate::getBinaryPaths(
   QProcessEnvironment const& env
 ) {
 	QStringList paths = getRawBinaryPaths(env);
 	for (QString & path: paths) {
 		path = stringByReplacingEnvironmentVariables(path, env);
 	}
-	auto PATH = env.value(Key::PATH);
+	auto PATH = env.value(Env::PATH);
 	for (QString path: PATH.split(QDir::listSeparator(), Qt::SkipEmptyParts)) {
 		path = stringByReplacingEnvironmentVariables(path, env);
 		if (!paths.contains(path)) {
@@ -356,7 +362,7 @@ const QStringList PathManager::getBinaryPaths(
 	return paths;
 }
 
-QString PathManager::programPath (
+QString Locate::programPath (
 	const QString& program,
   const QProcessEnvironment &env
 ) {
@@ -390,10 +396,60 @@ QString PathManager::programPath (
 	return QString();
 }
 
+#if defined(TwxCore_TEST)
+  const QFileInfo Locate::TwxCore_TEST_fileInfoMustExist = QFileInfo("MustExist:99775f3fc7471fca1808438060defe83cb3b724b");
+  const QFileInfo Locate::TwxCore_TEST_fileInfoNone 		 = QFileInfo("None:8438060defe83cb3b724b99775f3fc7471fca180");
+#endif
+
+
+const Locate::Resolved Locate::resolve(
+	const QString & path,
+	const QDir & customDir,
+	bool mustExist
+)
+{
+	QFileInfo fileInfo(path);
+	if (fileInfo.isAbsolute()) {
+		if (fileInfo.exists()) {
+			return Resolved{true, fileInfo};
+		}
+		if (mustExist) {
+			return Resolved{false, 
+#if defined(TwxCore_TEST)
+				TwxCore_TEST_fileInfoMustExist
+#else
+				QFileInfo()
+#endif
+			};
+		}
+	}
+	auto dirs = QList<QDir>{
+		QDir::current(),
+		QDir::home(),
+		Locate::applicationDir()
+	};
+	if (customDir.isAbsolute()) {
+		dirs.insert(0, customDir);
+	}
+	for (auto d: dirs) {
+		fileInfo = QFileInfo(d, path);
+		if (fileInfo.exists()) {
+			fileInfo.makeAbsolute();
+			return Resolved{true, fileInfo};
+		}
+	}
+	return Resolved{false,
+#if defined(TwxCore_TEST)
+		TwxCore_TEST_fileInfoNone
+#else
+		QFileInfo()
+#endif
+	};
+}
 
 #if defined(TwxCore_TEST)
 
-QStringList &PathManager::rawBinaryPaths()
+QStringList &Locate::rawBinaryPaths()
 {
 	return P::rawBinaryPaths;
 }

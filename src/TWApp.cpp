@@ -40,8 +40,8 @@
 #include "utils/WindowManager.h"
 
 #include "Core/TwxInfo.h"
-#include "Core/TwxPathManager.h"
-using PathManager = Twx::Core::PathManager;
+#include "Core/TwxLocate.h"
+using Locate = Twx::Core::Locate;
 #include "Core/AssetsLookup.h"
 using AssetsLookup = Twx::Core::AssetsLookup;
 #include <QAction>
@@ -586,7 +586,7 @@ void TWApp::writeToMailingList()
 #endif
 	body += QLatin1String("Library path     : ") + Tw::Utils::ResourcesLibrary::getLibraryPath(QString()) + QChar::fromLatin1('\n');
 
-	QString pdftex = PathManager::programPath(QStringLiteral("pdftex"));
+	QString pdftex = Locate::programPath(QStringLiteral("pdftex"));
 	if (pdftex.isEmpty())
 		pdftex = QLatin1String("not found");
 	else {

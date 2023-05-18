@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2023  Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2023  Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,24 +18,38 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+/** \file
+  * \brief Setup support
+  * 
+  * If there is a `texworks-setup.ini` near the application,
+	* is is parsed and the state is modified accordingly.
+	* The static method `initialize` takes care of that.
+	* It must be called very early in the initialization process.
+  */
+#ifndef TwxCore_Setup_H
+#define TwxCore_Setup_H
 
-/** \brief Private interface */
+#include <QString>
 
-private:
+namespace Twx {
+namespace Core {
 
-	static void possiblyMigrateLegacy();
-	static int update(const QDir & assetsDir, const QString& category);
-	const QStringList rawUnixDictionaryLocations(
-		const QProcessEnvironment & PE
-	);
+/** \brief Setup manager
+ 	* 
+ 	* Manage the `texworks-setup.ini` that is read very early.
+	* This initialization file does not depend on the operating system.
+	*/
+class Setup
+{
+public:
+/** \brief Initialize the state with `texworks-setup.ini`
+ 	* 
+ 	*  
+	*/
+	static void initialize();
+};
 
-#if defined(TwxAssets_TEST)
-	friend class Test::Main;
-  #define TWX_CONST_NO_TEST
-#else
-	#define TWX_CONST_NO_TEST const
-#endif
+} // namespace Core
+} // namespace Twx
 
-	static TWX_CONST_NO_TEST QDir factoryDir;
-	static TWX_CONST_NO_TEST QString standardLocation;
-	static TWX_CONST_NO_TEST QString legacyLocation;
+#endif // TwxCore_Setup_H

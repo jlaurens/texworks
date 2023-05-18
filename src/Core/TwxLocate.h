@@ -21,16 +21,16 @@
 #ifndef TwxCore_PathManager_h
 #define TwxCore_PathManager_h
 
-/*! \file TwxPathManager.h
+/*! \file TwxLocate.h
  	*  \brief Some kind of `PATH` manager.
  	*  
- 	*  `TwxPathManager` is a static object which main method
+ 	*  `TwxLocate` is a static object which main method
  	*  is `programPath()` to retrieve the full path of a program.
  	* 
  	*  In addition, \ref `TwxPathFinder` instances also implement
  	*  `programPath()` but with a per instance approach.
  	*  
- 	*  Whereas `TwxPathManager` will be used as general purpose path provider,
+ 	*  Whereas `TwxLocate` will be used as general purpose path provider,
  	*  different documents may need there own customized `TwxPathFinder` instance
  	*  to suit their particular needs.
  	*/
@@ -52,9 +52,9 @@ namespace Test {
 }
 #endif
 
-/** \brief Path manager
+/** \brief Location manager
   *
-  * The main purpose of the path manager is `programPath()`.
+  * The main purpose of the location manager is `programPath()`.
   * This method gives the full path to an executable given its name,
   * if any.
   * 
@@ -68,11 +68,13 @@ namespace Test {
   *
   * The path lists can be managed from the settings dialogs.
   */
-class PathManager
+class Locate
 {
 // Using a shortcut to QProcessEnvironment
 // troubles Doxygen
 public:
+  typedef std::pair<bool,QFileInfo> Locate_bool_QFileInfo;
+
 /** \brief Setup the manager
 	* 
 	* \param settings is a `QSettings` instance.
@@ -83,8 +85,9 @@ public:
 	* 
 	* On mac OS, this is the directory of the bundle application,
 	* not the application executable.
+	* \return absolute path as a `QDir` object
 	*/
-	static QDir getApplicationDir();
+	static QDir applicationDir();
 
 /** \brief Get the full path of a program
 	*
@@ -175,7 +178,68 @@ public:
 			= QProcessEnvironment::systemEnvironment()
 	);
 
-#include "Core/TwxPathManagerPrivate.h"
+/** \brief Type of `Locate::resolve` result */
+	struct Resolved {
+		bool success;
+		QFileInfo fileInfo;
+	};
+/**
+	* \brief Resolve a location
+	*
+	* Find an absolute path to an existing location.
+	*
+	* * If the location is absolute:
+	*   - if it points to an existing object in the file system,
+	*     it is returned as `QFileInfo` after a true value for success;
+	*   - if it does not points to an existing object, and `mustExist` is true,
+	*     it is also returned as `QFileInfo` but after a false value for failure.
+	* * If the location is relative, it is resolved with respect to
+	*   - dir
+	*   - the current directory
+	*   - the home directory
+	*   - the directory of the application
+  * 
+	* \note
+	* * The type of the file system object is not considered,
+	*   whether a file or a directory does not come into play.
+	* * The `mustExist` formal argument is used to manage a dilemma:
+	* 	if a full path is given, should we expect it to point to an
+	* 	existing object or not?
+	*
+	* \param location is a relative or an absolute path.
+	* \param customDir ignored when the not absolute.
+	* \return a boolean indicating that an existing path is found,
+	*   and a file info in case of success.
+	*   The file info is unspecified in case of failure.
+	*/
+	static const Resolved resolve(
+		const QString & path,
+		const QDir & customDir,
+		bool mustExist
+	);
+
+private:
+
+	Locate() = delete;
+	~Locate() = delete;
+	Locate( const Locate& ) = delete;
+	Locate(Locate&&) = delete;
+	Locate& operator=(const Locate&) = delete;
+	Locate& operator=(Locate &&) = delete;
+
+#if defined(TwxCore_TEST)
+
+	friend class Test::Main;
+
+  static QStringList messages_m;
+	static QStringList factoryBinaryPathsTest;
+	static QStringList &rawBinaryPaths();
+
+  static const QFileInfo TwxCore_TEST_fileInfoMustExist;
+  static const QFileInfo TwxCore_TEST_fileInfoNone;
+
+#endif
+
 };
 
 } // namespace Core

@@ -24,37 +24,39 @@
 #include "Core/TwxConst.h"
 #include "Core/TwxInfo.h"
 #include "Core/TwxSettings.h"
-#include "Core/TwxPathManager.h"
+#include "Core/TwxLocate.h"
 
 #include <QDebug>
 #include <QDirIterator>
 #include <QStandardPaths>
 #include <QCoreApplication>
 #include <QSettings>
+#include <QProcessEnvironment>
 
 namespace Twx {
 
 namespace Core {
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
-// compile-time default paths - customize by defining in the .pro file
-#	ifndef TW_DICPATH
-#		define TW_DICPATH "/usr/share/hunspell" PATH_LIST_SEP "/usr/share/myspell/dicts"
-#	endif
-#endif
-
-void Assets::setup(const QSettings & settings)
+QString Assets::setupLocation_m;
+const QString Assets::setupLocation()
 {
-	if (settings.contains(Key::libpath)) {
-		auto dir = PathManager::getApplicationDir();
-		if (dir.cd(settings.value(Key::libpath).toString())) {
-			setSetupLocation(dir.absolutePath());
-		}
-	}
+	return setupLocation_m;
 }
 
-TWX_CONST_NO_TEST QString Assets::standardLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-TWX_CONST_NO_TEST QString Assets::legacyLocation =
+QString Assets::standardLocation_m;
+const QString Assets::standardLocation()
+{
+	if (standardLocation_m.isEmpty()) {
+		standardLocation_m = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	}
+	return standardLocation_m;
+}
+
+QString Assets::legacyLocation_m;
+const QString Assets::legacyLocation()
+{
+	if (legacyLocation_m.isEmpty()) {
+		legacyLocation_m =
 #if defined(Q_OS_DARWIN)
 	QStringLiteral("%1/Library/%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
 #elif defined(Q_OS_UNIX) // && !defined(Q_OS_DARWIN)
@@ -62,20 +64,48 @@ TWX_CONST_NO_TEST QString Assets::legacyLocation =
 #else // defined(Q_OS_WIN)
 	QStringLiteral("%1/%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
 #endif
+	}
+	return legacyLocation_m;
+}
+
+void Assets::setup(const QSettings & settings)
+{
+	if (settings.contains(Key::libpath)) {
+		auto dir = Locate::applicationDir();
+		if (dir.cd(settings.value(Key::libpath).toString())) {
+			setupLocation_m = dir.absolutePath();
+		}
+	}
+}
+
+void Assets::setup(const QProcessEnvironment & PE)
+{
+	auto path = PE.value(Env::TWX_ASSETS_LIBRARY_PATH);
+	if (path.isNull()) {
+		path = PE.value(Env::TW_LIBPATH);
+		if (path.isNull()) {
+			return;
+		}
+	}
+	auto dir = Locate::applicationDir();
+	if (dir.cd(path)) {
+		setupLocation_m = dir.absolutePath();
+	}
+}
 
 // static
 void Assets::possiblyMigrateLegacy()
 {
 	// We don't migrate old (system) libraries in -setup.ini mode
-	if (!getSetupLocation().isEmpty()) {
+	if (!setupLocation().isEmpty()) {
 		return;
 	}
 	// We don't migrate if the destination exists already
-	const QDir standardDir(standardLocation);
+	const QDir standardDir(standardLocation());
 	if (standardDir.exists()) {
 		return;
 	}
-	QDir legacyDir(legacyLocation);
+	QDir legacyDir(legacyLocation());
 	if (!legacyDir.exists()) {
 		return;
 	}
@@ -104,14 +134,12 @@ const QStringList Assets::dictionaryLocations(
 )
 {
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
-	if (getSetupLocation().isEmpty()) {
-		// The "-setup.ini" mode takes precedence over the process environment
-		const auto answer = rawUnixDictionaryLocations(QProcessEnvironment::systemEnvironment());
-		if (!answer.empty())
-		  return answer;
-	}
+	// The "-setup.ini" mode takes precedence over the process environment
+	const auto answer = rawUnixDictionaryLocations(QProcessEnvironment::systemEnvironment());
+	if (!answer.empty())
+		return answer;
 #endif
-	return QStringList{ getPath(
+	return QStringList{ path(
 		Key::dictionaries,
 		updateLocal
 	) };
@@ -128,37 +156,45 @@ const QStringList Assets::rawUnixDictionaryLocations(
 {
 	// The "-setup.ini" mode takes precedence over the process environment
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN) || defined(TwxAssets_TEST)
-	QString dicPath = PE.value(QStringLiteral("TW_DICPATH"));
-	if (!dicPath.isEmpty())
-		return dicPath.split(QDir::listSeparator());
+	if (setupLocation().isEmpty()) {
+		QString dicPath = PE.value(Env::TWX_DICTIONARY_PATH);
+		if (!dicPath.isEmpty())
+			return dicPath.split(QDir::listSeparator());
+		dicPath = PE.value(Env::TW_DICPATH);
+		if (!dicPath.isEmpty())
+			return dicPath.split(QDir::listSeparator());
 # if defined(TW_DICPATH)
-	dicPath = QStringLiteral("TW_DICPATH");
-	if (!dicPath.isEmpty())
-		return dicPath.split(QDir::listSeparator());
-	// don't try to create/update the system dicts directory, JL: meaning?
+		dicPath = Env::TW_DICPATH;
+		if (!dicPath.isEmpty())
+			return dicPath.split(QDir::listSeparator());
+		// don't try to create/update the system dicts directory, JL: meaning?
 # endif
-	return QStringList{
-		QStringLiteral("/usr/share/hunspell"),
-		QStringLiteral("/usr/share/myspell/dicts"),
-	};
-#else
-	return QStringList();
+		return QStringList{
+			QStringLiteral("/usr/share/hunspell"),
+			QStringLiteral("/usr/share/myspell/dicts"),
+		};
+	}
 #endif
+	return QStringList();
 }
 
 // TODO: Change this awfull `resfiles` into `assetsDir` or `assets`
 // depending on the context
-TWX_CONST_NO_TEST QDir Assets::factoryDir = QDir(QStringLiteral(":/resfiles"));
+QDir Assets::factoryDir_m = QDir(QStringLiteral(":/resfiles"));
+const QDir Assets::factoryDir()
+{
+	return factoryDir_m;
+}
 
 // static
-const QString Assets::getPath(
+const QString Assets::path(
 	const QString & category,
 	const bool updateLocal
 )
 {
-	QString location = getSetupLocation();
+	QString location = setupLocation();
 	if (location.isEmpty()) {
-		location = standardLocation;
+		location = standardLocation();
 		possiblyMigrateLegacy();
 	}
 	if(updateLocal) {
@@ -179,7 +215,7 @@ int Assets::update(
 		// don't copy the factory translations
 		return 1;
 	}
-	QDir factorySubdir(factoryDir);
+	QDir factorySubdir(factoryDir());
 	if (!factorySubdir.cd(category))
 	  // Nothing to copy
 		return 2;
@@ -199,7 +235,7 @@ int Assets::update(
 			continue;
 
 		QString factoryPath = iter.fileInfo().filePath();
-		QString relativePath = factoryDir.relativeFilePath(factoryPath);
+		QString relativePath = factoryDir().relativeFilePath(factoryPath);
 		QFileInfo assetsFileInfo(assetsDir.filePath(relativePath));
 
 		// Check if the file is in the database
@@ -260,22 +296,9 @@ int Assets::update(
 			}
 		}
 	}
-  frdb.adjust(factoryDir);
+  frdb.adjust(factoryDir());
 	frdb.save();
 	return 0;
-}
-
-namespace P {
-	static QString setupPath;
-}
-
-const QString & Assets::getSetupLocation()
-{
-	return P::setupPath;
-}
-void Assets::setSetupLocation(const QString & path)
-{
-	P::setupPath = path;
 }
 
 } // namespace Core

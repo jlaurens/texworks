@@ -284,6 +284,7 @@ endfunction()
 if (UNIX AND NOT APPLE)
   twx_target_add_path_define(TeXworks "TW_HELPPATH"   "${TeXworks_HELP_DIR}"  )
   twx_target_add_path_define(TeXworks "TW_PLUGINPATH" "${TeXworks_PLUGIN_DIR}")
+  twx_target_add_path_define(TeXworks "TWX_DICTIONARY_PATH" "${TeXworks_DIC_DIR}"   )
   twx_target_add_path_define(TeXworks "TW_DICPATH"    "${TeXworks_DIC_DIR}"   )
 endif ()
 

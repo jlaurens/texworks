@@ -37,6 +37,7 @@ QString ResourcesLibrary::m_portableLibPath;
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 // compile-time default paths - customize by defining in the .pro file
+// JL: This assumes that TW_DICPATH is a quoted text
 #	ifndef TW_DICPATH
 #		define TW_DICPATH "/usr/share/hunspell" PATH_LIST_SEP "/usr/share/myspell/dicts"
 #	endif

@@ -150,7 +150,27 @@ public:
 	void adjust(const QDir & factoryDir);
 
 private:
-	#include "Core/TwxAssetsTrackDBPrivate.h"
+
+  static const int version;
+
+  QList<AssetsTrack> assetsTracks_m;
+  QDir              dir_m;
+
+	bool save(const QString & path) const;
+	static AssetsTrackDB load(const QString & path);
+	bool save_legacy(const QString & path) const;
+  static AssetsTrackDB load_legacy(const QString & path);
+
+#if defined(TwxCore_TEST)
+	static const QString saveComponent;
+	QList<AssetsTrack> & getList();
+	const QList<AssetsTrack> & getList() const;
+  void removeStorage() const;
+
+  friend class Test::Main;
+	friend bool operator==(const AssetsTrackDB & frdb1, const AssetsTrackDB & frdb2);
+#endif
+
 };
 
 } // namespace Core
