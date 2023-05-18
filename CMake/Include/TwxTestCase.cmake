@@ -40,27 +40,28 @@ Includes `TwxCoreLib`
 twx_test_case ( executable variable ) {}
 /*
 #]=======]
-function ( twx_test_case executable_name variable )
-  twx_assert_non_void ( PROJECT_BINARY_DIR )
+function ( twx_test_case executable_name_ variable_ )
+  twx_assert_non_void ( CMAKE_BINARY_DIR )
   file (
     COPY
       "${CMAKE_CURRENT_LIST_DIR}/Test/TestCase"
     DESTINATION
-      "${PROJECT_BINARY_DIR}/build_data/"
+      "${CMAKE_BINARY_DIR}/build_data/"
   )
   file (
     REMOVE_RECURSE
-      "${PROJECT_BINARY_DIR}/${executable_name}.TestCase"
+      "${CMAKE_BINARY_DIR}/${executable_name_}.TestCase"
   )
   set (
-    ${variable}
-    "${PROJECT_BINARY_DIR}/${executable_name}.TestCase"
+    ${variable_}
+    "${CMAKE_BINARY_DIR}/${executable_name_}.TestCase"
   )
   file (
     RENAME
-      "${PROJECT_BINARY_DIR}/build_data/TestCase"
-      "${${variable}}"
+      "${CMAKE_BINARY_DIR}/build_data/TestCase"
+      "${${variable_}}"
   )
-  twx_export ( "${variable}" )
+  twx_export ( "${variable_}" )
+  message ( STATUS "Test case folder: ${${variable_}}" )
 endfunction ()
 #*/

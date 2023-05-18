@@ -86,12 +86,14 @@ const QString Info::versionFull = @TWX_CFG_GIT_OK@
 		Info::buildId
 	);
 
-void Info::initApplication (QCoreApplication & application)
+void Info::initApplication (QCoreApplication * application)
 {
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN) || defined (TWX_TEST)
-	application.setOrganizationName(Info::organizationName);
-	application.setOrganizationDomain(Info::organizationDomain);
-	application.setApplicationName(Info::name);
+  if (application) {
+		application->setOrganizationName(Info::organizationName);
+		application->setOrganizationDomain(Info::organizationDomain);
+		application->setApplicationName(Info::name);
+	}
 #endif
 }
 

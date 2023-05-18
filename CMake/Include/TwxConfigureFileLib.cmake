@@ -211,6 +211,9 @@ function ( twx_configure_file_begin )
   else ()
     set ( GIT_OK ${TWX_CFG_CPP_TRUTHY} )
   endif()
+  message ( STATUS "GIT_OK ====> ${GIT_OK}" )
+  message ( STATUS "TWX_CFG_CPP_FALSY ====> ${TWX_CFG_CPP_FALSY}" )
+  message ( STATUS "TWX_CFG_CPP_TRUTHY ====> ${TWX_CFG_CPP_TRUTHY}" )
   twx_cfg_set ( GIT_OK "${GIT_OK}" )
   # ANCHOR: Derived version strings, including a short one
   twx_cfg_set (
@@ -244,23 +247,12 @@ ${TWX_CFG_VERSION_MINOR}"
     ON
     PARENT_SCOPE
   )
-  include ( TwxCfgLib )
   twx_cfg_update ()
   set ( ${PROJECT_NAME}_configure_file.in )
   set ( ${PROJECT_NAME}_configure_file.out )
-	if ( POLICY CMP0140 )
-    return (
-      PROPAGATE
-      ${PROJECT_NAME}.ini
-      ${PROJECT_NAME}_configure_file.in
-      ${PROJECT_NAME}_configure_file.out
-    )
-  else ()
-    twx_export ( ${PROJECT_NAME}.ini )
-    twx_export ( ${PROJECT_NAME}_configure_file.in )
-    twx_export ( ${PROJECT_NAME}_configure_file.out )
-    return ()
-  endif ()
+  twx_export ( ${PROJECT_NAME}.ini )
+  twx_export ( ${PROJECT_NAME}_configure_file.in )
+  twx_export ( ${PROJECT_NAME}_configure_file.out )
 endfunction ( twx_configure_file_begin )
 
 # ANCHOR: twx_configure_file_add
@@ -354,7 +346,7 @@ function ( twx_configure_file_end )
       ${PROJECT_NAME}_configure_file_target
     )
     if ( NOT TARGET ${target} )
-      add_custom_target(
+      add_custom_target (
         ${target}
         ALL
         DEPENDS
@@ -364,8 +356,9 @@ function ( twx_configure_file_end )
       )
     endif ()
     include ( TwxCfgLib )
-    twx_cfg_path ( _path_static static )
-    twx_cfg_path ( _path_git git )
+    twx_cfg_path ( _path_static "static" )
+    twx_cfg_path ( _path_git "git" )
+    twx_cfg_path ( _path_paths "paths" )
     set_property(
       DIRECTORY 
       APPEND 
@@ -374,6 +367,7 @@ function ( twx_configure_file_end )
       ${${PROJECT_NAME}_configure_file.in}
       ${_path_static}
       ${_path_git}
+      ${_path_paths}
     )
     add_custom_command (
       OUTPUT

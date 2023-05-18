@@ -22,6 +22,7 @@
 #include "Engine.h"
 #include "TWApp.h"
 
+#include "Core/TwxConst.h"
 #include "Core/TwxLocate.h"
 using Locate = Twx::Core::Locate;
 
@@ -129,9 +130,9 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	// Appending the path to the typesetting tool to PATH acts as a fallback and
 	// implicitly assumes that the tool itself and all tools it relies on are in
 	// the same (standard) location.
-	QStringList envPaths = env.value(Env::PATH).split(QDir::listSeparator());
+	QStringList envPaths = env.value(Twx::Env::PATH).split(QDir::listSeparator());
 	envPaths.append(QFileInfo(exeFilePath).dir().absolutePath());
-	env.insert(Env::PATH, envPaths.join(QDir::listSeparator()));
+	env.insert(Twx::Env::PATH, envPaths.join(QDir::listSeparator()));
 #endif
 
 	QStringList args = arguments();

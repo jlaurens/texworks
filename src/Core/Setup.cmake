@@ -56,7 +56,7 @@ list (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxSettings.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxAssetsTrackDB.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxAssets.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxSetupIni.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxSetup.cpp"
 	${out_twx}
 )
 unset ( out_twx )
@@ -70,7 +70,7 @@ list (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxSettings.h"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxAssetsTrackDB.h"
 	"${CMAKE_CURRENT_LIST_DIR}/TwxAssets.h"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxSetupIni.h"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxSetup.h"
 )
 
 twx_append_QT ( REQUIRED Widgets )

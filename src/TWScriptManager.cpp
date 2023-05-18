@@ -28,7 +28,10 @@
 #endif
 #include "scripting/ScriptAPI.h"
 #include "scripting/ScriptLanguageInterface.h"
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
+
+#include "Core/TwxConst.h"
+#include "Core/TwxAssets.h"
 
 #include <QDir>
 #include <QPluginLoader>
@@ -54,7 +57,7 @@ TWScriptManager::TWScriptManager()
 void
 TWScriptManager::saveDisabledList()
 {
-	QDir scriptRoot(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("scripts")));
+	QDir scriptRoot(Twx::Core::Assets::path(Twx::Key::scripts));
 	QStringList disabled;
 
 	QList<QObject*> list = m_Scripts.findChildren<QObject*>();
@@ -134,7 +137,7 @@ void TWScriptManager::reloadScripts(bool forceAll /* = false */)
 	QStringList processed;
 
 	// canonicalize the paths
-	QDir scriptsDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("scripts")));
+	QDir scriptsDir(Twx::Core::Assets::path(Twx::Key::scripts));
 	for (int i = 0; i < disabled.size(); ++i)
 		disabled[i] = QFileInfo(scriptsDir.absoluteFilePath(disabled[i])).canonicalFilePath();
 

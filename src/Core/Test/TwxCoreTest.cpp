@@ -99,9 +99,9 @@ void Main::init()
 		settings.remove(key);
 	}
 	Assets::setupLocation_m    = QString();
-	Assets::factoryDir_m       = QDir("Assets/factoryDir");
-	Assets::legacyLocation_m   = QDir("Assets/legacyLocation").absolutePath();
-	Assets::standardLocation_m = QDir("Assets/AppDataLocation").absolutePath();
+	Assets::factoryDir_m       = QDir("Assets/factoryDir/");
+	Assets::legacyLocation_m   = QDir("Assets/legacyLocation/").absolutePath();
+	Assets::standardLocation_m = QDir("Assets/AppDataLocation/").absolutePath();
 	QStandardPaths::setTestModeEnabled(true);
 }
 
@@ -148,6 +148,10 @@ void Main::testConst()
 		Env::PATH,
 		Key::binaryPaths,
 		Key::defaultbinpaths,
+		Key::configuration,
+		Key::completion,
+		Key::templates,
+		Key::scripts,
 		Key::dictionaries,
 		Key::libpath,
 		Key::inipath,
@@ -449,7 +453,6 @@ void Main::testLocate_resolve()
 	actual = Locate::resolve(fileInfo.fileName(), dirCustom, true);
 	QVERIFY(actual.success);
 	QCOMPARE(actual.fileInfo, fileInfo);
-	qDebug() << "====> Known";
 	fileInfo = fileInfoKnown;
 	actual = Locate::resolve(fileInfo.filePath(), dirOther, false);
 	QVERIFY(actual.success);
@@ -463,7 +466,6 @@ void Main::testLocate_resolve()
 	actual = Locate::resolve(fileInfo.filePath(), dirCustom, true);
 	QVERIFY(actual.success);
 	QCOMPARE(actual.fileInfo, fileInfo);
-	qDebug() << "====> Unknown";
 	fileInfo = fileInfoUnknown;
 	actual = Locate::resolve(fileInfo.filePath(), dirOther, false);
 	QVERIFY(!actual.success);
@@ -609,6 +611,7 @@ void Main::testAssets_path()
 	QVERIFY(QDir(Assets::legacyLocation()).exists());
 	QVERIFY(QDir(Assets::standardLocation()).exists());
 	QVERIFY(QDir(Assets::path("Category_A")).exists());
+	QVERIFY(QDir(Assets::path("")).exists());
 }
 
 void Main::testAssets_setup_PE()
@@ -646,6 +649,63 @@ void Main::testAssets_setup_settings()
 	Assets::setup(settings);
 	QCOMPARE(QDir(Assets::setupLocation()).dirName(), "setupLocation");
 	QVERIFY(QDir(Assets::path("Category_B")).exists());
+}
+
+void Main::testAssets_getLibraryPath_data()
+{
+	QTest::addColumn<QString>("portableLibPath");
+	QTest::addColumn<QString>("subdir");
+	QTest::addColumn<QString>("result");
+
+	const QString sConfig(Key::configuration);
+	const QString sDicts(Key::dictionaries);
+	const QString sInvalid(QStringLiteral("does-not-exist"));
+
+	QString appDataLocation = QDir::current().absoluteFilePath("Assets/AppDataLocation/");
+	QString stem = appDataLocation;
+
+	QTest::newRow("root") << QString() << QString() << stem;
+	QTest::newRow("configuration") << QString() << sConfig << stem + sConfig;
+	QTest::newRow("does-not-exist") << QString() << sInvalid << stem + sInvalid;
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN) // *nix
+#	ifndef TW_DICPATH
+	QTest::newRow(Key::dictionaries) << QString() << sDicts << QStringLiteral("/usr/share/hunspell:/usr/share/myspell/dicts");
+#	else
+	QTest::newRow(Key::dictionaries) << QString() << sDicts << TW_DICPATH;
+#	endif
+#else // not *nix
+	QTest::newRow("dictionaries") << QString() << sDicts << stem + sDicts;
+#endif
+
+	stem = "/invented/portable/root/";
+	QTest::newRow("portable-root") << stem << QString() << appDataLocation;
+	QTest::newRow("portable-configuration") << stem << sConfig << appDataLocation + sConfig;
+	QTest::newRow("portable-does-not-exist") << stem << sInvalid << appDataLocation + sInvalid;
+	QTest::newRow("portable-dictionaries") << stem << sDicts << appDataLocation + sDicts;
+}
+
+void Main::testAssets_getLibraryPath()
+{
+	QFETCH(QString, portableLibPath);
+	QFETCH(QString, subdir);
+	QFETCH(QString, result);
+
+	Assets::path(portableLibPath);
+	QCOMPARE(Assets::path(subdir, false), result);
+}
+
+void Main::testAssets_portableLibPath()
+{
+	QString noDir;
+	QString curDir(Path::dot);
+	QString invalidDir(QStringLiteral("/does-not-exist/"));
+
+	Assets::path(noDir);
+	QCOMPARE(Assets::setupLocation_m, noDir);
+	Assets::setupLocation_m = curDir;
+	QCOMPARE(Assets::setupLocation_m, curDir);
+	Assets::setupLocation_m = invalidDir;
+	QCOMPARE(Assets::setupLocation_m, invalidDir);
 }
 
 } // namespace Test

@@ -18,7 +18,7 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#include "Core/TwxSetupIni.h"
+#include "Core/TwxSetup.h"
 
 #include "Core/TwxConst.h"
 #include "Core/TwxInfo.h"

@@ -152,7 +152,7 @@ public:
 	* the manifest and the plist are not available.
 	* \param application
 	*/
-	static void initApplication(QCoreApplication & application);
+	static void initApplication(QCoreApplication * application);
   
 #if defined(TwxCore_TEST)
   friend class Test::Main;

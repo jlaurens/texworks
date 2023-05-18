@@ -141,7 +141,7 @@ bool AssetsTrackDB::save(const QString & path) const
 		ra.append(QJsonObject{
 			{K::path, rootDir.relativeFilePath(track.fileInfo.absoluteFilePath())},
 			{K::version, track.version},
-			{K::checksum, QString(track.checksum.bytes)},
+			{K::checksum, QString::fromUtf8(track.checksum.bytes)},
 		});
 	};
 	QJsonDocument d(QJsonObject{

@@ -51,15 +51,12 @@ set(TEXWORKS_SRCS BibTeXFile.cpp
                   ui/ScreenCalibrationWidget.cpp
                   utils/CmdKeyFilter.cpp
                   utils/CommandlineParser.cpp
-                  utils/FileVersionDatabase.cpp
                   utils/FullscreenManager.cpp
-                  utils/ResourcesLibrary.cpp
                   utils/SystemCommand.cpp
                   utils/TextCodecs.cpp
                   utils/TypesetManager.cpp
                   utils/VersionInfo.cpp
                   utils/WindowManager.cpp
-                  ${TwxCore_SOURCES}
                   )
 
 set(TEXWORKS_HDRS BibTeXFile.h
@@ -106,16 +103,17 @@ set(TEXWORKS_HDRS BibTeXFile.h
                   ui/ScreenCalibrationWidget.h
                   utils/CmdKeyFilter.cpp
                   utils/CommandlineParser.h
-                  utils/FileVersionDatabase.h
                   utils/FullscreenManager.h
-                  utils/ResourcesLibrary.h
                   utils/SystemCommand.h
                   utils/TextCodecs.h
                   utils/TypesetManager.h
                   utils/VersionInfo.h
                   utils/WindowManager.h
-                  ${TwxCore_SOURCES}
                   )
+
+include( Core/Setup.cmake )
+list ( APPEND TEXWORKS_SRCS ${TwxCore_SOURCES} )
+list ( APPEND TEXWORKS_HDRS ${TwxCore_HEADERS} )
 
 if (WIN32)
   list(APPEND TEXWORKS_SRCS InterProcessCommunicatorWin.cpp)

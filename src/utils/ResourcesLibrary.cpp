@@ -19,7 +19,7 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
 
 #include "TWApp.h" // for PATH_LIST_SEP
 #include "utils/FileVersionDatabase.h"

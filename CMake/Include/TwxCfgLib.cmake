@@ -20,11 +20,6 @@ NB: We need high control and cannot benefit from
 QSettings.
 #]===============================================]
 
-# Guard
-if ( COMMAND twx_cfg_setup )
-  return ()
-endif ()
-
 #[=======[
 *//**
 @brief Truthy c++ value
@@ -50,6 +45,11 @@ TWX_CFG_CPP_FALSY;
 set (
   TWX_CFG_CPP_FALSY 0
 )
+
+# Guard
+if ( COMMAND twx_cfg_setup )
+  return ()
+endif ()
 
 # ANCHOR: twx_cfg_setup
 #[=======[
@@ -169,6 +169,24 @@ macro ( twx_cfg_set _key _value )
     message ( STATUS "TWXCfg: ${_key} => <${_value}>" )
   endif ()
 endmacro ()
+
+#[=======[
+twx_cfg_path ( path_ "${id_}" )
+add_custom_command ( 
+  OUTPUT "${path_}"
+  COMMAND ${CMAKE_COMMAND} -P
+  DEPENDS "${PROJECT_NAME}.ini"
+)
+add_custom_command(OUTPUT output1 [output2 ...]
+                   COMMAND command1 [ARGS] [args1...]
+                   [COMMAND command2 [ARGS] [args2...] ...]
+                   [MAIN_DEPENDENCY depend]
+                   [DEPENDS [depends...]]
+                   [IMPLICIT_DEPENDS <lang1> depend1
+                                    [<lang2> depend2] ...]
+                   [WORKING_DIRECTORY dir]
+                   [COMMENT comment] [VERBATIM] [APPEND])
+#]=======]
 
 # ANCHOR: Utility `twx_cfg_write_end`
 #[=======[
@@ -387,7 +405,6 @@ function ( twx_cfg_update )
     message ( STATUS "TwxCfgUpdate..." )
   endif ()
 
-  include ( TwxCfgLib )
   twx_cfg_read ( "factory" ONLY_CONFIGURE )
   twx_cfg_read ( "git" QUIET ONLY_CONFIGURE )
 
@@ -462,7 +479,7 @@ Would show the date and time UTC.
     message ( STATUS "Git commit info updated (TEST)" )
   else ()
     twx_cfg_write_begin ()
-    foreach (key_ HASH DATE BRANCH OK)
+    foreach ( key_ HASH DATE BRANCH OK )
       twx_cfg_set ( GIT_${key_} "${new_${key_}}" )
     endforeach ()
     twx_cfg_write_end ( "git" )

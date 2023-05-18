@@ -40,6 +40,9 @@ namespace Core {
 QString Assets::setupLocation_m;
 const QString Assets::setupLocation()
 {
+	if (!setupLocation_m.isEmpty() && !setupLocation_m.endsWith(QStringLiteral("/"))) {
+		setupLocation_m += QStringLiteral("/");
+	}
 	return setupLocation_m;
 }
 
@@ -47,22 +50,23 @@ QString Assets::standardLocation_m;
 const QString Assets::standardLocation()
 {
 	if (standardLocation_m.isEmpty()) {
-		standardLocation_m = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+		standardLocation_m = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/");
 	}
 	return standardLocation_m;
 }
 
 QString Assets::legacyLocation_m;
+
 const QString Assets::legacyLocation()
 {
 	if (legacyLocation_m.isEmpty()) {
 		legacyLocation_m =
 #if defined(Q_OS_DARWIN)
-	QStringLiteral("%1/Library/%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
+			QStringLiteral("%1/Library/%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
 #elif defined(Q_OS_UNIX) // && !defined(Q_OS_DARWIN)
-	QStringLiteral("%1/.%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
+			QStringLiteral("%1/.%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
 #else // defined(Q_OS_WIN)
-	QStringLiteral("%1/%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
+			QStringLiteral("%1/%2/").arg(QDir::homePath(), QCoreApplication::applicationName());
 #endif
 	}
 	return legacyLocation_m;
@@ -70,9 +74,12 @@ const QString Assets::legacyLocation()
 
 void Assets::setup(const QSettings & settings)
 {
+	qDebug() << "Assets::setup";
 	if (settings.contains(Key::libpath)) {
 		auto dir = Locate::applicationDir();
+		qDebug() << Key::libpath << dir.absolutePath();
 		if (dir.cd(settings.value(Key::libpath).toString())) {
+			qDebug() << settings.value(Key::libpath).toString();
 			setupLocation_m = dir.absolutePath();
 		}
 	}
@@ -174,6 +181,8 @@ const QStringList Assets::rawUnixDictionaryLocations(
 			QStringLiteral("/usr/share/myspell/dicts"),
 		};
 	}
+#else
+	Q_UNUSED(PE);
 #endif
 	return QStringList();
 }
@@ -196,6 +205,9 @@ const QString Assets::path(
 	if (location.isEmpty()) {
 		location = standardLocation();
 		possiblyMigrateLegacy();
+	}
+	if (category.isEmpty()) {
+		return location + QStringLiteral("/");
 	}
 	if(updateLocal) {
 		update(location, category);

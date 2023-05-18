@@ -34,7 +34,11 @@ TWX_DECLARE_EPONYM(__version);
 
 // Assets keys and categories
 TWX_DECLARE_EPONYM(translations);
+TWX_DECLARE_EPONYM(configuration);
+TWX_DECLARE_EPONYM(templates);
+TWX_DECLARE_EPONYM(completion);
 TWX_DECLARE_EPONYM(dictionaries);
+TWX_DECLARE_EPONYM(scripts);
 TWX_DECLARE_EPONYM(libpath);
 
 // Settings keys

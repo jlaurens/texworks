@@ -24,7 +24,8 @@
 #include "Settings.h"
 #include "TWUtils.h"
 
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
+#include "Core/TwxAssets.h"
 
 ResourcesDialog::ResourcesDialog(QWidget *parent)
 : QDialog(parent)
@@ -47,7 +48,7 @@ void ResourcesDialog::init()
 	locationOfSettings->setText(pathToLink(s.fileName()));
 #endif
 
-	locationOfResources->setText(pathToLink(Tw::Utils::ResourcesLibrary::getLibraryPath(QString(), false)));
+	locationOfResources->setText(pathToLink(Twx::Core::Assets::path(QString(), false)));
 
 	connect(locationOfSettings, &QLabel::linkActivated, this, &ResourcesDialog::openURL);
 	connect(locationOfResources, &QLabel::linkActivated, this, &ResourcesDialog::openURL);

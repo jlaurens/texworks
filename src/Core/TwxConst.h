@@ -113,6 +113,18 @@ namespace Key {
 /** \brief Assets category */
 	extern const QString translations;
 
+/** \brief Assets category */
+	extern const QString configuration;
+
+/** \brief Assets category */
+	extern const QString completion;
+
+/** \brief Assets category */
+	extern const QString templates;
+
+/** \brief Assets category */
+	extern const QString scripts;
+
 } // namespace Key
 
 /** \brief

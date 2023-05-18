@@ -63,6 +63,10 @@ private slots:
 	void testAssets_setup_PE();
 	void testAssets_setup_settings();
 
+	void testAssets_getLibraryPath_data();
+	void testAssets_getLibraryPath();
+	void testAssets_portableLibPath();
+
 public:
   Main();
   ~Main();

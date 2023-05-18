@@ -33,17 +33,20 @@
 #include "document/SpellChecker.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/CommandlineParser.h"
-#include "utils/ResourcesLibrary.h"
+//#include "utils/ResourcesLibrary.h"
 #include "utils/SystemCommand.h"
 #include "utils/TextCodecs.h"
 #include "utils/VersionInfo.h"
 #include "utils/WindowManager.h"
 
+#include "Core/TwxConst.h"
 #include "Core/TwxInfo.h"
 #include "Core/TwxLocate.h"
 using Locate = Twx::Core::Locate;
-#include "Core/AssetsLookup.h"
-using AssetsLookup = Twx::Core::AssetsLookup;
+#include "Core/TwxSettings.h"
+#include "Core/TwxSetup.h"
+#include "Core/TwxAssets.h"
+
 #include <QAction>
 #include <QDesktopServices>
 #include <QEvent>
@@ -147,7 +150,7 @@ TWApp::~TWApp()
 
 void TWApp::init()
 {
-	Info::initApplication(this);
+	Twx::Core::Info::initApplication(this);
 
 	QIcon appIcon;
 	QIcon::setThemeName(QStringLiteral("tango-texworks"));
@@ -155,12 +158,12 @@ void TWApp::init()
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 	// The Compiz window manager doesn't seem to support icons larger than
 	// 128x128, so we add a suitable one first
-	appIcon.addFile(Path::applicationImage128);
+	appIcon.addFile(Twx::Path::applicationImage128);
 #endif
-	appIcon.addFile(Path::applicationImage);
+	appIcon.addFile(Twx::Path::applicationImage);
 	setWindowIcon(appIcon);
 
-	SetupManager::initialize();
+	Twx::Core::Setup::initialize();
 
 	// </Check for portable mode>
 
@@ -578,13 +581,13 @@ void TWApp::writeToMailingList()
 	QString address(QLatin1String("texworks@tug.org"));
 	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
 
-	body += QStringLiteral("TeXworks version : %1\n").arg(Tw::Utils::VersionInfo::fullVersionString());
+	body += QStringLiteral("TeXworks version : %1\n").arg(Twx::Core::Info::versionFull);
 #if defined(Q_OS_DARWIN)
-	body += QLatin1String("Install location : ") + QDir(applicationDirPath() + QLatin1String("/../..")).absolutePath() + QChar::fromLatin1('\n');
+	body += QLatin1String("Install location : ") + Twx::Core::Locate::applicationDir().absolutePath() + QChar::fromLatin1('\n');
 #else
 	body += QLatin1String("Install location : ") + applicationFilePath() + QChar::fromLatin1('\n');
 #endif
-	body += QLatin1String("Library path     : ") + Tw::Utils::ResourcesLibrary::getLibraryPath(QString()) + QChar::fromLatin1('\n');
+	body += QLatin1String("Library path     : ") + Twx::Core::Assets::path(QString()) + QChar::fromLatin1('\n');
 
 	QString pdftex = Locate::programPath(QStringLiteral("pdftex"));
 	if (pdftex.isEmpty())
@@ -901,7 +904,7 @@ const QList<Engine> TWApp::getEngineList()
 		settings.remove(QString::fromLatin1("engines"));
 
 		if (!foundList) { // read engine list from config file
-			QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
+			QDir configDir(Twx::Core::Assets::path(Twx::Key::configuration));
 			QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
 			if (toolsFile.exists()) {
 				QSettings toolsSettings(toolsFile.fileName(), QSettings::IniFormat);
@@ -929,7 +932,7 @@ const QList<Engine> TWApp::getEngineList()
 
 void TWApp::saveEngineList()
 {
-	QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
+	QDir configDir(Twx::Core::Assets::path(Twx::Key::configuration));
 	QFile toolsFile(configDir.filePath(QString::fromLatin1("tools.ini")));
 	QSettings toolsSettings(toolsFile.fileName(), QSettings::IniFormat);
 	toolsSettings.clear();
@@ -1030,7 +1033,7 @@ void TWApp::activatedWindow(QWidget* theWindow)
 QStringList TWApp::getTranslationList()
 {
 	QStringList translationList;
-	QVector<QDir> dirs({QDir(QStringLiteral(":/resfiles/translations")), QDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("translations")))});
+	QVector<QDir> dirs({QDir(QStringLiteral(":/resfiles/translations")), QDir(Twx::Core::Assets::path(Twx::Key::translations))});
 
 	for (QDir transDir : dirs) {
 		for (QFileInfo qmFileInfo : transDir.entryInfoList(QStringList(QStringLiteral("%1_*.qm").arg(applicationName())),
@@ -1073,11 +1076,11 @@ void TWApp::applyTranslation(const QString& locale)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 		directories << QString::fromLatin1(":/resfiles/translations") \
 					<< QLibraryInfo::location(QLibraryInfo::TranslationsPath) \
-					<< Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("translations"));
+					<< Twx::Core::Assets::path(Twx::Key::translations);
 #else
 		directories << QStringLiteral(":/resfiles/translations") \
 					<< QLibraryInfo::path(QLibraryInfo::TranslationsPath) \
-					<< Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("translations"));
+					<< Twx::Core::Assets::path(Twx::Key::translations);
 #endif
 
 		foreach (QString name, names) {
@@ -1164,7 +1167,7 @@ void TWApp::updateScriptsList()
 
 void TWApp::showScriptsFolder()
 {
-	QDesktopServices::openUrl(QUrl::fromLocalFile(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("scripts"))));
+	QDesktopServices::openUrl(QUrl::fromLocalFile(Twx::Core::Assets::path(Twx::Key::scripts)));
 }
 
 void TWApp::bringToFront()

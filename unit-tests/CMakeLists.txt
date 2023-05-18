@@ -22,6 +22,10 @@ add_subdirectory (
 	../src/ui
 	src/ui
 )
+add_subdirectory (
+	../src/Core
+	src/Core
+)
 include_directories (
 	"${TWX_DIR}/src"
 	${TeXworks_INCLUDE_DIRS}
@@ -97,7 +101,6 @@ add_executable(test_Utils
 	"${CMAKE_SOURCE_DIR}/src/utils/CommandlineParser.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/FileVersionDatabase.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/FullscreenManager.cpp"
-	"${CMAKE_SOURCE_DIR}/src/utils/ResourcesLibrary.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/SystemCommand.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/TextCodecs.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/TypesetManager.cpp"
