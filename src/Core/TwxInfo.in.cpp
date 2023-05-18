@@ -94,6 +94,8 @@ void Info::initApplication (QCoreApplication * application)
 		application->setOrganizationDomain(Info::organizationDomain);
 		application->setApplicationName(Info::name);
 	}
+#else
+  Q_UNUSED(application);
 #endif
 }
 
