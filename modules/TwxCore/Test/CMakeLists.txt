@@ -14,6 +14,10 @@ Input:
 /*
 #]===============================================]
 
+if ( TARGET test_TwxCore )
+  return ()
+endif ()
+
 if ( NOT TWX_IS_BASED )
 	cmake_minimum_required ( VERSION 3.1 )
 	include (
@@ -260,9 +264,10 @@ twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
 twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )
 twx_summary_end ()
 
-twx_summary_section_build_settings ( test_TwxCore VERBOSE )
-
-twx_summary_section_files ( test_TwxCore VERBOSE )
+foreach ( t_ Core CoreLib Core_macOS )
+	twx_summary_section_build_settings ( test_Twx${t_} VERBOSE )
+	twx_summary_section_files ( test_Twx${t_} VERBOSE )
+endforeach ()
 
 twx_summary_end ()
 

@@ -107,7 +107,7 @@ macro ( twx_module_setup NAME TWX_MODULE_NAME )
   #   ID 			UIS
   #   FILES 	${Twx${TWX_MODULE_NAME}_IN_UIS}
   #   IN_DIR  "${src_DIR_}" OR /ui?
-  #   OUT_DIR "${PROJECT_BINARY_DIR}/TwxBuild/src" 
+  #   OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src" 
   #   EXPORT 	Twx${TWX_MODULE_NAME}
   # )
 endmacro ()
@@ -318,7 +318,7 @@ function ( twx_module_load name_ )
       message ( FATAL_ERROR "Circular dependency of module ${name_}" )
     endif ()
     set ( Twx${name_}_IS_CURRENTLY_LOADING ON )
-    add_subdirectory ( "${module_DIR_}" )
+    add_subdirectory ( "${module_DIR_}" "TwxModules/${module_}")
     if ( NOT TARGET Twx::${name_} )
       message ( FATAL_ERROR "Failed to load module ${name_}" )
     endif ()
