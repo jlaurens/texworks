@@ -35,7 +35,7 @@ target_compile_options(TWLuaPlugin PRIVATE ${WARNING_OPTIONS})
 target_compile_definitions(TWLuaPlugin PRIVATE -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
 
 target_include_directories(TWLuaPlugin SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
-target_include_directories(TWLuaPlugin PRIVATE ${TeXworks_SOURCE_DIR}/src)
+target_include_directories(TWLuaPlugin PRIVATE ${TWX_DIR}/src)
 
 # Specify link libraries even if the plugin is built statically so all the
 # interface properties of the Qt targets (include directories, lib directories,

@@ -11,7 +11,6 @@ Usage:
 ```
 include (TwxTestCase)
 ```
-Includes `TwxCoreLib`.
 *//*
 #]===============================================]
 
@@ -20,7 +19,7 @@ if ( COMMAND twx_test_case)
   return ()
 endif ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxBase.cmake" )
 
 # ANCHOR: twx_test_case
 #[=======[
@@ -36,7 +35,7 @@ The destination is `<executable>.WorkingDirectory` near the executable.
 @param variable contains the full directory path
 for the tests on return.
 
-Includes `TwxCoreLib`
+Includes `TwxBase`
 */
 twx_test_case ( variable TARGET executable ) {}
 /*

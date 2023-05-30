@@ -139,4 +139,4 @@ target_link_libraries(test_Document QtPDF::qtpdf SyncTeX::synctex Hunspell::huns
 add_test(NAME test_Document COMMAND test_Document WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
 
 include ( TwxModuleLib )
-twx_module_add ( Core TARGET test_Document )
+twx_module_add ( Core TARGETS test_Document )

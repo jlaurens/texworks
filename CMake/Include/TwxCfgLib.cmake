@@ -557,7 +557,6 @@ function ( twx_cfg_read )
       endif ()
     endforeach ( line IN LISTS lines )
     if ( my_twx_ONLY_CONFIGURE )
-      include ( TwxCoreLib )
       twx_core_timestamp (
         "${name_}"
         ${name_}_TWX_TIMESTAMP_CFG

@@ -70,8 +70,7 @@ include (
   NO_POLICY_SCOPE
 )
 # Set project name.
-PROJECT(TeXworks)
-
+project ( TWX_PROJECT_NAME )
 include ( TwxBase )
 
 IF(WIN32 AND MINGW)
@@ -200,8 +199,8 @@ IF (UNIX AND NOT APPLE)
   MARK_AS_ADVANCED(TeXworks_MAN_DIR)
   MARK_AS_ADVANCED(TeXworks_DESKTOP_DIR)
   MARK_AS_ADVANCED(TeXworks_APPDATA_DIR)
-  IF (EXISTS ${TeXworks_SOURCE_DIR}/manual/)
-    INSTALL(DIRECTORY ${TeXworks_SOURCE_DIR}/manual/ DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_HELP_DIR}/ OPTIONAL)
+  IF (EXISTS ${TWX_DIR}/manual/)
+    INSTALL(DIRECTORY ${TWX_DIR}/manual/ DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_HELP_DIR}/ OPTIONAL)
   ENDIF()
 ENDIF()
 
@@ -393,11 +392,11 @@ ADD_SUBDIRECTORY(src)
 
 # Build scripting language plugins if the required libraries are available.
 IF ( LUA_FOUND AND WITH_LUA )
-  ADD_SUBDIRECTORY(${TeXworks_SOURCE_DIR}/plugins-src/TWLuaPlugin)
+  ADD_SUBDIRECTORY(${TWX_DIR}/plugins-src/TWLuaPlugin)
 ENDIF ()
 
 IF ( PYTHONLIBS_FOUND AND WITH_PYTHON )
-  ADD_SUBDIRECTORY(${TeXworks_SOURCE_DIR}/plugins-src/TWPythonPlugin)
+  ADD_SUBDIRECTORY(${TWX_DIR}/plugins-src/TWPythonPlugin)
 ENDIF ()
 
 # Tests

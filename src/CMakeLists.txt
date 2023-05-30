@@ -141,18 +141,25 @@ set(TEXWORKS_UIS CitationSelectDialog.ui
                  ui/ListSelectDialog.ui
                  )
 
-set(TEXWORKS_RCS ${TeXworks_SOURCE_DIR}/res/resfiles.qrc
-                 ${TeXworks_SOURCE_DIR}/res/resources.qrc)
+set(TEXWORKS_RCS ${TWX_DIR}/res/resfiles.qrc
+                 ${TWX_DIR}/res/resources.qrc)
 
-FILE(GLOB TEXWORKS_TRANS_TS   "${TeXworks_SOURCE_DIR}/trans/*.ts")
-FILE(GLOB QT_TRANS_QM         "${TeXworks_SOURCE_DIR}/trans/qt/*.qm")
+FILE(GLOB TEXWORKS_TRANS_TS   "${TWX_DIR}/trans/*.ts")
+FILE(GLOB QT_TRANS_QM         "${TWX_DIR}/trans/qt/*.qm")
 
 IF ( WIN32 )
   if (NOT MSVC)
     set(CREATE_MANIFEST TRUE)
   endif (NOT MSVC)
-  configure_file(${TeXworks_SOURCE_DIR}/res/TeXworks.in.rc TeXworks.rc)
-  list(APPEND TEXWORKS_SRCS ${CMAKE_CURRENT_BINARY_DIR}/TeXworks.rc)
+  configure_file(
+    ${TWX_DIR}/res/WinOS/${TWX_PROJECT_NAME}.in.rc
+    ${TWX_PROJECT_NAME}.rc
+  )
+  list(
+    APPEND
+    TEXWORKS_SRCS
+    ${TWX_PROJECT_BUILD_DIR}/res/WinOS/${TWX_PROJECT_NAME}.rc
+  )
 ENDIF ( WIN32 )
 
 # These source files along with the `.moc` files generated from some headers
@@ -184,7 +191,7 @@ IF ( APPLE )
 
   LIST(APPEND TeXworks_LIBS  "-framework Foundation")
 
-  set(TeXworks_APP_ICONS "${TeXworks_SOURCE_DIR}/res/TeXworks.icns" "${TeXworks_SOURCE_DIR}/res/TeXworks-doc.icns")
+  set(TeXworks_APP_ICONS "${TWX_DIR}/res/TeXworks.icns" "${TWX_DIR}/res/TeXworks-doc.icns")
   SET_SOURCE_FILES_PROPERTIES( ${TeXworks_APP_ICONS}
     PROPERTIES
       MACOSX_PACKAGE_LOCATION Resources
@@ -260,9 +267,10 @@ ENDIF ()
 target_LINK_LIBRARIES(
   TeXworks
   QtPDF::qtpdf
-  Twx::Core
   ${TeXworks_LIBS}
 )
+
+twx_module_add ( Core TARGETS TeXworks )
 
 # Disallow automatic casts from char* to QString (enforcing the use of tr() or
 # explicitly specifying the string encoding)
@@ -294,7 +302,7 @@ endif ()
 IF (APPLE)
   SET(VER ${TeXworks_VERSION})
   SET(REV ${TeXworks_GIT_HASH})
-  CONFIGURE_FILE(${TeXworks_SOURCE_DIR}/res/TeXworks.in.plist
+  CONFIGURE_FILE(${TWX_DIR}/res/TeXworks.in.plist
     TeXworks.plist
     @ONLY
   )
@@ -324,18 +332,18 @@ else ()
 endif ()
 
 IF ( UNIX AND NOT APPLE )
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/images/TeXworks.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/512x512/apps)
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/images/TeXworks-128.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/128x128/apps RENAME TeXworks.png)
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/images/TeXworks-64.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/64x64/apps RENAME TeXworks.png)
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/images/TeXworks-48.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/48x48/apps RENAME TeXworks.png)
+  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/512x512/apps)
+  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-128.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/128x128/apps RENAME TeXworks.png)
+  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-64.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/64x64/apps RENAME TeXworks.png)
+  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-48.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/48x48/apps RENAME TeXworks.png)
   INSTALL(FILES
-    ${TeXworks_SOURCE_DIR}/COPYING
-    ${TeXworks_SOURCE_DIR}/README.md
-    ${TeXworks_SOURCE_DIR}/NEWS
+    ${TWX_DIR}/COPYING
+    ${TWX_DIR}/README.md
+    ${TWX_DIR}/NEWS
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DOCS_DIR})
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/texworks.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_MAN_DIR})
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/texworks.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DESKTOP_DIR})
-  INSTALL(FILES ${TeXworks_SOURCE_DIR}/res/texworks.appdata.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_APPDATA_DIR})
+  INSTALL(FILES ${TWX_DIR}/res/texworks.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_MAN_DIR})
+  INSTALL(FILES ${TWX_DIR}/res/texworks.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DESKTOP_DIR})
+  INSTALL(FILES ${TWX_DIR}/res/texworks.appdata.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_APPDATA_DIR})
 ENDIF ( UNIX AND NOT APPLE )
 
 # On OS X, ensure there is always a `qt.conf` file as all hell will break loose

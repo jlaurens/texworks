@@ -27,7 +27,6 @@ Output:
 - `TWX_DIR`
 - `twx_target_include_src()`
 
-Includes module `TwxCoreLib`.
 Also includes module `CMakeParseArguments` until this is built in.
 
 Implementation details:
@@ -300,8 +299,6 @@ function ( twx_target_include_src )
   endif ()
 endfunction ( twx_target_include_src )
 
-include ( TwxCoreLib )
-
 include ( CMakeParseArguments )
 
 # ANCHOR: twx_parse_arguments
@@ -379,8 +376,135 @@ function ( twx_assert_equal actual_ expected_ )
   endif ()
 endfunction ()
 
+# ANCHOR: Utility `twx_core_timestamp`
+#[=======[
+Usage:
+```
+twx_core_timestamp ( <file_path> <variable> )
+```
+Records the file timestamp.
+The precision is 1s.
+Correct up to 2036-02-27.
+#]=======]
+function ( twx_core_timestamp file_path ans )
+  file (
+    TIMESTAMP "${file_path}" ts "%S:%M:%H:%j:%Y" UTC
+  )
+  if ( ts MATCHES "^([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)$" )
+    math(
+      EXPR
+      ts "
+      ${CMAKE_MATCH_1} + 60 * (
+        ${CMAKE_MATCH_2} + 60 * (
+          ${CMAKE_MATCH_3} + 24 * (
+            ${CMAKE_MATCH_4} + 365 * (
+              ${CMAKE_MATCH_5}-2023
+            )
+          )
+        )
+      )"
+    )
+    if ( CMAKE_MATCH_5 GREATER 2024 )
+      math(
+        EXPR
+        ts
+        "${ts} + 86400" 
+      )
+    elseif ( CMAKE_MATCH_5 GREATER 2028 )
+      math(
+        EXPR
+        ts
+        "${ts} + 172800" 
+      )
+    elseif ( CMAKE_MATCH_5 GREATER 2032 )
+      math(
+        EXPR
+        ts
+        "${ts} + 259200" 
+      )
+    elseif ( CMAKE_MATCH_5 GREATER 2036 )
+      math(
+        EXPR
+        ts
+        "${ts} + 345600" 
+      )
+    endif ()
+  else ()
+    set ( ts 0 )
+  endif ()
+  set ( ${ans} "${ts}" PARENT_SCOPE )
+endfunction ()
+
+# ANCHOR: TWX_PATH_LIST_SEPARATOR
+#[=======[
+*//**
+The system dependent path list separator.
+`;` on windows and friends, `:` otherwise.
+*/
+TWX_PATH_LIST_SEPARATOR;
+/*#]=======]
+if (WIN32)
+	set ( TWX_PATH_LIST_SEPARATOR ";" )
+else ()
+	set ( TWX_PATH_LIST_SEPARATOR ":" )
+endif ()
+
+
+# ANCHOR: SWITCHER
+#[=======[
+*//**
+The system dependent switcher is used as path component.
+Possible values are
+- `WinOS`,
+- `MacOS`,
+- `UnixOS`,
+*/
+TWX_OS_SWITCHER;
+/*#]=======]
+if (WIN32)
+  set ( TWX_OS_SWITCHER "os_win" )
+elseif (APPLE)
+  set ( TWX_OS_SWITCHER "os_darwin" )
+else ()
+  set ( TWX_OS_SWITCHER "os_other" )
+endif ()
+
+# ANCHOR: twx_assert_non_void
+#[=======[*/
+/**
+Raises when the variable is empty.
+@param variable_name a variable name
+@param ... another variable name
+*/
+twx_assert_non_void(variable_name ... ) {}
+/*#]=======]
+function ( twx_assert_non_void _variable )
+  if ( "${${_variable}}" STREQUAL "" )
+    if ( "${ARGN}" STREQUAL "" )
+      message ( FATAL_ERROR "Missing ${_variable}")
+    elseif ( "${_variable}" MATCHES "^MY_(.*)$" )
+      message ( FATAL_ERROR "Missing ${CMAKE_MATCH_1} ... argument")
+    else ()
+      message ( FATAL_ERROR "Missing ${ARGN}")
+    endif ()
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_export
+#[=======[
+*//**
+Convenient shortcut to export variables to the parent scope.
+@param ... the names of the variable to be exported.
+*/
+twx_export(...){}
+/*
+#]=======]
+macro ( twx_export )
+  foreach ( var_twx IN ITEMS ${ARGN} )
+    set ( ${var_twx} ${${var_twx}} PARENT_SCOPE )
+  endforeach ()
+endmacro ()
+
 message ( STATUS "TwxBase: initialize(${TWX_DIR})" )
 
-#[=======[
-*/
-#]=======]
+#*/
