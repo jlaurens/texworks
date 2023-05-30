@@ -356,6 +356,9 @@ else ()
 	endif ()
 endif ()
 
+include ( TwxDoxydocLib )
+twx_doxydoc ()
+
 # Build modules
 add_subdirectory ( modules TwxModules )
 
@@ -451,9 +454,6 @@ IF ( APPLE )
 ENDIF ()
 
 INCLUDE(CPack)
-
-include ( TwxDoxydocLib )
-twx_doxydoc ( ${CMAKE_CURRENT_BINARY_DIR} )
 
 # Summary
 # =======

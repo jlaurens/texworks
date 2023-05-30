@@ -58,32 +58,33 @@ endif ()
 @brief Get the standard location for Cfg data files
 
 @param variable name where the result is stored
-@param id a spaceless string, the storage location is
-  `<binary_dir>/TwxBuildData/<project_name>_<id>.ini` (or `.stamped`)
+@param id for key ID, a spaceless string, the storage location is
+  `.../TwxBuildData/<project_name>_<id>.ini` (or `.stamped`)
 @param STAMPED optional key, when provided change the
   `ini` file extension for `stamped`.
 */
-twx_cfg_path ( id variable [STAMPED] ) {}
+twx_cfg_path ( variable ID id [STAMPED] ) {}
 /*
 #]=======]
-function ( twx_cfg_path id_ ans_ )
-  if ( EXISTS "${id_}" )
-    set ( ${ans_} "${id_}" )
-  else ()
-    twx_assert_non_void ( PROJECT_BINARY_DIR )
-    twx_assert_non_void ( PROJECT_NAME )
-    twx_parse_arguments ( "STAMPED" "" "" ${ARGN} )
-    twx_assert_parsed ()
-    if ( my_twx_STAMPED )
-      set ( extension "stamped" )
-    else ()
-      set ( extension "ini" )
-    endif ()
-    set (
-      ${ans_}
-      "${PROJECT_BINARY_DIR}/TwxBuildData/${PROJECT_NAME}_${id_}_cfg.${extension}"
-    )
+function ( twx_cfg_path ans_ )
+  twx_parse_arguments ( "STAMPED" "ID" "" ${ARGN} )
+  twx_assert_parsed ()
+  if ( EXISTS "${my_twx_ID}" )
+    set ( ${ans_} "${my_twx_ID}" )
+    twx_export ( ${ans_} )
+    return ()
   endif ()
+  twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
+  twx_assert_non_void ( PROJECT_NAME )
+  if ( my_twx_STAMPED )
+    set ( extension "stamped" )
+  else ()
+    set ( extension "ini" )
+  endif ()
+  set (
+    ${ans_}
+    "${TWX_PROJECT_BUILD_DATA_DIR}/${PROJECT_NAME}_${my_twx_ID}_cfg.${extension}"
+  )
   twx_export ( ${ans_} )
 endfunction ()
 
@@ -99,11 +100,14 @@ macro ( twx_cfg_update_factory )
       "-DPROJECT_NAME=${PROJECT_NAME}"
       "-DTWX_PROJECT_INI=${TWX_PROJECT_INI}"
       "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+      "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
       "-DTWX_${PROJECT_NAME}_INI=${TWX_${PROJECT_NAME}_INI}"
       "-DTWX_VERBOSE=${TWX_VERBOSE}"
       "-DTWX_TEST=${TWX_TEST}"
+      "-DTWX_DEV=${TWX_DEV}"
       -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
   )
+  twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
   twx_cfg_read ( "factory" )
 endmacro ()
 
@@ -120,8 +124,10 @@ macro ( twx_cfg_update_git )
       "-DPROJECT_NAME=${PROJECT_NAME}"
       "-DTWX_PROJECT_INI=${TWX_PROJECT_INI}"
       "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+      "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
       "-DTWX_VERBOSE=${TWX_VERBOSE}"
       "-DTWX_TEST=${TWX_TEST}"
+      "-DTWX_DEV=${TWX_DEV}"
       -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
   )
   twx_cfg_read ( "git" )
@@ -223,16 +229,18 @@ macro ( twx_cfg_setup )
       PROPERTY CMAKE_CONFIGURE_DEPENDS
       ${TWX_${PROJECT_NAME}_INI}
     )
-    twx_cfg_path ( "factory" path_factory_twx )
+    twx_cfg_path ( path_factory_twx ID "factory" )
     add_custom_command (
       OUTPUT ${path_factory_twx}
       COMMAND "${CMAKE_COMMAND}"
         "-DPROJECT_NAME=${PROJECT_NAME}"
         "-DTWX_PROJECT_INI=${TWX_PROJECT_INI}"
         "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+        "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
         "-DTWX_${PROJECT_NAME}_INI=${TWX_${PROJECT_NAME}_INI}"
         "-DTWX_VERBOSE=${TWX_VERBOSE}"
         "-DTWX_TEST=${TWX_TEST}"
+        "-DTWX_DEV=${TWX_DEV}"
         -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
       DEPENDS
         ${TWX_${PROJECT_NAME}_INI}
@@ -242,14 +250,16 @@ macro ( twx_cfg_setup )
     # We need the contents before the first build
     twx_cfg_update_factory ()
 
-    twx_cfg_path ( "git" path_git_twx )
+    twx_cfg_path ( path_git_twx ID "git" )
     add_custom_command(
       OUTPUT ${path_git_twx}
       COMMAND "${CMAKE_COMMAND}"
         "-DPROJECT_NAME=${PROJECT_NAME}"
         "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+        "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
         "-DTWX_VERBOSE=${TWX_VERBOSE}"
         "-DTWX_TEST=${TWX_TEST}"
+        "-DTWX_DEV=${TWX_DEV}"
         -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
       DEPENDS
         ${path_factory_twx}
@@ -274,16 +284,17 @@ Must be balanced by a `twx_cfg_write_end()` instruction
 with the same <id>. This will write the cfg data file.
 Usage:
 ```
-twx_cfg_write_begin ( foo )
+twx_cfg_write_begin ( ID foo )
 twx_cfg_set ( ID foo <key_1> <value_1> )
 ...
 twx_cfg_set ( ID foo <key_n> <value_n> )
-twx_cfg_write_end ( foo )
+twx_cfg_write_end ( ID foo )
 ```
 
 @param id is a unique identifier. In practice, one of
-  "static", "git", "paths"... Is is store in
-  `TWX_CURRENT_ID_CFG` for `twx_cfg_set` 
+  "static", "git", "paths"... Is is stored in
+  `TWX_CURRENT_ID_CFG` to be used by forthcoming `twx_cfg_set` 
+  and `twx_cfg_end`.
 
 @note
   - These write environments can be nested as long as
@@ -297,13 +308,14 @@ twx_cfg_write_begin ( ID id ) {}
 /** @brief Reserved variable*/ cfg_values_<id>_twx;
 /*
 #]=======]
-macro ( twx_cfg_write_begin id_ )
-  if ( DEFINED cfg_keys_${id_}_twx )
-    message ( FATAL_ERROR "Missing `twx_cfg_write_end( ${id_} )`" )
+macro ( twx_cfg_write_begin ID my_twx_ID )
+  twx_assert_equal ( ID ${ID} )
+  if ( DEFINED cfg_keys_${my_twx_ID}_twx )
+    message ( FATAL_ERROR "Missing `twx_cfg_write_end( ID ${my_twx_ID} )`" )
   endif ()
-  set ( cfg_keys_${id_}_twx )
-  set ( cfg_values_${id_}_twx )
-  set ( TWX_CURRENT_ID_CFG "${id_}" )
+  set ( cfg_keys_${my_twx_ID}_twx )
+  set ( cfg_values_${my_twx_ID}_twx )
+  set ( TWX_CURRENT_ID_CFG "${my_twx_ID}" )
 endmacro ()
 
 # ANCHOR: Utility `twx_cfg_set`
@@ -335,11 +347,9 @@ function ( twx_cfg_set ID id_ )
   list ( APPEND cfg_keys_${id_}_twx "${key_}" )
   string ( REPLACE ";" "{{{semicolon}}}" value_ "${value_}" )
   list ( APPEND cfg_values_${id_}_twx "<${value_}>" )
-  if ( TWX_VERBOSE )
-    message ( STATUS "TWXCfg(${id_}): ${key_} => <${value_}>" )
-  endif ()
-  twx_export(cfg_keys_${id_}_twx)
-  twx_export(cfg_values_${id_}_twx)
+  twx_message_verbose ( STATUS "TWXCfg(${id_}): ${key_} => <${value_}>" )
+  twx_export ( cfg_keys_${id_}_twx )
+  twx_export ( cfg_values_${id_}_twx )
 endfunction ()
 
 # ANCHOR: Utility `twx_cfg_write_end`
@@ -348,13 +358,18 @@ endfunction ()
 
 Write the data recorded so far with the give id.
 
-@param id defines the storage location through `twx_cfg_path ()`.
+@param id for key ID, optional, defines the storage location through `twx_cfg_path ()`.
 */
-twx_cfg_write_end ( id ) {}
+twx_cfg_write_end ( [ID id] ) {}
 /*
 #]=======]
-function ( twx_cfg_write_end id_ )
-  twx_cfg_path ( "${id_}" path_ )
+function ( twx_cfg_write_end )
+  twx_parse_arguments ( "" "ID" "" ${ARGN} )
+  twx_assert_parsed ()
+  if ( "${my_twx_ID}" STREQUAL "" )
+    set ( my_twx_ID "${TWX_CURRENT_ID_CFG}" )
+  endif ()
+  twx_cfg_path ( path_ ID "${my_twx_ID}" )
   if ( NOT ";${${PROJECT_NAME}_TWX_CFG_IDS};" MATCHES ";${path_};" )
     list ( APPEND ${PROJECT_NAME}_TWX_CFG_IDS ${path_})
   endif()
@@ -370,22 +385,22 @@ function ( twx_cfg_write_end id_ )
 ;READ ONLY
 ;${t}
 ;This file was generated automatically by the TWX build system
-[${PROJECT_NAME} ${id_} informations]
+[${PROJECT_NAME} ${my_twx_ID} informations]
 "
   )
   # find the largest key for pretty printing
   set ( length 0 )
-  foreach ( key_ IN LISTS cfg_keys_${id_}_twx )
+  foreach ( key_ IN LISTS cfg_keys_${my_twx_ID}_twx )
     string ( LENGTH "${key_}" l )
     if ( l GREATER length )
       set ( length "${l}" )
     endif ()
   endforeach ()
   # Set the contents
-  while ( NOT "${cfg_keys_${id_}_twx}" STREQUAL "" )
-    list ( GET cfg_keys_${id_}_twx 0 key_ )
-    list ( REMOVE_AT cfg_keys_${id_}_twx 0 )
-    if ( "${cfg_values_${id_}_twx}" STREQUAL "" )
+  while ( NOT "${cfg_keys_${my_twx_ID}_twx}" STREQUAL "" )
+    list ( GET cfg_keys_${my_twx_ID}_twx 0 key_ )
+    list ( REMOVE_AT cfg_keys_${my_twx_ID}_twx 0 )
+    if ( "${cfg_values_${my_twx_ID}_twx}" STREQUAL "" )
       message ( FATAL_ERROR "Internal inconsistency: <${key_}>")
     endif ()
     string ( LENGTH "${key_}" l )
@@ -395,8 +410,8 @@ function ( twx_cfg_write_end id_ )
         string ( APPEND key_ " " )
       endforeach ()
     endif ()
-    list ( GET cfg_values_${id_}_twx 0 value_ )
-    list ( REMOVE_AT cfg_values_${id_}_twx 0 )
+    list ( GET cfg_values_${my_twx_ID}_twx 0 value_ )
+    list ( REMOVE_AT cfg_values_${my_twx_ID}_twx 0 )
     string ( REPLACE "{{{semicolon}}}" ";" value_ "${value_}" )
     if ( "${value_}" MATCHES "^<(.*)>$" )
       set ( value_ "${CMAKE_MATCH_1}" )
@@ -407,6 +422,7 @@ function ( twx_cfg_write_end id_ )
     )
   endwhile ()
   # write the file
+  twx_message_verbose ( STATUS "Writing ${path_}" )
   file (
     WRITE
     "${path_}(busy)"
@@ -424,14 +440,14 @@ function ( twx_cfg_write_end id_ )
   else ()
     file ( REMOVE "${path_}(busy)" )
   endif ()
-  unset ( cfg_keys_${id_}_twx   PARENT_SCOPE )
-  unset ( cfg_values_${id_}_twx PARENT_SCOPE )
+  unset ( cfg_keys_${my_twx_ID}_twx   PARENT_SCOPE )
+  unset ( cfg_values_${my_twx_ID}_twx PARENT_SCOPE )
   # Now we cand start another write sequence
 endfunction ()
 
 # ANCHOR: Utility `twx_cfg_read`
 #[=======[
-*//** @brief Parse a Cfg data file
+*//** @brief Parse Cfg data files
 
 Parses the file lines matching `<key> = <value>`.
 `<key>` contains no `=` nor space character, it is not empty whereas
@@ -469,7 +485,7 @@ function ( twx_cfg_read )
     twx_assert_non_void ( PROJECT_NAME )
     list ( APPEND cfg_ini_mixed_ "${${PROJECT_NAME}_TWX_CFG_IDS}" )
     if ( "${cfg_ini_mixed_}" STREQUAL "" )
-      twx_cfg_path ( "*" glob_ )
+      twx_cfg_path ( glob_ ID "*" )
       # TODO: what happend if it contains more than one '*'?
       file ( GLOB cfg_ini_mixed_ "${glob_}" )
       if ( "${cfg_ini_mixed_}" STREQUAL "" )
@@ -480,7 +496,7 @@ function ( twx_cfg_read )
 # unmix
   set ( cfg_ini_unordered_ )
   foreach ( id_ IN LISTS cfg_ini_mixed_ )
-    twx_cfg_path ( "${id_}" p_ )
+    twx_cfg_path ( p_ ID "${id_}" )
     if ( NOT EXISTS "${p_}" )
       if ( my_twx_QUIET )
         set ( TWX_CFG_READ_FAILED ON PARENT_SCOPE )
@@ -612,7 +628,7 @@ twx_cfg_return_if_exists ( id ) {}
 /*
 #]=======]
 macro (twx_cfg_return_if_exists _name )
-  twx_cfg_path ( "${_name}" TWX_path )
+  twx_cfg_path ( TWX_path ID "${_name}" )
   if ( EXISTS "${TWX_path}" )
     unset ( TWX_path )
     return ()

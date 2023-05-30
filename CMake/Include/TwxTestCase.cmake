@@ -38,11 +38,12 @@ for the tests on return.
 
 Includes `TwxCoreLib`
 */
-twx_test_case ( executable variable ) {}
+twx_test_case ( variable TARGET executable ) {}
 /*
 #]=======]
-function ( twx_test_case target_ variable_ )
+function ( twx_test_case variable_ TARGET target_ )
   twx_assert_non_void ( PROJECT_BINARY_DIR )
+  twx_assert_equal ( TARGET ${TARGET} )
   if ( TARGET ${target_} )
     set (
       directory_
@@ -58,8 +59,8 @@ function ( twx_test_case target_ variable_ )
   endif ()
   file ( MAKE_DIRECTORY "${directory_}" )
   set ( destination_ "${directory_}/${target_}.WorkingDirectory" )
-  set ( temporaryDir "${PROJECT_BINARY_DIR}/TwxBuildData/Temporary" )
-  message ( STATUS "FORM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
+  set ( temporaryDir "${TWX_PROJECT_BUILD_DATA_DIR}/Temporary" )
+  message ( STATUS "FROM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
   if ( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory" )
     message ( FATAL_ERROR "No WorkingDirectory" )
   endif ()
@@ -83,6 +84,5 @@ function ( twx_test_case target_ variable_ )
     REMOVE_RECURSE "${temporaryDir}"
   )
   set ( ${variable_} "${destination_}" PARENT_SCOPE )
-  message ( STATUS "Test case folder: ${${variable_}}" )
 endfunction ()
 #*/

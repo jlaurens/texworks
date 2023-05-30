@@ -220,4 +220,24 @@ macro ( twx_Qt_fresh )
 	endif ()
 endmacro ()
 
+# ANCHOR: twx_Qt_link_libraries
+#[=======[
+*//**
+@brief Link the current Qt libraries to the given target.
+
+@param ... list of targets.
+*/
+twx_Qt_link_libraries ( ... ) {}
+/*
+#]=======]
+macro ( twx_Qt_link_libraries )
+  foreach ( target_ ${ARGN} )
+	  twx_assert_target ( ${target_} )
+		target_link_libraries (
+		test_TwxCoreLib
+			${QT_LIBRARIES}
+		)
+	endforeach ()
+endmacro ()
+
 #*/

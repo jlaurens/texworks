@@ -61,8 +61,86 @@ if ( DEFINED TWX_IS_BASED )
 
   set ( CMAKE_COLOR_MAKEFILE ON )
 
-# Important:
+# ANCHOR: TWX_BUILD_DIR
+#[=======[*/
+/** @brief Main build directory: .../TwxBuild
+  *
+  * Contains a copy of the sources, after an eventual configuration step.
+  *
+  * Set by the very first `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_BUILD_DIR;
+# ANCHOR: TWX_BUILD_DATA_DIR
+/** @brief Main build directory: .../TwxBuildData
+  *
+  * Contains auxiliary data needed in the build process.
+  * In particular, it contains shared `...cfg.ini` files that are used
+  * in the `configure_file()` instructions steps.
+  *
+  * Set by the very first `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_BUILD_DATA_DIR;
+# ANCHOR: TWX_PRODUCT_DIR
+/** @brief Main build directory: .../TwxProduct
+  *
+  * Contains the main built products, executables, tests and bundles.
+  *
+  * Set by the very first `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_PRODUCT_DIR;
+# ANCHOR: TWX_DOC_DIR
+/** @brief Main documentation directory: .../TwxDoc
+  *
+  * Contains the main documentation.
+  *
+  * Set by the very first `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_DOC_DIR;
+/*#]=======]
+if ( "${TWX_BUILD_DIR}" STREQUAL "" )
+  set ( TWX_BUILD_DIR "${PROJECT_BINARY_DIR}/TwxBuild" )
+  set ( TWX_BUILD_DATA_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
+  set ( TWX_PRODUCT_DIR "${PROJECT_BINARY_DIR}/TwxProduct" )
+  set ( TWX_DOC_DIR "${PROJECT_BINARY_DIR}/TwxDocumentation" )
+endif ()
+
+# ANCHOR: TWX_PROJECT_BUILD_DIR
+#[=======[*/
+/** @brief Project build directory: .../TwxBuild
+  *
+  * Contains a copy of the sources, after an eventual configuration step.
+  *
+  * Set by the `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_PROJECT_BUILD_DIR;
+# ANCHOR: TWX_PROJECT_BUILD_DATA_DIR
+/** @brief Project build directory: .../TwxBuildData
+  *
+  * Contains auxiliary data needed in the build process.
+  * In particular, it contains `...cfg.ini` files that are used
+  * in the `configure_file()` instructions steps.
+  *
+  * Set by the `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_PROJECT_BUILD_DATA_DIR;
+# ANCHOR: TWX_PROJECT_PRODUCT_DIR
+/** @brief Project build directory: .../TwxProduct
+  *
+  * Contains the built products, executables, tests and bundles.
+  *
+  * Set by the `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_PROJECT_PRODUCT_DIR;
+/*#]=======]
   set ( TWX_PROJECT_BUILD_DIR "${PROJECT_BINARY_DIR}/TwxBuild" )
+  set ( TWX_PROJECT_BUILD_DATA_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
   set ( TWX_PROJECT_PRODUCT_DIR "${PROJECT_BINARY_DIR}/TwxProduct" )
  
 # Minor changes
@@ -105,6 +183,8 @@ endfunction ()
 TWX_DEV;
 /*#]=======]
 
+option ( TWX_DEV "To activate developer mode" )
+
 # ANCHOR: TWX_PROJECT_NAME
 #[=======[*/
 /** @brief The main project name
@@ -121,7 +201,7 @@ TWX_DEV;
   *   an existing release version.
   *
   * Set to `TeXworks` in normal mode but to `TeXworks-dev`
-  * when if `TWX_DEV` is set.
+  * when `TWX_DEV` is set.
   * In developer mode, use for example
   * 
   *   cmake ... -DTWX_DEV=ON ...
@@ -141,7 +221,7 @@ else ()
   set ( TWX_PROJECT_NAME TeXworks )
 endif ()
 
-twx_message_verbose( STATUS "TwxBase: TWX_PROJECT_NAME => ${TWX_PROJECT_NAME}" )
+message ( STATUS "TwxBase: TWX_PROJECT_NAME => ${TWX_PROJECT_NAME}" )
 
 # Next is run only once per cmake session.
 # A different process can run this however on its own.
@@ -190,26 +270,33 @@ list (
   * subdirectory of the project binary directory to
   * the list of include directories of the given target.
   *
-  * For each module provided, add to the include list
-  * the `.../src` folder of the source and build directories.
-  * @param target is an existing target name
-  * @param ... is an optional list of module names
+  * @param ... is a list of existing target names
   */
-twx_target_include_src(target ...) {}
+twx_target_include_src(...) {}
 /*#]=======]
-function ( twx_target_include_src target_ )
+function ( twx_target_include_src )
   twx_assert_non_void ( PROJECT_SOURCE_DIR )
+  # TODO: remove PROJECT_BINARY_DIR
   twx_assert_non_void ( PROJECT_BINARY_DIR )
+  twx_assert_non_void ( TWX_PROJECT_BUILD_DIR )
   if ( EXISTS "${PROJECT_SOURCE_DIR}/src" )
-    target_include_directories (
-      ${target_}
-      PRIVATE "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}/src"
-    )
+    foreach ( target_ ${ARGN} )
+      target_include_directories (
+        ${target_}
+        PRIVATE
+          "${PROJECT_SOURCE_DIR}/src"
+          "${TWX_PROJECT_BUILD_DIR}/src"
+      )
+    endforeach ()
   else ()
+    foreach ( target_ ${ARGN} )
     target_include_directories (
-      ${target_}
-      PRIVATE "${TWX_DIR}/src" "${PROJECT_BINARY_DIR}/src"
-    )
+        ${target_}
+        PRIVATE
+          "${TWX_DIR}/src"
+          "${PROJECT_BINARY_DIR}/src"
+      )
+    endforeach ()
   endif ()
 endfunction ( twx_target_include_src )
 
@@ -240,6 +327,57 @@ macro ( twx_assert_parsed )
     message ( FATAL_ERROR "Unparsed arguments ${my_twx_UNPARSED_ARGUMENTS}" )
   endif ()
 endmacro ()
+
+# ANCHOR: twx_assert_target
+#[=======[*/
+/** @brief Raise when a target does not exist.
+  *
+  * @param target_ is the name of the target to test
+  */
+twx_assert_parsed() {}
+/*#]=======]
+macro ( twx_assert_target target_ )
+  if ( NOT TARGET "${target_}" )
+    message ( FATAL_ERROR "Unknwon target ${target_}" )
+  endif ()
+endmacro ()
+
+# ANCHOR: twx_forward_option
+#[=======[*/
+/** @brief Forward a flag in the arguments.
+  *
+  * Used in conjunction with `twx_parse_arguments()`.
+  * When an option FOO is parsed, we retrieve either `TRUE` or `FALSE`
+  * in `my_twx_FOO`. This transforms the contents in `FOO` or an empty string
+  * to allow the usage of `my_twx_FOO` as argument of a command that accepts
+  * the same FOO flag.
+  * 
+  * @param option is the flag name
+  */
+twx_forward_option( option ) {}
+/*#]=======]
+macro ( twx_forward_option option_ )
+  if ( my_twx_${option_} )
+    set ( my_twx_${option_} ${option_} )
+  else ()
+    set ( my_twx_${option_} )
+  endif ()
+endmacro ()
+
+# ANCHOR: twx_assert_equal
+#[=======[*/
+/** @brief Raise when arguments are not equal
+  * 
+  * @param actual is the actual text
+  * @param expected is the expected text
+  */
+twx_assert_equal( actual expected ) {}
+/*#]=======]
+function ( twx_assert_equal actual_ expected_ )
+  if ( NOT "${actual_}" STREQUAL "${expected_}")
+    message ( FATAL_ERROR "Unexpected ${actual_} instead of ${expected_}")
+  endif ()
+endfunction ()
 
 message ( STATUS "TwxBase: initialize(${TWX_DIR})" )
 

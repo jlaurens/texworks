@@ -15,6 +15,10 @@ NB: This does not load the `TwxBaseLib` on its own.
 *//*
 #]===============================================]
 
+if ( "${TWX_IS_BASED}" STREQUAL "" )
+  message ( FATAL_ERROR "TwxBase is explicitly required")
+endif ()
+
 # Guard
 if ( DEFINED TWX_OS_SWITCHER )
   return ()

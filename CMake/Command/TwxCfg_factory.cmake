@@ -69,6 +69,7 @@ endif ()
 twx_assert_non_void ( PROJECT_NAME )
 twx_assert_non_void ( TWX_${PROJECT_NAME}_INI )
 twx_assert_non_void ( PROJECT_BINARY_DIR )
+twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
 twx_assert_non_void ( TWX_DIR )
 
 include ( TwxCfgLib )
@@ -85,7 +86,7 @@ if ( TWX_VERBOSE )
   message ( STATUS "Parsing ${TWX_${PROJECT_NAME}_INI}" )
 endif ()
 twx_cfg_read ( "${TWX_${PROJECT_NAME}_INI}" )
-twx_cfg_write_begin ( "factory" )
+twx_cfg_write_begin ( ID "factory" )
 # verify the expectations
 foreach (
   key
@@ -152,6 +153,6 @@ twx_cfg_set ( BUILD_ID "${TWX_BUILD_ID}" )
 twx_cfg_set ( APPLICATION_IMAGE ":/images/images/${PROJECT_NAME}.png" )
 twx_cfg_set ( APPLICATION_IMAGE_128 ":/images/images/${PROJECT_NAME}-128.png")
 
-twx_cfg_write_end ( "factory" )
+twx_cfg_write_end ( ID "factory" )
 
 #*/

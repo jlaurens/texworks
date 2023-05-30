@@ -24,18 +24,20 @@ set ( TWX_TEST OFF )
 project ( ${TWX_MODULE_NAME} )
 include ( TwxBase )
 
+twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
+
 include ( TwxQTLib )
 twx_Qt_fresh ()
 
 include ( TwxDoxydocLib )
-twx_doxydoc ( "${PROJECT_BINARY_DIR}" )
+twx_doxydoc ( MODULE )
 
 include (
 	"${CMAKE_CURRENT_LIST_DIR}/src/Setup.cmake"
 )
 
 include ( TwxModuleLib )
-twx_module_setup ( Core )
+twx_module_configure ()
 
 if ( NOT TWX_NO_TEST )
   set ( TWX_TEST ON )

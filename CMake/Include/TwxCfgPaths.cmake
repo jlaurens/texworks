@@ -167,7 +167,7 @@ endfunction ( twx__add_system_default_binary_paths pathsVar )
 
 # ANCHOR: Generate the info .ini
 
-twx_cfg_write_begin ( "paths" )
+twx_cfg_write_begin ( ID "paths" )
 
 # only one local variable used
 set ( TWX_paths )
@@ -187,7 +187,7 @@ endif ()
 
 twx_cfg_set ( FACTORY_PATH "${TWX_paths}" )
 
-twx_cfg_write_end ( "paths" )
+twx_cfg_write_end ( ID "paths" )
 
 if ( TWX_VERBOSE )
   message ( STATUS "Paths updated" )

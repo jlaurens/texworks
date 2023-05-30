@@ -224,7 +224,7 @@ function ( twx_cfg_file_end )
       ${my_twx_TARGET}
       ARCHIVE_OUTPUT_DIRECTORY
     )
-    if ( output_directory_ STREQUAL "NOTFOUND" )
+    if ( output_directory_ MATCHES "NOTFOUND" )
       message ( FATAL_ERROR "Target ${my_twx_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
     else ()
       set ( output_directory_ "${output_directory_}/${my_twx_OUT_DIR}" )
@@ -236,6 +236,7 @@ function ( twx_cfg_file_end )
         "${CMAKE_COMMAND}"
           "-DPROJECT_NAME=${PROJECT_NAME}"
           "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+          "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
           "-DTWX_IN_DIR=${my_twx_IN_DIR}"
           "-DTWX_OUT_DIR=${output_directory_}"
           "-DTWX_IN=${in_}"
@@ -243,6 +244,7 @@ function ( twx_cfg_file_end )
           "-DTWX_ESCAPE_QUOTES=${my_twx_ESCAPE_QUOTES}"
           "-DTWX_NO_PRIVATE=${my_twx_NO_PRIVATE}"
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
+          "-DTWX_DEV=${TWX_DEV}"
           -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
       COMMENT
         "Configure ${PROJECT_NAME} include directory"
@@ -250,7 +252,7 @@ function ( twx_cfg_file_end )
     )
   else ()
     # No TARGET given
-    twx_cfg_path ( "${my_twx_ID}_file" stamped STAMPED )
+    twx_cfg_path ( stamped ID "${my_twx_ID}_file" STAMPED )
     set (
       target
       ${PROJECT_NAME}_${my_twx_ID}_cfg_ini
@@ -282,6 +284,7 @@ function ( twx_cfg_file_end )
         "${CMAKE_COMMAND}"
           "-DPROJECT_NAME=${PROJECT_NAME}"
           "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+          "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
           "-DTWX_IN_DIR=${my_twx_IN_DIR}"
           "-DTWX_OUT_DIR=${my_twx_OUT_DIR}"
           "-DTWX_IN=${in_}"
@@ -289,6 +292,7 @@ function ( twx_cfg_file_end )
           "-DTWX_ESCAPE_QUOTES=${my_twx_ESCAPE_QUOTES}"
           "-DTWX_NO_PRIVATE=${my_twx_NO_PRIVATE}"
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
+          "-DTWX_DEV=${TWX_DEV}"
           -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
       COMMAND
         "${CMAKE_COMMAND}"
@@ -358,16 +362,8 @@ macro ( twx_cfg_files )
     ID    ${my_twx_ID}
     FILES ${my_twx_FILES}
   )
-  if ( my_twx_ESCAPE_QUOTES )
-    set ( my_twx_ESCAPE_QUOTES ESCAPE_QUOTES )
-  else ()
-    set ( my_twx_ESCAPE_QUOTES )
-  endif ()
-  if ( my_twx_NO_PRIVATE )
-    set ( my_twx_NO_PRIVATE NO_PRIVATE )
-  else ()
-    set ( my_twx_NO_PRIVATE )
-  endif ()
+  twx_forward_option ( ESCAPE_QUOTES )
+  twx_forward_option ( NO_PRIVATE )
   twx_cfg_file_end (
     ID          ${my_twx_ID}
     IN_DIR      ${my_twx_IN_DIR}

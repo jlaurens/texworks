@@ -35,17 +35,15 @@ set ( TWX_TEST ON	)
 
 enable_testing ()
 
-include (
-	"${PROJECT_SOURCE_DIR}/../src/Setup.cmake"
-)
+twx_module_setup ( NAME Core )
 
 twx_QT_append ( REQUIRED Test )
 
 add_executable ( test_TwxCore )
-twx_module_include_src ( test_TwxCore )
+twx_module_src_include ( Core TARGETS test_TwxCore )
 
 add_executable ( test_TwxCore_macOS )
-twx_module_include_src ( test_TwxCore_macOS )
+twx_module_src_include ( Core TARGETS test_TwxCore_macOS )
 
 target_compile_definitions (
 	test_TwxCore
@@ -88,7 +86,7 @@ target_sources (
 )
 
 include ( TwxTestCase )
-twx_test_case ( test_TwxCore twx_WorkingDirectory )
+twx_test_case ( twx_WorkingDirectory TARGET test_TwxCore )
 
 set_target_properties (
 	test_TwxCore_macOS
@@ -209,6 +207,24 @@ foreach (year IN ITEMS 1111 2222 3333)
 	endforeach ()
 endforeach ()
 
+# Finally the library test
+
+add_executable (
+	test_TwxCoreLib
+	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
+)
+
+twx_module_add ( Core TARGETS test_TwxCoreLib )
+twx_Qt_link_libraries ( test_TwxCoreLib )
+
+add_test (
+	NAME test_TwxCoreLib
+	COMMAND test_TwxCoreLib
+	WORKING_DIRECTORY
+		"${twx_WorkingDirectory}"
+)
+
 unset ( twx_WorkingDirectory )
 
 # ANCHOR - Summary
@@ -228,6 +244,7 @@ ${CMAKE_CXX_COMPILER_VERSION}):\n"
 twx_summary_begin ( BOLD_MAGENTA "Tests" )
 twx_summary_log ( "1" "test_TwxCore" )
 twx_summary_log ( "2" "test_TwxCore_macOS" )
+twx_summary_log ( "3" "test_TwxCoreLib" )
 twx_summary_end ()
 
 twx_summary_section_git ()

@@ -93,7 +93,7 @@ include ( TwxWarning )
 twx_warning_target ( test_TwxUI )
 
 include ( TwxTestCase )
-twx_test_case ( test_TwxUI twx_WorkingDirectory )
+twx_test_case ( twx_WorkingDirectory TARGET test_TwxUI )
 
 add_test (
 	NAME test_TwxUI
