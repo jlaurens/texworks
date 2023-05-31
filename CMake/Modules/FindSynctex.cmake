@@ -78,9 +78,9 @@ else ()
 
   # If we didn't find a system-wide synctex (or didn't look for one), use the
   # bundled version
-  set(SYNCTEX_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/modules/synctex")
+  set(SYNCTEX_INCLUDE_DIR "${TWX_DIR}/modules/synctex")
   set(SYNCTEX_LIBRARIES "SyncTeX")
-  add_subdirectory("${SYNCTEX_INCLUDE_DIR}")
+  add_subdirectory("${SYNCTEX_INCLUDE_DIR}" "TwxModules/synctex")
 
   if ( SYNCTEX_INCLUDE_DIR AND EXISTS "${SYNCTEX_INCLUDE_DIR}/synctex_parser.h" )
     file(STRINGS "${SYNCTEX_INCLUDE_DIR}/synctex_parser.h" SYNCTEX_PARSER_H REGEX "Version: [0-9.]+")

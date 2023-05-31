@@ -39,12 +39,7 @@
 
 namespace Twx {
 namespace Core {
-
-#if defined(TwxCore_TEST)
-namespace Test {
-	class Main;
-}
-#endif
+@TWX_CFG_include_TwxNamespaceTestMain_private_h@
 
 /** \brief Support assets track data structure
   * 
@@ -154,22 +149,15 @@ private:
   static const int version;
 
   QList<AssetsTrack> assetsTracks_m;
-  QDir              dir_m;
+  QDir dir_m;
 
 	bool save(const QString & path) const;
 	static AssetsTrackDB load(const QString & path);
 	bool save_legacy(const QString & path) const;
   static AssetsTrackDB load_legacy(const QString & path);
 
-#if defined(TwxCore_TEST)
-	static const QString saveComponent;
-	QList<AssetsTrack> & getList();
-	const QList<AssetsTrack> & getList() const;
-  void removeStorage() const;
-
-  friend class Test::Main;
-	friend bool operator==(const AssetsTrackDB & frdb1, const AssetsTrackDB & frdb2);
-#endif
+@TWX_CFG_include_TwxFriendTestMain_private_h@
+@TWX_CFG_include_TwxAssetsTrackDB_private_h@
 
 };
 

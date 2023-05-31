@@ -35,18 +35,7 @@ namespace Twx {
 
 namespace Core {
 
-#if defined(TwxCore_TEST)
-/**
- 	* \brief Chord of the Twx testing architecture
- 	* 
- 	* Quite all these data come from the `TeXworks.ini``
- 	* or equivalent. This file is undocumented by itself,
- 	* see \ref `TwxCfgFileLib.cmake` for more details.
- 	*/
-namespace Test {
-	class Main;
-}
-#endif
+@TWX_CFG_include_TwxNamespaceTestMain_private_h@
 
 /**
  	* \brief Collects various information
@@ -67,6 +56,12 @@ public:
 	* Appears at different places (dialog and files).
 	*/
 	static const QString organizationName;
+  
+/** \brief The short name of the organization
+	* 
+	* Appears at different places (dialog and files).
+	*/
+	static const QString organizationShortName;
   
 /** \brief The domain of the organization
 	* 
@@ -154,10 +149,7 @@ public:
 	*/
 	static void initApplication(QCoreApplication * application);
   
-#if defined(TwxCore_TEST)
-  friend class Test::Main;
-#endif
-
+@TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Core

@@ -33,12 +33,7 @@ namespace Twx {
 namespace Core {
 
 class Settings;
-
-#if defined(TwxCore_TEST)
-namespace Test {
-	class Main;
-}
-#endif
+@TWX_CFG_include_TwxNamespaceTestMain_private_h@
 
 /** \brief Assets manager and location lookup
  	* 
@@ -114,10 +109,7 @@ private:
 	static const QString standardLocation();
 	static const QString legacyLocation();
 
-#if defined(TwxAssets_TEST)
-	friend class Test::Main;
-#endif
-
+@TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Core

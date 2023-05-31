@@ -78,10 +78,43 @@ target_link_libraries (
 	TwxCore
 	${QT_LIBRARIES}
 )
-
+twx_module_add ( Core TARGETS test_TwxCoreLib )
 add_test (
 	NAME test_TwxCoreLib
 	COMMAND test_TwxCoreLib
+)
+
+add_executable ( test_TwxCoreLib2 )
+target_sources (
+	test_TwxCoreLib2
+	PRIVATE
+		"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
+)
+target_compile_definitions (
+	test_TwxCoreLib2
+	PRIVATE TwxCoreLib2_TEST
+)
+
+# if ( NOT EXISTS "${TwxCoreLib_DIR}/TwxProduct/include" )
+#   message ( FATAL_ERROR "Missing headers" )
+# endif ()
+
+target_include_directories (
+	test_TwxCoreLib2
+	PRIVATE
+		"${TwxCoreLib_DIR}/TwxProduct/include"
+)
+
+target_link_libraries (
+	test_TwxCoreLib2
+	${QT_LIBRARIES}
+)
+twx_module_add ( Core TARGETS test_TwxCoreLib2 TEST )
+
+add_test (
+	NAME test_TwxCoreLib2
+	COMMAND test_TwxCoreLib2
 )
 
 if ( NOT TARGET Twx::Core )

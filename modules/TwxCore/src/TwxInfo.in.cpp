@@ -37,7 +37,8 @@ const QString Info::authors = QString::fromUtf8("@TWX_CFG_AUTHORS@");
 const QString Info::copyrightYears = QString::fromUtf8("@TWX_CFG_COPYRIGHT_YEARS@");
 const QString Info::copyrightHolders = QString::fromUtf8("@TWX_CFG_COPYRIGHT_HOLDERS@");
 const QString Info::organizationDomain = QStringLiteral("@TWX_CFG_ORGANIZATION_DOMAIN@");
-const QString Info::organizationName   = QStringLiteral("@TWX_CFG_ORGANIZATION_NAME@");
+const QString Info::organizationName   		= QStringLiteral("@TWX_CFG_ORGANIZATION_NAME@");
+const QString Info::organizationShortName = QStringLiteral("@TWX_CFG_ORGANIZATION_SHORT_NAME@");
 const QString Info::gitHash = QStringLiteral("@TWX_CFG_GIT_HASH@");
 const QDateTime Info::gitDate = QDateTime::fromString(
 	QStringLiteral("@TWX_CFG_GIT_DATE@"),

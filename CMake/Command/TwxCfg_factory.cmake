@@ -36,6 +36,7 @@ Input files will preferably contain `@TWX_CFG_<key>@` placeholders.
 - Organization (static values)
   - `ORGANIZATION_DOMAIN`
   - `ORGANIZATION_NAME`
+  - `ORGANIZATION_SHORT_NAME`
 - Version (static values)
   - `VERSION_MAJOR`
   - `VERSION_MINOR`
@@ -92,7 +93,7 @@ foreach (
   key
   VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK
   COPYRIGHT_YEARS COPYRIGHT_HOLDERS AUTHORS
-  ORGANIZATION_DOMAIN ORGANIZATION_NAME
+  ORGANIZATION_DOMAIN ORGANIZATION_NAME ORGANIZATION_SHORT_NAME
 )
   if ( DEFINED TWX_CFG_${key} )
     twx_cfg_set ( "${key}" "${TWX_CFG_${key}}" )

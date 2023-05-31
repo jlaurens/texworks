@@ -216,8 +216,10 @@ TWX_PROJECT_NAME;
 /*#]=======]
 if ( TWX_DEV )
   set ( TWX_PROJECT_NAME TeXworks-dev )
+  set ( TWX_PROJECT_COMMAND texworks-dev )
 else ()
   set ( TWX_PROJECT_NAME TeXworks )
+  set ( TWX_PROJECT_COMMAND texworks )
 endif ()
 
 message ( STATUS "TwxBase: TWX_PROJECT_NAME => ${TWX_PROJECT_NAME}" )
@@ -462,7 +464,7 @@ Possible values are
 TWX_OS_SWITCHER;
 /*#]=======]
 if (WIN32)
-  set ( TWX_OS_SWITCHER "os_win" )
+  set ( TWX_OS_SWITCHER "os_windows" )
 elseif (APPLE)
   set ( TWX_OS_SWITCHER "os_darwin" )
 else ()

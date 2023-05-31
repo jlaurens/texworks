@@ -151,14 +151,24 @@ IF ( WIN32 )
   if (NOT MSVC)
     set(CREATE_MANIFEST TRUE)
   endif (NOT MSVC)
-  configure_file(
-    ${TWX_DIR}/res/WinOS/${TWX_PROJECT_NAME}.in.rc
-    ${TWX_PROJECT_NAME}.rc
-  )
+  include ( TwxCfgLib )
+  twx_cfg_write_begin ( ID "package-private" )
+  twx_cfg_set ( PKG_APP_ICO   "TWX_DIR/res/images/TeXworks.ico" )
+  twx_cfg_set ( PKG_DOC_ICO   "TWX_DIR/res/images/TeXworks-doc.ico" )
+  twx_cfg_set ( EXE_MANIFEST  "TWX_DIR/res/os_windows/TeXworks.exe.manifest" )
+  twx_cfg_write_end ()
+  include ( TwxCfgFileLib)
+  twx_cfg_files (
+    ID 			PACKAGE
+    FILES 	${TWX_PROJECT_NAME}.in.rc
+    IN_DIR 	"${TWX_DIR}/res/os_windows/"
+    OUT_DIR "${TWX_PROJECT_BUILD_DIR}/res/os_windows/"
+    EXPORT twx_configured_files
+   )
   list(
     APPEND
     TEXWORKS_SRCS
-    ${TWX_PROJECT_BUILD_DIR}/res/WinOS/${TWX_PROJECT_NAME}.rc
+    "${twx_configured_files}"
   )
 ENDIF ( WIN32 )
 
@@ -191,8 +201,9 @@ IF ( APPLE )
 
   LIST(APPEND TeXworks_LIBS  "-framework Foundation")
 
-  set(TeXworks_APP_ICONS "${TWX_DIR}/res/TeXworks.icns" "${TWX_DIR}/res/TeXworks-doc.icns")
-  SET_SOURCE_FILES_PROPERTIES( ${TeXworks_APP_ICONS}
+  set(TWX_APP_ICONS "${TWX_DIR}/res/TeXworks.icns" "${TWX_DIR}/res/TeXworks-doc.icns")
+  SET_SOURCE_FILES_PROPERTIES(
+    ${TWX_APP_ICONS}
     PROPERTIES
       MACOSX_PACKAGE_LOCATION Resources
   )
@@ -216,25 +227,31 @@ IF (NOT ${BUILD_SHARED_PLUGINS})
 ENDIF()
 
 # Build the executable
-ADD_EXECUTABLE(TeXworks ${GUI_TYPE}
-  ${TEXWORKS_SRCS} ${TEXWORKS_HDRS}
+add_executable (
+  TeXworks
+  ${GUI_TYPE}
+  ${TEXWORKS_SRCS}
+  ${TEXWORKS_HDRS}
   ${TEXWORKS_RCS}
-  ${TeXworks_APP_ICONS}
+  ${TWX_APP_ICONS}
 )
 add_dependencies(TeXworks GitRev)
 
 if (UNIX AND NOT APPLE)
-  set_target_properties(TeXworks PROPERTIES
-    OUTPUT_NAME texworks
+  set_target_properties(
+    TeXworks
+    PROPERTIES
+      OUTPUT_NAME ${TWX_PROJECT_COMMAND}
+  )
+else ()
+  set_target_properties (
+    TeXworks
+    PROPERTIES
+      OUTPUT_NAME ${TWX_PROJECT_NAME}
   )
 endif ()
 
 target_compile_options(TeXworks PRIVATE ${WARNING_OPTIONS})
-
-target_include_directories (
-  TeXworks
-  PRIVATE "${PROJECT_BINARY_DIR}/TwxModules/TwxCore/TwxProduct/include"
-)
 
 # Add translations
 target_add_qt_translations(TeXworks

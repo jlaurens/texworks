@@ -29,14 +29,16 @@ twx_module_declare (
 		TwxSetup.cpp
 		TwxTool.cpp
 	HEADERS
-		TwxAssets.h
-		TwxAssetsTrackDB.h
+		TwxAssets.in.h
+		TwxAssetsTrackDB_private.h
+		TwxAssetsTrackDB.in.h
+		TwxFriendTestMain_private.h
 		TwxConst.h
-		TwxInfo.h
+		TwxInfo.in.h
 		TwxLocate_private.h
 		TwxLocate.in.h
 		TwxNamespaceTestMain_private.h
-		TwxSettings.h
+		TwxSettings.in.h
 		TwxSetup.h
 		TwxTool.h
 )

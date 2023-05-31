@@ -1,0 +1,42 @@
+#include <windows.h>
+
+// #include "@PROJECT_SOURCE_DIR@/src/TWVersion.h"
+// #include "GitRev.h"
+
+IDI_ICON1	ICON	DISCARDABLE	"@TWX_CFG_PKG_APP_ICO@"
+IDI_ICON2	ICON	DISCARDABLE	"@TWX_CFG_PKG_DOC_ICO@"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    	@TWX_CFG_VERSION_MAJOR@,@TWX_CFG_VERSION_MINOR@,@TWX_CFG_VERSION_PATCH@,@TWX_CFG_VERSION_TWEAK@
+PRODUCTVERSION 	@TWX_CFG_VERSION_MAJOR@,@TWX_CFG_VERSION_MINOR@,@TWX_CFG_VERSION_PATCH@,@TWX_CFG_VERSION_TWEAK@
+FILEFLAGSMASK  	0
+FILEOS         	VOS__WINDOWS32
+FILETYPE       	VFT_APP
+FILESUBTYPE    	0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",      "@TWX_CFG_ORGANIZATION_NAME@"
+            VALUE "FileDescription",  "@TWX_CFG_FILE_DESCRIPTION@"
+            VALUE "FileVersion",      "@TWX_CFG_PROJECT_VERSION@-r.TWX_CFG_GIT_HASH"
+            VALUE "InternalName",     "@TWX_CFG_NAME@"
+            VALUE "LegalCopyright",   "Copyright (C) @TWX_CFG_COPYRIGHT_YEARS@  @TWX_CFG_COPYRIGHT_HOLDERS@"
+            VALUE "OriginalFilename", "@TWX_CFG_NAME@.exe"
+            VALUE "ProductName",      "@TWX_CFG_NAME@"
+            VALUE "ProductVersion",   "@TWX_CFG_NAME@ @TWX_CFG_PROJECT_VERSION@"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+// Required by MinGW but breaks MSVC; configured by CMake
+#cmakedefine01 CREATE_MANIFEST
+#if CREATE_MANIFEST
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "@TWX_CFG_EXE_MANIFEST@"
+#endif

@@ -47,12 +47,8 @@ namespace K {
 
 const int AssetsTrackDB::version = 1;
 
-#if defined(TwxCore_TEST)
-const QString AssetsTrackDB::saveComponent = 
-#else
-static auto const saveComponent = 
-#endif
-QStringLiteral("TwxAssetsTrackDB.json");
+const QString AssetsTrackDB::saveComponent = QStringLiteral("TwxAssetsTrackDB.json");
+const QString AssetsTrackDB::saveComponentLegacy = QStringLiteral("TwFileVersion.db");
 
 AssetsTrackDB::AssetsTrackDB( const QDir & dir)
 : dir_m(dir)
@@ -166,7 +162,7 @@ AssetsTrackDB AssetsTrackDB::load(const QDir & dir)
 	);
   if (frdb.assetsTracks_m.empty()) {
 		frdb = load_legacy(
-			dir.absoluteFilePath(QStringLiteral("TwFileVersion.db"))
+			dir.absoluteFilePath(saveComponentLegacy)
 		);
 	}
 	return frdb;

@@ -70,7 +70,7 @@ include (
   NO_POLICY_SCOPE
 )
 # Set project name.
-project ( TWX_PROJECT_NAME )
+project ( ${TWX_PROJECT_NAME} )
 include ( TwxBase )
 
 IF(WIN32 AND MINGW)
@@ -401,9 +401,9 @@ ENDIF ()
 
 # Tests
 # -----
-IF (WITH_TESTS)
-  ADD_SUBDIRECTORY(unit-tests)
-ENDIF (WITH_TESTS)
+IF ( WITH_TESTS )
+  add_subdirectory ( unit-tests "${TWX_PROJECT_BUILSD_DIR}" )
+endif ()
 
 
 # Packaging
