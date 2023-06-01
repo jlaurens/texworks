@@ -65,10 +65,12 @@ target_compile_definitions (
 
 target_link_libraries (
 	test_TwxCore
+	${TwxCore_LIBRARIES}
 	${QT_LIBRARIES}
 )
 target_link_libraries (
 	test_TwxCore_macOS
+	${TwxCore_LIBRARIES}
 	${QT_LIBRARIES}
 )
 
@@ -187,8 +189,8 @@ set_target_properties (
 		OUTPUT_NAME "tex"
 		RUNTIME_OUTPUT_DIRECTORY "${twx_WorkingDirectory}/Locate/appendListPATH"
 )
-foreach (year IN ITEMS 1111 2222 3333)
-	foreach (bin IN ITEMS
+foreach (year 1111 2222 3333)
+	foreach (bin
 			aarch64-linux amd64-freebsd amd64-netbsd armhf-linux
 			i386-freebsd i386-linux i386-netbsd i386-solaris
 			universal-darwin windows x86_64-cygwin x86_64-darwinlegacy

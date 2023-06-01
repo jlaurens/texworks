@@ -62,10 +62,6 @@ using Locate = Twx::Core::Locate;
 #include <QTranslator>
 #include <QUrl>
 
-#if defined(Q_OS_DARWIN)
-extern QString GetMacOSVersionString();
-#endif
-
 #if defined(Q_OS_WIN)
 #include <windows.h>
 #ifndef VER_SUITE_WH_SERVER /* not defined in my mingw system */
@@ -613,7 +609,7 @@ void TWApp::writeToMailingList()
 	if (unameCmd.waitForStarted(1000) && unameCmd.waitForFinished(1000))
 		unameResult = unameCmd.getResult().trimmed();
 #if defined(Q_OS_DARWIN)
-	body += GetMacOSVersionString();
+	body += Twx::Core::Info::macOSVersionString();
 	body += QLatin1String(" (") + unameResult + QLatin1String(")\n");
 #else
 	body += unameResult + QChar::fromLatin1('\n');

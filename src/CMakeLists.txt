@@ -118,13 +118,8 @@ if (WIN32)
   list(APPEND TeXworks_SOURCES InterProcessCommunicatorWin.cpp)
 elseif (APPLE)
   list(APPEND TeXworks_SOURCES InterProcessCommunicatorDummy.cpp)
-  list(APPEND TeXworks_SOURCES utils/OSVersionInfo_mac.mm)
 else ()
   list(APPEND TeXworks_SOURCES InterProcessCommunicatorDBus.cpp)
-endif ()
-
-if (APPLE)
-  list(APPEND TeXworks_SOURCES utils/OSVersionInfo_mac.mm)
 endif ()
 
 if ( WITH_QTSCRIPT )

@@ -154,6 +154,10 @@ public:
 	*/
 	static void initApplication(QCoreApplication * application);
   
+#if defined(Q_OS_DARWIN)
+	static const QString macOSVersionString();
+#endif
+
 @TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 

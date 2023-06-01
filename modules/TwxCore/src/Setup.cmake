@@ -24,6 +24,7 @@ twx_module_declare (
 		TwxAssetsTrackDB.cpp
 		TwxConst.in.cpp
 		TwxInfo.in.cpp
+		TwxInfoMacOSVersion.mm
 		TwxLocate.in.cpp
 		TwxSettings.cpp
 		TwxSetup.cpp
@@ -41,6 +42,11 @@ twx_module_declare (
 		TwxSettings.in.h
 		TwxSetup.h
 		TwxTool.h
+)
+
+set (
+	TwxCore_LIBRARIES
+	"-framework Foundation"
 )
 
 if ( COMMAND twx_QT_append )

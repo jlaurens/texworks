@@ -43,6 +43,10 @@ private slots:
 	
 	void testInfo();
 
+#if defined(Q_OS_DARWIN)
+	void testInfo_MacOS();
+#endif
+
 	void testSettings_listPATH();
 	void testSettings_assetsLibraryLocation();
 

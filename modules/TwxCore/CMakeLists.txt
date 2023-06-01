@@ -26,6 +26,8 @@ include ( TwxBase )
 
 twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
 
+enable_language ( OBJCXX )
+
 include ( TwxQTLib )
 twx_Qt_fresh ()
 
@@ -35,7 +37,6 @@ twx_doxydoc ( MODULE )
 include (
 	"${CMAKE_CURRENT_LIST_DIR}/src/Setup.cmake"
 )
-
 include ( TwxModuleLib )
 twx_module_configure ()
 

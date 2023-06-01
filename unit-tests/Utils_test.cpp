@@ -34,10 +34,6 @@
 #include <QTemporaryFile>
 #include <QToolBar>
 
-#ifdef Q_OS_DARWIN
-extern QString GetMacOSVersionString();
-#endif // defined(Q_OS_DARWIN)
-
 namespace Tw {
 namespace Utils {
 bool operator==(const FileVersionDatabase::Record & r1, const FileVersionDatabase::Record & r2)
@@ -701,15 +697,6 @@ void TestUtils::TypesetManager()
 	QVERIFY(tm.getOwnerForRootFile(fileB) == nullptr);
 	QCOMPARE(tm.isFileBeingTypeset(fileB), false);
 }
-
-#ifdef Q_OS_DARWIN
-void TestUtils::OSVersionString()
-{
-	QString version = GetMacOSVersionString();
-	QRegularExpression pattern(QStringLiteral("^Mac OS X (\\d+)\\.(\\d+)\\.(\\d+)$"));
-	QVERIFY2(version.contains(pattern), qPrintable(version));
-}
-#endif // defined(Q_OS_DARWIN)
 
 } // namespace UnitTest
 

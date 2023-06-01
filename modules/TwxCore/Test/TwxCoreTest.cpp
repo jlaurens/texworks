@@ -242,6 +242,16 @@ void Main::testInfo()
 	QCOMPARE(Info::gitDate, date);
 }
 
+#if defined(Q_OS_DARWIN)
+void Main::testInfo_MacOS()
+{
+	QVERIFY(Info::macOSVersionString().size()>0);
+	QString version = Info::macOSVersionString();
+	QRegularExpression pattern(QStringLiteral("^Mac OS X (\\d+)\\.(\\d+)\\.(\\d+)$"));
+	QVERIFY2(version.contains(pattern), qPrintable(version));
+}
+#endif
+
 void Main::testSettings_listPATH()
 {
 	Settings settings;
