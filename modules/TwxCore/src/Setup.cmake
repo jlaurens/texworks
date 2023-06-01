@@ -42,11 +42,8 @@ twx_module_declare (
 		TwxSettings.in.h
 		TwxSetup.h
 		TwxTool.h
-)
-
-set (
-	TwxCore_LIBRARIES
-	"-framework Foundation"
+	LIBRARIES
+		"-framework Foundation"
 )
 
 if ( COMMAND twx_QT_append )

@@ -47,6 +47,36 @@ define_property (
 include ( TwxCfgFileLib )
 include ( TwxCfgLib )
 
+# ANCHOR: twx_module_name
+#[=======[*/
+/** @brief Get the module name.
+  *
+  * Retrieve the module name from the path.
+  *
+  * @see
+  * - `TwxCfgFileLib.cmake`
+  * - `TwxCfgPaths.cmake`
+  *
+  * @param name is the name of the module to setup
+  */
+twx_module_name ( name_var_ ) {}
+/*#]=======]
+function ( twx_module_name name_var_ )
+  twx_assert_non_void ( name_var_ )
+  get_filename_component (
+    module_
+    "${CMAKE_CURRENT_LIST_DIR}"
+    NAME
+  )
+  if ( NOT "${TWX_DIR}/modules/${module_}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}" )
+    message ( FATAL_ERROR "Bad usage: ${CMAKE_CURRENT_LIST_DIR} != ${TWX_DIR}/modules/${module_}" )
+  endif ()
+  if ( NOT "${module_}" MATCHES "^Twx(.*)$")
+    message ( FATAL_ERROR "Bad usage: not a module folder ${CMAKE_CURRENT_LIST_DIR}" )
+  endif ()
+  set ( ${name_var_} "${CMAKE_MATCH_1}" PARENT_SCOPE )
+endfunction ()
+
 # ANCHOR: twx_module_setup
 #[=======[*/
 /** @brief Setup a module.
@@ -179,19 +209,8 @@ function ( twx_module_configure )
   twx_assert_non_void ( TWX_PROJECT_PRODUCT_DIR )
   twx_assert_non_void ( TWX_PROJECT_BUILD_DIR )
 
-  get_filename_component (
-    module_
-    "${CMAKE_CURRENT_LIST_DIR}"
-    NAME
-  )
-  if ( NOT "${TWX_DIR}/modules/${module_}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}" )
-    message ( FATAL_ERROR "Bad usage: ${CMAKE_CURRENT_LIST_DIR} != ${TWX_DIR}/modules/${module_}" )
-  endif ()
-  if ( NOT "${module_}" MATCHES "^Twx(.*)$")
-    message ( FATAL_ERROR "Bad usage: not a module folder ${CMAKE_CURRENT_LIST_DIR}" )
-  endif ()
-  set ( name_ "${CMAKE_MATCH_1}" )
-
+  twx_module_name ( name_ )
+  
   twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
   twx_module_setup ( NAME "${name_}" )
   

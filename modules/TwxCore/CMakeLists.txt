@@ -17,7 +17,8 @@ if ( NOT TWX_IS_BASED )
 	)
 endif ()
 
-set ( TWX_MODULE_NAME TwxCore )
+include ( TwxModuleLib )
+twx_module_name ( TWX_MODULE_NAME )
 
 set ( TWX_TEST OFF )
 
@@ -37,7 +38,6 @@ twx_doxydoc ( MODULE )
 include (
 	"${CMAKE_CURRENT_LIST_DIR}/src/Setup.cmake"
 )
-include ( TwxModuleLib )
 twx_module_configure ()
 
 if ( NOT TWX_NO_TEST )

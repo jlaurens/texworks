@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2022  Stefan Löffler
+	Copyright (C) 2022-2023  Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,36 +18,12 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#include <QtTest/QtTest>
+#ifndef TwxTypeset_Manager_Private_H
+#define TwxTypeset_Manager_Private_H
 
-namespace UnitTest {
+private:
+#if TwxTypeset_TEST
+  static int test_count;
+#endif
 
-class TestUtils : public QObject
-{
-	Q_OBJECT
-private slots:
-	void initTestCase();
-	void cleanupTestCase();
-
-	void FileVersionDatabase_comparisons();
-	void FileVersionDatabase_hashForFile();
-	void FileVersionDatabase_addFileRecord();
-	void FileVersionDatabase_load();
-	void FileVersionDatabase_save();
-
-	void SystemCommand_wait();
-	void SystemCommand_getResult_data();
-	void SystemCommand_getResult();
-
-	void CommandLineParser_parse();
-	void CommandLineParser_printUsage();
-
-	void MacCentralEurRomanCodec();
-
-	void FullscreenManager();
-
-	void TypesetManager();
-
-};
-
-} // namespace UnitTest
+#endif // TwxTypeset_Manager_Private_H
