@@ -21,8 +21,11 @@ echo_var () {
 echo "::group::Info"
 
 # GNU extensions for sed are not supported; on Linux, --posix mimicks this behaviour
-TW_VERSION=$(sed -ne 's,^#define TEXWORKS_VERSION[[:space:]]"\([0-9.]\{3\,\}\)"$,\1,p' src/TWVersion.h)
-echo "TW_VERSION = ${TW_VERSION}"
+TWX_VERSION_MAJOR=$(sed -ne 's,^[[:space:]]VERSION_MAJOR[[:space:]]*=[[:space:]]*"\([0-9]+\)",\1,p' TeXworks.ini)
+TWX_VERSION_MINOR=$(sed -ne 's,^[[:space:]]VERSION_MINOR[[:space:]]*=[[:space:]]*"\([0-9]+\)",\1,p' TeXworks.ini)
+TWX_VERSION_PATCH=$(sed -ne 's,^[[:space:]]VERSION_PATCH[[:space:]]*=[[:space:]]*"\([0-9]+\)",\1,p' TeXworks.ini)
+TWX_VERSION="${TWX_VERSION_MAJOR}.${TWX_VERSION_MINOR}.${TWX_VERSION_PATCH}"
+echo "TWX_VERSION = ${TWX_VERSION}"
 
 GIT_HASH=$(git --git-dir=".git" show --no-patch --pretty="%h")
 echo "GIT_HASH = ${GIT_HASH}"
@@ -45,7 +48,7 @@ if [ -z "${DEB_MAINTAINER_NAME}" -o -z "${DEB_MAINTAINER_EMAIL}" -o -z "${DEB_PA
 fi
 
 BUILDDIR="launchpad-build"
-ORIG_VERSION="${TW_VERSION}~${DATE_HASH}~git~${GIT_HASH}"
+ORIG_VERSION="${TWX_VERSION}~${DATE_HASH}~git~${GIT_HASH}"
 ORIGNAME="texworks_${ORIG_VERSION}"
 ORIGFILENAME="${ORIGNAME}.orig.tar.gz"
 
@@ -93,7 +96,7 @@ for SERIES in ${LAUNCHPAD_SERIES}; do
 	printf "texworks (${DEB_VERSION}) ${SERIES}; urgency=low\n\n" > "${DEBDIR}/debian/changelog"
 	case "${GITHUB_REF}" in
 		refs/tags/*)
-			NEWS=$(sed -n "/^Release ${TW_VERSION}/,/^Release/p" "NEWS" | sed -e '/^Release/d' -e 's/^\t/    /')
+			NEWS=$(sed -n "/^Release ${TWX_VERSION}/,/^Release/p" "NEWS" | sed -e '/^Release/d' -e 's/^\t/    /')
 			echo "$NEWS" >> "${DEBDIR}/debian/changelog"
 			;;
 		*)

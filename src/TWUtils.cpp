@@ -25,7 +25,6 @@
 #include "Settings.h"
 #include "TWApp.h"
 #include "TeXDocumentWindow.h"
-//#include "utils/ResourcesLibrary.h"
 #include "utils/WindowManager.h"
 
 #include <TwxConst.h>
@@ -117,7 +116,7 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
 		helpDir.cd(QString(helpPath));
 
 	Tw::Settings settings;
-	QString loc = settings.value(QString::fromLatin1("locale")).toString();
+	QString loc = settings.value(QStringLiteral("locale")).toString();
 	if (loc.isEmpty())
 		loc = QLocale::system().name();
 
@@ -346,6 +345,7 @@ QString TWUtils::sIncludePostscriptCommand;
 QString TWUtils::sIncludeTextCommand;
 QString TWUtils::sCleanupPatterns;
 
+// TODO: evaluate this level of indirection
 const QString& TWUtils::includePdfCommand()
 {
 	return sIncludePdfCommand;

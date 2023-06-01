@@ -62,13 +62,11 @@ twx_QT_append ( REQUIRED Widgets )
 include ( SrcTwxUISetup )
 
 list (
-	APPEND
-	TwxUI_SOURCES
+	APPEND TwxUI_SOURCES
 	"${CMAKE_CURRENT_LIST_DIR}/TwxUITest.cpp"
 )
 list (
-	APPEND
-	TwxUI_HEADERS
+	APPEND TwxUI_HEADERS
 	"${CMAKE_CURRENT_LIST_DIR}/TwxUITest.h"
 )
 

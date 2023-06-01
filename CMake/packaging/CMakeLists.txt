@@ -40,7 +40,8 @@ set(MANUAL_HTML_SHA256 b3fea63be210367f24d2d0a70c8e272f107edc4f53e241ec19c61e63e
 set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_SOURCE_DIR}/CMake/packaging/CPackProjectConfig.txt" PARENT_SCOPE)
 
 # Set custom CPack variables
-set(CPACK_GIT_HASH "${TeXworks_GIT_HASH}" PARENT_SCOPE)
+twx_cfg_update_git ()
+set ( CPACK_GIT_HASH "${TWX_CFG_GIT_HASH}" PARENT_SCOPE )
 
 if (WIN32)
 	set(CPACK_TARGET_OS "win" PARENT_SCOPE)

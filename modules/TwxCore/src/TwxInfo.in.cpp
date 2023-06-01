@@ -33,12 +33,13 @@ namespace Twx {
 namespace Core {
 
 const QString Info::name = QString::fromUtf8("@TWX_CFG_NAME@");
+const QString Info::domain = QStringLiteral("@TWX_CFG_DOMAIN@");
 const QString Info::authors = QString::fromUtf8("@TWX_CFG_AUTHORS@");
 const QString Info::copyrightYears = QString::fromUtf8("@TWX_CFG_COPYRIGHT_YEARS@");
 const QString Info::copyrightHolders = QString::fromUtf8("@TWX_CFG_COPYRIGHT_HOLDERS@");
 const QString Info::organizationDomain = QStringLiteral("@TWX_CFG_ORGANIZATION_DOMAIN@");
-const QString Info::organizationName   		= QStringLiteral("@TWX_CFG_ORGANIZATION_NAME@");
-const QString Info::organizationShortName = QStringLiteral("@TWX_CFG_ORGANIZATION_SHORT_NAME@");
+const QString Info::organizationName   		= QString::fromUtf8("@TWX_CFG_ORGANIZATION_NAME@");
+const QString Info::organizationShortName = QString::fromUtf8("@TWX_CFG_ORGANIZATION_SHORT_NAME@");
 const QString Info::gitHash = QStringLiteral("@TWX_CFG_GIT_HASH@");
 const QDateTime Info::gitDate = QDateTime::fromString(
 	QStringLiteral("@TWX_CFG_GIT_DATE@"),
@@ -68,7 +69,7 @@ int Info::versionPatch = @TWX_CFG_VERSION_PATCH@;
 
 int Info::versionTweak = @TWX_CFG_VERSION_TWEAK@;
 
-const QString Info::version = QStringLiteral("@TWX_CFG_PROJECT_VERSION@");
+const QString Info::version = QStringLiteral("@TWX_CFG_VERSION@");
 
 const QString Info::versionFull = @TWX_CFG_GIT_OK@
 	? QStringLiteral(

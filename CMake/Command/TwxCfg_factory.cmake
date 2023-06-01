@@ -53,9 +53,10 @@ From these are built
 - Derived keys:
   - `NAME_LOWER`
   - `NAME_UPPER`
-  - `PROJECT_VERSION`
-  - `PROJECT_VERSION_SHORT`
+  - `VERSION`
+  - `VERSION_SHORT`
   - `GIT_OK`, whether the git information is accurate
+  - `DOMAIN`
 
   *//*
 #]===============================================]
@@ -130,13 +131,13 @@ endif()
 twx_cfg_set ( GIT_OK "${GIT_OK}" )
 # ANCHOR: Derived version strings, including a short one
 twx_cfg_set (
-  PROJECT_VERSION "\
+  VERSION "\
 ${TWX_CFG_VERSION_MAJOR}.\
 ${TWX_CFG_VERSION_MINOR}.\
 ${TWX_CFG_VERSION_PATCH}"
 )
 twx_cfg_set (
-  PROJECT_VERSION_SHORT "\
+  VERSION_SHORT "\
 ${TWX_CFG_VERSION_MAJOR}.\
 ${TWX_CFG_VERSION_MINOR}"
 )
@@ -153,6 +154,8 @@ endif ()
 twx_cfg_set ( BUILD_ID "${TWX_BUILD_ID}" )
 twx_cfg_set ( APPLICATION_IMAGE ":/images/images/${PROJECT_NAME}.png" )
 twx_cfg_set ( APPLICATION_IMAGE_128 ":/images/images/${PROJECT_NAME}-128.png")
+# Misc
+twx_cfg_set ( DOMAIN "${PROJECT_NAME}.${TWX_CFG_ORGANISATION_DOMAIN}" )
 
 twx_cfg_write_end ( ID "factory" )
 

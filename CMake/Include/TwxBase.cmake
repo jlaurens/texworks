@@ -341,7 +341,21 @@ macro ( twx_assert_target target_ )
   endif ()
 endmacro ()
 
-# ANCHOR: twx_forward_option
+# ANCHOR: twx_assert_exists
+#[=======[*/
+/** @brief Raise when a file or directory does not exist.
+  *
+  * @param path is the location to test
+  */
+twx_assert_exists(path) {}
+/*#]=======]
+macro ( twx_assert_exists path_ )
+  if ( NOT EXISTS "${path_}" )
+    message ( FATAL_ERROR "Missing ${path_}" )
+  endif ()
+endmacro ()
+
+# ANCHOR: twx_pass_option
 #[=======[*/
 /** @brief Forward a flag in the arguments.
   *
@@ -353,9 +367,9 @@ endmacro ()
   * 
   * @param option is the flag name
   */
-twx_forward_option( option ) {}
+twx_pass_option( option ) {}
 /*#]=======]
-macro ( twx_forward_option option_ )
+macro ( twx_pass_option option_ )
   if ( my_twx_${option_} )
     set ( my_twx_${option_} ${option_} )
   else ()

@@ -164,8 +164,10 @@ endfunction ()
   * @param in_dir for key IN_DIR is the required input directory path,
   * @param out_dir for key OUT_DIR is the required output directory path,
   * @param export_ans for key EXPORT is a variable name prefix that will hold on return the list
-  *   of full path to files that need configuration. The suffix is `id`.
-  *   An underscore separates the prefix and the suffix.
+  *   of full path to files that need configuration.
+  *   The variable is named `<prefix>_<id>`.
+  *   It is also a prefix for a variable holding the target name.
+  *   This second variable is named `<prefix>_<id>_target`.
   * @param ids for key CFG_INI_IDS is an optional list of `...cfg.ini` files identifiers
   *   that will be forwarded to `twx_cfg_read()`
   * @param ESCAPE_QUOTES, optional flag mainly for cpp files.
@@ -174,7 +176,8 @@ endfunction ()
   * @param target for key TARGET, optional target name.
   *   Useful to create the inlude header directory for static libraries.
   *   When the target has an ARCHIVE_OUTPUT_DIRECTORY property,
-  *   the `out_dir` is relative to that location.
+  *   the `out_dir` is relative to that location. This is not suitable to
+  *   configure sources before the build stage, use an explicit target dependency.
   */
 twx_cfg_file_end ( [ID id] ) {}
 /*
@@ -215,51 +218,16 @@ function ( twx_cfg_file_end )
     list ( APPEND out_ "${file.out}" )
   endforeach ()
 
-  if ( NOT ${my_twx_TARGET} STREQUAL "" )
-    if ( NOT TARGET ${my_twx_TARGET} )
-      message ( FATAL_ERROR "Unknown target ${my_twx_TARGET}" )
-    endif ()
-    get_target_property(
-      output_directory_
-      ${my_twx_TARGET}
-      ARCHIVE_OUTPUT_DIRECTORY
-    )
-    if ( output_directory_ MATCHES "NOTFOUND" )
-      message ( FATAL_ERROR "Target ${my_twx_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
-    else ()
-      set ( output_directory_ "${output_directory_}/${my_twx_OUT_DIR}" )
-    endif ()
-    add_custom_command (
-      TARGET "${my_twx_TARGET}"
-      POST_BUILD
-      COMMAND
-        "${CMAKE_COMMAND}"
-          "-DPROJECT_NAME=${PROJECT_NAME}"
-          "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-          "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
-          "-DTWX_IN_DIR=${my_twx_IN_DIR}"
-          "-DTWX_OUT_DIR=${output_directory_}"
-          "-DTWX_IN=${in_}"
-          "-DTWX_CFG_INI_IDS=${my_twx_CFG_INI_IDS}"
-          "-DTWX_ESCAPE_QUOTES=${my_twx_ESCAPE_QUOTES}"
-          "-DTWX_NO_PRIVATE=${my_twx_NO_PRIVATE}"
-          "-DTWX_VERBOSE=${TWX_VERBOSE}"
-          "-DTWX_DEV=${TWX_DEV}"
-          -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
-      COMMENT
-        "Configure ${PROJECT_NAME} include directory"
-      VERBATIM
-    )
-  else ()
+  if ( "${my_twx_TARGET}" STREQUAL "" )
     # No TARGET given
     twx_cfg_path ( stamped ID "${my_twx_ID}_file" STAMPED )
     set (
-      target
+      target_
       ${PROJECT_NAME}_${my_twx_ID}_cfg_ini
     )
-    if ( NOT TARGET ${target} )
+    if ( NOT TARGET ${target_} )
       add_custom_target (
-        ${target}
+        ${target_}
         ALL
         DEPENDS
           ${stamped}
@@ -303,6 +271,45 @@ function ( twx_cfg_file_end )
         "Configure ${PROJECT_NAME} files for ${my_twx_ID}"
       VERBATIM
     )
+  else ()
+    if ( NOT TARGET ${my_twx_TARGET} )
+      message ( FATAL_ERROR "Unknown target ${my_twx_TARGET}" )
+    endif ()
+    set ( target_ ${my_twx_TARGET} )
+    if ( IS_ABSOLUTE "${my_twx_OUT_DIR}" )
+      set ( output_directory_ "${my_twx_OUT_DIR}" )
+    else ()
+      get_target_property(
+        output_directory_
+        ${my_twx_TARGET}
+        ARCHIVE_OUTPUT_DIRECTORY
+      )
+      if ( output_directory_ MATCHES "NOTFOUND" )
+        message ( FATAL_ERROR "Target ${my_twx_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
+      endif ()
+      set ( output_directory_ "${output_directory_}/${my_twx_OUT_DIR}" )
+    endif ()
+    add_custom_command (
+      TARGET "${my_twx_TARGET}"
+      POST_BUILD
+      COMMAND
+        "${CMAKE_COMMAND}"
+          "-DPROJECT_NAME=${PROJECT_NAME}"
+          "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+          "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
+          "-DTWX_IN_DIR=${my_twx_IN_DIR}"
+          "-DTWX_OUT_DIR=${output_directory_}"
+          "-DTWX_IN=${in_}"
+          "-DTWX_CFG_INI_IDS=${my_twx_CFG_INI_IDS}"
+          "-DTWX_ESCAPE_QUOTES=${my_twx_ESCAPE_QUOTES}"
+          "-DTWX_NO_PRIVATE=${my_twx_NO_PRIVATE}"
+          "-DTWX_VERBOSE=${TWX_VERBOSE}"
+          "-DTWX_DEV=${TWX_DEV}"
+          -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
+      COMMENT
+        "Configure ${PROJECT_NAME} include directory"
+      VERBATIM
+    )
   endif ()
   if ( NOT "${my_twx_EXPORT}" STREQUAL "" )
     set ( export_ )
@@ -311,6 +318,7 @@ function ( twx_cfg_file_end )
     endforeach ()
     list ( SORT export_ )
     set ( ${my_twx_EXPORT}_${my_twx_ID} "${export_}" PARENT_SCOPE )
+    set ( ${my_twx_EXPORT}_${my_twx_ID}_target "${target_}" PARENT_SCOPE )
   endif ()
   unset ( ${files_} PARENT_SCOPE )
   unset ( ${busy_} PARENT_SCOPE )
@@ -355,6 +363,7 @@ macro ( twx_cfg_files )
   twx_assert_parsed ()
   twx_cfg_file_begin ( ID "${my_twx_ID}" )
   twx_message_verbose (
+    STATUS
     "twx_cfg_files: ${TWX_CFG_FILE_ID_CURRENT}"
     "twx_cfg_files: ${PROJECT_NAME}_${my_twx_ID}_CFG_FILES"
   )
@@ -362,13 +371,13 @@ macro ( twx_cfg_files )
     ID    ${my_twx_ID}
     FILES ${my_twx_FILES}
   )
-  twx_forward_option ( ESCAPE_QUOTES )
-  twx_forward_option ( NO_PRIVATE )
+  twx_pass_option ( ESCAPE_QUOTES )
+  twx_pass_option ( NO_PRIVATE )
   twx_cfg_file_end (
     ID          ${my_twx_ID}
     IN_DIR      ${my_twx_IN_DIR}
     OUT_DIR     ${my_twx_OUT_DIR}
-    CFG_INI_IDS ${my_twx_CFG_INI_IDS}
+    CFG_INI_IDS "${my_twx_CFG_INI_IDS}"
     EXPORT      ${my_twx_EXPORT}
     TARGET      ${my_twx_TARGET}
     ${my_twx_ESCAPE_QUOTES}

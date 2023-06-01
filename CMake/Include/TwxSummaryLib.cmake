@@ -146,7 +146,7 @@ endif ()
 # Outputs my_twx_VERBOSE, my_twx_HIDE, my_twx_ARGN
 macro ( __twx_summary_parse_arguments )
 # nothing to show if the whole section is hidden
-  twx_parse_arguments ( "VERBOSE" "" "" ${ARGN} )
+  twx_parse_arguments ( "VERBOSE;EOL" "" "" ${ARGN} )
   if ( my_twx_VERBOSE  AND NOT TWX_VERBOSE )
     set ( my_twx_HIDE ON )
   endif ()
@@ -375,6 +375,9 @@ function ( twx_summary_begin )
     set ( TWX_SUMMARY_indentation "  ${TWX_SUMMARY_indentation}" )
   endforeach()
   set ( TWX_SUMMARY_indentation "${TWX_SUMMARY_indentation}" PARENT_SCOPE )
+  if ( my_twx_EOL )
+    message ( "" )
+  endif ()
 endfunction ()
 
 # ANCHOR: twx_summary_end
@@ -535,8 +538,9 @@ function ( twx_summary_section_files )
         twx_summary_log_kv ( "${t_}" VAR ${t_}_ )
       endif ()
     endforeach ()
+    twx_summary_end ( EOL )
   endforeach ()
-endfunction ()
+endfunction ( twx_summary_section_files )
 
 # ANCHOR: twx_summary_section_build_settings
 #[=======[
@@ -548,13 +552,27 @@ endfunction ()
 twx_summary_section_build_settings( target ) {}
 /*
 #]=======]
+function ( twx_summary_section_compiler )
+  twx_summary_begin ( BOLD_MAGENTA "Compiler" ${my_twx_VERBOSE} )
+  twx_summary_log_kv ( "ID" ${CMAKE_CXX_COMPILER_ID})
+  twx_summary_log_kv ( "Version" ${CMAKE_CXX_COMPILER_VERSION})
+  twx_summary_log_kv ( "Optimization" ${CMAKE_BUILD_TYPE} )  
+  twx_summary_end ( EOL )
+endfunction ()
+
+  # ANCHOR: twx_summary_section_build_settings
+  #[=======[
+  */
+  /** @brief Log target build settings info
+    *
+    * @param ... are target names.
+    */
+  twx_summary_section_build_settings( target ) {}
+  /*
+  #]=======]
 function ( twx_summary_section_build_settings )
   twx_parse_arguments ( "VERBOSE" "" "" ${ARGN} )
-  if ( my_twx_VERBOSE )
-    set ( my_twx_VERBOSE VERBOSE )
-  else ()
-    set ( my_twx_VERBOSE )
-  endif ()
+  twx_pass_option ( VERBOSE )
   foreach ( target_ IN LISTS my_twx_UNPARSED_ARGUMENTS )
     if ( TARGET ${target_} )
       foreach ( t_ IN ITEMS OPTIONS DEFINITIONS )
@@ -581,7 +599,7 @@ function ( twx_summary_section_build_settings )
       message ( FATAL_ERROR "Unknown target ${target_}" )
     endif ()
   endforeach ()
-endfunction ()
+endfunction ( twx_summary_section_build_settings )
 
 # ANCHOR: twx_summary_section_libraries
 #[=======[
@@ -637,7 +655,7 @@ function ( twx_summary_section_libraries )
       message ( FATAL_ERROR "Unknown target ${target_}" )
     endif ()
   endforeach ()
-endfunction ()
+endfunction ( twx_summary_section_libraries )
 
 # ANCHOR: twx_summary_section_git
 #[=======[

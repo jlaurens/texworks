@@ -22,7 +22,7 @@ Expected side effects:
 
 - `<binary_dir>/TwxBuildData/<project name>-git.ini`
   is touched any time some data changes such that files must be reconfigured.
-- `TWX_<project name>_CFG_<key>` when `<key>` is one of
+- When read, `TWX_<project name>_CFG_<key>` when `<key>` is one of
   - `GIT_HASH`
   - `GIT_DATE`
   - `GIT_BRANCH`

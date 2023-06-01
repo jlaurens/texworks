@@ -28,7 +28,6 @@
 #endif
 #include "scripting/ScriptAPI.h"
 #include "scripting/ScriptLanguageInterface.h"
-//#include "utils/ResourcesLibrary.h"
 
 #include <TwxConst.h>
 #include <TwxAssets.h>

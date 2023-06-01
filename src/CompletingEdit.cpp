@@ -27,7 +27,6 @@
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
 #include "document/TeXDocument.h"
-//#include "utils/ResourcesLibrary.h"
 
 #include <TwxConst.h>
 #include <TwxAssets.h>

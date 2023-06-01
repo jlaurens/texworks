@@ -21,7 +21,6 @@
 
 #include "TWApp.h"
 
-#include "DefaultBinaryPaths.h"
 #include "DefaultPrefs.h"
 #include "PDFDocumentWindow.h"
 #include "PrefsDialog.h"
@@ -33,10 +32,8 @@
 #include "document/SpellChecker.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/CommandlineParser.h"
-//#include "utils/ResourcesLibrary.h"
 #include "utils/SystemCommand.h"
 #include "utils/TextCodecs.h"
-#include "utils/VersionInfo.h"
 #include "utils/WindowManager.h"
 
 #include <TwxConst.h>
@@ -267,12 +264,13 @@ TWApp::CommandLineData TWApp::processCommandLine()
 			}
 			clp.at(i).processed = true;
 			QTextStream strm(stdout);
-			strm << "TeXworks " << Tw::Utils::VersionInfo::fullVersionString() << "\n\n";
-			strm << QString::fromUtf8("\
+			using Info = Twx::Core::Info;
+			strm << "TeXworks " << Info::version << "\n\n";
+			strm << QStringLiteral("\
 Copyright (C) %1  %2\n\
 License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2023"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
+There is NO WARRANTY, to the extent permitted by law.\n\n").arg(Info::copyrightYears, Info::copyrightHolders);
 			strm.flush();
 		}
 		if ((i = clp.getNextSwitch(QString::fromLatin1("help"))) >= 0) {
@@ -408,7 +406,7 @@ void TWApp::about()
 	QString aboutText = tr("<p>%1 is a simple environment for editing, typesetting, and previewing TeX documents.</p>").arg(applicationName());
 	aboutText += QLatin1String("<small>");
 	aboutText += QLatin1String("<p>&#xA9; 2007-2023  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen");
-	aboutText += tr("<br>Version %1").arg(Tw::Utils::VersionInfo::fullVersionString());
+	aboutText += tr("<br>Version %1").arg(Twx::Core::Info::version);
 	aboutText += tr("<p>Distributed under the <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU General Public License</a>, version 2 or (at your option) any later version.");
 	aboutText += tr("<p><a href=\"http://www.qt.io/\">Qt application framework</a> v%1 by The Qt Company.").arg(QString::fromLatin1(qVersion()));
 	aboutText += tr("<br><a href=\"http://poppler.freedesktop.org/\">Poppler</a> PDF rendering library by Kristian H&#xF8;gsberg, Albert Astals Cid and others.");
@@ -1240,7 +1238,7 @@ void TWApp::globalDestroyed(QObject * obj)
 /*Q_INVOKABLE static*/
 int TWApp::getVersion()
 {
-	return Tw::Utils::VersionInfo::getVersion();
+	return Twx::Core::Info::versionMNP;
 }
 
 //Q_INVOKABLE

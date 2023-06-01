@@ -22,7 +22,6 @@
 #include "document/SpellChecker.h"
 
 #include "TWUtils.h" // for TWUtils::getLibraryPath
-//#include "utils/ResourcesLibrary.h"
 
 #include <TwxConst.h>
 #include <TwxAssets.h>

@@ -379,11 +379,9 @@ function ( twx_cfg_write_end )
     PROPERTY CMAKE_CONFIGURE_DEPENDS
     ${path_}
   )
-  string ( TIMESTAMP t UTC )
   set (
     contents_ "\
 ;READ ONLY
-;${t}
 ;This file was generated automatically by the TWX build system
 [${PROJECT_NAME} ${my_twx_ID} informations]
 "
@@ -423,23 +421,14 @@ function ( twx_cfg_write_end )
   endwhile ()
   # write the file
   twx_message_verbose ( STATUS "Writing ${path_}" )
-  file (
-    WRITE
-    "${path_}(busy)"
-    "${contents_}"
+  file ( WRITE "${path_}(busy)" "${contents_}" )
+  execute_process (
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${path_}(busy)"
+      "${path_}"
+    COMMAND ${CMAKE_COMMAND} -E remove
+      "${path_}(busy)"
   )
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E compare_files
-    "${path_}(busy)"
-    "${path_}"
-    RESULT_VARIABLE ans
-  )
-  if ( ans GREATER 0 )
-    file ( RENAME "${path_}(busy)" "${path_}" )
-    message ( STATUS "Updated: ${path_}" )
-  else ()
-    file ( REMOVE "${path_}(busy)" )
-  endif ()
   unset ( cfg_keys_${my_twx_ID}_twx   PARENT_SCOPE )
   unset ( cfg_values_${my_twx_ID}_twx PARENT_SCOPE )
   # Now we cand start another write sequence
@@ -449,6 +438,7 @@ endfunction ()
 #[=======[
 *//** @brief Parse Cfg data files
 
+Central function.
 Parses the file lines matching `<key> = <value>`.
 `<key>` contains no `=` nor space character, it is not empty whereas
 `<value>` can be empty.
@@ -609,7 +599,7 @@ function (twx_cfg_target_dependent )
   endwhile ()
   set_property(
     TARGET ${ARGN} 
-    APPEND 
+    APPEND
     PROPERTY SOURCES
     ${path_}
   )

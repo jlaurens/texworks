@@ -20,7 +20,7 @@
 */
 
 #include "InterProcessCommunicator.h"
-#include "TWVersion.h"
+#include <TwxInfo.h>
 
 #if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0500
 	#define _WIN32_WINNT			0x0500	// for HWND_MESSAGE
@@ -29,7 +29,6 @@
 
 namespace Tw {
 
-#define TW_MUTEX_NAME		"org.tug.texworks-" TEXWORKS_VERSION
 #define TW_HIDDEN_WINDOW_CLASS	"TeXworks:MessageTarget"
 #define TW_OPEN_FILE_MSG		(('T' << 8) + 'W')	// just a small sanity check for the receiver
 #define TW_BRING_TO_FRONT_MSG		(('B' << 8) + 'F')	// just a small sanity check for the receiver
@@ -139,7 +138,11 @@ InterProcessCommunicator::InterProcessCommunicator()
 	: _private(new InterProcessCommunicatorPrivate(this))
 {
 	Q_D(InterProcessCommunicator);
-	d->hMutex = CreateMutexA(NULL, FALSE, TW_MUTEX_NAME);
+	auto name =
+		Twx::Core::Info::organizationDomain +
+		QStringLiteral("-") +
+		Twx::Core::Info::version;
+	d->hMutex = CreateMutexA(NULL, FALSE, name.toUtf8());
 	if (d->hMutex == NULL)
 		return;
 

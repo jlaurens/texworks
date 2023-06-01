@@ -63,7 +63,7 @@ This is the top level CMakeLists file
 # Setup and User Options
 # ======================
 
-cmake_minimum_required ( VERSION 3.1 )
+cmake_minimum_required ( VERSION 3.13 )
 
 include (
   ${CMAKE_CURRENT_LIST_DIR}/CMake/Include/TwxBase.cmake
@@ -72,6 +72,8 @@ include (
 # Set project name.
 project ( ${TWX_PROJECT_NAME} )
 include ( TwxBase )
+include ( TwxCfgLib )
+twx_cfg_setup ()
 
 IF(WIN32 AND MINGW)
   # Ensure that no cpp flags are passed to windres, the Windows resource compiler.
@@ -83,40 +85,6 @@ if (MSVC)
 	add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 	add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 endif (MSVC)
-
-
-# Determine Version Numbers
-# -------------------------
-
-# The values recovered here are used in the filenames of packaged builds and
-# influence parts of the application such as the "About" dialog.
-
-#include(TeXworksVersion)
-#
-#GetTeXworksVersion()
-#UpdateGitRevInfo()
-#GetGitRevInfo()
-
-# Recover canonical (x.y.z) version number from `src/TWVersion.h`.
-FILE(STRINGS ${PROJECT_SOURCE_DIR}/src/TWVersion.h TeXworks_VER_MAJOR REGEX "VER_MAJOR")
-STRING(REGEX MATCH "([0-9]+)" TeXworks_VER_MAJOR ${TeXworks_VER_MAJOR})
-FILE(STRINGS ${PROJECT_SOURCE_DIR}/src/TWVersion.h TeXworks_VER_MINOR REGEX "VER_MINOR")
-STRING(REGEX MATCH "([0-9]+)" TeXworks_VER_MINOR ${TeXworks_VER_MINOR})
-FILE(STRINGS ${PROJECT_SOURCE_DIR}/src/TWVersion.h TeXworks_VER_PATCH REGEX "VER_BUGFIX")
-STRING(REGEX MATCH "([0-9]+)" TeXworks_VER_PATCH ${TeXworks_VER_PATCH})
-SET(TeXworks_VERSION ${TeXworks_VER_MAJOR}.${TeXworks_VER_MINOR}.${TeXworks_VER_PATCH})
-
-# Make sure we have up-to-date git commit infos
-execute_process(COMMAND "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/src" -P "${PROJECT_SOURCE_DIR}/CMake/Modules/getGitRevInfo.cmake" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
-add_custom_target(GitRev ALL "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/src" -P "${PROJECT_SOURCE_DIR}/CMake/Modules/getGitRevInfo.cmake" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" COMMENT "Update git commit info")
-
-# Recover git commit info from `src/GitRev.h`.
-FILE(STRINGS ${CMAKE_CURRENT_BINARY_DIR}/src/GitRev.h TeXworks_GIT_INFO)
-LIST(GET TeXworks_GIT_INFO 1 TeXworks_GIT_COMMIT)
-STRING(REGEX REPLACE "#define GIT_COMMIT_HASH \"([a-f0-9]+\\*?)\"" "\\1" TeXworks_GIT_HASH "${TeXworks_GIT_COMMIT}")
-LIST(GET TeXworks_GIT_INFO 2 TeXworks_GIT_COMMIT)
-STRING(REGEX REPLACE "#define GIT_COMMIT_DATE \"([-+:0-9TZ]+)\"" "\\1" TeXworks_GIT_DATE "${TeXworks_GIT_COMMIT}")
-
 
 # Declare Project Options
 # -----------------------
@@ -293,7 +261,7 @@ FIND_PACKAGE(Synctex QUIET)
 # Aggregate library names and include directories into variables for easy
 # access.
 
-SET(TeXworks_LIBS
+SET(TeXworks_LIBRARIES
   SyncTeX::synctex
   Hunspell::hunspell
   ${QT_LIBRARIES}
@@ -337,9 +305,6 @@ ENDIF ()
 
 # Update Header Templates
 # -----------------------
-
-include(GenerateDefaultBinPaths)
-GenerateDefaultBinPaths()
 
 # Building
 # ========
@@ -385,10 +350,157 @@ ENDIF ()
 
 # Build main TeXworks application
 # -------------------------------
-ADD_SUBDIRECTORY(src)
+if ( APPLE )
+  set ( TWX_GUI_TYPE MACOSX_BUNDLE )
+  set (
+    TWX_APP_ICONS
+    "${TWX_DIR}/res/os_darwin/TeXworks.icns"
+    "${TWX_DIR}/res/os_darwin/TeXworks-doc.icns"
+  )
+  set_source_files_properties (
+    ${TWX_APP_ICONS}
+    PROPERTIES
+      MACOSX_PACKAGE_LOCATION Resources
+  )
+endif ( APPLE )
+
+# **WARNING:** _Windows is untested_
+if ( WIN32 )
+  set ( TWX_GUI_TYPE WIN32 )
+endif ()
+
+add_executable (
+  TeXworks
+  ${TWX_GUI_TYPE}
+  ${TWX_APP_ICONS}
+)
+
+# For OS X, generate `Info.plist` and add it to the `.app` bundle.
+if ( APPLE )
+  set (
+    input_
+    "${TWX_DIR}/res/os_darwin/${TWX_PROJECT_NAME}.in.plist"
+  )
+  set (
+    output_
+    "${TWX_PROJECT_BUILD_DIR}/res/os_darwin/${TWX_PROJECT_NAME}.plist"
+  )
+  add_custom_command (
+    COMMAND "${CMAKE_COMMAND}"
+    "-DTWX_INPUT=${PROJECT_NAME}"
+    "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}"
+    -P "${TWX_DIR}/CMake/Command/TwxCfgOneFileCommand.cmake"
+    DEPENDS
+      ${TWX_${PROJECT_NAME}_INI}
+    COMMENT
+      "Update ${PROJECT_NAME} factory Cfg information"
+    OUTPUT "${OUTPUT}"
+  )
+  set_target_properties (
+    TeXworks
+    PROPERTIES
+      MACOSX_BUNDLE_INFO_PLIST "${OUTPUT}"
+  )
+  # twx_cfg_files (
+  #   ID 			PACKAGE_DARWIN
+  #   FILES 	${TWX_PROJECT_NAME}.in.plist
+  #   IN_DIR 	"${TWX_DIR}/res/os_darwin"
+  #   OUT_DIR "${TWX_PROJECT_BUILD_DIR}/res/os_darwin"
+  #   EXPORT  twx
+  # )
+  # set_target_properties (
+  #   TeXworks
+  #   PROPERTIES
+  #     MACOSX_BUNDLE_INFO_PLIST ${twx_PACKAGE_DARWIN}
+  # )
+  # twx_assert_non_void ( twx_PACKAGE_DARWIN_target ) 
+  # add_dependencies(
+  #   TeXworks
+  #   ${twx_PACKAGE_DARWIN_target}
+  # )
+endif ()
+
+target_compile_definitions ( 
+  TeXworks
+  PRIVATE TW_BUILD_ID="${TW_BUILD_ID}"
+)
+
+macro ( twx_target_add_path_define target_ name_ path_ )
+  if ( IS_ABSOLUTE ${path_} )
+    target_compile_definitions ( ${target_} PRIVATE ${name_}="${path_}" )
+  else ()
+    target_compile_definitions ( ${target_} PRIVATE ${name_}="${CMAKE_INSTALL_PREFIX}/${path_}" )
+  endif ()
+endmacro ()
+
+if ( UNIX AND NOT APPLE )
+  twx_target_add_path_define ( TeXworks "TW_HELPPATH"      "${TeXworks_HELP_DIR}" )
+  twx_target_add_path_define ( TeXworks "TW_PLUGINPATH"  "${TeXworks_PLUGIN_DIR}" )
+  twx_target_add_path_define ( TeXworks "TW_DICPATH"      "${TeXworks_DIC_DIR}" )
+  twx_target_add_path_define ( TeXworks "TWX_DICTIONARY_PATH" "${TeXworks_DIC_DIR}" )
+endif ()
+
+# Change the name of the output, here comes the "-dev" suffix
+if (UNIX AND NOT APPLE)
+  set_target_properties(
+    TeXworks
+    PROPERTIES
+      OUTPUT_NAME ${TWX_PROJECT_COMMAND}
+  )
+else ()
+  set_target_properties (
+    TeXworks
+    PROPERTIES
+      OUTPUT_NAME ${TWX_PROJECT_NAME}
+  )
+endif ()
+
+# TODO: put the .app bundles in the build product directory
+# set_target_properties(
+#   TeXworks
+#   PROPERTIES
+#     RUNTIME_OUTPUT_DIRECTORY ${TWX_PROJECT_PRODUCT_DIR}
+# )
+
+add_subdirectory ( src "${TWX_PROJECT_BUILD_DIR}/src" )
+
+# Add translations
+add_subdirectory ( trans "${TWX_PROJECT_BUILD_DIR}/trans" )
+
+# On OS X, ensure there is always a `qt.conf` file as all hell will break loose
+# if one isn't there.  This may need to be customized for use on non-Apple
+# systems.
+#
+# Protip: If there are wierd errors like "Qt libraries loaded twice" or
+# "looking for a tablet device", then something may have gone pear shaped with
+# `qt.conf`.
+if ( APPLE )
+  set ( dir_ "${PROJECT_NAME}.app/Contents/Resources" )
+  set ( contents_ "[Paths]\nPlugins = PlugIns" )
+
+  install ( CODE
+    "
+    file ( WRITE
+    \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${dir_}/qt.conf\"
+      \"${contents_}\"
+    )
+    "
+  )
+endif ()
 
 # Build Plugins
 # -------------
+
+# One package.sh needs the version 
+
+add_custom_command (
+  TARGET TeXworks
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND}
+    "-DTWX_CONTENTS=${TWX_CFG_VERSION}"
+    "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}/TwxVersion.txt"
+    -P "${TWX_DIR}/CMake/Command/TwxWriteCommand.cmake"
+)
 
 # Build scripting language plugins if the required libraries are available.
 IF ( LUA_FOUND AND WITH_LUA )
@@ -402,9 +514,39 @@ ENDIF ()
 # Tests
 # -----
 IF ( WITH_TESTS )
-  add_subdirectory ( unit-tests "${TWX_PROJECT_BUILSD_DIR}" )
+  add_subdirectory ( unit-tests "${TWX_PROJECT_BUILD_DIR}" )
 endif ()
 
+# Install
+# -------
+# Installation
+# ------------
+if (WIN32)
+  # On Windows, put everything into the root install directory
+  INSTALL(TARGETS TeXworks
+    RUNTIME DESTINATION . COMPONENT
+  )
+else ()
+  INSTALL(TARGETS TeXworks
+    RUNTIME DESTINATION bin COMPONENT
+    BUNDLE DESTINATION . COMPONENT
+  )
+endif ()
+
+IF ( UNIX AND NOT APPLE )
+  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/512x512/apps)
+  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-128.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/128x128/apps RENAME TeXworks.png)
+  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-64.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/64x64/apps RENAME TeXworks.png)
+  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-48.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/48x48/apps RENAME TeXworks.png)
+  INSTALL(FILES
+    ${TWX_DIR}/COPYING
+    ${TWX_DIR}/README.md
+    ${TWX_DIR}/NEWS
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DOCS_DIR})
+  INSTALL(FILES ${TWX_DIR}/res/texworks.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_MAN_DIR})
+  INSTALL(FILES ${TWX_DIR}/res/texworks.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DESKTOP_DIR})
+  INSTALL(FILES ${TWX_DIR}/res/texworks.appdata.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_APPDATA_DIR})
+ENDIF ( UNIX AND NOT APPLE )
 
 # Packaging
 # =========
@@ -435,10 +577,10 @@ endforeach()
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/CMake/packaging)
 
 # Set CPack variables.
-SET(CPACK_PACKAGE_VERSION_MAJOR ${TeXworks_VER_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${TeXworks_VER_MINOR})
-SET(CPACK_PACKAGE_VERSION_PATCH ${TeXworks_VER_PATCH})
-SET(CPACK_PACKAGE_VERSION ${TeXworks_VERSION})
+SET(CPACK_PACKAGE_VERSION_MAJOR ${TWX_CFG_VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${TWX_CFG_VERSION_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${TWX_CFG_VERSION_PATCH})
+SET(CPACK_PACKAGE_VERSION ${TWX_CFG_VERSION})
 
 SET(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 
@@ -457,70 +599,60 @@ INCLUDE(CPack)
 # Summary
 # =======
 
-# This section displays a nice configuration summary for the user.
+message ( "" )
 
-# These macros borrowed from the Poppler CMake scripts. They add some nice
-# formatting to configuration info.
-MACRO(CONFIG_INFO what value)
-  STRING(LENGTH ${what} length_what)
-  MATH(EXPR left_char "35 - ${length_what}")
-  SET(blanks)
-  FOREACH(_i RANGE 1 ${left_char})
-    SET(blanks "${blanks} ")
-  ENDFOREACH()
+include ( TwxSummaryLib )
 
-  MESSAGE("  ${what}:${blanks} ${value}")
-ENDMACRO()
+twx_summary_begin (
+	BOLD_GREEN
+  "${PROJECT_NAME} has been configured (CMake ${CMAKE_VERSION})"
+  EOL
+)
 
-MACRO(CONFIG_YESNO what enabled)
-  IF(${enabled})
-    SET(enabled_string "yes")
-  ELSE(${enabled})
-    SET(enabled_string "no")
-  ENDIF()
+twx_summary_section_compiler ()
 
-  CONFIG_INFO("${what}" "${enabled_string}")
-ENDMACRO()
-
-macro(CONFIG_VERSION lib version)
-  CONFIG_INFO("  ${lib}" "${version}")
-endmacro()
-
-# Print out configuration summary.
-MESSAGE("TeXworks has been configured (CMake ${CMAKE_VERSION}, ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}):\n")
-
-message("  Version info")
-CONFIG_VERSION("${PROJECT_NAME}" "${TeXworks_VERSION} (${TeXworks_GIT_HASH}, ${TeXworks_GIT_DATE})")
+twx_summary_begin (
+  BOLD_MAGENTA
+  "Version info"
+)
+twx_summary_log_kv (
+  "${PROJECT_NAME}"
+  "${TWX_CFG_VERSION} (${TWX_CFG_GIT_HASH}, ${TWX_CFG_GIT_DATE})"
+)
 # Hunspell does not have a reliable way to determine its version
-CONFIG_YESNO("  Hunspell" "${HUNSPELL_FOUND}")
-IF ( WITH_LUA )
-  CONFIG_VERSION("Lua" "${LUA_VERSION_STRING}")
-ENDIF()
-if (WITH_PYTHON)
-  CONFIG_VERSION("Python" "${PYTHON_VERSION_STRING}")
+twx_summary_log_kv (
+  Hunspell FLAG HUNSPELL_FOUND
+)
+if ( WITH_LUA )
+  twx_summary_log_kv ( "Lua" "${LUA_VERSION_STRING}" )
+endif ()
+if ( WITH_PYTHON )
+twx_summary_log_kv ( "Python" "${PYTHON_VERSION_STRING}" )
 endif()
-CONFIG_VERSION("Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH})
-CONFIG_VERSION("SyncTeX" "${SYNCTEX_VERSION_STRING}")
-CONFIG_VERSION("zlib" "${ZLIB_VERSION_STRING}")
-message("")
+twx_summary_log_kv ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )
+twx_summary_log_kv ( "SyncTeX" "${SYNCTEX_VERSION_STRING}")
+twx_summary_log_kv ( "zlib" "${ZLIB_VERSION_STRING}"  )
+twx_summary_end()
 
-message("  Scripting")
-CONFIG_YESNO("  ECMA scripting" ON)
-CONFIG_YESNO("  QtScript scripting" WITH_QTSCRIPT)
-CONFIG_YESNO("  Lua scripting plugin" LUA_FOUND)
-CONFIG_YESNO("  Python scripting plugin" PYTHONLIBS_FOUND)
-message("")
+twx_summary_begin ( BOLD_MAGENTA "Scripting")
+twx_summary_log_kv ( "ECMA scripting" FLAG ON)
+twx_summary_log_kv ( "QtScript scripting" FLAG WITH_QTSCRIPT)
+twx_summary_log_kv ( "Lua scripting plugin" FLAG LUA_FOUND)
+twx_summary_log_kv ( "Python scripting plugin" FLAG PYTHONLIBS_FOUND)
+if ( APPLE )
+  twx_summary_log_kv ("OS X system python" FLAG USE_SYSTEM_PYTHON)
+endif ()
+twx_summary_end()
 
-CONFIG_INFO("Build ID" ${TW_BUILD_ID})
-CONFIG_INFO("Compiler optimization" ${CMAKE_BUILD_TYPE})
-IF( APPLE )
-  CONFIG_YESNO("  OS X system python" USE_SYSTEM_PYTHON)
-ENDIF()
+twx_summary_log_kv ( "Build ID" ${TW_BUILD_ID} )
+
 MESSAGE("")
 
 MESSAGE("  TeXworks will be installed to:")
 MESSAGE("      ${CMAKE_INSTALL_PREFIX}")
 MESSAGE("")
+
+twx_summary_end ( EOL )
 
 #[=======[
 */

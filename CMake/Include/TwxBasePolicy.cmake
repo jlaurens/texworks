@@ -7,7 +7,7 @@ https://github.com/TeXworks/texworks
 
 Automatically loaded by the `TwxBase` module.
 
-Actual policy version: 3.1
+Actual policy version: 3.13
 
 - CMP0020: Silence warning about linking to qtmain.lib statically on Windows
 - CMP0042: Silence warning about using @@rpath on OS X.
@@ -30,7 +30,8 @@ endif ()
 # Otherwise all the changes below won't live after the end
 
 # CMake 3.1 significantly improves support for imported targets, Qt5, c++11, etc.
-cmake_policy ( VERSION 3.1 )
+# 3.13 allows to alter an already defined target
+cmake_policy ( VERSION 3.13 )
 
 # Silence warning about linking to qtmain.lib statically on Windows
 if ( POLICY CMP0020 )

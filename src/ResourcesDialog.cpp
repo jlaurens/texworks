@@ -24,7 +24,6 @@
 #include "Settings.h"
 #include "TWUtils.h"
 
-//#include "utils/ResourcesLibrary.h"
 #include <TwxAssets.h>
 
 ResourcesDialog::ResourcesDialog(QWidget *parent)

@@ -21,8 +21,6 @@
 
 #include "TwxCoreTest.h"
 
-#include "DefaultBinaryPaths.h"
-
 #include "TwxConst.h"
 #include "TwxTool.h"
 #include "TwxInfo.h"

@@ -24,7 +24,6 @@
 #include "utils/CommandlineParser.h"
 #include "utils/FileVersionDatabase.h"
 #include "utils/FullscreenManager.h"
-//#include "utils/ResourcesLibrary.h"
 #include "utils/SystemCommand.h"
 #include "utils/TextCodecs.h"
 #include "utils/TypesetManager.h"

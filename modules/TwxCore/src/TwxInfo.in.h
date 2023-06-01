@@ -22,8 +22,7 @@
  	* 
  	* \brief Various information
  	* 
- 	* Aims to replace `src/TWVersion.h` as well as `GitArchiveInfo.txt`.
-	*/
+ 	*/
 #ifndef Twx_Core_Info_h
 #define Twx_Core_Info_h
 
@@ -50,6 +49,12 @@ public:
 	* Appears at different places (dialog and files).
 	*/
 	static const QString name;
+  
+/** \brief The domain of the application
+	* 
+	* Appears at different places (dialog and files).
+	*/
+	static const QString domain;
   
 /** \brief The name of the organization
 	* 

@@ -62,8 +62,7 @@ twx_warning_add ( warning, ... ) {}
 #]=======]
 function ( twx_warning_add )
   list (
-    APPEND
-    TWX_WARNING_OPTIONS
+    APPEND TWX_WARNING_OPTIONS
     ${ARGN}
   )
 endfunction ()

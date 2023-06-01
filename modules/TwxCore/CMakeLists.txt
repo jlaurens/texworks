@@ -56,18 +56,14 @@ include ( TwxCfgLib )
 twx_summary_begin (
 	BOLD_GREEN
 "${PROJECT_NAME} library has been configured \
-(CMake ${CMAKE_VERSION}, \
-${CMAKE_CXX_COMPILER_ID} \
-${CMAKE_CXX_COMPILER_VERSION}):\n"
+(CMake ${CMAKE_VERSION}):\n"
 	)
+twx_summary_section_compiler ()
 twx_summary_section_git ()
 
 twx_summary_begin ( BOLD_MAGENTA "Version info" )
 twx_summary_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )
 twx_summary_end ()
-
-twx_summary_log ( "Compiler optimization" ${CMAKE_BUILD_TYPE} )
-twx_summary_log ( "" )
 
 twx_summary_section_libraries ( ${TWX_MODULE_NAME} )
 

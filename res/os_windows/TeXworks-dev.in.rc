@@ -1,8 +1,5 @@
 #include <windows.h>
 
-// #include "@PROJECT_SOURCE_DIR@/src/TWVersion.h"
-// #include "GitRev.h"
-
 IDI_ICON1	ICON	DISCARDABLE	"@TWX_CFG_PKG_APP_ICO@"
 IDI_ICON2	ICON	DISCARDABLE	"@TWX_CFG_PKG_DOC_ICO@"
 
@@ -20,12 +17,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName",      "@TWX_CFG_ORGANIZATION_NAME@"
             VALUE "FileDescription",  "@TWX_CFG_FILE_DESCRIPTION@"
-            VALUE "FileVersion",      "@TWX_CFG_PROJECT_VERSION@-r.TWX_CFG_GIT_HASH"
+            VALUE "FileVersion",      "@TWX_CFG_VERSION@-r.TWX_CFG_GIT_HASH"
             VALUE "InternalName",     "@TWX_CFG_NAME@"
             VALUE "LegalCopyright",   "Copyright (C) @TWX_CFG_COPYRIGHT_YEARS@  @TWX_CFG_COPYRIGHT_HOLDERS@"
             VALUE "OriginalFilename", "@TWX_CFG_NAME@.exe"
             VALUE "ProductName",      "@TWX_CFG_NAME@"
-            VALUE "ProductVersion",   "@TWX_CFG_NAME@ @TWX_CFG_PROJECT_VERSION@"
+            VALUE "ProductVersion",   "@TWX_CFG_NAME@ @TWX_CFG_VERSION@"
         END
     END
 

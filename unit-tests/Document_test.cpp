@@ -28,7 +28,6 @@
 #include "document/SpellChecker.h"
 #include "document/TeXDocument.h"
 #include "document/TextDocument.h"
-//#include "utils/ResourcesLibrary.h"
 #include <TwxAssets.h>
 
 #include <QSignalSpy>

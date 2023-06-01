@@ -51,11 +51,13 @@
 	<key>CFBundleIconFile</key>
 	<string>TeXworks.icns</string>
 	<key>CFBundleGetInfoString</key>
-	<string>TeXworks version @VER@ (r.@REV@)&#xA;(C) 2007-2023 Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen&#xA;Released under GPL (v2.0 or later)</string>
+	<string>@TWX_CFG_PROJECT_NAME@ developer version @TWX_CFG_VERSION@ (r.@TWX_CFG_GIT_HASH@)
+	(C) @TWX_CFG_COPYRIGHT_YEARS@ @TWX_CFG_COPYRIGHT_HOLDERS@
+	Released under GPL (v2.0 or later)</string>
 	<key>CFBundleExecutable</key>
-	<string>TeXworks</string>
+	<string>@TWX_CFG_PROJECT_NAME@</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.tug.texworks</string>
+	<string>@TWX_CFG_ORGANIZATION_DOMAIN@</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -63,9 +65,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@VER@ (r.@REV@)</string>
+	<string>@TWX_CFG_VERSION@ (developer)</string>
 	<key>CFBundleVersion</key>
-	<string>@VER@ (r.@REV@)</string>
+	<string>@TWX_CFG_VERSION@ (developer: r.@TWX_CFG_GIT_HASH@)</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>NSPrincipalClass</key>
