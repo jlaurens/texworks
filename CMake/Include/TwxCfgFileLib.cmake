@@ -79,7 +79,7 @@ function ( twx_cfg_file_begin )
   twx_assert_non_void ( my_twx_ID )
   set ( busy_ ${PROJECT_NAME}_${my_twx_ID}_CFG_BUSY )
   if ( ${busy_} )
-    message ( FATAL_ERROR "Missing twx_cfg_file_end ( ID ${my_twx_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_end ( ID ${my_twx_ID} )" )
   endif ()
   set ( ${busy_} ON PARENT_SCOPE )
   set ( TWX_CFG_FILE_ID_CURRENT "${my_twx_ID}" PARENT_SCOPE )
@@ -108,7 +108,7 @@ function ( twx_cfg_file_add )
   twx_assert_non_void ( my_twx_ID )
   set ( busy_ ${PROJECT_NAME}_${my_twx_ID}_CFG_BUSY )
   if ( NOT ${busy_} )
-    message ( FATAL_ERROR "Missing twx_cfg_file_begin ( ID ${my_twx_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${my_twx_ID} )" )
   endif ()
   set ( files_ ${PROJECT_NAME}_${my_twx_ID}_CFG_FILES )
   list ( APPEND ${files_} ${my_twx_FILES} )
@@ -199,7 +199,7 @@ function ( twx_cfg_file_end )
   twx_assert_non_void ( my_twx_ID )
   set ( busy_ ${PROJECT_NAME}_${my_twx_ID}_CFG_BUSY )
   if ( NOT ${busy_} )
-    message ( FATAL_ERROR "Missing twx_cfg_file_begin ( ID ${my_twx_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${my_twx_ID} )" )
   endif ()
   set ( files_ ${PROJECT_NAME}_${my_twx_ID}_CFG_FILES )
   twx_message_verbose (
@@ -252,7 +252,7 @@ function ( twx_cfg_file_end )
         "${CMAKE_COMMAND}"
           "-DPROJECT_NAME=${PROJECT_NAME}"
           "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-          "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
+          "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
           "-DTWX_IN_DIR=${my_twx_IN_DIR}"
           "-DTWX_OUT_DIR=${my_twx_OUT_DIR}"
           "-DTWX_IN=${in_}"
@@ -273,7 +273,7 @@ function ( twx_cfg_file_end )
     )
   else ()
     if ( NOT TARGET ${my_twx_TARGET} )
-      message ( FATAL_ERROR "Unknown target ${my_twx_TARGET}" )
+      twx_fatal ( "Unknown target ${my_twx_TARGET}" )
     endif ()
     set ( target_ ${my_twx_TARGET} )
     if ( IS_ABSOLUTE "${my_twx_OUT_DIR}" )
@@ -285,7 +285,7 @@ function ( twx_cfg_file_end )
         ARCHIVE_OUTPUT_DIRECTORY
       )
       if ( output_directory_ MATCHES "NOTFOUND" )
-        message ( FATAL_ERROR "Target ${my_twx_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
+        twx_fatal ( "Target ${my_twx_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
       endif ()
       set ( output_directory_ "${output_directory_}/${my_twx_OUT_DIR}" )
     endif ()
@@ -296,7 +296,7 @@ function ( twx_cfg_file_end )
         "${CMAKE_COMMAND}"
           "-DPROJECT_NAME=${PROJECT_NAME}"
           "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-          "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
+          "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
           "-DTWX_IN_DIR=${my_twx_IN_DIR}"
           "-DTWX_OUT_DIR=${output_directory_}"
           "-DTWX_IN=${in_}"

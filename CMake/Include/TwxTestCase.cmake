@@ -61,14 +61,14 @@ function ( twx_test_case variable_ TARGET target_ )
   set ( temporaryDir "${TWX_PROJECT_BUILD_DATA_DIR}/Temporary" )
   message ( STATUS "FROM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
   if ( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory" )
-    message ( FATAL_ERROR "No WorkingDirectory" )
+    twx_fatal ( "No WorkingDirectory" )
   endif ()
   file (
     COPY "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory"
     DESTINATION "${temporaryDir}"
   )
   if ( NOT EXISTS "${temporaryDir}/WorkingDirectory" )
-    message ( FATAL_ERROR "COPY FAILED" )
+    twx_fatal ( "COPY FAILED" )
   endif ()
   file (
     REMOVE_RECURSE "${destination_}"

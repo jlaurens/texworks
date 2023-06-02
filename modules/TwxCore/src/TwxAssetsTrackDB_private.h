@@ -28,10 +28,22 @@
 	* as far as it makes sense.
 	*/
 
-static const QString saveComponent;
-static const QString saveComponentLegacy;
-QList<AssetsTrack> & getList();
-const QList<AssetsTrack> & getList() const;
-void removeStorage() const;
+private:
 
-friend bool operator==(const AssetsTrackDB & frdb1, const AssetsTrackDB & frdb2);
+  static const int version;
+
+  QList<AssetsTrack> assetsTracks_m;
+  QDir dir_m;
+
+	bool save(const QString & path) const;
+	static AssetsTrackDB load(const QString & path);
+	bool save_legacy(const QString & path) const;
+  static AssetsTrackDB load_legacy(const QString & path);
+
+	static const QString saveComponent;
+	static const QString saveComponentLegacy;
+	QList<AssetsTrack> & getList();
+	const QList<AssetsTrack> & getList() const;
+	void removeStorage() const;
+
+	friend bool operator==(const AssetsTrackDB & frdb1, const AssetsTrackDB & frdb2);

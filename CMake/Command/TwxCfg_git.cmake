@@ -12,10 +12,7 @@ cmake ... -P .../CMake/Command/TwxCfg_git.cmake
 
 Expected input state:
 
-- `PROJECT_NAME`
-- `TWX_PROJECT_INI`
-- `PROJECT_BINARY_DIR`
-- `TWX_DIR`
+- `TWX_CFG_INI_DIR`
 - `TWX_TEST` optional
 
 Expected side effects:
@@ -30,6 +27,12 @@ Expected side effects:
 *//*
 #]===============================================]
 
+if ( TWX_VERBOSE )
+  message ( STATUS "TwxCfg_git: ${TWX_DIR}" )
+else ()
+  message ( STATUS "TwxCfg_git..." )
+endif ()
+
 if ( NOT TWX_IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
@@ -37,20 +40,7 @@ if ( NOT TWX_IS_BASED )
   )
 endif ()
 
-twx_assert_non_void ( PROJECT_NAME )
-twx_assert_non_void ( PROJECT_BINARY_DIR )
-twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
-twx_assert_non_void ( TWX_DIR )
-
 include ( TwxCfgLib )
-
-if ( TWX_VERBOSE )
-  message ( STATUS "TwxCfg_git: ${PROJECT_NAME}" )
-  message ( STATUS "TwxCfg_git: ${PROJECT_BINARY_DIR}" )
-  message ( STATUS "TwxCfg_git: ${TWX_DIR}" )
-else ()
-  message ( STATUS "TwxCfg_git..." )
-endif ()
 
 twx_cfg_read ( "factory" ONLY_CONFIGURE )
 twx_cfg_read ( "git" QUIET ONLY_CONFIGURE )

@@ -42,7 +42,7 @@ namespace Test {
 Main::Main(): QObject()
 {
 	QCoreApplication::setOrganizationName("org.tug.TwxCore");
-  QCoreApplication::setOrganizationDomain("TwxEngine.tug.org");
+  QCoreApplication::setOrganizationDomain("TwxCoreLib.tug.org");
   QCoreApplication::setApplicationName("You can definitely trash me");
 }
 
@@ -70,12 +70,12 @@ void Main::cleanup()
 
 void Main::test()
 {
-
-	#if defined TwxCoreLib_TEST
+	QCOMPARE(Path::dot, ".");
+	#if defined TwxCoreLib2_TEST
 	  auto expected = QStringList{
-			QUuid::createUuid(),
-			QUuid::createUuid(),
-			QUuid::createUuid()
+		 	QUuid::createUuid().toString(),
+		 	QUuid::createUuid().toString(),
+		 	QUuid::createUuid().toString()
 		};
 	  Locate::listPATHRaw_m = expected;
 		QCOMPARE(Locate::listPATHRaw_m, expected);

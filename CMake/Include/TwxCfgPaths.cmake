@@ -177,7 +177,7 @@ twx__add_MiKTeX_default_binary_paths  ( TWX_paths )
 twx__add_system_default_binary_paths  ( TWX_paths )
 twx__add_TeX_binary_paths ( TWX_paths )
 
-list(REMOVE_DUPLICATES TWX_paths)
+list ( REMOVE_DUPLICATES TWX_paths)
 
 if (NOT WIN32)
 	# Windows uses ";" as path separator, just as CMake does for lists

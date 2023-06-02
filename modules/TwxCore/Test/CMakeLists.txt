@@ -39,6 +39,12 @@ set ( TWX_TEST ON	)
 
 enable_testing ()
 
+set (
+	TWX_FACTORY_INI
+	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.ini"
+)
+set ( TWX_NAME TwxCoreTest )
+
 twx_module_setup ( NAME Core )
 
 twx_QT_append ( REQUIRED Test )
@@ -224,11 +230,37 @@ add_executable (
 twx_module_add ( Core TARGETS test_TwxCoreLib )
 twx_Qt_link_libraries ( test_TwxCoreLib )
 
+target_compile_definitions ( 
+  test_TwxCoreLib
+  PRIVATE TwxCoreLib_TEST
+)
+
 add_test (
 	NAME test_TwxCoreLib
 	COMMAND test_TwxCoreLib
 	WORKING_DIRECTORY
 		"${twx_WorkingDirectory}"
+)
+
+add_executable (
+	test_TwxCoreLib2
+	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
+)
+
+twx_module_add ( Core TARGETS test_TwxCoreLib2 TEST )
+twx_Qt_link_libraries ( test_TwxCoreLib2 )
+
+add_test (
+	NAME test_TwxCoreLib2
+	COMMAND test_TwxCoreLib2
+	WORKING_DIRECTORY
+		"${twx_WorkingDirectory}"
+)
+
+target_compile_definitions ( 
+  test_TwxCoreLib2
+  PRIVATE TwxCoreLib2_TEST
 )
 
 unset ( twx_WorkingDirectory )
@@ -251,6 +283,7 @@ twx_summary_begin ( BOLD_MAGENTA "Tests" )
 twx_summary_log ( "1" "test_TwxCore" )
 twx_summary_log ( "2" "test_TwxCore_macOS" )
 twx_summary_log ( "3" "test_TwxCoreLib" )
+twx_summary_log ( "4" "test_TwxCoreLib2" )
 twx_summary_end ()
 
 twx_summary_section_git ()
@@ -266,7 +299,7 @@ twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
 twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )
 twx_summary_end ()
 
-foreach ( t_ Core CoreLib Core_macOS )
+foreach ( t_ Core CoreLib CoreLib2 Core_macOS )
 	twx_summary_section_build_settings ( test_Twx${t_} VERBOSE )
 	twx_summary_section_files ( test_Twx${t_} VERBOSE )
 endforeach ()

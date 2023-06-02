@@ -7,9 +7,15 @@ See https://github.com/TeXworks/texworks
 
 Low level controller to read, build and write Cfg data.
 A Cfg data file is quite like an INI file, hence the file extension used.
-It is saved in the `TwxBuildData` subfolder of the binary directory
+It is saved in the `TwxBuildData` subfolder of the main binary directory
 of the project. It will be used to define the replacement macros
 embedded in `configure_file` input.
+
+There are at least 2 cfg ini data files for names "factory" and "git".
+The later needs to be updated each time. It is associate to a target.
+This target is the very first one created by a call to `twx_cfg_setup`.
+Its name is `twx_cfg_target`. It also holds the shared location of all the 
+cfg ini data files as property `TWX_CFG_INI_DIR`.
 
 Usage:
 ```
@@ -74,8 +80,7 @@ function ( twx_cfg_path ans_ )
     twx_export ( ${ans_} )
     return ()
   endif ()
-  twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
-  twx_assert_non_void ( PROJECT_NAME )
+  twx_assert_non_void ( TWX_CFG_INI_DIR )
   if ( my_twx_STAMPED )
     set ( extension "stamped" )
   else ()
@@ -83,7 +88,7 @@ function ( twx_cfg_path ans_ )
   endif ()
   set (
     ${ans_}
-    "${TWX_PROJECT_BUILD_DATA_DIR}/${PROJECT_NAME}_${my_twx_ID}_cfg.${extension}"
+    "${TWX_CFG_INI_DIR}/TwxCfg_${my_twx_ID}.${extension}"
   )
   twx_export ( ${ans_} )
 endfunction ()
@@ -97,11 +102,9 @@ twx_cfg_update_factory ( ) {}
 macro ( twx_cfg_update_factory )
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
-      "-DPROJECT_NAME=${PROJECT_NAME}"
-      "-DTWX_PROJECT_INI=${TWX_PROJECT_INI}"
-      "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-      "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
-      "-DTWX_${PROJECT_NAME}_INI=${TWX_${PROJECT_NAME}_INI}"
+      "-DTWX_NAME=${TWX_NAME}"
+      "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
+      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
       "-DTWX_VERBOSE=${TWX_VERBOSE}"
       "-DTWX_TEST=${TWX_TEST}"
       "-DTWX_DEV=${TWX_DEV}"
@@ -121,10 +124,7 @@ twx_cfg_update_git ( ) {}
 macro ( twx_cfg_update_git )
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
-      "-DPROJECT_NAME=${PROJECT_NAME}"
-      "-DTWX_PROJECT_INI=${TWX_PROJECT_INI}"
-      "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-      "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
+      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
       "-DTWX_VERBOSE=${TWX_VERBOSE}"
       "-DTWX_TEST=${TWX_TEST}"
       "-DTWX_DEV=${TWX_DEV}"
@@ -133,148 +133,131 @@ macro ( twx_cfg_update_git )
   twx_cfg_read ( "git" )
 endmacro ()
 
+# ANCHOR: Utility `twx_cfg_target`
+#[=======[
+*//** @brief The cfg target name
+
+@param target_var is the name of the variable that holds the result on return.
+@param id for key ID, an identifier, unique per cmake session.
+*/
+twx_cfg_target ( target_var ) {}
+/*
+#]=======]
+function ( twx_cfg_target target_ )
+  twx_parse_arguments ( "" "ID" "" ${ARGN} )
+  twx_assert_parsed ()
+  twx_assert_non_void ( my_twx_ID )
+  set ( ${target_var} "TwxCfg_${my_twx_ID}_target" PARENT_SCOPE)
+endfunction ()
+
 # ANCHOR: twx_cfg_setup
 #[=======[
 *//**
 @brief Setup the current project to use Cfg
 
 Find the proper `<project name>.ini` file, usually in the
-`PROJECT_SOURCE_DIR`, and put the path in `TWX_<project name>_INI`.
+`PROJECT_SOURCE_DIR`, and put the path in `TWX_FACTORY_INI`.
 Bypass this by providing a path to an existing file in the
-`TWX_<project name>_INI` variable prior to calling `twx_cfg_setup`.
-Or provide an `ini` argument.
+`TWX_FACTORY_INI` variable prior to calling `twx_cfg_setup`.
 
-Creates 2 commands to build the "factory" and "git" Cfg data files
-for the current project.
+Creates 2 commands to build the shared "factory" and "git" Cfg data files.
 
 Add a target to allways rebuild git related Cfg data.
 
-The "factory" and "git" Cfg data files are read such that
-their contents is available in the current variable scope.
-
-Use at least once per project that needs `configuration_file`.
+Used at least once per project that needs `configuration_file`.
 
 See twx_cfg_read().
+The "factory" and "git" Cfg metadata files are updated such that
+their contents is available in the current variable scope.
 
 The `TWX_TEST` variable is propagated to the command.
-
-@param ini the optional metadata configuration file. 
 */
-twx_cfg_setup (ini) {}
-/** @brief Overwrite the default <project name>.ini lookup */
-TWX_PROJECT_INI;
+twx_cfg_setup () {}
+/** @brief Location of the factory ini file
+
+By default it is `/TeXworks.ini` or `/TeXworks-dev.ini`,
+whether we are in development mode or not.
+It is set lazily by the `twx_cfg_setup()` instruction.
+
+When testing, this variable must eventually be set before
+`twx_cfg_setup()` is called. In practice, it is set before
+`twx_module_setup()` is called by the `/modules/TwxCore/Test/`
+subdirectory. The value is then the absolute location of
+a `TeXworks-test.ini` file.
+
+See `ref(TWX_CFG_INI_DIR)`.
+*/
+TWX_FACTORY_INI;
 /*
 #]=======]
-macro ( twx_cfg_setup )
-  twx_assert_non_void ( PROJECT_NAME )
-  if ( TARGET TwxCfg_${PROJECT_NAME}_target )
-    twx_cfg_read ( "factory" "git" )
+function ( twx_cfg_setup )
+  if ( "${TWX_FACTORY_INI}" STREQUAL "" )
+    set (
+      TWX_FACTORY_INI
+      "${TWX_DIR}/${TWX_NAME}.ini"
+    )
+    twx_assert_exists ( TWX_FACTORY_INI )
+    set ( target_twx TwxCfg )
   else ()
-    if ( "${TWX_${PROJECT_NAME}_INI}" STREQUAL "" OR NOT EXISTS "${TWX_${PROJECT_NAME}_INI}" )
-      set (
-        TWX_${PROJECT_NAME}_INI
-        "${ARGN}"
-      )
-      if ( "${ARGN}" STREQUAL "" OR NOT EXISTS "${ARGN}" )
-        if ( "${TWX_PROJECT_INI}" STREQUAL "" )
-          set (
-            TWX_PROJECT_INI
-            "${PROJECT_NAME}.ini"
-          )
-        endif ()
-        set (
-          TWX_${PROJECT_NAME}_INI
-          "${TWX_PROJECT_INI}"
-        )
-        if ( NOT EXISTS "${TWX_${PROJECT_NAME}_INI}" )
-          set (
-            TWX_${PROJECT_NAME}_INI
-            "${PROJECT_SOURCE_DIR}/${TWX_PROJECT_INI}"
-          )
-          if ( NOT EXISTS "${TWX_${PROJECT_NAME}_INI}" )
-            set (
-              TWX_${PROJECT_NAME}_INI
-              "${CMAKE_CURRENT_SOURCE_DIR}/${TWX_PROJECT_INI}"
-            )
-            if ( NOT EXISTS "${TWX_${PROJECT_NAME}_INI}" )
-              set (
-                TWX_${PROJECT_NAME}_INI
-                "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.ini"
-              )
-              if ( NOT EXISTS "${TWX_${PROJECT_NAME}_INI}" )
-                set (
-                  TWX_${PROJECT_NAME}_INI
-                  "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.ini"
-                )
-                if ( NOT EXISTS "${TWX_${PROJECT_NAME}_INI}" )
-                  set (
-                    TWX_${PROJECT_NAME}_INI
-                    "${TWX_DIR}/${TWX_PROJECT_NAME}.ini"
-                  )
-                  if ( NOT EXISTS "${TWX_${PROJECT_NAME}_INI}" )
-                    message ( FATAL_ERROR "No TWX_${PROJECT_NAME}_INI" )
-                  endif ()
-                endif ()
-              endif ()
-            endif ()
-          endif ()
-        endif ()
-      endif ()
-    endif ()
-    twx_message_verbose ( STATUS "TWX_${PROJECT_NAME}_INI => ${TWX_${PROJECT_NAME}_INI}" )
-    twx_assert_non_void ( TWX_${PROJECT_NAME}_INI )
-    set_property (
-      DIRECTORY 
-      APPEND 
-      PROPERTY CMAKE_CONFIGURE_DEPENDS
-      ${TWX_${PROJECT_NAME}_INI}
-    )
-    twx_cfg_path ( path_factory_twx ID "factory" )
-    add_custom_command (
-      OUTPUT ${path_factory_twx}
-      COMMAND "${CMAKE_COMMAND}"
-        "-DPROJECT_NAME=${PROJECT_NAME}"
-        "-DTWX_PROJECT_INI=${TWX_PROJECT_INI}"
-        "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-        "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
-        "-DTWX_${PROJECT_NAME}_INI=${TWX_${PROJECT_NAME}_INI}"
-        "-DTWX_VERBOSE=${TWX_VERBOSE}"
-        "-DTWX_TEST=${TWX_TEST}"
-        "-DTWX_DEV=${TWX_DEV}"
-        -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
-      DEPENDS
-        ${TWX_${PROJECT_NAME}_INI}
-      COMMENT
-        "Update ${PROJECT_NAME} factory Cfg information"
-    )
-    # We need the contents before the first build
-    twx_cfg_update_factory ()
-
-    twx_cfg_path ( path_git_twx ID "git" )
-    add_custom_command(
-      OUTPUT ${path_git_twx}
-      COMMAND "${CMAKE_COMMAND}"
-        "-DPROJECT_NAME=${PROJECT_NAME}"
-        "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-        "-DTWX_PROJECT_BUILD_DATA_DIR=${TWX_PROJECT_BUILD_DATA_DIR}"
-        "-DTWX_VERBOSE=${TWX_VERBOSE}"
-        "-DTWX_TEST=${TWX_TEST}"
-        "-DTWX_DEV=${TWX_DEV}"
-        -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
-      DEPENDS
-        ${path_factory_twx}
-      COMMENT
-        "Update ${PROJECT_NAME} git Cfg information"
-    )
-    # We also need the contents before the first build
-    twx_cfg_update_git ()
-
-    add_custom_target (
-      TwxCfg_${PROJECT_NAME}_target ALL
-      DEPENDS ${path_git_twx}
+    twx_assert_exists ( TWX_FACTORY_INI )
+    # The project may have changed since TWX_CFG_INI_DIR was defined 
+    set ( TWX_CFG_INI_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
+    set ( target_twx "TwxCfg_${PROJECT_NAME}" )
+    twx_message_verbose (
+      STATUS
+      "${target_twx}"
+      "${TWX_FACTORY_INI}"
+      "${TWX_CFG_INI_DIR}"
     )
   endif ()
-endmacro ()
+  if ( TARGET "${target_twx}" )
+    return ()
+  endif ()
+  set_property (
+    DIRECTORY 
+    APPEND 
+    PROPERTY CMAKE_CONFIGURE_DEPENDS
+    ${TWX_FACTORY_INI}
+  )
+  twx_cfg_path ( path_factory_twx ID "factory" )
+  add_custom_command (
+    OUTPUT ${path_factory_twx}
+    COMMAND "${CMAKE_COMMAND}"
+      "-DTWX_NAME=${TWX_NAME}"
+      "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
+      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+      "-DTWX_VERBOSE=${TWX_VERBOSE}"
+      "-DTWX_TEST=${TWX_TEST}"
+      "-DTWX_DEV=${TWX_DEV}"
+      -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
+    DEPENDS
+      ${TWX_FACTORY_INI}
+    COMMENT
+      "Update factory Cfg information"
+  )
+  twx_cfg_path ( path_git_twx ID "git" )
+  add_custom_command (
+    OUTPUT ${path_git_twx}
+    COMMAND "${CMAKE_COMMAND}"
+      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+      "-DTWX_VERBOSE=${TWX_VERBOSE}"
+      "-DTWX_TEST=${TWX_TEST}"
+      "-DTWX_DEV=${TWX_DEV}"
+      -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
+    DEPENDS
+      ${path_factory_twx}
+    COMMENT
+      "Update git Cfg information"
+  )
+  add_custom_target (
+    "${target_twx}" ALL
+    DEPENDS ${path_git_twx}
+  )
+  twx_cfg_update_factory ()
+  twx_cfg_update_git ()
+  twx_export ( TWX_FACTORY_INI )
+  twx_export ( TWX_CFG_INI_DIR )
+endfunction ( twx_cfg_setup )
 
 # ANCHOR: Utility `twx_cfg_write_begin`
 #[=======[
@@ -311,7 +294,7 @@ twx_cfg_write_begin ( ID id ) {}
 macro ( twx_cfg_write_begin ID my_twx_ID )
   twx_assert_equal ( ID ${ID} )
   if ( DEFINED cfg_keys_${my_twx_ID}_twx )
-    message ( FATAL_ERROR "Missing `twx_cfg_write_end( ID ${my_twx_ID} )`" )
+    twx_fatal ( "Missing `twx_cfg_write_end( ID ${my_twx_ID} )`" )
   endif ()
   set ( cfg_keys_${my_twx_ID}_twx )
   set ( cfg_values_${my_twx_ID}_twx )
@@ -333,7 +316,7 @@ Feed `cfg_keys_<id_>_twx` with `<key>` and `cfg_values_<id_>_twx` with `<value>`
 function ( twx_cfg_set ID id_ )
   if ( "${ID}" STREQUAL "ID")
     if ( "${ARGN}" STREQUAL "" )
-      message ( FATAL_ERROR "Internal error in twx_cfg_set: missing key" )
+      twx_fatal ( "Internal error in twx_cfg_set: missing key" )
     endif ()
     list ( GET ARGN 0 key_ )
     list ( REMOVE_AT ARGN 0 )
@@ -399,7 +382,7 @@ function ( twx_cfg_write_end )
     list ( GET cfg_keys_${my_twx_ID}_twx 0 key_ )
     list ( REMOVE_AT cfg_keys_${my_twx_ID}_twx 0 )
     if ( "${cfg_values_${my_twx_ID}_twx}" STREQUAL "" )
-      message ( FATAL_ERROR "Internal inconsistency: <${key_}>")
+      twx_fatal ( "Internal inconsistency: <${key_}>")
     endif ()
     string ( LENGTH "${key_}" l )
     math ( EXPR l "${length}-${l}" )
@@ -471,15 +454,15 @@ function ( twx_cfg_read )
   if ( "${cfg_ini_mixed_}" STREQUAL "" )
     # No file path or name provided:
     # take it all, declared or not
-    twx_assert_non_void ( PROJECT_BINARY_DIR )
+    twx_assert_non_void ( TWX_CFG_INI_DIR )
     twx_assert_non_void ( PROJECT_NAME )
-    list ( APPEND cfg_ini_mixed_ "${${PROJECT_NAME}_TWX_CFG_IDS}" )
+    set ( cfg_ini_mixed_ ${${PROJECT_NAME}_TWX_CFG_IDS} )
     if ( "${cfg_ini_mixed_}" STREQUAL "" )
       twx_cfg_path ( glob_ ID "*" )
       # TODO: what happend if it contains more than one '*'?
       file ( GLOB cfg_ini_mixed_ "${glob_}" )
       if ( "${cfg_ini_mixed_}" STREQUAL "" )
-        message ( FATAL_ERROR "No known id in ${cfg_ini_mixed_}\nARGN:${ARGN}" )
+        twx_fatal ( "No known id in ${cfg_ini_mixed_}\nARGN:${ARGN}" )
       endif ()
     endif ()
   endif ()
@@ -492,7 +475,7 @@ function ( twx_cfg_read )
         set ( TWX_CFG_READ_FAILED ON PARENT_SCOPE )
         return ()
       else ()
-        message ( FATAL_ERROR "No file at ${p_}")
+        twx_fatal ( "No file at ${p_}")
       endif ()
       # readability is not tested
     endif ()
@@ -545,7 +528,7 @@ function ( twx_cfg_read )
           )
         endif ()
       endif ()
-    endforeach ( line IN LISTS lines )
+    endforeach ( line )
     if ( my_twx_ONLY_CONFIGURE )
       twx_core_timestamp (
         "${name_}"
@@ -555,7 +538,7 @@ function ( twx_cfg_read )
     if ( my_twx_QUIET )
       return ()
     endif ()
-  endforeach ( name_ IN LISTS cfg_ini_ordered_ )
+  endforeach ( name_ )
 endfunction ( twx_cfg_read )
 
 # ANCHOR: twx_cfg_target_dependent
@@ -616,7 +599,7 @@ Return if the Cfg data file with the given id already exists.
 twx_cfg_return_if_exists ( id ) {}
 /*
 #]=======]
-macro (twx_cfg_return_if_exists _name )
+macro ( twx_cfg_return_if_exists _name )
   twx_cfg_path ( TWX_path ID "${_name}" )
   if ( EXISTS "${TWX_path}" )
     unset ( TWX_path )

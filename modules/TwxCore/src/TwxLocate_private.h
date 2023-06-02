@@ -57,8 +57,6 @@
 #if defined(TwxCore_TEST)
 #define TWX_CONST
 
-	friend class Test::Main;
-
   static QStringList messages_TwxCore_TEST;
 	
   static const QFileInfo fileInfoMustExist_TwxCore_TEST;

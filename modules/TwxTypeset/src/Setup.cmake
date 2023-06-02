@@ -22,8 +22,11 @@ twx_module_declare (
 	SOURCES
 		TwxTypesetManager.cpp
 	HEADERS
-		TwxTypesetManager.h
-	MODULES
+    TwxFriendTestMain_private.h
+    TwxNamespaceTestMain_private.h
+    TwxTypesetManager_private.h
+    TwxTypesetManager.in.h
+  MODULES
 		Core
 )
 

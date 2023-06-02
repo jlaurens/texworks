@@ -272,6 +272,7 @@ private:
 	Locate& operator=(const Locate&) = delete;
 	Locate& operator=(Locate &&) = delete;
 @TWX_CFG_include_TwxLocate_private_h@
+@TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Core

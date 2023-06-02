@@ -16,7 +16,8 @@ cmake ... -P .../Command/TwxCfgFileCommand.cmake
 ```
 
 Expected input state:
-- `PROJECT_NAME`, `PROJECT_BINARY_DIR` and `TWX_PROJECT_BUILD_DATA_DIR` for `TwxCfgLib`
+- `PROJECT_NAME`, `PROJECT_BINARY_DIR` and
+- `TWX_CFG_INI_DIR` for `TwxCfgLib`
 - `TWX_IN`, list of relative input paths denoted `<input_k>`
 - `TWX_IN_DIR`, location of the input files
 - `TWX_OUT_DIR`, location of the output files
@@ -89,7 +90,7 @@ endif ()
 foreach ( file.in IN LISTS TWX_IN )
   twx_cfg_file_name_out ( "${file.in}" file.out )
   set ( input  "${TWX_IN_DIR}/${file.in}"   )
-  twx_assert_exists ( "${input}" )
+  twx_assert_exists ( input )
   set ( output "${TWX_OUT_DIR}/${file.out}" )
   twx_core_timestamp ( "${input}"  _ts_input  )
   twx_core_timestamp ( "${output}" _ts_output )

@@ -32,7 +32,7 @@ ADD_LIBRARY(TWLuaPlugin ${TWLUAPLUGIN_LIB_TYPE}
 target_compile_options(TWLuaPlugin PRIVATE ${WARNING_OPTIONS})
 # Disallow automatic casts from char* to QString (enforcing the use of tr() or
 # explicitly specifying the string encoding)
-target_compile_definitions(TWLuaPlugin PRIVATE -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
+target_compile_definitions(TWLuaPlugin PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_BYTEARRAY)
 
 target_include_directories(TWLuaPlugin SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
 target_include_directories(TWLuaPlugin PRIVATE ${TWX_DIR}/src)

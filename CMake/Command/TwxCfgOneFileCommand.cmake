@@ -63,7 +63,7 @@ else ()
   set ( ESCAPE_QUOTES_arg )
 endif ()
 
-twx_assert_exists ( "${TWX_INPUT}" )
+twx_assert_exists ( TWX_INPUT )
 twx_core_timestamp ( "${TWX_INPUT}"  _ts_input  )
 twx_core_timestamp ( "${outTWX_OUTPUTput}" _ts_output )
 if (  _ts_output GREATER _ts_input

@@ -21,106 +21,20 @@ if ( NOT TWX_IS_BASED )
 		NO_POLICY_SCOPE
 	)
 endif ()
-project ( TwxEngineTest )
+project ( TwxTypesetTest )
 include ( TwxBase )
 
 include ( TwxQTLib )
+twx_Qt_fresh()
 
-set ( TwxCoreLib_DIR "${PROJECT_BINARY_DIR}/TwxModules/TwxCore" )
+include ( TwxModuleLib )
 
-add_subdirectory (
-	"${TWX_DIR}/modules/TwxCore"
-	"${TwxCoreLib_DIR}"
-)
+twx_module_setup ( NAME Core )
 
-# execute_process(
-# 	COMMAND ${CMAKE_COMMAND}
-# 		"--build"
-# 		"${TwxCoreLib_DIR}"
-# )
-
-# find_library (
-# 	TwxCore
-# 	TwxCore
-# 	PATHS "${TwxCoreLib_DIR}/TwxProduct"
-# )
-
-# if ( "${TwxCore}" MATCHES "-NOTFOUND" )
-# 	message ( FATAL_ERROR "Missing library Core" )
-# endif ()
+set ( TwxTypesetLib_DIR "${PROJECT_BINARY_DIR}/TwxModules/TwxTypeset" )
 
 set ( TWX_TEST ON )
 enable_testing ()
-
-twx_Qt_fresh()
-include ( TwxModuleLib )
-
-add_executable ( test_TwxCoreLib )
-target_sources (
-	test_TwxCoreLib
-	PRIVATE
-		"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
-)
-
-# if ( NOT EXISTS "${TwxCoreLib_DIR}/TwxProduct/include" )
-#   message ( FATAL_ERROR "Missing headers" )
-# endif ()
-
-target_include_directories (
-	test_TwxCoreLib
-	PRIVATE
-		"${TwxCoreLib_DIR}/TwxProduct/include"
-)
-
-target_link_libraries (
-	test_TwxCoreLib
-	TwxCore
-	${QT_LIBRARIES}
-)
-twx_module_add ( Core TARGETS test_TwxCoreLib )
-add_test (
-	NAME test_TwxCoreLib
-	COMMAND test_TwxCoreLib
-)
-
-add_executable ( test_TwxCoreLib2 )
-target_sources (
-	test_TwxCoreLib2
-	PRIVATE
-		"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
-)
-target_compile_definitions (
-	test_TwxCoreLib2
-	PRIVATE TwxCoreLib2_TEST
-)
-
-# if ( NOT EXISTS "${TwxCoreLib_DIR}/TwxProduct/include" )
-#   message ( FATAL_ERROR "Missing headers" )
-# endif ()
-
-target_include_directories (
-	test_TwxCoreLib2
-	PRIVATE
-		"${TwxCoreLib_DIR}/TwxProduct/include"
-)
-
-target_link_libraries (
-	test_TwxCoreLib2
-	${QT_LIBRARIES}
-)
-twx_module_add ( Core TARGETS test_TwxCoreLib2 TEST )
-
-add_test (
-	NAME test_TwxCoreLib2
-	COMMAND test_TwxCoreLib2
-)
-
-if ( NOT TARGET Twx::Core )
-  add_library( Twx::Core ALIAS TwxCore )
-endif ()
-
 
 # ANCHOR - Summary
 # =======

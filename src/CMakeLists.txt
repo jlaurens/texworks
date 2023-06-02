@@ -172,7 +172,7 @@ IF ( WIN32 )
   include ( TwxCfgFileLib)
   twx_cfg_files (
     ID 			PACKAGE_WINDOWS
-    FILES 	${TWX_PROJECT_NAME}.in.rc
+    FILES 	${TWX_NAME}.in.rc
     IN_DIR 	"${TWX_DIR}/res/os_windows/"
     OUT_DIR "${TWX_PROJECT_BUILD_DIR}/res/os_windows/"
     EXPORT twx

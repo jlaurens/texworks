@@ -12,10 +12,9 @@ cmake ... -P .../CMake/Command/TwxCfg_factory.cmake
 ```
 
 Input:
-  - `PROJECT_NAME`
-  - `TWX_${PROJECT_NAME}_INI`
-  - `PROJECT_BINARY_DIR`
-  - `TWX_DIR`
+  - `TWX_NAME`
+  - `TWX_FACTORY_INI`
+  - `TWX_CFG_INI_DIR`
 
 Output:
   - an updated factory Cfg data file
@@ -58,7 +57,7 @@ From these are built
   - `GIT_OK`, whether the git information is accurate
   - `DOMAIN`
 
-  *//*
+*//*
 #]===============================================]
 
 if ( NOT TWX_IS_BASED )
@@ -68,26 +67,21 @@ if ( NOT TWX_IS_BASED )
   )
 endif ()
 
-twx_assert_non_void ( PROJECT_NAME )
-twx_assert_non_void ( TWX_${PROJECT_NAME}_INI )
-twx_assert_non_void ( PROJECT_BINARY_DIR )
-twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
-twx_assert_non_void ( TWX_DIR )
+twx_assert_non_void ( TWX_NAME )
+twx_assert_non_void ( TWX_FACTORY_INI )
 
 include ( TwxCfgLib )
 
 if ( TWX_VERBOSE )
-  message ( STATUS "TwxCfg_factory: ${PROJECT_NAME}" )
-  message ( STATUS "TwxCfg_factory: ${TWX_${PROJECT_NAME}_INI}" )
-  message ( STATUS "TwxCfg_factory: ${PROJECT_BINARY_DIR}" )
-  message ( STATUS "TwxCfg_factory: ${TWX_DIR}" )
+  message ( STATUS "TwxCfg_factory: ${TWX_NAME}" )
+  message ( STATUS "TwxCfg_factory: ${TWX_FACTORY_INI}" )
 endif ()
 
 # Parse the ini contents
 if ( TWX_VERBOSE )
-  message ( STATUS "Parsing ${TWX_${PROJECT_NAME}_INI}" )
+  message ( STATUS "Parsing ${TWX_FACTORY_INI}" )
 endif ()
-twx_cfg_read ( "${TWX_${PROJECT_NAME}_INI}" )
+twx_cfg_read ( "${TWX_FACTORY_INI}" )
 twx_cfg_write_begin ( ID "factory" )
 # verify the expectations
 foreach (
@@ -101,7 +95,7 @@ foreach (
   else ()
     message (
       FATAL_ERROR
-      "Missing value for key ${key} in TWX_${PROJECT_NAME}_INI (${TWX_${PROJECT_NAME}_INI})"
+      "Missing value for key ${key} in TWX_FACTORY_INI (${TWX_FACTORY_INI})"
     )
   endif ()
 endforeach ()
@@ -119,7 +113,7 @@ foreach ( key GIT_HASH GIT_DATE )
   else ()
     message (
       FATAL_ERROR
-      "Missing value for key ${key} in TWX_${PROJECT_NAME}_INI: ${lines}"
+      "Missing value for key ${key} in TWX_FACTORY_INI: ${lines}"
     )
   endif ()
 endforeach ()
@@ -142,20 +136,20 @@ ${TWX_CFG_VERSION_MAJOR}.\
 ${TWX_CFG_VERSION_MINOR}"
 )
 # ANCHOR: NAMING
-twx_cfg_set ( NAME "${PROJECT_NAME}" )
-string ( TOLOWER "${PROJECT_NAME}" s )
+twx_cfg_set ( NAME "${TWX_NAME}" )
+string ( TOLOWER "${TWX_NAME}" s )
 twx_cfg_set ( NAME_LOWER "${s}" )
-string ( TOUPPER "${PROJECT_NAME}" s )
+string ( TOUPPER "${TWX_NAME}" s )
 twx_cfg_set ( NAME_UPPER "${s}" )
 # Packaging
 if ( "${TWX_BUILD_ID}" STREQUAL "" )
   set ( TWX_BUILD_ID "personal" )
 endif ()
 twx_cfg_set ( BUILD_ID "${TWX_BUILD_ID}" )
-twx_cfg_set ( APPLICATION_IMAGE ":/images/images/${PROJECT_NAME}.png" )
-twx_cfg_set ( APPLICATION_IMAGE_128 ":/images/images/${PROJECT_NAME}-128.png")
+twx_cfg_set ( APPLICATION_IMAGE ":/images/images/${TWX_NAME}.png" )
+twx_cfg_set ( APPLICATION_IMAGE_128 ":/images/images/${TWX_NAME}-128.png")
 # Misc
-twx_cfg_set ( DOMAIN "${PROJECT_NAME}.${TWX_CFG_ORGANISATION_DOMAIN}" )
+twx_cfg_set ( DOMAIN "${TWX_NAME}.${TWX_CFG_ORGANIZATION_DOMAIN}" )
 
 twx_cfg_write_end ( ID "factory" )
 

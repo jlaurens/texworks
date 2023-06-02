@@ -14,37 +14,45 @@ Input:
 /*
 #]===============================================]
 
+if ( TARGET TwxTypeset )
+  twx_fatal ( "FAIL" )
+endif ()
+
 if ( NOT TWX_IS_BASED )
 	cmake_minimum_required ( VERSION 3.1 )
 	include (
-		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/TwxBase.cmake"
+		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
 	)
 endif ()
 
 include ( TwxModuleLib )
 twx_module_name ( TWX_MODULE_NAME )
-
+twx_assert_non_void ( TWX_MODULE_NAME )
 set ( TWX_TEST OFF )
 
 project ( ${TWX_MODULE_NAME} )
 include ( TwxBase )
+twx_assert_non_void ( TWX_BUILD_DATA_DIR )
 
 include ( TwxQTLib )
 twx_Qt_fresh ()
+if ( TARGET TwxTypeset )
+  twx_fatal ( "FAIL" )
+endif ()
+twx_module_configure ()
 
 include ( TwxDoxydocLib )
-twx_doxydoc ( MODULE )
-
-include (
-	"${CMAKE_CURRENT_LIST_DIR}/src/Setup.cmake"
-)
-twx_module_configure ()
+twx_doxydoc ()
 
 if ( NOT TWX_NO_TEST )
   set ( TWX_TEST ON )
 	enable_testing ()
 	add_subdirectory ( Test TwxTest)
+endif ()
+
+if ( NOT TARGET Twx::Typeset )
+  add_library( Twx::Typeset ALIAS TwxTypeset )
 endif ()
 
 # ANCHOR - Summary

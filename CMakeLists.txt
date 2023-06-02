@@ -70,7 +70,7 @@ include (
   NO_POLICY_SCOPE
 )
 # Set project name.
-project ( ${TWX_PROJECT_NAME} )
+project ( ${TWX_NAME} )
 include ( TwxBase )
 include ( TwxCfgLib )
 twx_cfg_setup ()
@@ -379,11 +379,11 @@ add_executable (
 if ( APPLE )
   set (
     input_
-    "${TWX_DIR}/res/os_darwin/${TWX_PROJECT_NAME}.in.plist"
+    "${TWX_DIR}/res/os_darwin/${TWX_NAME}.in.plist"
   )
   set (
     output_
-    "${TWX_PROJECT_BUILD_DIR}/res/os_darwin/${TWX_PROJECT_NAME}.plist"
+    "${TWX_PROJECT_BUILD_DIR}/res/os_darwin/${TWX_NAME}.plist"
   )
   add_custom_command (
     COMMAND "${CMAKE_COMMAND}"
@@ -403,7 +403,7 @@ if ( APPLE )
   )
   # twx_cfg_files (
   #   ID 			PACKAGE_DARWIN
-  #   FILES 	${TWX_PROJECT_NAME}.in.plist
+  #   FILES 	${TWX_NAME}.in.plist
   #   IN_DIR 	"${TWX_DIR}/res/os_darwin"
   #   OUT_DIR "${TWX_PROJECT_BUILD_DIR}/res/os_darwin"
   #   EXPORT  twx
@@ -451,7 +451,7 @@ else ()
   set_target_properties (
     TeXworks
     PROPERTIES
-      OUTPUT_NAME ${TWX_PROJECT_NAME}
+      OUTPUT_NAME ${TWX_NAME}
   )
 endif ()
 

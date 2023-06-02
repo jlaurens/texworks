@@ -216,7 +216,7 @@ macro ( twx_Qt_fresh )
 		endif ()
 	endif ()
 	if ( "${ARGN}" STREQUAL "TEST" AND NOT WITH_TESTS AND NOT TWX_TEST )
-		message ( FATAL_ERROR "QTest is not available" )
+		twx_fatal ( "QTest is not available" )
 	endif ()
 endmacro ()
 
@@ -234,7 +234,7 @@ macro ( twx_Qt_link_libraries )
   foreach ( target_ ${ARGN} )
 	  twx_assert_target ( ${target_} )
 		target_link_libraries (
-		test_TwxCoreLib
+			${target_}
 			${QT_LIBRARIES}
 		)
 	endforeach ()

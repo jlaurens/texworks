@@ -40,7 +40,6 @@
 namespace Twx {
 namespace Core {
 @TWX_CFG_include_TwxNamespaceTestMain_private_h@
-
 /** \brief Support assets track data structure
   * 
 	* md5 was used and then sha256.
@@ -143,22 +142,8 @@ public:
 	* \param factoryDir is the factory reference directory
 	*/
 	void adjust(const QDir & factoryDir);
-
-private:
-
-  static const int version;
-
-  QList<AssetsTrack> assetsTracks_m;
-  QDir dir_m;
-
-	bool save(const QString & path) const;
-	static AssetsTrackDB load(const QString & path);
-	bool save_legacy(const QString & path) const;
-  static AssetsTrackDB load_legacy(const QString & path);
-
-@TWX_CFG_include_TwxFriendTestMain_private_h@
 @TWX_CFG_include_TwxAssetsTrackDB_private_h@
-
+@TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Core

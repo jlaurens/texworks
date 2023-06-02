@@ -20,9 +20,7 @@ endif ()
 include ( TwxModuleLib )
 twx_module_name ( TWX_MODULE_NAME )
 
-set ( TWX_TEST OFF )
-
-project ( ${TWX_MODULE_NAME} )
+project ( Twx${TWX_MODULE_NAME} )
 include ( TwxBase )
 
 twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
@@ -32,13 +30,10 @@ enable_language ( OBJCXX )
 include ( TwxQTLib )
 twx_Qt_fresh ()
 
-include ( TwxDoxydocLib )
-twx_doxydoc ( MODULE )
-
-include (
-	"${CMAKE_CURRENT_LIST_DIR}/src/Setup.cmake"
-)
 twx_module_configure ()
+
+include ( TwxDoxydocLib )
+twx_doxydoc ()
 
 if ( NOT TWX_NO_TEST )
   set ( TWX_TEST ON )
