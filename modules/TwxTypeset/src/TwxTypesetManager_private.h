@@ -18,12 +18,14 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef TwxTypeset_Manager_Private_H
-#define TwxTypeset_Manager_Private_H
+#ifndef TwxTypesetManager_private_h
+#define TwxTypesetManager_private_h
 
 private:
 #if TwxTypeset_TEST
   static int test_count;
 #endif
+  static QMap<QString, QObject*> running_m;
+	static QMap<QObject *, QMetaObject::Connection> connections_m;
 
-#endif // TwxTypeset_Manager_Private_H
+#endif // TwxTypesetManager_private_h
