@@ -18,7 +18,7 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#include "Typeset/TwxTypesetManager.h"
+#include "TwxTypesetManager.h"
 
 #include <QVariant>
 #include <QMetaObject>
@@ -28,9 +28,9 @@ Q_DECLARE_METATYPE(QMetaObject::Connection)
 namespace Twx {
 namespace Typeset {
 
-QMap<QString, QObject*> Manager::running_m;
+QMap<QString, QObject *> Manager::running_m;
 
-Manager *Manager::emitter()
+Manager * Manager::emitter()
 {
 	static Manager m;
 	return &m;
@@ -41,7 +41,7 @@ bool Manager::isFileBeingTypeset(const QString & rootFile)
 	return getOwnerForRootFile(rootFile) != nullptr;
 }
 
-QObject *Manager::getOwnerForRootFile(const QString & rootFile)
+QObject * Manager::getOwnerForRootFile(const QString & rootFile)
 {
 	return running_m.value(rootFile, nullptr);
 }
@@ -50,10 +50,12 @@ QObject *Manager::getOwnerForRootFile(const QString & rootFile)
 int Manager::test_count;
 #endif
 
-static const char *_key = "TwxTypesetManager.connection";
+static const char * _key = "TwxTypesetManager.connection";
 
-bool Manager::startTypesetting(const QString& rootFile, QObject *const owner)
-{
+bool Manager::startTypesetting(
+	const QString & rootFile,
+	QObject * const owner
+) {
 	if (rootFile.isEmpty() || owner == nullptr || running_m.contains(rootFile)) {
 		return false;
 	}
@@ -74,9 +76,9 @@ bool Manager::startTypesetting(const QString& rootFile, QObject *const owner)
 	return true;
 }
 
-void Manager::stopTypesetting(QObject* const owner)
+void Manager::stopTypesetting(QObject * const owner)
 {
-	for(const QString& rootFile: running_m.keys(owner)) {
+	for(const QString & rootFile: running_m.keys(owner)) {
 		running_m.remove(rootFile);
 		emit emitter()->typesettingStopped(rootFile);
 	}
@@ -84,6 +86,7 @@ void Manager::stopTypesetting(QObject* const owner)
   if (v.isValid()) {
 		auto c = v.value<QMetaObject::Connection>();
 		QObject::disconnect(c);
+		owner->setProperty(_key, {});
 	}
 }
 
