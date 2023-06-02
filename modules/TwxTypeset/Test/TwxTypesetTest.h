@@ -22,7 +22,7 @@
 #include <QString>
 
 namespace Twx {
-namespace Core {
+namespace Typeset {
 namespace Test {
 
 class Main: public QObject
@@ -36,6 +36,7 @@ private slots:
   void init();
   void cleanup();
 
+	void test_empty();
 	void test();
 
 public:
@@ -44,5 +45,5 @@ public:
 };
 
 } // namespace Test
-} // namespace Core
+} // namespace Typeset
 } // namespace Twx
