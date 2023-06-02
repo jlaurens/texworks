@@ -21,9 +21,11 @@
 
 #include "FindDialog.h"
 #include "PDFDocumentWindow.h"
-#include "Settings.h"
 #include "TWApp.h"
 #include "TeXDocumentWindow.h"
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <QFileInfo>
 #include <QHeaderView>
@@ -100,7 +102,7 @@ void FindDialog::init(QTextEdit *document)
 	connect(checkBox_selection, &QCheckBox::toggled, this, &FindDialog::toggledSelectionOption);
 	connect(searchText, &QLineEdit::textChanged, this, &FindDialog::checkRegex);
 
-	Tw::Settings settings;
+	Settings settings;
 	QString	str = settings.value(QString::fromLatin1("searchText")).toString();
 	searchText->setText(str);
 	searchText->selectAll();
@@ -201,7 +203,7 @@ QDialog::DialogCode FindDialog::doFindDialog(QTextEdit *document)
 	DialogCode result = static_cast<DialogCode>(dlg.exec());
 
 	if (result == Accepted) {
-		Tw::Settings settings;
+		Settings settings;
 		QString str = dlg.searchText->text();
 		settings.setValue(QString::fromLatin1("searchText"), str);
 
@@ -255,7 +257,7 @@ void ReplaceDialog::init(QTextEdit *document)
 	buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
 	connect(buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &ReplaceDialog::reject);
 
-	Tw::Settings settings;
+	Settings settings;
 	QString	str = settings.value(QString::fromLatin1("searchText")).toString();
 	searchText->setText(str);
 	searchText->selectAll();
@@ -378,7 +380,7 @@ ReplaceDialog::DialogCode ReplaceDialog::doReplaceDialog(QTextEdit *document)
 	if (result == 0)
 		return Cancel;
 
-	Tw::Settings settings;
+	Settings settings;
 	QString str = dlg.searchText->text();
 	settings.setValue(QString::fromLatin1("searchText"), str);
 
@@ -609,7 +611,7 @@ void PDFFindDialog::init(PDFDocumentWindow *document)
 	connect(checkBox_selection, &QCheckBox::toggled, this, &PDFFindDialog::toggledSelectionOption);
 	connect(searchText, &QLineEdit::textChanged, this, &PDFFindDialog::checkRegex);
 */
-	Tw::Settings settings;
+	Settings settings;
 	QString	str = settings.value(QString::fromLatin1("searchText")).toString();
 	searchText->setText(str);
 	searchText->selectAll();
@@ -660,7 +662,7 @@ QDialog::DialogCode PDFFindDialog::doFindDialog(PDFDocumentWindow *document)
 	DialogCode result = static_cast<DialogCode>(dlg.exec());
 
 	if (result == Accepted) {
-		Tw::Settings settings;
+		Settings settings;
 		QString str = dlg.searchText->text();
 		settings.setValue(QString::fromLatin1("searchText"), str);
 

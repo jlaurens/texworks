@@ -20,7 +20,6 @@
 */
 
 #include "ScriptManagerWidget.h"
-#include "Settings.h"
 #include "TWScriptManager.h"
 #include "scripting/ECMAScriptInterface.h"
 #if WITH_QTSCRIPT
@@ -31,6 +30,9 @@
 
 #include <TwxConst.h>
 #include <TwxAssets.h>
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <QDir>
 #include <QPluginLoader>
@@ -74,7 +76,7 @@ TWScriptManager::saveDisabledList()
 		disabled << scriptRoot.relativeFilePath(so->getFilename());
 	}
 
-	Tw::Settings settings;
+	Settings settings;
 	settings.setValue(QString::fromLatin1("disabledScripts"), disabled);
 }
 
@@ -131,7 +133,7 @@ void TWScriptManager::loadPlugins()
 
 void TWScriptManager::reloadScripts(bool forceAll /* = false */)
 {
-	Tw::Settings settings;
+	Settings settings;
 	QStringList disabled = settings.value(QString::fromLatin1("disabledScripts"), QStringList()).toStringList();
 	QStringList processed;
 
@@ -153,7 +155,7 @@ void TWScriptManager::reloadScripts(bool forceAll /* = false */)
 
 void TWScriptManager::reloadScriptsInList(TWScriptList * list, QStringList & processed)
 {
-	Tw::Settings settings;
+	Settings settings;
 	bool enableScriptsPlugins = settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool();
 
 	foreach(QObject * item, list->children()) {
@@ -231,7 +233,7 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 											const QStringList& disabled,
 											const QStringList& ignore)
 {
-	Tw::Settings settings;
+	Settings settings;
 	QFileInfo info;
 	bool scriptingPluginsEnabled = settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool();
 
@@ -388,7 +390,7 @@ QList<Tw::Scripting::ScriptObject *> TWScriptManager::getHookScripts(const QStri
 bool
 TWScriptManager::runScript(QObject* script, QObject * context, QVariant & result, Tw::Scripting::Script::ScriptType scriptType)
 {
-	Tw::Settings settings;
+	Settings settings;
 
 	Tw::Scripting::ScriptObject * so = qobject_cast<Tw::Scripting::ScriptObject*>(script);
 	if (!so || so->getType() != scriptType)

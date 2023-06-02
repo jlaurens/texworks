@@ -20,7 +20,9 @@
 */
 
 #include "scripting/JSScript.h"
-#include "Settings.h"
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <QScriptEngine>
 #include <QScriptEngineDebugger>
@@ -63,7 +65,7 @@ bool JSScript::execute(ScriptAPIInterface * tw) const
 
 	QScriptValue val;
 
-	Tw::Settings settings;
+	Settings settings;
 	if (settings.value(QString::fromLatin1("scriptDebugger"), false).toBool()) {
 		QScriptEngineDebugger debugger;
 		debugger.attachTo(&engine);

@@ -24,7 +24,9 @@
 
 #include "PDFDocumentWindow.h"
 #include "TeXDocumentWindow.h"
-#include "Settings.h"
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <QDir>
 #include <utility>
@@ -295,7 +297,7 @@ void WindowManager::zoomToHalfScreen(QWidget *window, bool rhs)
 			// hacking the config files.
 			// (Note: this should only be necessary in some special cases, e.g.
 			// on X11 systems with special effects enabled)
-			Tw::Settings settings;
+			Settings settings;
 			wDiff = qMax(0, settings.value(QString::fromLatin1("windowWDiff"), 0).toInt());
 			hDiff = qMax(0, settings.value(QString::fromLatin1("windowHDiff"), 0).toInt());
 		}

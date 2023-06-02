@@ -22,47 +22,15 @@
 #include "Utils_test.h"
 
 #include "utils/CommandlineParser.h"
-#include "utils/FileVersionDatabase.h"
 #include "utils/FullscreenManager.h"
 #include "utils/SystemCommand.h"
 #include "utils/TextCodecs.h"
-#include "utils/TypesetManager.h"
 
 #include <QMenuBar>
 #include <QMouseEvent>
 #include <QStatusBar>
 #include <QTemporaryFile>
 #include <QToolBar>
-
-namespace Tw {
-namespace Utils {
-bool operator==(const FileVersionDatabase::Record & r1, const FileVersionDatabase::Record & r2)
-{
-	if (r1.version != r2.version || r1.hash != r2.hash)
-		return false;
-
-	// Work around the fact that the behavior of QFileInfo::operator== is
-	// undefined if the objects are empty or refer to non-existant files
-
-	// If the only one of the files exists, they are clearly not the same
-	if (r1.filePath.exists() != r2.filePath.exists())
-		return false;
-
-	if (r1.filePath.exists()) {
-		// If they exist, we can compare them directly
-		return (r1.filePath == r2.filePath);
-	}
-	else {
-		// If they don't exist, we compare the stored absolute file paths
-		// (which can be empty)
-		return (r1.filePath.absolutePath() == r2.filePath.absolutePath());
-	}
-}
-bool operator==(const FileVersionDatabase & db1, const FileVersionDatabase & db2) {
-	return db1.getFileRecords() == db2.getFileRecords();
-}
-} // namespace Utils
-} // namespace Tw
 
 namespace UnitTest {
 
@@ -87,75 +55,6 @@ void TestUtils::initTestCase()
 void TestUtils::cleanupTestCase()
 {
 	QStandardPaths::setTestModeEnabled(false);
-}
-
-void TestUtils::FileVersionDatabase_comparisons()
-{
-	Tw::Utils::FileVersionDatabase::Record r1 = {QFileInfo(QStringLiteral("base14-fonts.pdf")), QStringLiteral("v1"), QByteArray()};
-	Tw::Utils::FileVersionDatabase::Record r2 = {QFileInfo(QStringLiteral("base14-fonts.pdf")), QString(), QByteArray::fromHex("814514754a5680a57d172b6720d48a8d")};
-	Tw::Utils::FileVersionDatabase::Record r3 = {QFileInfo(QStringLiteral("does-not=exist")), QString(), QByteArray::fromHex("814514754a5680a57d172b6720d48a8d")};
-
-	QVERIFY(r1 == r1);
-	QVERIFY(r2 == r2);
-	QVERIFY(r3 == r3);
-	QVERIFY(!(r1 == r2));
-	QVERIFY(!(r1 == r3));
-	QVERIFY(!(r2 == r3));
-}
-
-void TestUtils::FileVersionDatabase_hashForFile()
-{
-	QByteArray zero = QByteArray::fromHex("d41d8cd98f00b204e9800998ecf8427e");
-
-	QCOMPARE(Tw::Utils::FileVersionDatabase::hashForFile(QString("does-not-exist")), zero);
-	QCOMPARE(Tw::Utils::FileVersionDatabase::hashForFile(QStringLiteral("base14-fonts.pdf")), QByteArray::fromHex("814514754a5680a57d172b6720d48a8d"));
-}
-
-void TestUtils::FileVersionDatabase_addFileRecord()
-{
-	Tw::Utils::FileVersionDatabase db;
-	Tw::Utils::FileVersionDatabase::Record empty = {QFileInfo(), QString(), QByteArray::fromHex("d41d8cd98f00b204e9800998ecf8427e")};
-	Tw::Utils::FileVersionDatabase::Record r1 = {QFileInfo(QStringLiteral("base14-fonts.pdf")), QStringLiteral("v1"), QByteArray()};
-	Tw::Utils::FileVersionDatabase::Record r2 = {QFileInfo(QStringLiteral("base14-fonts.pdf")), QString(), QByteArray::fromHex("814514754a5680a57d172b6720d48a8d")};
-
-	QVERIFY(db.hasFileRecord(r1.filePath) == false);
-	QCOMPARE(db.getFileRecord(r1.filePath), empty);
-	QCOMPARE(db.getFileRecords(), QList<Tw::Utils::FileVersionDatabase::Record>());
-	db.addFileRecord(r1.filePath, r1.hash, r1.version);
-	QVERIFY(db.hasFileRecord(r1.filePath));
-	QCOMPARE(db.getFileRecord(r1.filePath), r1);
-	QCOMPARE(db.getFileRecords(), QList<Tw::Utils::FileVersionDatabase::Record>{r1});
-	db.addFileRecord(r2.filePath, r2.hash, r2.version);
-	QVERIFY(db.hasFileRecord(r2.filePath));
-	QCOMPARE(db.getFileRecord(r2.filePath), r2);
-	QCOMPARE(db.getFileRecords(), QList<Tw::Utils::FileVersionDatabase::Record>{r2});
-}
-
-void TestUtils::FileVersionDatabase_load()
-{
-	Tw::Utils::FileVersionDatabase db;
-	db.addFileRecord(QFileInfo(QStringLiteral("/spaces test.tex")), QByteArray::fromHex("d41d8cd98f00b204e9800998ecf8427e"), QStringLiteral("v1"));
-	db.addFileRecord(QFileInfo(QStringLiteral("base14-fonts.pdf")), QByteArray::fromHex("814514754a5680a57d172b6720d48a8d"), QStringLiteral("4.2"));
-
-	QCOMPARE(Tw::Utils::FileVersionDatabase::load(QStringLiteral("does-not-exist")), Tw::Utils::FileVersionDatabase());
-	QCOMPARE(Tw::Utils::FileVersionDatabase::load(QStringLiteral("fileversion.db")), db);
-	QEXPECT_FAIL("", "Invalid file version databases are not recognized", Continue);
-	QCOMPARE(Tw::Utils::FileVersionDatabase::load(QStringLiteral("script1.js")), Tw::Utils::FileVersionDatabase());
-}
-
-void TestUtils::FileVersionDatabase_save()
-{
-	Tw::Utils::FileVersionDatabase db;
-	db.addFileRecord(QFileInfo(QStringLiteral("/spaces test.tex")), QByteArray::fromHex("d41d8cd98f00b204e9800998ecf8427e"), QStringLiteral("v1"));
-	db.addFileRecord(QFileInfo(QStringLiteral("base14-fonts.pdf")), QByteArray::fromHex("814514754a5680a57d172b6720d48a8d"), QStringLiteral("4.2"));
-
-	QVERIFY(db.save(QStringLiteral("does/not/exist.db")) == false);
-
-	QTemporaryFile tmpFile;
-	tmpFile.open();
-	tmpFile.close();
-	QVERIFY(db.save(tmpFile.fileName()));
-	QCOMPARE(Tw::Utils::FileVersionDatabase::load(tmpFile.fileName()), db);
 }
 
 void TestUtils::SystemCommand_wait()
@@ -578,124 +477,6 @@ void TestUtils::FullscreenManager()
 			QCOMPARE(m.shortcuts()[1].shortcut->isEnabled(), false);
 		}
 	}
-}
-
-void TestUtils::TypesetManager()
-{
-	Tw::Utils::TypesetManager tm;
-	QString empty;
-	QString fileA{QStringLiteral("a")};
-	QString fileB{QStringLiteral("b")};
-	QObject owner;
-#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
-	QSignalSpy started(&tm, SIGNAL(typesettingStarted(QString)));
-	QSignalSpy stopped(&tm, SIGNAL(typesettingStopped(QString)));
-#else
-	QSignalSpy started(&tm, &Tw::Utils::TypesetManager::typesettingStarted);
-	QSignalSpy stopped(&tm, &Tw::Utils::TypesetManager::typesettingStopped);
-#endif
-
-	QVERIFY(started.isValid());
-	QVERIFY(stopped.isValid());
-
-	// 1) no process running
-	QVERIFY(tm.getOwnerForRootFile(empty) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(empty), false);
-	QVERIFY(tm.getOwnerForRootFile(fileA) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(fileA), false);
-	QVERIFY(tm.getOwnerForRootFile(fileB) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(fileB), false);
-
-	// 2a) start process
-	QCOMPARE(started.count(), 0);
-	QCOMPARE(stopped.count(), 0);
-	QCOMPARE(tm.startTypesetting(fileA, &owner), true);
-	QCOMPARE(started.count(), 1);
-	QCOMPARE(started.takeFirst().at(0).toString(), fileA);
-	QCOMPARE(stopped.count(), 0);
-
-	// 2b) one process running
-	QVERIFY(tm.getOwnerForRootFile(empty) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(empty), false);
-	QVERIFY(tm.getOwnerForRootFile(fileA) == &owner);
-	QCOMPARE(tm.isFileBeingTypeset(fileA), true);
-	QVERIFY(tm.getOwnerForRootFile(fileB) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(fileB), false);
-
-	// 2c) Can't start again
-	QCOMPARE(started.count(), 0);
-	QCOMPARE(stopped.count(), 0);
-	QCOMPARE(tm.startTypesetting(fileA, &owner), false);
-	QCOMPARE(started.count(), 0);
-	QCOMPARE(stopped.count(), 0);
-
-	// 2d) Can't start with invalid file
-	QCOMPARE(tm.startTypesetting(empty, &owner), false);
-	QCOMPARE(started.count(), 0);
-	QCOMPARE(stopped.count(), 0);
-
-	// 2e) Can't start with invalid window
-	QCOMPARE(tm.startTypesetting(fileB, nullptr), false);
-	QCOMPARE(started.count(), 0);
-	QCOMPARE(stopped.count(), 0);
-
-	// 2f) still one process running
-	QVERIFY(tm.getOwnerForRootFile(empty) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(empty), false);
-	QVERIFY(tm.getOwnerForRootFile(fileA) == &owner);
-	QCOMPARE(tm.isFileBeingTypeset(fileA), true);
-	QVERIFY(tm.getOwnerForRootFile(fileB) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(fileB), false);
-
-	// 3a) Start second process but destroy window
-	{
-		QObject owner2;
-		QCOMPARE(started.count(), 0);
-		QCOMPARE(stopped.count(), 0);
-		QCOMPARE(tm.startTypesetting(fileB, &owner2), true);
-		QCOMPARE(started.count(), 1);
-		QCOMPARE(started.takeFirst().at(0).toString(), fileB);
-		QCOMPARE(stopped.count(), 0);
-
-		// two processes running
-		QVERIFY(tm.getOwnerForRootFile(empty) == nullptr);
-		QCOMPARE(tm.isFileBeingTypeset(empty), false);
-		QVERIFY(tm.getOwnerForRootFile(fileA) == &owner);
-		QCOMPARE(tm.isFileBeingTypeset(fileA), true);
-		QVERIFY(tm.getOwnerForRootFile(fileB) == &owner2);
-		QCOMPARE(tm.isFileBeingTypeset(fileB), true);
-
-		// 3b) destroying the typesetting window (at the end of the scope) should stop
-		QCOMPARE(started.count(), 0);
-		QCOMPARE(stopped.count(), 0);
-	}
-	QCOMPARE(started.count(), 0);
-	QCOMPARE(stopped.count(), 1);
-	QCOMPARE(stopped.takeFirst().at(0).toString(), fileB);
-
-	// 3c) one process running
-	QVERIFY(tm.getOwnerForRootFile(empty) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(empty), false);
-	QVERIFY(tm.getOwnerForRootFile(fileA) == &owner);
-	QCOMPARE(tm.isFileBeingTypeset(fileA), true);
-	QVERIFY(tm.getOwnerForRootFile(fileB) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(fileB), false);
-
-	// 4a) stop process
-	QCOMPARE(started.count(), 0);
-	QCOMPARE(stopped.count(), 0);
-	tm.stopTypesetting(&owner);
-	QCOMPARE(started.count(), 0);
-	QCOMPARE(stopped.count(), 1);
-	QCOMPARE(stopped.takeFirst().at(0).toString(), fileA);
-
-	// 3b) no process running
-	QVERIFY(tm.getOwnerForRootFile(empty) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(empty), false);
-	QVERIFY(tm.getOwnerForRootFile(fileA) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(fileA), false);
-	QVERIFY(tm.getOwnerForRootFile(fileB) == nullptr);
-	QCOMPARE(tm.isFileBeingTypeset(fileB), false);
 }
 
 } // namespace UnitTest

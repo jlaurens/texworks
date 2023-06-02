@@ -19,11 +19,13 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "Settings.h"
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
 #include "TemplateDialog.h"
 #include "document/TeXDocument.h"
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <TwxConst.h>
 #include <TwxAssets.h>
@@ -57,7 +59,7 @@ void TemplateDialog::init()
 
 	connect(treeView, &QTreeView::activated, this, &TemplateDialog::itemActivated);
 
-	Tw::Settings settings;
+	Settings settings;
 	if (settings.value(QString::fromLatin1("syntaxColoring"), true).toBool()) {
 		TeXHighlighter * highlighter = new TeXHighlighter(texDoc);
 		// For now, we use "LaTeX" highlighting for all files (which is probably

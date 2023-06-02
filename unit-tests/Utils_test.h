@@ -29,12 +29,6 @@ private slots:
 	void initTestCase();
 	void cleanupTestCase();
 
-	void FileVersionDatabase_comparisons();
-	void FileVersionDatabase_hashForFile();
-	void FileVersionDatabase_addFileRecord();
-	void FileVersionDatabase_load();
-	void FileVersionDatabase_save();
-
 	void SystemCommand_wait();
 	void SystemCommand_getResult_data();
 	void SystemCommand_getResult();
@@ -45,8 +39,6 @@ private slots:
 	void MacCentralEurRomanCodec();
 
 	void FullscreenManager();
-
-	void TypesetManager();
 
 };
 

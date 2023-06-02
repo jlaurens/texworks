@@ -22,7 +22,6 @@
 #include "TWScriptableWindow.h"
 
 #include "ScriptManagerWidget.h"
-#include "Settings.h"
 #include "TWApp.h"
 #include "TWScriptManager.h"
 #include "scripting/ECMAScriptInterface.h"
@@ -32,6 +31,9 @@
 #include "scripting/ScriptLanguageInterface.h"
 #include "scripting/ScriptObject.h"
 #include "utils/WindowManager.h"
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <QAction>
 #include <QDockWidget>
@@ -166,7 +168,7 @@ TWScriptableWindow::runHooks(const QString& hookName)
 void
 TWScriptableWindow::doAboutScripts()
 {
-	Tw::Settings settings;
+	Settings settings;
 	bool enableScriptsPlugins = settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool();
 
 	QString scriptingLink = QString::fromLatin1("<a href=\"%1\">%1</a>").arg(QString::fromLatin1("https://github.com/TeXworks/texworks/wiki/ScriptingTeXworks"));

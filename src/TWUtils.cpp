@@ -22,13 +22,15 @@
 #include "TWUtils.h"
 
 #include "PDFDocumentWindow.h"
-#include "Settings.h"
 #include "TWApp.h"
 #include "TeXDocumentWindow.h"
 #include "utils/WindowManager.h"
 
 #include <TwxConst.h>
 #include <TwxAssets.h>
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <QAction>
 #include <QCompleter>
@@ -115,7 +117,7 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
 	if (!helpPath.isEmpty())
 		helpDir.cd(QString(helpPath));
 
-	Tw::Settings settings;
+	Settings settings;
 	QString loc = settings.value(QStringLiteral("locale")).toString();
 	if (loc.isEmpty())
 		loc = QLocale::system().name();
@@ -249,7 +251,7 @@ QString TWUtils::chooseDefaultFilter(const QString & filename, const QStringList
 
 void TWUtils::updateRecentFileActions(QObject *parent, QList<QAction*> &actions, QMenu *menu, QAction * clearAction) /* static */
 {
-	Tw::Settings settings;
+	Settings settings;
 	QStringList fileList, labelList;
 	if (settings.contains(QString::fromLatin1("recentFiles"))) {
 		QList<QVariant> files = settings.value(QString::fromLatin1("recentFiles")).toList();

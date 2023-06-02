@@ -22,7 +22,6 @@
 #include "CompletingEdit.h"
 
 #include "DefaultPrefs.h"
-#include "Settings.h"
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
@@ -30,6 +29,8 @@
 
 #include <TwxConst.h>
 #include <TwxAssets.h>
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <QAbstractItemView>
 #include <QAbstractTextDocumentLayout>
@@ -56,7 +57,7 @@
 CompletingEdit::CompletingEdit(QWidget *parent /* = nullptr */)
 	: QTextEdit(parent)
 {
-	Tw::Settings settings;
+	Settings settings;
 	if (!sharedCompleter) { // initialize shared (static) members
 		sharedCompleter = new QCompleter(qApp);
 		sharedCompleter->setCompletionMode(QCompleter::InlineCompletion);

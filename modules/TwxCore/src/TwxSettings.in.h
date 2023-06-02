@@ -38,6 +38,7 @@ class Settings: public QSettings
 {
 	Q_OBJECT
 public:
+
 /** \brief Setup the manager
 	* 
 	* When in "-setup.ini" mode.

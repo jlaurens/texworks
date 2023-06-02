@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@
 #include "FindDialog.h"
 #include "HardWrapDialog.h"
 #include "PDFDocumentWindow.h"
-#include "Settings.h"
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXDocks.h"
@@ -39,8 +38,12 @@
 #include "utils/CmdKeyFilter.h"
 #include "utils/WindowManager.h"
 
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 #include <TwxLocate.h>
 using Locate = Twx::Core::Locate;
+#include <TwxTypesetManager.h>
+using TpstMngr = Twx::Typeset::Manager;
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
@@ -236,10 +239,10 @@ void TeXDocumentWindow::init()
 	connect(TWApp::instance(), &TWApp::hideFloatersExcept, this, &TeXDocumentWindow::hideFloatersUnlessThis);
 	connect(this, &TeXDocumentWindow::activatedWindow, TWApp::instance(), &TWApp::activatedWindow);
 
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &TeXDocumentWindow::updateTypesettingAction);
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &TeXDocumentWindow::updateTypesettingAction);
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
+	connect(TpstMngr::emitter(), &TpstMngr::typesettingStarted, this, &TeXDocumentWindow::updateTypesettingAction);
+	connect(TpstMngr::emitter(), &TpstMngr::typesettingStopped, this, &TeXDocumentWindow::updateTypesettingAction);
+	connect(TpstMngr::emitter(), &TpstMngr::typesettingStarted, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
+	connect(TpstMngr::emitter(), &TpstMngr::typesettingStopped, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
 
 	connect(actionStack, &QAction::triggered, TWApp::instance(), &TWApp::stackWindows);
 	connect(actionTile, &QAction::triggered, TWApp::instance(), &TWApp::tileWindows);
@@ -262,7 +265,7 @@ void TeXDocumentWindow::init()
 
 	connect(inputLine, &QLineEdit::returnPressed, this, &TeXDocumentWindow::acceptInputLine);
 
-	Tw::Settings settings;
+	Settings settings;
 	TWUtils::applyToolbarOptions(this, settings.value(QString::fromLatin1("toolBarIconSize"), 2).toInt(), settings.value(QString::fromLatin1("toolBarShowText"), false).toBool());
 
 	QFont font = textEdit->font();
@@ -626,7 +629,7 @@ void TeXDocumentWindow::open()
 #if defined(Q_OS_WIN)
 	if(TWApp::GetWindowsVersion() < 0x06000000) options |= QFileDialog::DontUseNativeDialog;
 #endif
-	Tw::Settings settings;
+	Settings settings;
 	QString lastOpenDir = settings.value(QString::fromLatin1("openDialogDir")).toString();
 	if (lastOpenDir.isEmpty())
 		lastOpenDir = QDir::homePath();
@@ -824,7 +827,7 @@ bool TeXDocumentWindow::saveAs()
 	QString selectedFilter = TWUtils::chooseDefaultFilter(textDoc()->absoluteFilePath(), *(TWUtils::filterList()));;
 
 	// for untitled docs, default to the last dir used, or $HOME if no saved value
-	Tw::Settings settings;
+	Settings settings;
 	QString lastSaveDir = settings.value(QString::fromLatin1("saveDialogDir")).toString();
 	if (lastSaveDir.isEmpty() || !QDir(lastSaveDir).exists())
 		lastSaveDir = QDir::homePath();
@@ -1133,7 +1136,7 @@ void TeXDocumentWindow::loadFile(const QFileInfo & fileInfo, bool asTemplate, bo
 	else {
 		setCurrentFile(fileInfo);
 		if (!reload) {
-			Tw::Settings settings;
+			Settings settings;
 			if (!inBackground && settings.value(QString::fromLatin1("openPDFwithTeX"), kDefault_OpenPDFwithTeX).toBool()) {
 				openPdfIfAvailable(false);
 				// Note: openPdfIfAvailable() enables/disables actionGo_to_Preview
@@ -1211,7 +1214,7 @@ void TeXDocumentWindow::loadFile(const QFileInfo & fileInfo, bool asTemplate, bo
 void TeXDocumentWindow::delayedInit()
 {
 	if (_texDoc && !_texDoc->getHighlighter()) {
-		Tw::Settings settings;
+		Settings settings;
 
 		TeXHighlighter * highlighter = new TeXHighlighter(_texDoc);
 		connect(textEdit, &CompletingEdit::rehighlight, highlighter, &TeXHighlighter::rehighlight);
@@ -2291,7 +2294,7 @@ void TeXDocumentWindow::setAutoIndentMode(const QString& mode)
 
 void TeXDocumentWindow::doFindAgain(bool fromDialog)
 {
-	Tw::Settings settings;
+	Settings settings;
 	QString	searchText = settings.value(QString::fromLatin1("searchText")).toString();
 	if (searchText.isEmpty())
 		return;
@@ -2402,7 +2405,7 @@ void TeXDocumentWindow::doReplaceAgain()
 
 void TeXDocumentWindow::doReplace(ReplaceDialog::DialogCode mode)
 {
-	Tw::Settings settings;
+	Settings settings;
 
 	QString	searchText = settings.value(QString::fromLatin1("searchText")).toString();
 	if (searchText.isEmpty())
@@ -2660,7 +2663,7 @@ void TeXDocumentWindow::copyToFind()
 	if (textEdit->textCursor().hasSelection()) {
 		QString searchText = textEdit->textCursor().selectedText();
 		searchText.replace(QChar(0x2029), QChar::fromLatin1('\n'));
-		Tw::Settings settings;
+		Settings settings;
 		// Note: To search for multi-line strings, we currently need regex
 		// enabled (since we only have a single search line). If it was not
 		// enabled, we also need to ensure that the replaceText is escaped
@@ -2686,7 +2689,7 @@ void TeXDocumentWindow::copyToReplace()
 	if (textEdit->textCursor().hasSelection()) {
 		QString replaceText = textEdit->textCursor().selectedText();
 		replaceText.replace(QChar(0x2029), QChar::fromLatin1('\n'));
-		Tw::Settings settings;
+		Settings settings;
 		// Note: To do multi-line replacements, we currently need regex enabled
 		// (since we only have a single replace line). If it was not enabled, we
 		// also need to ensure that the searchText is escaped properly
@@ -2749,12 +2752,12 @@ void TeXDocumentWindow::typeset()
 		return;
 	}
 
-	if (!TWApp::instance()->typesetManager().startTypesetting(rootFilePath, this)) {
+	if (!TpstMngr::startTypesetting(rootFilePath, this)) {
 		statusBar()->showMessage(tr("%1 is already being processed").arg(rootFilePath), kStatusMessageDuration);
 		updateTypesettingAction();
 		return;
 	}
-	// NB: TypesetManager::startTypesetting implicitly calls
+	// NB: Twx::Typeset::Manager::startTypesetting implicitly calls
 	// updateTypesettingAction() via signal-slot-connections
 
 	QString pdfName;
@@ -2805,7 +2808,7 @@ void TeXDocumentWindow::typeset()
 		if (pdfDoc && pdfDoc->widget())
 			pdfDoc->widget()->setWatchForDocumentChangesOnDisk(true);
 
-		TWApp::instance()->typesetManager().stopTypesetting(this);
+		TpstMngr::stopTypesetting(this);
 
 		QMessageBox msgBox(QMessageBox::Critical, tr("Unable to execute %1").arg(e.name()),
 		                      QLatin1String("<p>") + tr("The program \"%1\" was not found.").arg(e.program()) + QLatin1String("</p>") +
@@ -2836,17 +2839,17 @@ void TeXDocumentWindow::interrupt()
 		if (pdfDoc && pdfDoc->widget())
 			pdfDoc->widget()->setWatchForDocumentChangesOnDisk(true);
 
-		// Don't notify the TypesetManager that typesetting was stopped; this is
+		// Don't notify the typeset manager that typesetting was stopped; this is
 		// delegated to processError() which will be called after process->kill()
 		// and which takes care of resetting the process before notifying the
-		// TypesetManager. This ensures that subsequent calls to isTypesetting()
+		// typeset manager. This ensures that subsequent calls to isTypesetting()
 		// return the correct value
 	}
 }
 
 void TeXDocumentWindow::goToTypesettingWindow()
 {
-	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()));
+	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TpstMngr::getOwnerForRootFile(textDoc()->getRootFilePath()));
 	if (owner) {
 		owner->raise();
 		owner->activateWindow();
@@ -2855,7 +2858,7 @@ void TeXDocumentWindow::goToTypesettingWindow()
 
 void TeXDocumentWindow::updateTypesettingAction()
 {
-	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()));
+	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TpstMngr::getOwnerForRootFile(textDoc()->getRootFilePath()));
 
 	disconnect(actionTypeset, &QAction::triggered, this, nullptr);
 	if (isTypesetting()) {
@@ -2893,7 +2896,7 @@ void TeXDocumentWindow::conditionallyEnableRemoveAuxFiles()
 		QFileInfo rootFileInfo{textDoc()->getRootFilePath()};
 		if (!rootFileInfo.exists())
 			return false;
-		if (TWApp::instance()->typesetManager().isFileBeingTypeset(rootFileInfo.canonicalFilePath()))
+		if (TpstMngr::isFileBeingTypeset(rootFileInfo.canonicalFilePath()))
 			return false;
 		return true;
 	}();
@@ -2916,7 +2919,7 @@ void TeXDocumentWindow::processError(QProcess::ProcessError /*error*/)
 	if (pdfDoc && pdfDoc->widget())
 		pdfDoc->widget()->setWatchForDocumentChangesOnDisk(true);
 
-	TWApp::instance()->typesetManager().stopTypesetting(this);
+	TpstMngr::stopTypesetting(this);
 }
 
 void TeXDocumentWindow::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -2950,7 +2953,7 @@ void TeXDocumentWindow::processFinished(int exitCode, QProcess::ExitStatus exitS
 
 	executeAfterTypesetHooks();
 
-	Tw::Settings settings;
+	Settings settings;
 
 	bool shouldHideConsole = false;
 	QVariant hideConsoleSetting = settings.value(QString::fromLatin1("autoHideConsole"), kDefault_HideConsole);
@@ -2981,7 +2984,7 @@ void TeXDocumentWindow::processFinished(int exitCode, QProcess::ExitStatus exitS
 		process->deleteLater();
 	process = nullptr;
 
-	TWApp::instance()->typesetManager().stopTypesetting(this);
+	TpstMngr::stopTypesetting(this);
 }
 
 void TeXDocumentWindow::executeAfterTypesetHooks()
@@ -3151,7 +3154,7 @@ void TeXDocumentWindow::goToTag(int index)
 
 bool TeXDocumentWindow::isTypesetting() const
 {
-	return (process != nullptr || TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()) == this);
+	return (process != nullptr || TpstMngr::getOwnerForRootFile(textDoc()->getRootFilePath()) == this);
 }
 
 void TeXDocumentWindow::removeAuxFiles()

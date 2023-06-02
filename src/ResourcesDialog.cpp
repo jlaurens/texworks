@@ -21,10 +21,12 @@
 
 #include "ResourcesDialog.h"
 
-#include "Settings.h"
 #include "TWUtils.h"
 
 #include <TwxAssets.h>
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
+
 
 ResourcesDialog::ResourcesDialog(QWidget *parent)
 : QDialog(parent)
@@ -34,12 +36,12 @@ ResourcesDialog::ResourcesDialog(QWidget *parent)
 
 void ResourcesDialog::init()
 {
-	Tw::Settings s;
+	Settings s;
 
 	setupUi(this);
 
 #if defined(Q_OS_WIN)
-	if(Tw::Settings::defaultFormat() == QSettings::NativeFormat)
+	if(Settings::defaultFormat() == QSettings::NativeFormat)
 		locationOfSettings->setText(tr("Registry (%1)").arg(s.fileName()));
 	else
 		locationOfSettings->setText(pathToLink(s.fileName()));

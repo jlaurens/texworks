@@ -22,11 +22,15 @@
 #include "PDFDocumentWindow.h"
 
 #include "FindDialog.h"
-#include "Settings.h"
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXDocumentWindow.h"
 #include "utils/WindowManager.h"
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
+#include <TwxTypesetManager.h>
+using TpstMngr = Twx::Typeset::Manager;
 
 #include <QCloseEvent>
 #include <QDesktopServices>
@@ -298,7 +302,7 @@ void PDFDocumentWindow::init()
 	addDockWidget(Qt::LeftDockWidgetArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
 
-	Tw::Settings settings;
+	Settings settings;
 	switch(settings.value(QString::fromLatin1("pdfPageMode"), kDefault_PDFPageMode).toInt()) {
 		case 0:
 			setPageMode(QtPDF::PDFDocumentView::PageMode_SinglePage);
@@ -348,8 +352,8 @@ void PDFDocumentWindow::init()
 	connect(_fullScreenManager, &Tw::Utils::FullscreenManager::fullscreenChanged, actionFull_Screen, &QAction::setChecked);
 	connect(_fullScreenManager, &Tw::Utils::FullscreenManager::fullscreenChanged, this, &PDFDocumentWindow::maybeZoomToWindow, Qt::QueuedConnection);
 
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &PDFDocumentWindow::updateTypesettingAction);
-	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &PDFDocumentWindow::updateTypesettingAction);
+	connect(TpstMngr::emitter(), &TpstMngr::typesettingStarted, this, &PDFDocumentWindow::updateTypesettingAction);
+	connect(TpstMngr::emitter(), &TpstMngr::typesettingStopped, this, &PDFDocumentWindow::updateTypesettingAction);
 }
 
 void PDFDocumentWindow::changeEvent(QEvent *event)
@@ -508,7 +512,7 @@ TeXDocumentWindow * PDFDocumentWindow::getFirstTeXDocumentWindow(const bool open
 void PDFDocumentWindow::loadFile(const QString &fileName)
 {
 	setCurrentFile(fileName);
-	Tw::Settings settings;
+	Settings settings;
 	QFileInfo info(fileName);
 	settings.setValue(QString::fromLatin1("openDialogDir"), info.canonicalPath());
 
@@ -523,7 +527,7 @@ void PDFDocumentWindow::reload()
 	if (pdfWidget->load(curFile)) {
 		QSharedPointer<QtPDF::Backend::Document> doc = pdfWidget->document().toStrongRef();
 		if (doc) {
-			Tw::Settings settings;
+			Settings settings;
 			doc->setPaperColor(settings.value(QStringLiteral("pdfPaperColor"), QVariant::fromValue<QColor>(kDefault_PaperColor)).value<QColor>());
 		}
 		loadSyncData();
@@ -556,7 +560,7 @@ void PDFDocumentWindow::loadSyncData()
 
 void PDFDocumentWindow::syncClick(size_type pageIndex, const QPointF& pos)
 {
-	Tw::Settings settings;
+	Settings settings;
 	TWSynchronizer::Resolution res{TWSynchronizer::kDefault_Resolution_ToPDF};
 	switch (settings.value(QString::fromLatin1("syncResolutionToTeX"), TWSynchronizer::kDefault_Resolution_ToTeX).toInt()) {
 		case 0:
@@ -665,7 +669,7 @@ void PDFDocumentWindow::syncFromSource(const QString& sourceFile, int lineNo, in
 	if (!_synchronizer)
 		return;
 
-	Tw::Settings settings;
+	Settings settings;
 	TWSynchronizer::Resolution res{TWSynchronizer::kDefault_Resolution_ToPDF};
 	switch (settings.value(QString::fromLatin1("syncResolutionToPDF"), TWSynchronizer::kDefault_Resolution_ToPDF).toInt()) {
 		case 0:
@@ -870,7 +874,7 @@ void PDFDocumentWindow::updatePageMode(const QtPDF::PDFDocumentView::PageMode ne
 void PDFDocumentWindow::resetMagnifier()
 {
 	Q_ASSERT(pdfWidget);
-	Tw::Settings settings;
+	Settings settings;
 
 	if (settings.value(QString::fromLatin1("circularMagnifier"), kDefault_CircularMagnifier).toBool())
 		pdfWidget->setMagnifierShape(QtPDF::DocumentTool::MagnifyingGlass::Magnifier_Circle);
@@ -1019,7 +1023,7 @@ void PDFDocumentWindow::doFindDialog()
 void PDFDocumentWindow::doFindAgain(bool newSearch /* = false */)
 {
 	Q_UNUSED(newSearch)
-	Tw::Settings settings;
+	Settings settings;
 
 	QString	searchText = settings.value(QString::fromLatin1("searchText")).toString();
 	if (searchText.isEmpty())
@@ -1038,7 +1042,7 @@ void PDFDocumentWindow::doFindAgain(bool newSearch /* = false */)
 
 void PDFDocumentWindow::searchResultHighlighted(const size_type pageNum, const QList<QPolygonF> & pdfRegion)
 {
-	Tw::Settings settings;
+	Settings settings;
 
 	widget()->setCurrentSearchResultHighlightBrush(_searchResultHighlightBrush);
 	if (kPDFHighlightDuration > 0)
@@ -1086,7 +1090,7 @@ void PDFDocumentWindow::searchResultHighlighted(const size_type pageNum, const Q
 }
 
 void PDFDocumentWindow::setDefaultScale() {
-	Tw::Settings settings;
+	Settings settings;
 	switch (settings.value(QString::fromLatin1("scaleOption"), kDefault_PreviewScaleOption).toInt()) {
 		case 2:
 			pdfWidget->zoomFitWidth();

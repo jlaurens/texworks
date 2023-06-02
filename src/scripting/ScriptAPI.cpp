@@ -21,12 +21,14 @@
 
 #include "DefaultPrefs.h"
 #include "Engine.h"
-#include "Settings.h"
 #include "TWApp.h"
 #include "document/SpellChecker.h"
 #include "scripting/ScriptObject.h"
 #include "scripting/ScriptAPI.h"
 #include "utils/SystemCommand.h"
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <QBuffer>
 #include <QCoreApplication>
@@ -404,7 +406,7 @@ bool ScriptAPI::mayExecuteSystemCommand(const QString& cmd, QObject * context) c
 	Q_UNUSED(context)
 
 	// cmd may be a true command line, or a single file/directory to run or open
-	Tw::Settings settings;
+	Settings settings;
 	return settings.value(QString::fromLatin1("allowSystemCommands"), false).toBool();
 }
 
@@ -413,13 +415,13 @@ bool ScriptAPI::mayWriteFile(const QString& filename, QObject * context) const
 	Q_UNUSED(filename)
 	Q_UNUSED(context)
 
-	Tw::Settings settings;
+	Settings settings;
 	return settings.value(QString::fromLatin1("allowScriptFileWriting"), false).toBool();
 }
 
 bool ScriptAPI::mayReadFile(const QString& filename, QObject * context) const
 {
-	Tw::Settings settings;
+	Settings settings;
 	if (!m_script)
 		return false;
 

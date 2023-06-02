@@ -61,7 +61,6 @@ add_executable(test_Scripting
 	"${CMAKE_SOURCE_DIR}/src/scripting/ScriptObject.cpp"
 	"${CMAKE_SOURCE_DIR}/src/scripting/ECMAScriptInterface.cpp"
 	"${CMAKE_SOURCE_DIR}/src/scripting/ECMAScript.cpp"
-	"${CMAKE_SOURCE_DIR}/src/Settings.cpp"
 )
 if (WITH_QTSCRIPT)
 	target_sources(test_Scripting
@@ -81,7 +80,6 @@ IF ( LUA_FOUND AND WITH_LUA )
 		MockScriptingAPI.h
 		"${CMAKE_SOURCE_DIR}/src/scripting/Script.cpp"
 		"${CMAKE_SOURCE_DIR}/src/scripting/ScriptObject.cpp"
-		"${CMAKE_SOURCE_DIR}/src/Settings.cpp"
 	)
 	target_compile_options(test_LuaScripting PRIVATE ${WARNING_OPTIONS})
 	IF (NOT ${BUILD_SHARED_PLUGINS})
@@ -97,11 +95,9 @@ add_executable(test_Utils
 	Utils_test.cpp
 	Utils_test.h
 	"${CMAKE_SOURCE_DIR}/src/utils/CommandlineParser.cpp"
-	"${CMAKE_SOURCE_DIR}/src/utils/FileVersionDatabase.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/FullscreenManager.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/SystemCommand.cpp"
 	"${CMAKE_SOURCE_DIR}/src/utils/TextCodecs.cpp"
-	"${CMAKE_SOURCE_DIR}/src/utils/TypesetManager.cpp"
 )
 
 target_compile_options(test_Utils PRIVATE ${WARNING_OPTIONS})

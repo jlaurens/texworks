@@ -30,7 +30,6 @@ set ( TeXworks_SOURCES
   PrefsDialog.cpp
   ResourcesDialog.cpp
   ScriptManagerWidget.cpp
-  Settings.cpp
   TemplateDialog.cpp
   TeXDocks.cpp
   TeXDocumentWindow.cpp
@@ -76,7 +75,6 @@ set ( TeXworks_HEADERS
   PrefsDialog.h
   ResourcesDialog.h
   ScriptManagerWidget.h
-  Settings.h
   TemplateDialog.h
   TeXDocks.h
   TeXDocumentWindow.h
@@ -196,7 +194,6 @@ set (
   "${TWX_DIR}/src/scripting/Script.h"
   "${TWX_DIR}/src/scripting/ScriptAPI.h"
   "${TWX_DIR}/src/TWSystemCmd.h"
-  "${TWX_DIR}/src/Settings.h"
   PARENT_SCOPE
 )
 

@@ -24,11 +24,13 @@
 #include "CompletingEdit.h"
 #include "DefaultPrefs.h"
 #include "PDFDocumentWindow.h"
-#include "Settings.h"
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXHighlighter.h"
 #include "document/SpellChecker.h"
+
+#include <TwxSettings.h>
+using Settings = Twx::Core::Settings;
 
 #include <TwxLocate.h>
 using Locate = Twx::Core::Locate;
@@ -510,7 +512,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	foreach (const DictPair& dict, dictList)
 		dlg.language->addItem(dict.first, dict.second);
 
-	Tw::Settings settings;
+	Settings settings;
 	// initialize controls based on the current settings
 
 	// General
