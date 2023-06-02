@@ -29,33 +29,43 @@ namespace Twx {
 namespace Typeset {
 
 @TWX_CFG_include_TwxNamespaceTestMain_private_h@
+/** \file TwxTypesetManager.h
+ 	*	\brief Typeset manager.
+ 	* 
+	* Keeps track of all running typesetting processes and their owner.
+	* 
+	* This helps avoid running multiple processes on the same input file (which
+	* would wreak havoc in the auxiliary and output files) and provides information
+	* in which object (window) information about a currently running typesetting
+	* process for a given input (root) file can be found.
+	*
+	* Static methods, only one emitter.
+	*
+	* TODO: interact with a project manager
+	* This is actually a weak design.
+ 	*/
 
-// Class that keeps track of all running typesetting processes and who started/
-// owns them.
-// This helps avoid running multiple processes on the same input file (which
-// would wreak havoc in the auxiliary and output files) and provides information
-// in which object (window) information about a currently running typesetting
-// process for a given input (root) file can be found
-// Static methods, only one emitter.
 class Manager: public QObject
 {
 	Q_OBJECT
-  static QMap<QString, QObject*> running_m;
-	static QMap<QObject *, QMetaObject::Connection> connections_m;
 public:
-  static Manager *emitter();
+  static Manager * emitter();
 	// In practice, the returned object should be a TeXDocumentWindow; to avoid
 	// interdependencies of headers (and to enable other types as owners in the
 	// future) we use a generic QObject* here instead
-	static QObject *getOwnerForRootFile(const QString& rootFile);
-	static bool isFileBeingTypeset(const QString& rootFile);
+	static QObject * getOwnerForRootFile(const QString & rootFile);
+	static bool isFileBeingTypeset(const QString & rootFile);
 
 	// Returns true if it is safe to start typesetting, false if typesetting
 	// should not be started (e.g. because another owner is already typesetting
 	// the specified root file)
 	// The root file should always be a canonical file path
-	static bool startTypesetting(const QString& rootFile, QObject *const owner);
-	static void stopTypesetting(QObject *const owner);
+	static bool startTypesetting(const QString & rootFile, QObject * const owner);
+	static void stopTypesetting(QObject * const owner);
+
+signals:
+	void typesettingStarted(const QString rootFile);
+	void typesettingStopped(const QString rootFile);
 
 private:
   Manager() = default;
@@ -64,11 +74,6 @@ private:
 	Manager(Manager&& other) = delete;
   void operator=(const Manager&) = delete;
   void operator=(const Manager&&) = delete;
-
-signals:
-	void typesettingStarted(const QString rootFile);
-	void typesettingStopped(const QString rootFile);
-
 @TWX_CFG_include_TwxTypesetManager_private_h@
 @TWX_CFG_include_TwxFriendTestMain_private_h@
 };
