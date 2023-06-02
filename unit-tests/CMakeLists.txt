@@ -72,6 +72,8 @@ endif (WITH_QTSCRIPT)
 target_compile_options(test_Scripting PRIVATE ${WARNING_OPTIONS})
 target_link_libraries(test_Scripting ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
 add_test(NAME test_Scripting COMMAND test_Scripting WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
+include ( TwxModuleLib )
+twx_module_add( Core TARGETS test_Scripting )
 
 IF ( LUA_FOUND AND WITH_LUA )
 	add_executable(test_LuaScripting

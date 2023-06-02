@@ -69,7 +69,7 @@ using Locate = Twx::Core::Locate;
 #endif
 #endif
 
-TWApp *TWApp::theAppInstance = nullptr;
+TWApp * TWApp::theAppInstance = nullptr;
 
 const QEvent::Type TWDocumentOpenEvent::type = static_cast<QEvent::Type>(QEvent::registerEventType());
 
@@ -126,11 +126,7 @@ TWApp::TWApp(int &argc, char **argv)
 		QCoreApplication::postEvent(this, new TWDocumentOpenEvent(fileToOpen.filename, fileToOpen.position));
 	}
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
-	QTimer::singleShot(1, this, SLOT(launchAction()));
-#else
 	QTimer::singleShot(1, this, &TWApp::launchAction);
-#endif
 }
 
 TWApp::~TWApp()
