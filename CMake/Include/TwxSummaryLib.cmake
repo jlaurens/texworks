@@ -425,7 +425,7 @@ macro ( twx_summary_end )
     twx_log( "Unexpected command `twx_summary_end`.\n" )
   endif ()
   unset( TWX_break_l )
-endmacro ()
+endmacro ( twx_summary_end )
 
 # ANCHOR: __twx_summary_common_ancestor
 # problem if the arguments are not canonical paths
@@ -454,7 +454,7 @@ function ( __twx_summary_common_ancestor ancestor_ relative_ )
     set ( ${relative_} "${new_}" )
   endwhile ()
   twx_export ( ${relative_} ${ancestor_} )
-endfunction ()
+endfunction ( __twx_summary_common_ancestor )
 
 # ANCHOR: twx_summary_section_files
 #[=======[
