@@ -66,8 +66,10 @@ function ( twx_doxydoc )
     "${CMAKE_CURRENT_SOURCE_DIR}/Developer/doxydoc.in.txt"
   )
   if ( NOT EXISTS "${twx_in}" )
-    twx_message_verbose ( WARNING "Missing ${twx_in}" )
-    return ()
+    set (
+      twx_in
+      "${TWX_DIR}/Developer/doxydoc.in.txt"
+    )
   endif ()
   twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
   set (
