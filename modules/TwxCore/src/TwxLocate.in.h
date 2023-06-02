@@ -22,17 +22,17 @@
 #define TwxCore_Locate_h
 
 /*! \file TwxLocate.h
- 	*  \brief Some kind of `PATH` manager.
+ 	*	\brief Some kind of `PATH` manager.
  	*  
- 	*  `TwxLocate` is a static object which main method
- 	*  is `absoluteProgramPath()` to retrieve the full path of a program.
+ 	*	`TwxLocate` is a static object which main method
+ 	*	is `absoluteProgramPath()` to retrieve the full path of a program.
  	* 
- 	*  In addition, \ref `TwxPathFinder` instances also implement
- 	*  `absoluteProgramPath()` but with a per instance approach.
+ 	*	In addition, \ref `TwxPathFinder` instances also implement
+ 	*	`absoluteProgramPath()` but with a per instance approach.
  	*  
- 	*  Whereas `TwxLocate` will be used as general purpose path provider,
- 	*  different documents may need there own customized `TwxPathFinder` instance
- 	*  to suit their particular needs.
+ 	*	Whereas `TwxLocate` will be used as general purpose path provider,
+ 	*	different documents may need there own customized `TwxPathFinder` instance
+ 	*	to suit their particular needs.
  	*/
 
 #include <QString>
