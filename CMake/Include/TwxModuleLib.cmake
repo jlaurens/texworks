@@ -168,13 +168,13 @@ macro ( twx_module_declare )
   endif ()
   set ( name_ "${CMAKE_MATCH_1}" )
   set ( module_ "Twx${name_}" )
-  twx_parse_arguments ( "" "" "SOURCES;HEADERS;UIS;LIBRARIES;MODULES;INCLUDE_DIRECTORIES" ${ARGN} )
+  twx_parse_arguments ( "" "" "SOURCES;HEADERS;UIS;LIBRARIES;MODULES;QT;INCLUDE_DIRECTORIES" ${ARGN} )
   twx_assert_parsed ()
   foreach ( t_ SOURCES HEADERS UIS )
-    list ( APPEND "${module_}_IN_${t_}" ${my_twx_${t_}})
+    list ( APPEND "${module_}_IN_${t_}" ${my_twx_${t_}} )
   endforeach ()
-  foreach ( t_ LIBRARIES MODULES INCLUDE_DIRECTORIES )
-    list ( APPEND "${module_}_${t_}" ${my_twx_${t_}})
+  foreach ( t_ LIBRARIES MODULES QT INCLUDE_DIRECTORIES )
+    list ( APPEND "${module_}_${t_}" ${my_twx_${t_}} )
   endforeach ()
 endmacro ()
 
@@ -221,9 +221,12 @@ function ( twx_module_configure )
     ${${module_}_SOURCES}
     ${${module_}_HEADERS}
   )
+  foreach ( qt_ ${${module_}_QT} )
+    twx_Qt_append ( ${qt_} )
+  endforeach ()
+  twx_Qt_link_libraries ( ${module_} )
   target_link_libraries (
     ${module_}
-    ${QT_LIBRARIES}
     ${${module_}_LIBRARIES}
   )
   target_include_directories (
