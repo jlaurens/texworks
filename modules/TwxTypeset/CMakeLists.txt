@@ -64,6 +64,7 @@ include ( TwxSummaryLib )
 include ( TwxCfgLib )
 
 twx_cfg_setup ()
+twx_cfg_update_git ()
 
 twx_summary_begin (
 	BOLD_GREEN
@@ -90,25 +91,8 @@ twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
 twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )
 twx_summary_end ()
 
-twx_summary_begin ( BOLD_BLUE "Build settings" VERBOSE )
-get_target_property (
-	COMPILE_DEFINITIONS
-	test_TwxCore
-	COMPILE_DEFINITIONS
-)
-twx_summary_log_kv ( "Compile definitions" VAR COMPILE_DEFINITIONS )
-get_target_property (
-	COMPILE_OPTIONS
-	test_TwxCore
-	COMPILE_OPTIONS
-)
-twx_summary_log_kv ( "Compile options" VAR COMPILE_OPTIONS )
-twx_summary_end ()
-
-twx_summary_begin ( BOLD_BLUE "Files" VERBOSE )
-twx_summary_log_kv ( "SOURCES" VAR TwxCore_SOURCES )
-twx_summary_log_kv ( "HEADERS" VAR TwxCore_HEADERS )
-twx_summary_end ()
+twx_summary_section_compiler ( TwxTypeset )
+twx_summary_section_files    ( TwxTypeset )
 
 twx_summary_end ( NO_EOL )
 
