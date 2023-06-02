@@ -62,7 +62,6 @@ set ( TeXworks_SOURCES
   utils/FullscreenManager.cpp
   utils/SystemCommand.cpp
   utils/TextCodecs.cpp
-  utils/TypesetManager.cpp
   utils/WindowManager.cpp
 )
 set ( TeXworks_HEADERS
@@ -110,7 +109,6 @@ set ( TeXworks_HEADERS
   utils/FullscreenManager.h
   utils/SystemCommand.h
   utils/TextCodecs.h
-  utils/TypesetManager.h
   utils/WindowManager.h
 )
 
@@ -240,13 +238,13 @@ IF (UNIX)
 ENDIF ()
 
 # Specify libraries to be linked to TeXworks.
-target_LINK_LIBRARIES(
+target_link_libraries (
   TeXworks
   QtPDF::qtpdf
   ${TeXworks_LIBRARIES}
 )
 
-twx_module_add ( Core TARGETS TeXworks )
+twx_module_add ( Core Typeset TARGETS TeXworks )
 
 # Disallow automatic casts from char* to QString (enforcing the use of tr() or
 # explicitly specifying the string encoding)
