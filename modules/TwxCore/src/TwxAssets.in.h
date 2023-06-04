@@ -92,23 +92,14 @@ public:
 
 private:
 
-	static void possiblyMigrateLegacy();
-	static int update(const QDir & assetsDir, const QString& category);
-	const QStringList rawUnixDictionaryLocations(
-		const QProcessEnvironment & PE
-	);
+  Assets()  = delete;
+	~Assets() = delete;
+	Assets(Assets &  other) = delete;
+	Assets(Assets && other) = delete;
+  void operator=(const Assets & ) = delete;
+  void operator=(const Assets &&) = delete;
 
-	static QDir factoryDir_m;
-	static QString setupLocation_m;
-	static QString standardLocation_m;
-	static QString legacyLocation_m;
-
-// lazy initializers
-	static const QDir factoryDir();
-	static const QString setupLocation();
-	static const QString standardLocation();
-	static const QString legacyLocation();
-
+@TWX_CFG_include_TwxAssets_private_h@
 @TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 

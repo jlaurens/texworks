@@ -191,6 +191,8 @@ TWX_FACTORY_INI;
 /*
 #]=======]
 function ( twx_cfg_setup )
+  # The project may have changed since TWX_CFG_INI_DIR was defined 
+  set ( TWX_CFG_INI_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
   if ( "${TWX_FACTORY_INI}" STREQUAL "" )
     set (
       TWX_FACTORY_INI
@@ -200,8 +202,6 @@ function ( twx_cfg_setup )
     set ( target_twx TwxCfg )
   else ()
     twx_assert_exists ( TWX_FACTORY_INI )
-    # The project may have changed since TWX_CFG_INI_DIR was defined 
-    set ( TWX_CFG_INI_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
     set ( target_twx "TwxCfg_${PROJECT_NAME}" )
     twx_message_verbose (
       STATUS
@@ -211,6 +211,10 @@ function ( twx_cfg_setup )
     )
   endif ()
   if ( TARGET "${target_twx}" )
+    twx_cfg_update_factory ()
+    twx_cfg_update_git ()
+    twx_export ( TWX_FACTORY_INI )
+    twx_export ( TWX_CFG_INI_DIR )
     return ()
   endif ()
   set_property (

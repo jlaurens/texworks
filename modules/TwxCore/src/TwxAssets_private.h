@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2020  Stefan Löffler
+	Copyright (C) 2008-2023  Stefan Löffler, Jérôme LAURENS
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,23 +18,22 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef SETTINGS_H
-#define SETTINGS_H
 
-#include <QSettings>
+private:
 
-namespace Tw {
+	static void possiblyMigrateLegacy();
+	static int update(const QDir & assetsDir, const QString& category);
+	const QStringList rawUnixDictionaryLocations(
+		const QProcessEnvironment & PE
+	);
 
-class Settings : public QSettings
-{
-	Q_OBJECT
-public:
-	Settings() = default;
+	static QDir factoryDir_m;
+	static QString setupLocation_m;
+	static QString standardLocation_m;
+	static QString legacyLocation_m;
 
-	using QSettings::defaultFormat;
-	using QSettings::setDefaultFormat;
-};
-
-} // namespace Tw
-
-#endif // SETTINGS_H
+// lazy initializers
+	static const QDir factoryDir();
+	static const QString setupLocation();
+	static const QString standardLocation();
+	static const QString legacyLocation();

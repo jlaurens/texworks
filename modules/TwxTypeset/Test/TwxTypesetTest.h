@@ -18,6 +18,14 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+
+#ifndef TwxTypesetTest_h
+#define TwxTypesetTest_h
+
+#include "TwxEngine.h"
+#include "TwxEngineManager.h"
+#include "TwxTypesetManager.h"
+
 #include <QtTest>
 #include <QString>
 
@@ -36,8 +44,26 @@ private slots:
   void init();
   void cleanup();
 
-	void test_empty();
-	void test();
+	void test_TypesetManager_empty();
+	void test_TypesetManager();
+	void test_TypesetManager_Connection();
+
+  void test_Settings();
+	
+	void test_Engine_json();
+  void test_Engine();
+  
+	void test_EngineManager_savedEngineList();
+	void test_EngineManager_engineList();
+	void test_EngineManager_setEngineList();
+	void test_EngineManager_engineWithName();
+	void test_EngineManager_defaultEngineName();
+	void test_EngineManager_rawEngineList();
+	void test_EngineManager_defaultEngine();
+
+private:
+	void feedEngineList();
+  Engine makeEngine(const char * key = "", bool showPdf = false);
 
 public:
   Main();
@@ -47,3 +73,5 @@ public:
 } // namespace Test
 } // namespace Typeset
 } // namespace Twx
+
+#endif // TwxTypesetTest_h

@@ -2896,7 +2896,7 @@ void TeXDocumentWindow::conditionallyEnableRemoveAuxFiles()
 		QFileInfo rootFileInfo{textDoc()->getRootFilePath()};
 		if (!rootFileInfo.exists())
 			return false;
-		if (TpstMngr::isFileBeingTypeset(rootFileInfo.canonicalFilePath()))
+		if (TpstMngr::isTypesetting(rootFileInfo.canonicalFilePath()))
 			return false;
 		return true;
 	}();

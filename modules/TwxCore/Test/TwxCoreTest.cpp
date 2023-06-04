@@ -193,6 +193,8 @@ void Main::testTool()
 		QCOMPARE(actual, expected);
 		actual = hashForFilePath(empty);
 		expected = Hash{"d41d8cd98f00b204e9800998ecf8427e"};
+		qDebug () << actual.bytes;
+		qDebug () << expected.bytes;
 		QCOMPARE(actual, expected);
 		actual = hashForFilePath(path);
 		expected = Hash{"66f76eb1eaed0527a943a0e9e45d09e4"};

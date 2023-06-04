@@ -48,7 +48,7 @@ twx_doxydoc ()
 if ( NOT TWX_NO_TEST )
   set ( TWX_TEST ON )
 	enable_testing ()
-	add_subdirectory ( Test TwxTest)
+	add_subdirectory ( Test TwxTest )
 endif ()
 
 if ( NOT TARGET Twx::Typeset )
@@ -61,10 +61,6 @@ endif ()
 message ( "" )
 
 include ( TwxSummaryLib )
-include ( TwxCfgLib )
-
-twx_cfg_setup ()
-twx_cfg_update_git ()
 
 twx_summary_begin (
 	BOLD_GREEN
@@ -74,11 +70,7 @@ ${CMAKE_CXX_COMPILER_ID} \
 ${CMAKE_CXX_COMPILER_VERSION}):\n"
 	)
 
-twx_summary_begin ( BOLD_MAGENTA "Git info" )
-twx_summary_log ( "Hash" "${TWX_CFG_GIT_HASH}" )
-twx_summary_log ( "Date" "${TWX_CFG_GIT_DATE}" )
-twx_summary_log ( "Branch" "${TWX_CFG_GIT_BRANCH}" )
-twx_summary_end ()
+twx_summary_section_git ()
 
 twx_summary_begin ( BOLD_MAGENTA "Version info" )
 twx_summary_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )

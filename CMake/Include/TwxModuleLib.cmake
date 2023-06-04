@@ -346,7 +346,7 @@ endfunction ()
   * Then put the header location in the variable.
   *
   * @param dir_var is the name of a variable holding the resulr
-  * @param name for key NAME, is the name of a module, like Core, Engine...
+  * @param name for key NAME, is the name of a module, like Core, Typeset...
   * @param TEST is a flag to choose between normal and testing headers
   */
 twx_module_include_dir( dir_var NAME name [TEST]) {}
@@ -379,7 +379,7 @@ endfunction ()
   * but it raises if the module does not exist.
   *
   * @param dir_var is the name of a variable holding the resulr
-  * @param name for key NAME, is the name of a module, like Core, Engine...
+  * @param name for key NAME, is the name of a module, like Core, Typeset...
   */
 twx_module_src_dir( dir_var NAME name) {}
 /*#]=======]
@@ -401,7 +401,7 @@ endfunction ()
   * but it raises if the module does not exist.
   *
   * @param dir_var is the name of a variable holding the resulr
-  * @param name for key NAME, is the name of a module, like Core, Engine...
+  * @param name for key NAME, is the name of a module, like Core, Typeset...
   */
 twx_module_ui_dir( dir_var NAME name) {}
 /*#]=======]
@@ -423,7 +423,7 @@ endfunction ()
   * but it raises if the module does not exist.
   *
   * @param dir_var is the name of a variable holding the resulr
-  * @param name for key NAME, is the name of a module, like Core, Engine...
+  * @param name for key NAME, is the name of a module, like Core, Typeset...
   */
 twx_module_test_dir( dir_var NAME name) {}
 /*#]=======]

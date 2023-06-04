@@ -21,15 +21,18 @@ if ( NOT TWX_IS_BASED )
 		NO_POLICY_SCOPE
 	)
 endif ()
+message ( "PROJECT_BINARY_DIR => ${PROJECT_BINARY_DIR}" )
 project ( TwxTypesetTest )
 include ( TwxBase )
+message ( "PROJECT_BINARY_DIR => ${PROJECT_BINARY_DIR}" )
 
 include ( TwxQTLib )
 twx_Qt_fresh()
 twx_QT_append ( REQUIRED Test )
 
+include ( TwxCfgLib )
+twx_cfg_setup ()
 include ( TwxModuleLib )
-
 twx_module_setup ( NAME Typeset )
 
 set ( TwxTypesetLib_DIR "${PROJECT_BINARY_DIR}/TwxModules/TwxTypeset" )
@@ -64,6 +67,18 @@ add_test (
 		"${twx_WorkingDirectory}"
 )
 
+add_executable (
+	engine_TwxTypeset
+	${CMAKE_CURRENT_LIST_DIR}/main.cpp
+)
+
+set_target_properties (
+	engine_TwxTypeset
+  PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY "${twx_WorkingDirectory}"
+		SUFFIX ".program"
+)
+
 unset ( twx_WorkingDirectory )
 
 # ANCHOR - Summary
@@ -72,9 +87,6 @@ unset ( twx_WorkingDirectory )
 message ( "" )
 
 include ( TwxSummaryLib )
-include ( TwxCfgLib )
-
-twx_cfg_setup ()
 twx_cfg_update_git ()
 
 twx_summary_begin (

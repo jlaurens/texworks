@@ -124,7 +124,15 @@ add_test (
 # in the working directory or below
 set ( main.cpp ${CMAKE_CURRENT_LIST_DIR}/main.cpp )
 add_executable ( TwxCore_auxiliary           ${main.cpp} )
+add_dependencies (
+	TwxCore_auxiliary
+	test_TwxCore.WorkingDirectory
+)
 add_executable ( TwxCore_auxiliary_program   ${main.cpp} )
+add_dependencies (
+	TwxCore_auxiliary_program
+	test_TwxCore.WorkingDirectory
+)
 set_target_properties (
 	TwxCore_auxiliary   TwxCore_auxiliary_program
   PROPERTIES
@@ -143,6 +151,10 @@ set_target_properties (
 )
 add_executable (
 	TwxCore_Locate_absoluteProgramPath_program ${main.cpp}
+)
+add_dependencies (
+	TwxCore_Locate_absoluteProgramPath_program
+	test_TwxCore.WorkingDirectory
 )
 set_target_properties (
 	TwxCore_Locate_absoluteProgramPath_program
@@ -189,14 +201,18 @@ List of subdirectories of `bin`:
 add_executable (
 	TwxCore_Locate_appendListPATH_tex ${main.cpp}
 )
+add_dependencies (
+	TwxCore_Locate_absoluteProgramPath_program
+	test_TwxCore.WorkingDirectory
+)
 set_target_properties (
 	TwxCore_Locate_appendListPATH_tex
 	PROPERTIES
 		OUTPUT_NAME "tex"
 		RUNTIME_OUTPUT_DIRECTORY "${twx_WorkingDirectory}/Locate/appendListPATH"
 )
-foreach (year 1111 2222 3333)
-	foreach (bin
+foreach ( year 1111 2222 3333 )
+	foreach ( bin
 			aarch64-linux amd64-freebsd amd64-netbsd armhf-linux
 			i386-freebsd i386-linux i386-netbsd i386-solaris
 			universal-darwin windows x86_64-cygwin x86_64-darwinlegacy

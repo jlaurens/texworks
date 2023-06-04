@@ -220,7 +220,7 @@ function ( twx_cfg_file_end )
 
   if ( "${my_twx_TARGET}" STREQUAL "" )
     # No TARGET given
-    twx_cfg_path ( stamped ID "${my_twx_ID}_file" STAMPED )
+    twx_cfg_path ( stamped ID "${PROJECT_NAME}_${my_twx_ID}_file" STAMPED )
     set (
       target_
       ${PROJECT_NAME}_${my_twx_ID}_cfg_ini

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019-2020  Stefan Löffler
+	Copyright (C) 2023 Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,8 +18,9 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#include "Settings.h"
 
-namespace Tw {
-
-} // namespace Tw
+private:
+	QString _name;
+	QString _program;
+	QStringList _arguments;
+	bool _showPdf{false};

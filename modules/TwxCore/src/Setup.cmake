@@ -30,6 +30,7 @@ twx_module_declare (
 		TwxSetup.cpp
 		TwxTool.cpp
 	HEADERS
+		TwxAssets_private.h
 		TwxAssets.in.h
 		TwxAssetsTrackDB_private.h
 		TwxAssetsTrackDB.in.h

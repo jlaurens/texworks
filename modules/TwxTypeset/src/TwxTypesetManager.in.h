@@ -54,7 +54,7 @@ public:
 	// interdependencies of headers (and to enable other types as owners in the
 	// future) we use a generic QObject* here instead
 	static QObject * getOwnerForRootFile(const QString & rootFile);
-	static bool isFileBeingTypeset(const QString & rootFile);
+	static bool isTypesetting(const QString & rootFile);
 
 	// Returns true if it is safe to start typesetting, false if typesetting
 	// should not be started (e.g. because another owner is already typesetting

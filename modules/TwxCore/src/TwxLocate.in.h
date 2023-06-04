@@ -132,6 +132,7 @@ public:
 	* \param controller is a QObject instance.
 	* \param env is an optional `QProcessEnvironment` instance that
 	*   defaults to the system environment.
+	* \return a list of absolute paths to directories of binaries
 	*/
 	static const QStringList listPATH(
 		const QObject & controller,
@@ -147,6 +148,7 @@ public:
 	* 
 	* \param env is an optional `QProcessEnvironment` instance that
 	*   defaults to the system environment.
+	* \return a list of absolute paths to directories of binaries
 	*/
 	static const QStringList listPATH(
 		const QProcessEnvironment & env
@@ -193,6 +195,8 @@ public:
 	* 
 	* \param env is an optional `QProcessEnvironment` instance that
 	*    defaults to the system environment. 
+	* \return a list of absolute paths to directories of binaries,
+	*   with no post process.
 	*/
 	static const QStringList listPATHRaw(
 		const QProcessEnvironment & env =
@@ -216,6 +220,7 @@ public:
 	*
 	* \param env is an optional `QProcessEnvironment` instance that
 	*    defaults to the system environment.
+	* \return true on success, false on failure
 	* \see `listPATHRaw()`
 	*/
 	static bool resetListPATHRaw(
@@ -264,7 +269,6 @@ public:
 	);
 
 private:
-
 	Locate() = delete;
 	~Locate() = delete;
 	Locate( const Locate& ) = delete;

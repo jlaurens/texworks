@@ -36,7 +36,7 @@ Manager * Manager::emitter()
 	return &m;
 }
 
-bool Manager::isFileBeingTypeset(const QString & rootFile)
+bool Manager::isTypesetting(const QString & rootFile)
 {
 	return getOwnerForRootFile(rootFile) != nullptr;
 }
