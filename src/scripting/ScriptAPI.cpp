@@ -20,8 +20,6 @@
 */
 
 #include "DefaultPrefs.h"
-#include "Engine.h"
-#include "TWApp.h"
 #include "document/SpellChecker.h"
 #include "scripting/ScriptObject.h"
 #include "scripting/ScriptAPI.h"
@@ -29,7 +27,6 @@
 
 #include <TwxSettings.h>
 using Settings = Twx::Core::Settings;
-
 #include <TwxEngineManager.h>
 using NgnMngr = Twx::Typeset::EngineManager;
 
