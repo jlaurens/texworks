@@ -102,7 +102,7 @@ system directories):
                          [share/applications]
    TeXworks_APPDATA_DIR  Path in which .appdata.xml files are installed
                          [share/appdata]
-Unless an absolute paths are specified, paths are relative to
+Unless absolute paths are specified, paths are relative to
 CMAKE_INSTALL_PREFIX.
 
 Other than that, CMake should take care of most of your needs. For details about

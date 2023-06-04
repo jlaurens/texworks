@@ -12,7 +12,7 @@ with dependencies.
 
 Usage:
 ```
-cmake ... -P .../Command/TwxCfgFileCommand.cmake
+cmake ... -P .../Command/TwxCfgOneFileCommand.cmake
 ```
 
 Expected input state:

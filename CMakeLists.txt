@@ -153,9 +153,9 @@ IF ( APPLE )
 ENDIF ()
 
 IF (UNIX AND NOT APPLE)
-  SET(TeXworks_HELP_DIR share/doc/texworks-help CACHE PATH "Path where TeXworks looks for help files")
+  SET(TeXworks_HELP_DIR share/doc/${TWX_COMMAND}-help CACHE PATH "Path where TeXworks looks for help files")
   SET(TeXworks_DIC_DIR /usr/share/hunspell:/usr/share/myspell/dicts CACHE PATH "Flat path list where TeXworks looks for spellchecking dictionaries")
-  SET(TeXworks_DOCS_DIR share/doc/texworks CACHE PATH "Path in which documentation files are installed")
+  SET(TeXworks_DOCS_DIR share/doc/${TWX_COMMAND} CACHE PATH "Path in which documentation files are installed")
   SET(TeXworks_ICON_DIR share/icons/hicolor CACHE PATH "Path in which icons are installed")
   SET(TeXworks_MAN_DIR share/man/man1 CACHE PATH "Path in which manpages are installed")
   SET(TeXworks_DESKTOP_DIR share/applications CACHE PATH "Path in which .desktop files are installed")
@@ -445,7 +445,7 @@ if (UNIX AND NOT APPLE)
   set_target_properties(
     TeXworks
     PROPERTIES
-      OUTPUT_NAME ${TWX_PROJECT_COMMAND}
+      OUTPUT_NAME ${TWX_COMMAND}
   )
 else ()
   set_target_properties (
@@ -534,18 +534,66 @@ else ()
 endif ()
 
 IF ( UNIX AND NOT APPLE )
-  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/512x512/apps)
-  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-128.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/128x128/apps RENAME TeXworks.png)
-  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-64.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/64x64/apps RENAME TeXworks.png)
-  INSTALL(FILES ${TWX_DIR}/res/images/TeXworks-48.png DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}/48x48/apps RENAME TeXworks.png)
-  INSTALL(FILES
-    ${TWX_DIR}/COPYING
-    ${TWX_DIR}/README.md
-    ${TWX_DIR}/NEWS
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DOCS_DIR})
-  INSTALL(FILES ${TWX_DIR}/res/texworks.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_MAN_DIR})
-  INSTALL(FILES ${TWX_DIR}/res/texworks.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_DESKTOP_DIR})
-  INSTALL(FILES ${TWX_DIR}/res/texworks.appdata.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/${TeXworks_APPDATA_DIR})
+  set ( images_DIR "${TWX_DIR}/res/images" )
+  set ( destination_DIR "${CMAKE_INSTALL_PREFIX}/${TeXworks_ICON_DIR}" )
+  install (
+    FILES "${images_DIR}/${TWX_NAME}.png"
+    DESTINATION "${destination_DIR}/512x512/apps"
+  )
+  foreach ( s_twx 128 64 48 )
+    install (
+      FILES "${images_DIR}/${TWX_NAME}-${s_twx}.png"
+      DESTINATION "${destination_DIR}/${s_twx}x${s_twx}/apps"
+      RENAME ${TWX_NAME}.png
+    )
+  endforeach ()
+  install (
+    FILES
+      "${TWX_DIR}/COPYING"
+      "${TWX_DIR}/README.md"
+      "${TWX_DIR}/NEWS"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/${TeXworks_DOCS_DIR}"
+  )
+  set ( code_ "" )
+  
+  install(
+    CODE "
+      set (
+        TWX_CFG_INI_DIR
+        \"${TWX_CFG_INI_DIR}\"
+      )
+      include ( \"${TWX_DIR}/CMake/Include/TwxBase.cmake\" )
+      include ( \"${TWX_DIR}/CMake/Include/TwxCfgLib.cmake\" )
+      twx_cfg_read ( NO_PRIVATE ONLY_CONFIGURE )
+      configure_file (
+        \"${TWX_DIR}/res/os_other/${TWX_COMMAND}.in.1\"
+        \"${TWX_PROJECT_BUILD_DIR}/res/os_other/${TWX_COMMAND}.1\"
+        @ONLY
+      )
+      configure_file (
+        \"${TWX_DIR}/res/os_other/${COMMAND}.in.desktop\"
+        \"${TWX_PROJECT_BUILD_DIR}/res/os_other/${COMMAND}.desktop\"
+        @ONLY
+      )
+      configure_file (
+        \"${TWX_DIR}/res/os_other/${COMMAND}.in.appdata.xml\"
+        \"${TWX_PROJECT_BUILD_DIR}/res/os_other/${COMMAND}.appdata.xml\"
+        @ONLY
+      )
+    "
+  )
+  install (
+    FILES "${TWX_PROJECT_BUILD_DIR}/res/os_other/${TWX_COMMAND}.1"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/${TeXworks_MAN_DIR}"
+  )
+  install (
+    FILES "${TWX_PROJECT_BUILD_DIR}/res/os_other/${COMMAND}.desktop"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/${TeXworks_DESKTOP_DIR}"
+  )
+  install (
+    FILES "${TWX_PROJECT_BUILD_DIR}/res/os_other/${COMMAND}.appdata.xml"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/${TeXworks_APPDATA_DIR}"
+  )
 ENDIF ( UNIX AND NOT APPLE )
 
 # Packaging
@@ -574,7 +622,7 @@ endforeach()
 # is invoked via `ADD_SUBDIRECTORY` so that it executes after TeXworks and its
 # components are built and installed. You cannot fixup an application bundle
 # before it has been created...
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/CMake/packaging)
+ADD_SUBDIRECTORY(${TWX_DIR}/CMake/packaging)
 
 # Set CPack variables.
 SET(CPACK_PACKAGE_VERSION_MAJOR ${TWX_CFG_VERSION_MAJOR})
@@ -582,11 +630,11 @@ SET(CPACK_PACKAGE_VERSION_MINOR ${TWX_CFG_VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${TWX_CFG_VERSION_PATCH})
 SET(CPACK_PACKAGE_VERSION ${TWX_CFG_VERSION})
 
-SET(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+SET(CPACK_PACKAGE_NAME ${TWX_NAME})
 
 # Configure Drag N' Drop installer.
 IF ( APPLE )
-  SET(MAC_PACK_BITS "${CMAKE_SOURCE_DIR}/CMake/packaging/mac")
+  SET(MAC_PACK_BITS "${TWX_DIR}/CMake/packaging/mac")
   SET(CPACK_GENERATOR DragNDrop)
   SET( CPACK_DMG_BACKGROUND_IMAGE "${MAC_PACK_BITS}/texworks_dmg_background.png" )
   # Configure an AppleScript for applying a nice window layout to Drag N' Drop disk
@@ -605,7 +653,7 @@ include ( TwxSummaryLib )
 
 twx_summary_begin (
 	BOLD_GREEN
-  "${PROJECT_NAME} has been configured (CMake ${CMAKE_VERSION})"
+  "${TWX_NAME} has been configured (CMake ${CMAKE_VERSION})"
   EOL
 )
 

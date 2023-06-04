@@ -161,12 +161,12 @@ IF ( WIN32 )
   twx_cfg_write_begin ( ID "package-private" )
   twx_cfg_set ( PKG_APP_ICO   "${TWX_DIR}/res/images/TeXworks.ico" )
   twx_cfg_set ( PKG_DOC_ICO   "${TWX_DIR}/res/images/TeXworks-doc.ico" )
-  twx_cfg_set ( EXE_MANIFEST  "${TWX_DIR}/res/os_windows/TeXworks.exe.manifest" )
+  twx_cfg_set ( EXE_MANIFEST  "${TWX_PROJECT_BUILD_DIR}/res/os_windows/TeXworks.exe.manifest" )
   twx_cfg_write_end ()
   include ( TwxCfgFileLib)
   twx_cfg_files (
     ID 			PACKAGE_WINDOWS
-    FILES 	${TWX_NAME}.in.rc
+    FILES 	${TWX_NAME}.in.rc ${TWX_NAME}.in.exe.manifest
     IN_DIR 	"${TWX_DIR}/res/os_windows/"
     OUT_DIR "${TWX_PROJECT_BUILD_DIR}/res/os_windows/"
     EXPORT twx

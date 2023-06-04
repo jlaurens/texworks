@@ -125,15 +125,15 @@ TWX_NAME;
   *
   * This is the main project name in lowercase.
   */
-TWX_PROJECT_COMMAND;
+TWX_COMMAND;
 /*#]=======]
 if ( "${TWX_NAME}" STREQUAL "" )
   if ( TWX_DEV )
     set ( TWX_NAME TeXworks-dev )
-    set ( TWX_PROJECT_COMMAND texworks-dev )
+    set ( TWX_COMMAND texworks-dev )
   else ()
     set ( TWX_NAME TeXworks )
-    set ( TWX_PROJECT_COMMAND texworks )
+    set ( TWX_COMMAND texworks )
   endif ()
 endif ()
 

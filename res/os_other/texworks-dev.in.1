@@ -1,19 +1,19 @@
-.TH TEXWORKS 1
+.TH @TWX_CFG_NAME_UPPER@ 1
 
 .SH NAME
-.B texworks
+.B @TWX_CFG_COMMAND@
 \- a simple TeX front-end program
 
 .SH SYNOPSIS
-.B texworks
+.B @TWX_CFG_COMMAND@
 [OPTIONS] [FILES]
 
 .SH DESCRIPTION
-.B TeXworks
+.B @TWX_CFG_NAME@
 is an environment for authoring TeX (LaTeX, ConTeXt, etc) documents, with a Unicode-based, TeX-aware editor, integrated PDF viewer, and a clean, simple interface accessible to casual and non-technical users.
 
 It is inspired by Dick Koch's award-winning TeXShop program for Mac OS X, which has made quality typesetting through TeX accessible to a wider community of users, without a technical or intimidating face. The goal of
-.B TeXworks
+.B @TWX_CFG_NAME@
 is to deliver a similarly integrated, easy-to-use environment for users on other platforms, especially GNU/Linux and Windows.
 
 .SH OPTIONS
@@ -46,30 +46,30 @@ Overrides the location of plugins.
 
 .SH FILES
 .TP
-.I ~/.config/TUG/TeXworks.conf
+.I ~/.config/TUG/@TWX_CFG_NAME@.conf
 Text file to store the preferences.
 .TP
-.I ~/.TeXworks/*
+.I ~/.@TWX_CFG_NAME@/*
 Additional configuration and library files (e.g. for auto completion, templates, etc.).
 .TP
-.I /usr/local/bin/texworks-setup.ini
+.I /usr/local/bin/@TWX_CFG_COMMAND@-setup.ini
 Setup file to override the location of the files mentioned above (e.g. for enabling portable operation).
 
 .SH SEE ALSO
-.B TeXworks
+.B @TWX_CFG_NAME@
 homepage: \%http://tug.org/texworks/
 
-.B TeXworks
+.B @TWX_CFG_NAME@
 development: \%https://github.com/TeXworks/texworks
 
 .SH BUGS
 If you find a bug, please report it at \%https://github.com/TeXworks/texworks/issues
 
 .SH AUTHORS
-Jonathan Kew, Stefan Löffler, Charlie Sharpsteen, and others
+@TWX_CFG_AUTHORS@
 
 .SH COPYRIGHT
-Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+Copyright (C) @TWX_CFG_COPYRIGHT_YEARS@  @TWX_CFG_COPYRIGHT_HOLDERS@
 
 License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>
 

@@ -50,12 +50,15 @@ Input files will preferably contain `@TWX_CFG_<key>@` placeholders.
 
 From these are built
 - Derived keys:
-  - `NAME_LOWER`
+  - `COMMAND`, `NAME_LOWER` (synonyms)
   - `NAME_UPPER`
+  - `VERSION_LONG`
   - `VERSION`
   - `VERSION_SHORT`
   - `GIT_OK`, whether the git information is accurate
   - `DOMAIN`
+  - `ID`
+  - `ASSEMBLY_IDENTITY`
 
 *//*
 #]===============================================]
@@ -125,6 +128,13 @@ endif()
 twx_cfg_set ( GIT_OK "${GIT_OK}" )
 # ANCHOR: Derived version strings, including a short one
 twx_cfg_set (
+  VERSION_LONG "\
+${TWX_CFG_VERSION_MAJOR}.\
+${TWX_CFG_VERSION_MINOR}.\
+${TWX_CFG_VERSION_PATCH}.\
+${TWX_CFG_VERSION_TWEAK}"
+)
+twx_cfg_set (
   VERSION "\
 ${TWX_CFG_VERSION_MAJOR}.\
 ${TWX_CFG_VERSION_MINOR}.\
@@ -139,6 +149,7 @@ ${TWX_CFG_VERSION_MINOR}"
 twx_cfg_set ( NAME "${TWX_NAME}" )
 string ( TOLOWER "${TWX_NAME}" s )
 twx_cfg_set ( NAME_LOWER "${s}" )
+twx_cfg_set ( COMMAND "${s}" )
 string ( TOUPPER "${TWX_NAME}" s )
 twx_cfg_set ( NAME_UPPER "${s}" )
 # Packaging
@@ -150,6 +161,11 @@ twx_cfg_set ( APPLICATION_IMAGE ":/images/images/${TWX_NAME}.png" )
 twx_cfg_set ( APPLICATION_IMAGE_128 ":/images/images/${TWX_NAME}-128.png")
 # Misc
 twx_cfg_set ( DOMAIN "${TWX_NAME}.${TWX_CFG_ORGANIZATION_DOMAIN}" )
+string ( REPLACE "." ";" niamod "${TWX_CFG_ORGANIZATION_DOMAIN}" )
+list ( REVERSE niamod )
+string ( REPLACE ";" "." niamod "${niamod}" )
+twx_cfg_set ( APPLICATION_ID "${niamod}.${TWX_COMMAND}" )
+twx_cfg_set ( ASSEMBLY_IDENTITY "TUG.${TWX_NAME}.${TWX_NAME}" )
 
 twx_cfg_write_end ( ID "factory" )
 
