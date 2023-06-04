@@ -124,7 +124,7 @@ public:
 	Q_PROPERTY(int selectionLength READ selectionLength STORED false)
 	Q_PROPERTY(QString consoleOutput READ consoleText STORED false)
 	Q_PROPERTY(QString text READ text STORED false)
-    Q_PROPERTY(QString fileName READ fileName)
+  Q_PROPERTY(QString fileName READ fileName)
 	Q_PROPERTY(QString rootFileName READ getRootFilePath STORED false)
 	Q_PROPERTY(bool untitled READ untitled STORED false)
 	Q_PROPERTY(bool modified READ isModified WRITE setModified STORED false)
@@ -214,7 +214,7 @@ private slots:
 	void processError(QProcess::ProcessError error);
 	void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
 	void acceptInputLine();
-	void selectedEngine(QAction* engineAction);
+	void selectedEngine(QAction * engineAction);
 	void selectedEngine(int idx);
 	void handleModelineChange(QStringList changedKeys, QStringList removedKeys);
 	void reloadIfChangedOnDisk();
@@ -282,7 +282,7 @@ private:
 
 	QSignalMapper dictSignalMapper;
 
-	QComboBox * engine{nullptr};
+	QComboBox * engineComboBox{nullptr};
 	QProcess * process{nullptr};
 	bool keepConsoleOpen{false};
 	bool showPdfWhenFinished{true};

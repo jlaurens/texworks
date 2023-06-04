@@ -22,9 +22,11 @@
 #ifndef PrefsDialog_H
 #define PrefsDialog_H
 
-#include "Engine.h"
 #include "ui_PrefsDialog.h"
 #include "ui_ToolConfig.h"
+
+#include <TwxEngine.h>
+using Engine = Twx::Typeset::Engine;
 
 #include <QDialog>
 #include <QList>
@@ -64,7 +66,7 @@ private:
 	void refreshDefaultTool();
 	void initPathAndToolLists();
 
-	QList<Engine> engineList;
+	Engine::List engineList;
 
 	bool pathsChanged;
 	bool toolsChanged;
@@ -79,7 +81,7 @@ class ToolConfig : public QDialog, private Ui::ToolConfigDialog
 public:
 	explicit ToolConfig(QWidget * parent);
 
-	static DialogCode doToolConfig(QWidget *parent, Engine &engine);
+	static DialogCode doToolConfig(QWidget * parent, Engine & engine);
 
 private slots:
 	void updateArgButtons();

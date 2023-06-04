@@ -23,7 +23,6 @@
 
 #include "CitationSelectDialog.h"
 #include "DefaultPrefs.h"
-#include "Engine.h"
 #include "FindDialog.h"
 #include "HardWrapDialog.h"
 #include "PDFDocumentWindow.h"
@@ -44,6 +43,10 @@ using Settings = Twx::Core::Settings;
 using Locate = Twx::Core::Locate;
 #include <TwxTypesetManager.h>
 using TpstMngr = Twx::Typeset::Manager;
+
+#include <TwxEngine.h>
+#include <TwxEngineManager.h>
+using NgnMngr = Twx::Typeset::EngineManager;
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
@@ -155,20 +158,20 @@ void TeXDocumentWindow::init()
 	connect(engineActions, &QActionGroup::triggered, this, static_cast<void (TeXDocumentWindow::*)(QAction*)>(&TeXDocumentWindow::selectedEngine));
 
 	codec = TWApp::instance()->getDefaultCodec();
-	engineName = TWApp::instance()->getDefaultEngine().name();
-	engine = new QComboBox(this);
-	engine->setEditable(false);
-	engine->setFocusPolicy(Qt::NoFocus);
-	engine->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+	engineName = NgnMngr::defaultEngineName();
+	engineComboBox = new QComboBox(this);
+	engineComboBox->setEditable(false);
+	engineComboBox->setFocusPolicy(Qt::NoFocus);
+	engineComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 #if defined(Q_OS_DARWIN)
-	engine->setStyleSheet(QString::fromLatin1("padding:4px;"));
-	engine->setMinimumWidth(150);
+	engineComboBox->setStyleSheet(QString::fromLatin1("padding:4px;"));
+	engineComboBox->setMinimumWidth(150);
 #endif
-	toolBar_run->addWidget(engine);
+	toolBar_run->addWidget(engineComboBox);
 	updateEngineList();
-	connect(engine, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void (TeXDocumentWindow::*)(int)>(&TeXDocumentWindow::selectedEngine));
+	connect(engineComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void (TeXDocumentWindow::*)(int)>(&TeXDocumentWindow::selectedEngine));
 
-	connect(TWApp::instance(), &TWApp::engineListChanged, this, &TeXDocumentWindow::updateEngineList);
+	connect(NgnMngr::emitter(), &NgnMngr::engineListChanged, this, &TeXDocumentWindow::updateEngineList);
 
 	connect(actionNew, &QAction::triggered, this, &TeXDocumentWindow::newFile);
 	connect(actionNew_from_Template, &QAction::triggered, this, &TeXDocumentWindow::newFromTemplate);
@@ -1592,17 +1595,17 @@ void TeXDocumentWindow::updateWindowMenu()
 
 void TeXDocumentWindow::updateEngineList()
 {
-	engine->disconnect(this);
+	engineComboBox->disconnect(this);
 	while (menuRun->actions().count() > 2)
 		menuRun->removeAction(menuRun->actions().last());
 	while (engineActions->actions().count() > 0)
 		engineActions->removeAction(engineActions->actions().last());
 
-	QStandardItemModel * model = qobject_cast<QStandardItemModel*>(engine->model());
+	QStandardItemModel * model = qobject_cast<QStandardItemModel*>(engineComboBox->model());
 	Q_ASSERT(model);
 	model->clear();
-	foreach (Engine e, TWApp::instance()->getEngineList()) {
-		QAction *newAction = new QAction(e.name(), engineActions);
+	for (auto const & e: NgnMngr::engineList()) {
+		QAction * newAction = new QAction(e.name(), engineActions);
 		newAction->setCheckable(true);
 		bool available{e.isAvailable()};
 		newAction->setEnabled(available);
@@ -1612,27 +1615,27 @@ void TeXDocumentWindow::updateEngineList()
 		item->setFlags(Qt::ItemIsSelectable | (available ? Qt::ItemIsEnabled : Qt::NoItemFlags));
 		model->appendRow(item);
 	}
-	connect(engine, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void (TeXDocumentWindow::*)(int)>(&TeXDocumentWindow::selectedEngine));
-	int index = engine->findText(engineName, Qt::MatchFixedString);
+	connect(engineComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void (TeXDocumentWindow::*)(int)>(&TeXDocumentWindow::selectedEngine));
+	int index = engineComboBox->findText(engineName, Qt::MatchFixedString);
 	if (index < 0)
-		index = engine->findText(TWApp::instance()->getDefaultEngine().name(), Qt::MatchFixedString);
+		index = engineComboBox->findText(NgnMngr::defaultEngineName(), Qt::MatchFixedString);
 	if (index >= 0)
-		engine->setCurrentIndex(index);
+		engineComboBox->setCurrentIndex(index);
 }
 
-void TeXDocumentWindow::selectedEngine(QAction* engineAction) // sent by actions in menubar menu; update toolbar combo box
+void TeXDocumentWindow::selectedEngine(QAction * engineAction) // sent by actions in menubar menu; update toolbar combo box
 {
 	engineName = engineAction->text();
-	for (int i = 0; i < engine->count(); ++i)
-		if (engine->itemText(i) == engineName) {
-			engine->setCurrentIndex(i);
+	for (int i = 0; i < engineComboBox->count(); ++i)
+		if (engineComboBox->itemText(i) == engineName) {
+			engineComboBox->setCurrentIndex(i);
 			break;
 		}
 }
 
 void TeXDocumentWindow::selectedEngine(int idx) // sent by toolbar combo box; need to update menu
 {
-	const QString name = engine->itemText(idx);
+	const QString name = engineComboBox->itemText(idx);
 	engineName = name;
 	foreach (QAction *act, engineActions->actions()) {
 		if (act->text() == name) {
@@ -2746,14 +2749,20 @@ void TeXDocumentWindow::typeset()
 		return;
 	}
 
-	Engine e = TWApp::instance()->getNamedEngine(engine->currentText());
+	auto e = NgnMngr::engineWithName(engineComboBox->currentText());
 	if (!e.isAvailable()) {
-		statusBar()->showMessage(tr("%1 is not properly configured").arg(engine->currentText()), kStatusMessageDuration);
+		statusBar()->showMessage(
+			tr("%1 is not properly configured").arg(engineComboBox->currentText()),
+			kStatusMessageDuration
+		);
 		return;
 	}
 
 	if (!TpstMngr::startTypesetting(rootFilePath, this)) {
-		statusBar()->showMessage(tr("%1 is already being processed").arg(rootFilePath), kStatusMessageDuration);
+		statusBar()->showMessage(
+			tr("%1 is already being processed").arg(rootFilePath),
+			kStatusMessageDuration
+		);
 		updateTypesettingAction();
 		return;
 	}
@@ -3110,11 +3119,11 @@ void TeXDocumentWindow::handleModelineChange(QStringList changedKeys, QStringLis
 
 	if (changedKeys.contains(QStringLiteral("program"))) {
 		QString name = _texDoc->getModeLineValue(QStringLiteral("program"));
-		int index = engine->findText(name, Qt::MatchFixedString);
+		int index = engineComboBox->findText(name, Qt::MatchFixedString);
 		if (index > -1) {
-			if (index != engine->currentIndex()) {
-				engine->setCurrentIndex(index);
-				emit asyncFlashStatusBarMessage(tr("Set engine to \"%1\"").arg(engine->currentText()), kStatusMessageDuration);
+			if (index != engineComboBox->currentIndex()) {
+				engineComboBox->setCurrentIndex(index);
+				emit asyncFlashStatusBarMessage(tr("Set engine to \"%1\"").arg(engineComboBox->currentText()), kStatusMessageDuration);
 			}
 		}
 		else {

@@ -185,7 +185,7 @@ public:
 	QMap<QString, QVariant> getDictionaryList(const bool forceReload = false) override;
 	//////////////// Wrapper around selected TWUtils functions ////////////////
 
-	// Wrapper around TWApp::getEngineList()
+	// Wrapper around EngineManager::engineList()
 	// Currently, only the name is returned
 	Q_INVOKABLE
 	QList<QVariant> getEngineList() const override;

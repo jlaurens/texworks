@@ -151,7 +151,7 @@ public:
 	virtual QMap<QString, QVariant> getDictionaryList(const bool forceReload = false) = 0;
 	//////////////// Wrapper around selected TWUtils functions ////////////////
 
-	// Wrapper around TWApp::getEngineList()
+	// Wrapper around EngineManager::engineList()
 	// Currently, only the name is returned
 	virtual QList<QVariant> getEngineList() const = 0;
 

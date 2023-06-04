@@ -22,7 +22,6 @@ set ( TeXworks_SOURCES
   BibTeXFile.cpp
   CitationSelectDialog.cpp
   CompletingEdit.cpp
-  Engine.cpp
   FindDialog.cpp
   HardWrapDialog.cpp
   main.cpp
@@ -68,7 +67,6 @@ set ( TeXworks_HEADERS
   CitationSelectDialog.h
   CompletingEdit.h
   DefaultPrefs.h
-  Engine.h
   FindDialog.h
   HardWrapDialog.h
   PDFDocumentWindow.h

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,9 +31,10 @@
 
 #include <TwxSettings.h>
 using Settings = Twx::Core::Settings;
-
 #include <TwxLocate.h>
 using Locate = Twx::Core::Locate;
+#include <TwxEngineManager.h>
+using EngineManager = Twx::Typeset::EngineManager;
 
 #include <QFileDialog>
 #include <QFontDatabase>
@@ -418,7 +419,7 @@ void PrefsDialog::restoreDefaults()
 
 		case 3:
 			// Typesetting
-			TWApp::instance()->setDefaultEngineList();
+			EngineManager::resetEngineListToFactory();
 			Locate::resetListPATHRaw();
 			initPathAndToolLists();
 			autoHideOutput->setCurrentIndex(kDefault_HideConsole);
@@ -442,11 +443,11 @@ void PrefsDialog::initPathAndToolLists()
 	binPathList->clear();
 	toolList->clear();
 	binPathList->addItems(Locate::listPATHRaw());
-	engineList = TWApp::instance()->getEngineList();
+	engineList = EngineManager::engineList();
 	foreach (Engine e, engineList) {
 		toolList->addItem(e.name());
 		defaultTool->addItem(e.name());
-		if (e.name() == TWApp::instance()->getDefaultEngine().name())
+		if (e.name() == EngineManager::defaultEngine().name())
 			defaultTool->setCurrentIndex(defaultTool->count() - 1);
 	}
 	if (binPathList->count() > 0)
@@ -882,8 +883,9 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			Locate::setListPATH(paths);
 		}
 		if (dlg.toolsChanged)
-			TWApp::instance()->setEngineList(dlg.engineList);
-		TWApp::instance()->setDefaultEngine(dlg.defaultTool->currentText());
+			EngineManager::setEngineList(dlg.engineList);
+		EngineManager::setDefaultEngineName(dlg.defaultTool->currentText());
+		
 		settings.setValue(QString::fromLatin1("autoHideConsole"), dlg.autoHideOutput->currentIndex());
 
 		// Scripts

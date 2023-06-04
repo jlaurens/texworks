@@ -6,6 +6,7 @@ set ( QTPDF_VIEWER OFF )
 add_subdirectory ( QtPDF )
 
 add_subdirectory ( TwxCore )
+add_subdirectory ( TwxTypeset )
 
 # add_subdirectory ( TwxEngine )
 

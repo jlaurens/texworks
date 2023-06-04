@@ -21,7 +21,6 @@
 
 #include "FindDialog.h"
 #include "PDFDocumentWindow.h"
-#include "TWApp.h"
 #include "TeXDocumentWindow.h"
 
 #include <TwxSettings.h>

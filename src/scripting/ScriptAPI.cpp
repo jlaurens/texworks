@@ -30,6 +30,9 @@
 #include <TwxSettings.h>
 using Settings = Twx::Core::Settings;
 
+#include <TwxEngineManager.h>
+using NgnMngr = Twx::Typeset::EngineManager;
+
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QDesktopServices>
@@ -384,19 +387,18 @@ QMap<QString, QVariant> ScriptAPI::getDictionaryList(const bool forceReload /* =
 }
 
 
-// Wrapper around TWApp::getEngineList()
+// Wrapper around NgnMngr::engineList()
 Q_INVOKABLE
 QList<QVariant> ScriptAPI::getEngineList() const
 {
 	QList<QVariant> retVal;
-	const QList<Engine> engines = TWApp::instance()->getEngineList();
-
-	foreach (const Engine& e, engines) {
-		QMap<QString, QVariant> s;
-		s[QString::fromLatin1("name")] = e.name();
+	for ( auto const & e: NgnMngr::engineList()) {
+		QMap<QString, QVariant> s{{
+			QStringLiteral("name"),
+			e.name()
+		}};
 		retVal.append(s);
 	}
-
 	return retVal;
 }
 

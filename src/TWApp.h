@@ -40,7 +40,6 @@
 
 #include <memory>
 
-class Engine;
 class TWScriptManager;
 
 #if defined(Q_OS_WIN)
@@ -79,17 +78,6 @@ public:
 	void emitHighlightLineOptionChanged();
 
 	QMap<QString,QVariant> getFileProperties(const QString& path);
-
-	void setEngineList(const QList<Engine>& engines);
-
-	const QList<Engine> getEngineList();
-	void saveEngineList();
-
-	const Engine getNamedEngine(const QString& name);
-	const Engine getDefaultEngine();
-	void setDefaultEngine(const QString& name);
-
-	void setDefaultEngineList();
 
 	QTextCodec *getDefaultCodec();
 	void setDefaultCodec(QTextCodec *codec);
@@ -205,9 +193,6 @@ signals:
 	// emitted when the window list may have changed, so documents can update their window menu
 	void windowListChanged();
 
-	// emitted when the engine list is changed from Preferences, so docs can update their menus
-	void engineListChanged();
-
 	void scriptListChanged();
 
 	void syncPdf(const QString& sourceFile, int lineNo, int col, bool activatePreview);
@@ -248,9 +233,6 @@ private:
 	int recentFilesLimit{kDefaultMaxRecentFiles};
 
 	QTextCodec *defaultCodec{nullptr};
-
-	std::unique_ptr< QList<Engine> > engineList;
-	int defaultEngineIndex{0};
 
 	QList<QTranslator*> translators;
 

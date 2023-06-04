@@ -3,13 +3,13 @@ This is part of TWX build and test system.
 https://github.com/TeXworks/texworks
 *//**
 @file
-@brief TwxEngine/Test Cmake file
+@brief TwxTypeset/Test Cmake file
 
 Defines a test suite.
 
 Input:
-- `TwxEngine_SOURCES`
-- `TwxEngine_HEADERS`
+- `TwxTypeset_SOURCES`
+- `TwxTypeset_HEADERS`
 */
 /*
 #]===============================================]
@@ -21,10 +21,8 @@ if ( NOT TWX_IS_BASED )
 		NO_POLICY_SCOPE
 	)
 endif ()
-message ( "PROJECT_BINARY_DIR => ${PROJECT_BINARY_DIR}" )
 project ( TwxTypesetTest )
 include ( TwxBase )
-message ( "PROJECT_BINARY_DIR => ${PROJECT_BINARY_DIR}" )
 
 include ( TwxQTLib )
 twx_Qt_fresh()
