@@ -40,7 +40,7 @@ on run argv
 				set statusbar visible to false
 				set toolbar visible to false
 				set the bounds to {50, 100, 450, 400}
-				set position of item "TeXworks.app" to {102, 158}
+				set position of item "@TWX_CFG_NAME@.app" to {102, 158}
 				set position of item "Applications" to {298, 158}
 			end tell
 			update without registering applications

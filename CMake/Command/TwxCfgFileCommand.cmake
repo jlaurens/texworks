@@ -87,7 +87,7 @@ else ()
   set ( ESCAPE_QUOTES_arg )
 endif ()
 
-foreach ( file.in IN LISTS TWX_IN )
+foreach ( file.in ${TWX_IN} )
   twx_cfg_file_name_out ( "${file.in}" file.out )
   set ( input  "${TWX_IN_DIR}/${file.in}"   )
   twx_assert_exists ( input )

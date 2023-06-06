@@ -71,7 +71,7 @@ function ( twx_message_verbose mode_ )
     set ( mode_ )
   endif ()
   if ( TWX_VERBOSE )
-    foreach ( msg_ IN LISTS ARGN)
+    foreach ( msg_ ${ARGN} )
       message ( ${mode_} "${msg_}" )
     endforeach ()
   endif ()
@@ -170,6 +170,21 @@ function ( twx_assert_non_void _variable )
   endif ()
 endfunction ()
 
+# ANCHOR: twx_assert_0
+#[=======[*/
+/** @brief Raise when the argument is not 0
+  * 
+  * The argument is in general the return value of a command.
+  * @param returned 
+  */
+twx_assert_0( returned ) {}
+/*#]=======]
+function ( twx_assert_0 returned_ )
+  if ( NOT ${${returned_}} EQUAL 0 )
+    twx_fatal ( "Unexpected ${${returned_}} instead of 0")
+  endif ()
+endfunction ()
+
 # ANCHOR: twx_assert_equal
 #[=======[*/
 /** @brief Raise when arguments are not equal
@@ -180,8 +195,8 @@ endfunction ()
 twx_assert_equal( actual expected ) {}
 /*#]=======]
 function ( twx_assert_equal actual_ expected_ )
-  if ( NOT "${actual_}" STREQUAL "${expected_}")
-    twx_fatal ( "Unexpected ${actual_} instead of ${expected_}")
+  if ( NOT "${actual_}" STREQUAL "${expected_}" )
+    twx_fatal ( "Unexpected ${actual_} instead of ${expected_}" )
   endif ()
 endfunction ()
 
@@ -372,7 +387,7 @@ twx_export(...){}
 /*
 #]=======]
 macro ( twx_export )
-  foreach ( var_twx IN ITEMS ${ARGN} )
+  foreach ( var_twx ${ARGN} )
     set ( ${var_twx} ${${var_twx}} PARENT_SCOPE )
   endforeach ()
 endmacro ()

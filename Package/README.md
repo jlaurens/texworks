@@ -2,9 +2,9 @@
 
 (Work in progress)
 
-* `Command` contains various tools to be used directly by CMake.
 * `Modules` contains custom package loaders. Each file inside is included
   with the `find_package` instruction. (In progress)
+* `packaging` contains material to build distribution packages.
 * `Include` contains various tools to be used with instruction `include`.
   None will load a package, it may eventually provide tools to load a package.
 

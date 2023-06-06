@@ -95,11 +95,16 @@ endfunction ()
 
 # ANCHOR: `twx_cfg_update_factory`
 #[=======[
-*//** @brief Update the factory Cfg data file */
+*/
+/** @brief Update the factory Cfg data file
+  *
+  * Launch the `TwxCfg_factory.cmake` command.
+  */
 twx_cfg_update_factory ( ) {}
 /*
 #]=======]
 macro ( twx_cfg_update_factory )
+  twx_assert_non_void ( TWX_CFG_INI_DIR )
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_NAME=${TWX_NAME}"
@@ -109,8 +114,9 @@ macro ( twx_cfg_update_factory )
       "-DTWX_TEST=${TWX_TEST}"
       "-DTWX_DEV=${TWX_DEV}"
       -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
+    RESULT_VARIABLE result_twx
   )
-  twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
+  twx_assert_0 ( result_twx )
   twx_cfg_read ( "factory" )
 endmacro ()
 
@@ -160,22 +166,28 @@ Find the proper `<project name>.ini` file, usually in the
 Bypass this by providing a path to an existing file in the
 `TWX_FACTORY_INI` variable prior to calling `twx_cfg_setup`.
 
-Creates 2 commands to build the shared "factory" and "git" Cfg data files.
-
+When not in script mode and on the first call,
+creates 2 commands to build the shared "factory" and "git" Cfg data files.
 Add a target to allways rebuild git related Cfg data.
+
+
+Then "factory" and "git" Cfg metadata files are always updated
+with `twx_cfg_update_factory ()` and `twx_cfg_update_git ()`
+such that their contents is available in the current variable scope.
+Finally `TWX_FACTORY_INI` and `TWX_CFG_INI_DIR`
+are exported just before the function returns.
 
 Used at least once per project that needs `configuration_file`.
 
 See twx_cfg_read().
-The "factory" and "git" Cfg metadata files are updated such that
-their contents is available in the current variable scope.
 
-The `TWX_TEST` variable is propagated to the command.
+The `TWX_TEST`, `TWX_VERBOSE` and `TWX_DEV` variables are propagated
+to the command.
 */
 twx_cfg_setup () {}
 /** @brief Location of the factory ini file
 
-By default it is `/TeXworks.ini` or `/TeXworks-dev.ini`,
+By default it is `<root>/TeXworks.ini` or `<root>/TeXworks-dev.ini`,
 whether we are in development mode or not.
 It is set lazily by the `twx_cfg_setup()` instruction.
 
@@ -191,8 +203,10 @@ TWX_FACTORY_INI;
 /*
 #]=======]
 function ( twx_cfg_setup )
-  # The project may have changed since TWX_CFG_INI_DIR was defined 
+  # The project may have changed since TWX_CFG_INI_DIR was defined
+  twx_assert_non_void ( PROJECT_BINARY_DIR )
   set ( TWX_CFG_INI_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
+  message ( WARNING "twx_cfg_setup: TWX_CFG_INI_DIR => <${TWX_CFG_INI_DIR}>")
   if ( "${TWX_FACTORY_INI}" STREQUAL "" )
     set (
       TWX_FACTORY_INI
@@ -210,7 +224,8 @@ function ( twx_cfg_setup )
       "${TWX_CFG_INI_DIR}"
     )
   endif ()
-  if ( TARGET "${target_twx}" )
+  
+  if ( TARGET "${target_twx}" OR NOT "${CMAKE_SCRIPT_MODE_FILE}" STREQUAL "" )
     twx_cfg_update_factory ()
     twx_cfg_update_git ()
     twx_export ( TWX_FACTORY_INI )
@@ -459,8 +474,9 @@ function ( twx_cfg_read )
     # No file path or name provided:
     # take it all, declared or not
     twx_assert_non_void ( TWX_CFG_INI_DIR )
-    twx_assert_non_void ( PROJECT_NAME )
-    set ( cfg_ini_mixed_ ${${PROJECT_NAME}_TWX_CFG_IDS} )
+    if ( NOT ${PROJECT_NAME} STREQUAL "" )
+      set ( cfg_ini_mixed_ ${${PROJECT_NAME}_TWX_CFG_IDS} )
+    endif ()
     if ( "${cfg_ini_mixed_}" STREQUAL "" )
       twx_cfg_path ( glob_ ID "*" )
       # TODO: what happend if it contains more than one '*'?

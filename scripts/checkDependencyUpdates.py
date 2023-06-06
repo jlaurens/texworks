@@ -77,7 +77,7 @@ with open('../.github/actions/msvc-dependencies/CMakeLists.txt') as fin:
 	msvc = fin.read()
 with open('../.github/actions/setup-macos/CMakeLists.txt') as fin:
 	macos = fin.read()
-with open('../CMake/packaging/CMakeLists.txt') as fin:
+with open('../Distribute/CMakeLists.txt') as fin:
 	packaging = fin.read()
 with open('../.github/workflows/Dockerfile.appimage-debian') as fin:
 	appimage = fin.read()

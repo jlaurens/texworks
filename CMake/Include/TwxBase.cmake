@@ -60,7 +60,7 @@ if ( DEFINED TWX_IS_BASED )
 
   set ( CMAKE_COLOR_MAKEFILE ON )
 
-# ANCHOR: TWX_BUILD_DIR
+  # ANCHOR: TWX_BUILD_DIR
 #[=======[*/
 /** @brief Main build directory: .../TwxBuild
   *
@@ -102,14 +102,37 @@ TWX_PRODUCT_DIR;
   * that follows a `project()` declaration.
   */
 TWX_DOC_DIR;
+# ANCHOR: TWX_DOWNLOAD_DIR
+/** @brief Main dowload directory: .../TwxDownload
+  *
+  * Contains the downloaded material.
+  *
+  * Set by the very first `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_DOWNLOAD_DIR;
+# ANCHOR: TWX_PACKAGE_DIR
+/** @brief Main dowload directory: .../TwxPackage
+  *
+  * Contains the downloaded material.
+  *
+  * Set by the very first `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_PACKAGE_DIR;
+# ANCHOR: TWX_MANUAL_DIR
+/** @brief Main dowload directory: .../TwxManual
+  *
+  * Contains the material related to the manual.
+  *
+  * Set by the very first `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_PACKAGE_DIR;
 /*#]=======]
-  if ( "${TWX_BUILD_DIR}" STREQUAL "" )
-    set ( TWX_BUILD_DIR "${PROJECT_BINARY_DIR}/TwxBuild" )
-    set ( TWX_BUILD_DATA_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
-    set ( TWX_CFG_INI_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
-    set ( TWX_PRODUCT_DIR "${PROJECT_BINARY_DIR}/TwxProduct" )
-    set ( TWX_DOC_DIR "${PROJECT_BINARY_DIR}/TwxDocumentation" )
-  endif ()
+if ( TWX_DIR STREQUAL "" )
+  __twx_base_setup_dir ( )
+endif ()
 
 # ANCHOR: TWX_PROJECT_BUILD_DIR
 #[=======[*/
@@ -150,12 +173,27 @@ TWX_PROJECT_PRODUCT_DIR;
   * that follows a `project()` declaration.
   */
 TWX_PROJECT_DOC_DIR;
+# ANCHOR: TWX_PROJECT_PACKAGE_DIR
+/** @brief Project documentation directory: .../TwxPackage
+  *
+  * Contains the project documentation.
+  *
+  * Set by the `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_PROJECT_PACKAGE_DIR;
+# ANCHOR: TWX_PROJECT_MANUAL_DIR
+/** @brief Project documentation directory: .../TwxManual
+  *
+  * Contains the project documentation.
+  *
+  * Set by the `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+TWX_PROJECT_PACKAGE_DIR;
 /*#]=======]
-  set ( TWX_PROJECT_BUILD_DIR "${PROJECT_BINARY_DIR}/TwxBuild" )
-  set ( TWX_PROJECT_BUILD_DATA_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
-  set ( TWX_PROJECT_PRODUCT_DIR "${PROJECT_BINARY_DIR}/TwxProduct" )
-  set ( TWX_PROJECT_DOC_DIR "${PROJECT_BINARY_DIR}/TwxDoc" )
- 
+  __twx_base_setup_dir ( PROJECT_ )
+
 # Minor changes
   set ( TWX_NAME_CURRENT CMAKE_PROJECT_NAME )
   if ( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}" )
@@ -218,5 +256,33 @@ function ( twx_target_include_src )
     endforeach ()
   endif ()
 endfunction ( twx_target_include_src )
+
+# ANCHOR: __twx_base_setup_dir ()
+#[=======[
+/** @brief Setup the various DIR variables
+  *
+  * Set by the very first `include ( TwxBase )`
+  * that follows a `project()` declaration.
+  */
+__twx_base_setup_dir(...) {}
+/*#]=======]
+macro ( __twx_base_setup_dir )
+  if ( NOT "${ARGN}" STREQUAL "" AND NOT "${ARGN}" STREQUAL "PROJECT_" )
+    twx_fatal ( "Unsupported argument: ${ARGN}" )
+  endif ()
+  if ( NOT "${PROJECT_BINARY_DIR}" STREQUAL "" )
+    set ( TWX_${ARGN}BUILD_DIR       "${PROJECT_BINARY_DIR}/TwxBuild" )
+    set ( TWX_${ARGN}BUILD_DATA_DIR  "${PROJECT_BINARY_DIR}/TwxBuildData" )
+    set ( TWX_${ARGN}CFG_INI_DIR     "${PROJECT_BINARY_DIR}/TwxBuildData" )
+    set ( TWX_${ARGN}PRODUCT_DIR     "${PROJECT_BINARY_DIR}/TwxProduct" )
+    set ( TWX_${ARGN}DOC_DIR         "${PROJECT_BINARY_DIR}/TwxDocumentation" )
+    set ( TWX_${ARGN}DOWNLOAD_DIR    "${PROJECT_BINARY_DIR}/TwxDownload" )
+    set ( TWX_${ARGN}PACKAGE_DIR     "${PROJECT_BINARY_DIR}/TwxPackage" )
+    set ( TWX_${ARGN}MANUAL_DIR      "${PROJECT_BINARY_DIR}/TwxManual" )
+    message ( WARNING "__twx_base_setup_dir: TWX_${ARGN}CFG_INI_DIR => ${TWX_${ARGN}CFG_INI_DIR}" )
+  endif ()
+endmacro ()
+__twx_base_setup_dir ()
+__twx_base_setup_dir ( PROJECT_ )
 
 #*/

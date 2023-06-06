@@ -71,14 +71,20 @@ if ( NOT TWX_IS_BASED )
 endif ()
 
 twx_assert_non_void ( TWX_NAME )
-twx_assert_non_void ( TWX_FACTORY_INI )
+
+twx_message_verbose ( STATUS
+  "TwxCfg_factory: TWX_NAME        => ${TWX_NAME}"
+  "TwxCfg_factory: TWX_FACTORY_INI => ${TWX_FACTORY_INI}"
+  "TwxCfg_factory: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
+)
 
 include ( TwxCfgLib )
 
-if ( TWX_VERBOSE )
-  message ( STATUS "TwxCfg_factory: ${TWX_NAME}" )
-  message ( STATUS "TwxCfg_factory: ${TWX_FACTORY_INI}" )
-endif ()
+twx_message_verbose ( STATUS
+  "TwxCfg_factory: TWX_NAME        => ${TWX_NAME}"
+  "TwxCfg_factory: TWX_FACTORY_INI => ${TWX_FACTORY_INI}"
+  "TwxCfg_factory: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
+)
 
 # Parse the ini contents
 if ( TWX_VERBOSE )
@@ -92,6 +98,8 @@ foreach (
   VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK
   COPYRIGHT_YEARS COPYRIGHT_HOLDERS AUTHORS
   ORGANIZATION_DOMAIN ORGANIZATION_NAME ORGANIZATION_SHORT_NAME
+  POPPLER_DATA_URL POPPLER_DATA_SHA256
+  MANUAL_HTML_URL MANUAL_HTML_SHA256
 )
   if ( DEFINED TWX_CFG_${key} )
     twx_cfg_set ( "${key}" "${TWX_CFG_${key}}" )

@@ -238,16 +238,16 @@ function ( twx_cfg_file_end )
     # For the custom command below:
     set ( depends_ )
     set ( output_ )
-    foreach ( file_ IN LISTS in_ )
+    foreach ( file_ ${in_} )
       list ( APPEND depends_ "${my_twx_IN_DIR}/${file_}" )
     endforeach ()
-    foreach ( file_ IN LISTS out_ )
+    foreach ( file_ ${out_} )
       list ( APPEND output_ "${my_twx_OUT_DIR}/${file_}" )
     endforeach ()
     add_custom_command (
       OUTPUT
-        ${stamped}
-        ${output_}
+        "${stamped}"
+        "${output_}"
       COMMAND
         "${CMAKE_COMMAND}"
           "-DPROJECT_NAME=${PROJECT_NAME}"
@@ -264,7 +264,7 @@ function ( twx_cfg_file_end )
           -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
       COMMAND
         "${CMAKE_COMMAND}"
-          -E touch ${stamped}
+          -E touch "${stamped}"
       DEPENDS
         ${depends_}
       COMMENT
@@ -313,7 +313,7 @@ function ( twx_cfg_file_end )
   endif ()
   if ( NOT "${my_twx_EXPORT}" STREQUAL "" )
     set ( export_ )
-    foreach ( file_ IN LISTS out_ )
+    foreach ( file_ ${out_} )
       list ( APPEND export_ "${my_twx_OUT_DIR}/${file_}")
     endforeach ()
     list ( SORT export_ )
@@ -383,7 +383,7 @@ macro ( twx_cfg_files )
     ${my_twx_ESCAPE_QUOTES}
     ${my_twx_NO_PRIVATE}
   )
-  foreach ( my_twx IN ITEMS ESCAPE_QUOTES NO_PRIVATE
+  foreach ( my_twx ESCAPE_QUOTES NO_PRIVATE
     EXPORT TARGET IN_DIR OUT_DIR CFG_INI_IDS UNPARSED_ARGUMENTS )
     unset ( my_twx_${my_twx} )
   endforeach ()

@@ -33,9 +33,9 @@ This is the top level CMakeLists file
 #   │   └── <a href="unit-tests/CMakeLists.html">CMakeLists.txt</a>
 #   └── CMake
 #       └── packaging
-#           ├── <a href="CMake/packaging/CMakeLists.html">CMakeLists.txt</a>
+#           ├── <a href="Distribute/CMakeLists.html">CMakeLists.txt</a>
 #           └── mac
-#               └── <a href="CMake/packaging/mac/MacPackagingTasks.cmake.html">MacPackagingTasks.in.cmake</a>
+#               └── <a href="Distribute/mac/MacPackagingTasks.cmake.html">MacPackagingTasks.in.cmake</a>
 # </pre>
 #
 # Using CMake as a buildsystem offers some nice advantages:
@@ -617,32 +617,39 @@ foreach (_target ${Qt5Gui_PLUGINS} ${Qt5Widgets_PLUGINS})
 	list(APPEND QT_PLUGINS ${_path})
 endforeach()
 
-# The file `CMake/packaging/CMakeLists.txt` controls the execution of tasks
+# The file `Distribute/CMakeLists.txt` controls the execution of tasks
 # specific to preparing binaries for packaging on a given platform. This script
 # is invoked via `ADD_SUBDIRECTORY` so that it executes after TeXworks and its
 # components are built and installed. You cannot fixup an application bundle
 # before it has been created...
-ADD_SUBDIRECTORY(${TWX_DIR}/CMake/packaging)
+ADD_SUBDIRECTORY(${TWX_DIR}/Distribute)
 
-# Set CPack variables.
-SET(CPACK_PACKAGE_VERSION_MAJOR ${TWX_CFG_VERSION_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${TWX_CFG_VERSION_MINOR})
-SET(CPACK_PACKAGE_VERSION_PATCH ${TWX_CFG_VERSION_PATCH})
-SET(CPACK_PACKAGE_VERSION ${TWX_CFG_VERSION})
+# # Set CPack variables.
+# SET(CPACK_PACKAGE_VERSION_MAJOR ${TWX_CFG_VERSION_MAJOR})
+# SET(CPACK_PACKAGE_VERSION_MINOR ${TWX_CFG_VERSION_MINOR})
+# SET(CPACK_PACKAGE_VERSION_PATCH ${TWX_CFG_VERSION_PATCH})
+# SET(CPACK_PACKAGE_VERSION ${TWX_CFG_VERSION})
 
-SET(CPACK_PACKAGE_NAME ${TWX_NAME})
+# SET(CPACK_PACKAGE_NAME ${TWX_NAME})
 
-# Configure Drag N' Drop installer.
-IF ( APPLE )
-  SET(MAC_PACK_BITS "${TWX_DIR}/CMake/packaging/mac")
-  SET(CPACK_GENERATOR DragNDrop)
-  SET( CPACK_DMG_BACKGROUND_IMAGE "${MAC_PACK_BITS}/texworks_dmg_background.png" )
-  # Configure an AppleScript for applying a nice window layout to Drag N' Drop disk
-  # image.
-  set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${MAC_PACK_BITS}/DMGSetup.scpt")
-ENDIF ()
+# # Configure Drag N' Drop installer.
+# IF ( APPLE )
+#   SET(mac_DIR_tws "${TWX_DIR}/Distribute/mac")
+#   SET(CPACK_GENERATOR DragNDrop)
+#   SET( CPACK_DMG_BACKGROUND_IMAGE "${mac_DIR_tws}/texworks_dmg_background.png" )
+#   # Configure an AppleScript for applying a nice window layout to Drag N' Drop disk
+#   # image.
+#   twx_cfg_read ( NO_PRIVATE ONLY_CONFIGURE )
+#   configure_file (
+#     "${mac_DIR_tws}/DMGSetup.in.scpt"
+#     "${TWX_PROJECT_BUILD_DATA_DIR}/DMGSetup.scpt"
+#     @ONLY
+#   )
+#   set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${TWX_PROJECT_BUILD_DATA_DIR}/DMGSetup.scpt" )
+#   unset ( mac_DIR_tws )
+# ENDIF ()
 
-INCLUDE(CPack)
+# INCLUDE(CPack)
 
 # Summary
 # =======
