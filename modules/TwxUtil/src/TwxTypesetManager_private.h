@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2022-2023  Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,33 +18,14 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+#ifndef TwxTypesetManager_private_h
+#define TwxTypesetManager_private_h
 
-#include "TwxCoreTest_macOS.h"
+private:
+#if TwxTypeset_TEST
+  static int test_count;
+#endif
+  static QMap<QString, QObject*> running_m;
+	static QMap<QObject *, QMetaObject::Connection> connections_m;
 
-#include "TwxLocate.h"
-
-namespace Twx {
-namespace Core {
-namespace Test {
-
-Main::Main(): QObject()
-{
-	QCoreApplication::setOrganizationName("org.tug.TWXCore");
-  QCoreApplication::setOrganizationDomain("TWXCore.tug.org");
-  QCoreApplication::setApplicationName("You can definitely trash me (TwxCore)");
-}
-
-Main::~Main()
-{
-}
-
-void Main::testLocate_applicationDir()
-{
-	QCOMPARE(Locate::applicationDir().dirName(),"ExpectedDirName_macOS");
-}
-
-} // namespace Test
-} // namespace Core
-} // namespace Twx
-
-QTEST_MAIN(Twx::Core::Test::Main)
+#endif // TwxTypesetManager_private_h

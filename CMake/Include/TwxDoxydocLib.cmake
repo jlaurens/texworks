@@ -20,7 +20,7 @@ Output:
 */
 /*#]===============================================]
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
   message ( FATAL_ERROR "Missing `TwxBase`" )
   return ()
 endif ()

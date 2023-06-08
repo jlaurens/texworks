@@ -22,7 +22,7 @@ Actual policy version: 3.13
 *//*
 #]===============================================]
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
   message( FATAL_ERROR "Base not loaded" )
 endif ()
 

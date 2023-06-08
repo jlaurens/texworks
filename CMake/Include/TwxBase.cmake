@@ -193,18 +193,19 @@ endif ()
 
 set ( TWX_IS_BASED ON )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
-twx_assert_non_void ( TWX_IS_BASED )
-
 # Next is run only once per cmake session.
 # A different process can run this however on its own.
 
 # We load the policies as soon as possible
 # Before using any higher level cmake command
 include (
-  TwxBasePolicy
+  "${CMAKE_CURRENT_LIST_DIR}/TwxBasePolicy.cmake"
   NO_POLICY_SCOPE
 )
+
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
+twx_assert_non_void ( TWX_IS_BASED )
+
 
 set ( TWX_PROJECT_IS_ROOT ON )
 

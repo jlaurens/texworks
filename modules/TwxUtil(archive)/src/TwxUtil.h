@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2008-2023  Stefan Löffler, Jérôme LAURENS
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,33 +18,34 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+/** \file
+ 	* \brief Location of assets.
+	*/
+#ifndef TwxUtil_H
+#define TwxUtil_H
 
-#include "TwxCoreTest_macOS.h"
-
-#include "TwxLocate.h"
+class QUrl;
 
 namespace Twx {
-namespace Core {
-namespace Test {
 
-Main::Main(): QObject()
+/** \brief Utility class
+ 	* 
+	* All methods are static and public
+	*/
+class Util: QObject
 {
-	QCoreApplication::setOrganizationName("org.tug.TWXCore");
-  QCoreApplication::setOrganizationDomain("TWXCore.tug.org");
-  QCoreApplication::setApplicationName("You can definitely trash me (TwxCore)");
-}
+	Q_OJBECT
 
-Main::~Main()
-{
-}
+public:
+/** \brief Utility class
+ 	* 
+	* \param url is a `QUrl` instance.
+	*/
+	static void openUrl(const QUrl & url);
 
-void Main::testLocate_applicationDir()
-{
-	QCOMPARE(Locate::applicationDir().dirName(),"ExpectedDirName_macOS");
-}
+};
 
-} // namespace Test
-} // namespace Core
+} // namespace Util
 } // namespace Twx
 
-QTEST_MAIN(Twx::Core::Test::Main)
+#endif // TwxUtil_H

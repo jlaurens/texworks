@@ -63,7 +63,7 @@ From these are built
 *//*
 #]===============================================]
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
     NO_POLICY_SCOPE
@@ -72,24 +72,16 @@ endif ()
 
 twx_assert_non_void ( TWX_NAME )
 
-twx_message_verbose ( STATUS
-  "TwxCfg_factory: TWX_NAME        => ${TWX_NAME}"
-  "TwxCfg_factory: TWX_FACTORY_INI => ${TWX_FACTORY_INI}"
-  "TwxCfg_factory: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
-)
-
 include ( TwxCfgLib )
 
-twx_message_verbose ( STATUS
+twx_message_more_verbose ( STATUS
   "TwxCfg_factory: TWX_NAME        => ${TWX_NAME}"
   "TwxCfg_factory: TWX_FACTORY_INI => ${TWX_FACTORY_INI}"
   "TwxCfg_factory: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
 )
 
 # Parse the ini contents
-if ( TWX_VERBOSE )
-  message ( STATUS "Parsing ${TWX_FACTORY_INI}" )
-endif ()
+twx_message_verbose ( STATUS "Parsing ${TWX_FACTORY_INI}" )
 twx_cfg_read ( "${TWX_FACTORY_INI}" )
 twx_cfg_write_begin ( ID "factory" )
 # verify the expectations

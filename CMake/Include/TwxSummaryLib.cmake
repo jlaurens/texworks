@@ -456,6 +456,7 @@ function ( __twx_summary_common_ancestor ancestor_ relative_ )
   twx_export ( ${relative_} ${ancestor_} )
 endfunction ( __twx_summary_common_ancestor )
 
+# SECTION: sections
 # ANCHOR: twx_summary_section_files
 #[=======[
 */
@@ -559,7 +560,9 @@ function ( twx_summary_section_compiler )
   twx_summary_begin ( BOLD_MAGENTA "Compiler" ${my_twx_VERBOSE} )
   twx_summary_log_kv ( "ID" ${CMAKE_CXX_COMPILER_ID})
   twx_summary_log_kv ( "Version" ${CMAKE_CXX_COMPILER_VERSION})
-  twx_summary_log_kv ( "Optimization" ${CMAKE_BUILD_TYPE} )  
+  if ( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "" )
+    twx_summary_log_kv ( "Optimization" ${CMAKE_BUILD_TYPE} )
+  endif ()
   twx_summary_end ( EOL )
 endfunction ()
 

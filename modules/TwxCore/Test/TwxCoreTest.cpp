@@ -69,7 +69,7 @@ Main::Main(): QObject()
 {
 	QCoreApplication::setOrganizationName("org.tug.TwxCore");
   QCoreApplication::setOrganizationDomain("TwxCore.tug.org");
-  QCoreApplication::setApplicationName("You can definitely trash me");
+  QCoreApplication::setApplicationName("You can definitely trash me (TwxCore)");
 }
 
 Main::~Main()
@@ -129,7 +129,7 @@ On Windows, everything goes to a "qttest" directory under %APPDATA%.
 	QDir d = QDir::home().absoluteFilePath(QStringLiteral(".qttest"));
 	QVERIFY(d.removeRecursively());
 #else
-	// rempove the whole "qttest" directory under %APPDATA%
+	// remove the whole "qttest" directory under %APPDATA%
 	QDir d = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 	QVERIFY(d.removeRecursively());
 #endif

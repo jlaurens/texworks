@@ -18,33 +18,29 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-
-#include "TwxCoreTest_macOS.h"
-
-#include "TwxLocate.h"
+#include <QtTest>
+#include <QString>
 
 namespace Twx {
-namespace Core {
 namespace Test {
 
-Main::Main(): QObject()
+class Main: public QObject
 {
-	QCoreApplication::setOrganizationName("org.tug.TWXCore");
-  QCoreApplication::setOrganizationDomain("TWXCore.tug.org");
-  QCoreApplication::setApplicationName("You can definitely trash me (TwxCore)");
-}
+	Q_OBJECT
 
-Main::~Main()
-{
-}
+private slots:
+	void initTestCase();
+	void cleanupTestCase();
 
-void Main::testLocate_applicationDir()
-{
-	QCOMPARE(Locate::applicationDir().dirName(),"ExpectedDirName_macOS");
-}
+  void init();
+  void cleanup();
+
+	void test();
+
+public:
+  Main();
+  ~Main();
+};
 
 } // namespace Test
-} // namespace Core
 } // namespace Twx
-
-QTEST_MAIN(Twx::Core::Test::Main)

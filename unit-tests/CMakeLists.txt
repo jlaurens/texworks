@@ -3,7 +3,7 @@
 set ( TWX_TEST ON )
 set ( TWX_unit-tests ON )
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
 
 	cmake_minimum_required ( VERSION 3.1 )
 	include (

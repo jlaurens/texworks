@@ -18,7 +18,7 @@ if ( TARGET test_TwxCore )
   return ()
 endif ()
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
 	cmake_minimum_required ( VERSION 3.1 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/TwxBase.cmake"
@@ -291,10 +291,11 @@ include ( TwxSummaryLib )
 twx_summary_begin (
 	BOLD_GREEN
 "${PROJECT_NAME} test suite has been configured \
-(CMake ${CMAKE_VERSION}, \
-${CMAKE_CXX_COMPILER_ID} \
-${CMAKE_CXX_COMPILER_VERSION}):\n"
-	)
+(CMake ${CMAKE_VERSION}):\n"
+)
+
+twx_summary_section_compiler ()
+
 twx_summary_begin ( BOLD_MAGENTA "Tests" )
 twx_summary_log ( "1" "test_TwxCore" )
 twx_summary_log ( "2" "test_TwxCore_macOS" )
@@ -307,9 +308,6 @@ twx_summary_section_git ()
 twx_summary_begin ( BOLD_MAGENTA "Version info" )
 twx_summary_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )
 twx_summary_end ()
-
-twx_summary_log ( "Compiler optimization" ${CMAKE_BUILD_TYPE} )
-twx_summary_log ( "" )
 
 twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
 twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )

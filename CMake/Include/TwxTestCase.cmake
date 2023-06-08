@@ -43,7 +43,7 @@ twx_test_case ( variable TARGET executable ) {}
 /*
 #]=======]
 function ( twx_test_case variable_twx TARGET target_twx )
-  twx_assert_equal ( TARGET ${TARGET} )
+  twx_assert_equal ( TARGET "${TARGET}" )
   twx_assert_target ( target_twx )
   twx_assert_non_void ( TWX_PROJECT_PRODUCT_DIR )
   set (

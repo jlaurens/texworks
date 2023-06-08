@@ -9,7 +9,7 @@ Includes Test as a subdirectory.
 /*
 #]===============================================]
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
 	cmake_minimum_required ( VERSION 3.1 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Include/TwxBase.cmake"
@@ -18,9 +18,9 @@ if ( NOT TWX_IS_BASED )
 endif ()
 
 include ( TwxModuleLib )
-twx_module_name ( TWX_MODULE_NAME )
+twx_module_name ( TWX_MODULE NAME TWX_MODULE_NAME )
 
-project ( Twx${TWX_MODULE_NAME} )
+project ( ${TWX_MODULE} )
 include ( TwxBase )
 
 twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
@@ -47,7 +47,6 @@ endif ()
 message ( "" )
 
 include ( TwxSummaryLib )
-include ( TwxCfgLib )
 
 twx_summary_begin (
 	BOLD_GREEN

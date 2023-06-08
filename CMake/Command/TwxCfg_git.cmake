@@ -27,18 +27,14 @@ Expected side effects:
 *//*
 #]===============================================]
 
-if ( TWX_VERBOSE )
-  message ( STATUS "TwxCfg_git: ${TWX_DIR}" )
-else ()
-  message ( STATUS "TwxCfg_git..." )
-endif ()
-
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
     NO_POLICY_SCOPE
   )
 endif ()
+
+twx_message_verbose ( STATUS "TwxCfg_git: ${TWX_DIR}" )
 
 include ( TwxCfgLib )
 
@@ -113,14 +109,14 @@ if ( TWX_TEST )
   twx_cfg_set ( GIT_DATE "1978-07-06T05:04:03+02:01" )
   twx_cfg_set ( GIT_OK ${TWX_CPP_TRUTHY_CFG} )
   twx_cfg_write_end ()
-  message ( STATUS "Git commit info updated (TEST)" )
+  twx_message_verbose ( STATUS "Git commit info updated (TEST)" )
 else ()
   twx_cfg_write_begin ( ID "git" )
   foreach ( key_ HASH DATE BRANCH OK )
     twx_cfg_set ( GIT_${key_} "${new_${key_}}" )
   endforeach ()
   twx_cfg_write_end ( ID "git" )
-  message ( STATUS "Git commit info updated" )
+  twx_message_verbose ( STATUS "Git commit info updated" )
 endif ()
 
 #*/

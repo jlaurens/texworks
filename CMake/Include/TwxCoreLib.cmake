@@ -66,11 +66,31 @@ list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
 twx_message_verbose(...) {}
 /*#]=======]
 function ( twx_message_verbose mode_ )
-  if ( NOT "${mode_}" STREQUAL "STATUS" )
-    list ( INSERT ARGN 0 "${mode_}" )
-    set ( mode_ )
+  if ( TWX_VERBOSE OR TWX_MORE_VERBOSE )
+    if ( NOT "${mode_}" STREQUAL "STATUS" )
+      list ( INSERT ARGN 0 "${mode_}" )
+      set ( mode_ )
+    endif ()
+    foreach ( msg_ ${ARGN} )
+      message ( ${mode_} "${msg_}" )
+    endforeach ()
   endif ()
-  if ( TWX_VERBOSE )
+endfunction ()
+
+# ANCHOR: twx_message_more_verbose
+#[=======[*/
+/** @brief Log status message in more verbose mode
+  *
+  * @param ... are text messages
+  */
+twx_message_more_verbose(...) {}
+/*#]=======]
+function ( twx_message_more_verbose mode_ )
+  if ( TWX_MORE_VERBOSE )
+    if ( NOT "${mode_}" STREQUAL "STATUS" )
+      list ( INSERT ARGN 0 "${mode_}" )
+      set ( mode_ )
+    endif ()
     foreach ( msg_ ${ARGN} )
       message ( ${mode_} "${msg_}" )
     endforeach ()
@@ -139,7 +159,7 @@ if ( "${TWX_COMMAND}" STREQUAL "" )
   string ( TOLOWER "${TWX_NAME}" TWX_COMMAND)
 endif ()
 
-message ( STATUS "TwxCoreLib: TWX_NAME => ${TWX_NAME}" )
+twx_message_verbose ( STATUS "TwxCoreLib: TWX_NAME => ${TWX_NAME}" )
 
 # ANCHOR: twx_fatal
 #[=======[
@@ -153,23 +173,27 @@ endmacro ()
 
 # ANCHOR: twx_assert_non_void
 #[=======[*/
-/** @brief Raises when the variable is empty.
+/** @brief Raises when a variable is empty.
 
-@param variable_name a variable name
-@param ... another variable name
+@param ... list of variable core names.
 */
 twx_assert_non_void(variable_name ... ) {}
 /*#]=======]
-function ( twx_assert_non_void _variable )
-  if ( "${${_variable}}" STREQUAL "" )
-    if ( "${ARGN}" STREQUAL "" )
-      twx_fatal ( "Missing ${_variable}")
-    elseif ( "${_variable}" MATCHES "^MY_(.*)$" )
-      twx_fatal ( "Missing ${CMAKE_MATCH_1} ... argument")
-    else ()
-      twx_fatal ( "Missing ${ARGN}")
+function ( twx_assert_non_void )
+  twx_parse_arguments ( "NO_MY_TWX" "" "" ${ARGN} )
+  foreach ( variable_ ${my_twx_UNPARSED_ARGUMENTS} )
+    if ( "${variable_}" MATCHES "$my_twx_(.+)$" )
+      if ( "${${variable_}}" STREQUAL "" )
+        twx_fatal ( "Missing ${variable_}")
+      endif ()
+    elseif ( "${${variable_}}" STREQUAL "" )
+      if ( my_twx_NO_MY_TWX )
+        twx_fatal ( "Missing ${variable_}")
+      elseif ( "${my_twx_${variable_}}" STREQUAL "" )
+        twx_fatal ( "Missing ${variable_} (or my_twx_${variable_})")
+      endif ()
     endif ()
-  endif ()
+  endforeach ( variable_ )
 endfunction ()
 
 # ANCHOR: twx_assert_0
@@ -384,16 +408,19 @@ endif ()
 *//**
 Convenient shortcut to export variables to the parent scope.
 @param ... the names of the variable to be exported.
+@param prefix for key PREFIX, optional prefix prepended to all the variables above before exportation.
 */
-twx_export(...){}
+twx_export(... [EXPORT_PREFIX prefix] ){}
 /*
 #]=======]
 macro ( twx_export )
-  foreach ( var_twx ${ARGN} )
+  twx_parse_arguments ( "" "EXPORT_PREFIX" "" ${ARGN} )
+  foreach ( var_twx ${my_twx_UNPARSED_ARGUMENTS} )
+    set ( var_twx "${my_twx_EXPORT_PREFIX}${var_twx}" )
     set ( ${var_twx} ${${var_twx}} PARENT_SCOPE )
   endforeach ()
 endmacro ()
 
-message ( STATUS "TwxCoreLib loaded: ${TWX_DIR}" )
+twx_message_verbose ( STATUS "TwxCoreLib loaded: ${TWX_DIR}" )
 
 #*/

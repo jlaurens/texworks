@@ -14,7 +14,7 @@ This is called by the
 # Packaging Tasks
 # ===============
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
 	cmake_minimum_required ( VERSION 3.1 )
   include (
 		"${CMAKE_CURRENT_LIST_DIR}/../CMake/Include/TwxBase.cmake"

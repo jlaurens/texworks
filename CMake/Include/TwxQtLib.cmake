@@ -23,7 +23,7 @@ QT_DEFAULT_MAJOR_VERSION;
 /*
 #]===============================================]
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
   message ( FATAL_ERROR "TwxBase not included" )
 endif ()
 

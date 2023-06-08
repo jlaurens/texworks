@@ -88,14 +88,14 @@ else ()
 endif ()
 
 foreach ( file.in ${TWX_IN} )
-  twx_cfg_file_name_out ( "${file.in}" file.out )
+  twx_cfg_file_name_out ( file.out IN "${file.in}" )
   set ( input  "${TWX_IN_DIR}/${file.in}"   )
   twx_assert_exists ( input )
   set ( output "${TWX_OUT_DIR}/${file.out}" )
   twx_core_timestamp ( "${input}"  _ts_input  )
   twx_core_timestamp ( "${output}" _ts_output )
   if (  _ts_output GREATER _ts_input
-    AND _ts_output GREATER TWX_TIMESTAMP_static_CFG
+    AND _ts_output GREATER TWX_TIMESTAMP_factory_CFG
     AND _ts_output GREATER TWX_TIMESTAMP_git_CFG
   )
     continue ()

@@ -37,7 +37,7 @@ Output:
 NB: The transition to Twx is not complete
 #]===============================================]
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
 	# This file is primary
 	cmake_minimum_required ( VERSION 3.1 )
 	include (

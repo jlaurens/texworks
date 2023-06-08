@@ -9,7 +9,7 @@ Make a build folder and use cmake ... && cmake --build ...
 */
 /*#]===============================================]
 
-if ( NOT TWX_IS_BASED )
+if ( NOT DEFINED TWX_IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}/TwxBase.cmake"
     NO_POLICY_SCOPE

@@ -35,15 +35,13 @@
 #include <QUuid>
 
 namespace Twx {
-namespace Core {
-
 namespace Test {
 
 Main::Main(): QObject()
 {
-	QCoreApplication::setOrganizationName("org.tug.TwxCore");
-  QCoreApplication::setOrganizationDomain("TwxCoreLib.tug.org");
-  QCoreApplication::setApplicationName("You can definitely trash me (TwxCore)");
+	QCoreApplication::setOrganizationName("org.tug.TwxUtilLib");
+  QCoreApplication::setOrganizationDomain("TwxUtilLib.tug.org");
+  QCoreApplication::setApplicationName("You can definitely trash me (TwxUtilLib)");
 }
 
 Main::~Main()
@@ -70,20 +68,9 @@ void Main::cleanup()
 
 void Main::test()
 {
-	QCOMPARE(Path::dot, ".");
-	#if defined TwxCoreLib2_TEST
-	  auto expected = QStringList{
-		 	QUuid::createUuid().toString(),
-		 	QUuid::createUuid().toString(),
-		 	QUuid::createUuid().toString()
-		};
-	  Locate::listPATHRaw_m = expected;
-		QCOMPARE(Locate::listPATHRaw_m, expected);
-	#endif
 }
 
 } // namespace Test
-} // namespace Core
 } // namespace Twx
 
-QTEST_MAIN(Twx::Core::Test::Main)
+QTEST_MAIN(Twx::Test::Main)

@@ -279,6 +279,7 @@ function ( twx_cfg_setup )
   twx_export ( TWX_CFG_INI_DIR )
 endfunction ( twx_cfg_setup )
 
+# SECTION: Cfg ini file
 # ANCHOR: Utility `twx_cfg_write_begin`
 #[=======[
 *//** @brief Start a cfg write sequence
@@ -312,7 +313,7 @@ twx_cfg_write_begin ( ID id ) {}
 /*
 #]=======]
 macro ( twx_cfg_write_begin ID my_twx_ID )
-  twx_assert_equal ( ID ${ID} )
+  twx_assert_equal ( "ID" "${ID}" )
   if ( DEFINED cfg_keys_${my_twx_ID}_twx )
     twx_fatal ( "Missing `twx_cfg_write_end( ID ${my_twx_ID} )`" )
   endif ()
@@ -350,9 +351,11 @@ function ( twx_cfg_set ID id_ )
   list ( APPEND cfg_keys_${id_}_twx "${key_}" )
   string ( REPLACE ";" "{{{semicolon}}}" value_ "${value_}" )
   list ( APPEND cfg_values_${id_}_twx "<${value_}>" )
-  twx_message_verbose ( STATUS "TWXCfg(${id_}): ${key_} => <${value_}>" )
-  twx_export ( cfg_keys_${id_}_twx )
-  twx_export ( cfg_values_${id_}_twx )
+  twx_message_more_verbose ( STATUS "TwxCfg(${id_}): ${key_} => <${value_}>" )
+  twx_export (
+    cfg_keys_${id_}_twx
+    cfg_values_${id_}_twx
+  )
 endfunction ()
 
 # ANCHOR: Utility `twx_cfg_write_end`
@@ -371,6 +374,9 @@ function ( twx_cfg_write_end )
   twx_assert_parsed ()
   if ( "${my_twx_ID}" STREQUAL "" )
     set ( my_twx_ID "${TWX_CURRENT_ID_CFG}" )
+  endif ()
+  if ( "${my_twx_ID}" STREQUAL "_private" )
+    message ( FATAL_ERROR "FAILURE" )
   endif ()
   twx_cfg_path ( path_ ID "${my_twx_ID}" )
   if ( NOT ";${${PROJECT_NAME}_TWX_CFG_IDS};" MATCHES ";${path_};" )
@@ -434,7 +440,7 @@ function ( twx_cfg_write_end )
   )
   unset ( cfg_keys_${my_twx_ID}_twx   PARENT_SCOPE )
   unset ( cfg_values_${my_twx_ID}_twx PARENT_SCOPE )
-  # Now we cand start another write sequence
+  # Now we can start another write sequence in the parent scope
 endfunction ()
 
 # ANCHOR: Utility `twx_cfg_read`
@@ -523,24 +529,23 @@ function ( twx_cfg_read )
   endwhile ()
   # Parse the files
   foreach ( name_ IN LISTS cfg_ini_ordered_ )
-    twx_message_verbose ( STATUS "twx_cfg_read: ${name_}" )
+    twx_message_more_verbose ( STATUS "twx_cfg_read: ${name_}" )
     file (
       STRINGS "${name_}"
       lines
       REGEX "="
       ENCODING UTF-8
     )
+    set ( count_ 0 )
     foreach ( line IN LISTS lines )
       if ( line MATCHES "^[ ]*([^ =]+)[ ]*=(.*)$" )
         string ( STRIP "${CMAKE_MATCH_2}" CMAKE_MATCH_2 )
+        twx_message_more_verbose ( "TWX_CFG_${CMAKE_MATCH_1} => ${CMAKE_MATCH_2}" )
         set (
           TWX_CFG_${CMAKE_MATCH_1}
           "${CMAKE_MATCH_2}"
           PARENT_SCOPE
         )
-        if ( TWX_VERBOSE )
-          message ( "TWX_CFG_${CMAKE_MATCH_1} => ${CMAKE_MATCH_2}" )
-        endif ()
         if ( NOT name_ STREQUAL "" AND NOT my_twx_ONLY_CONFIGURE )
           set (
             TWX_${PROJECT_NAME}_CFG_${CMAKE_MATCH_1}
@@ -548,6 +553,7 @@ function ( twx_cfg_read )
             PARENT_SCOPE
           )
         endif ()
+        math ( EXPR count_ "${count_}+1" )
       endif ()
     endforeach ( line )
     if ( my_twx_ONLY_CONFIGURE )
@@ -556,11 +562,13 @@ function ( twx_cfg_read )
         ${name_}_TWX_TIMESTAMP_CFG
       )
     endif ()
+    twx_message_verbose ( STATUS "twx_cfg_read: ${count_} records in ${name_}" )
     if ( my_twx_QUIET )
       return ()
     endif ()
   endforeach ( name_ )
 endfunction ( twx_cfg_read )
+# !SECTION
 
 # ANCHOR: twx_cfg_target_dependent
 #[=======[
