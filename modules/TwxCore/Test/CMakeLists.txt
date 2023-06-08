@@ -7,6 +7,9 @@ https://github.com/TeXworks/texworks
 
 Defines a test suite.
 
+The test suite highly relies on the shape of the working directory.
+In particular, changing names as well as removing folders can have dramatic consequences.
+
 Input:
 - `TwxCore_SOURCES`
 - `TwxCore_HEADERS`
@@ -51,8 +54,12 @@ twx_QT_append ( REQUIRED Test )
 
 add_executable ( test_TwxCore )
 twx_module_src_include ( Core TARGETS test_TwxCore )
+include ( TwxTestLib )
+twx_test_case ( twx_WorkingDirectory TARGET test_TwxCore )
+twx_assert_target ( test_TwxCore.WorkingDirectory )
 
 add_executable ( test_TwxCore_macOS )
+add_dependencies ( test_TwxCore_macOS test_TwxCore )
 twx_module_src_include ( Core TARGETS test_TwxCore_macOS )
 
 target_compile_definitions (
@@ -97,9 +104,6 @@ target_sources (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest_macOS.h"
 )
 
-include ( TwxTestCase )
-twx_test_case ( twx_WorkingDirectory TARGET test_TwxCore )
-
 set_target_properties (
 	test_TwxCore_macOS
   PROPERTIES
@@ -124,21 +128,14 @@ add_test (
 # in the working directory or below
 set ( main.cpp ${CMAKE_CURRENT_LIST_DIR}/main.cpp )
 add_executable ( TwxCore_auxiliary           ${main.cpp} )
-add_dependencies (
-	TwxCore_auxiliary
-	test_TwxCore.WorkingDirectory
-)
+add_dependencies ( TwxCore_auxiliary test_TwxCore )
 add_executable ( TwxCore_auxiliary_program   ${main.cpp} )
-add_dependencies (
-	TwxCore_auxiliary_program
-	test_TwxCore.WorkingDirectory
-)
+add_dependencies ( TwxCore_auxiliary_program test_TwxCore )
 set_target_properties (
 	TwxCore_auxiliary   TwxCore_auxiliary_program
   PROPERTIES
-		RUNTIME_OUTPUT_DIRECTORY "${twx_WorkingDirectory}/A"
+		RUNTIME_OUTPUT_DIRECTORY "${twx_WorkingDirectory}/Locate/A"
 )
-
 set_target_properties (
  	TwxCore_auxiliary TwxCore_auxiliary_program
   PROPERTIES
@@ -152,10 +149,7 @@ set_target_properties (
 add_executable (
 	TwxCore_Locate_absoluteProgramPath_program ${main.cpp}
 )
-add_dependencies (
-	TwxCore_Locate_absoluteProgramPath_program
-	test_TwxCore.WorkingDirectory
-)
+add_dependencies ( TwxCore_Locate_absoluteProgramPath_program test_TwxCore )
 set_target_properties (
 	TwxCore_Locate_absoluteProgramPath_program
 	PROPERTIES
@@ -166,7 +160,7 @@ set_target_properties (
 if ( NOT UNIX )
   set ( .exe_twx .exe )
 endif ()
-add_custom_command(
+add_custom_command (
 	TARGET TwxCore_Locate_absoluteProgramPath_program POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy
 		"${twx_WorkingDirectory}/Locate/absoluteProgramPath/program.program"

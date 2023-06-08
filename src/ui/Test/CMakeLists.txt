@@ -90,7 +90,7 @@ target_link_libraries (
 include ( TwxWarning )
 twx_warning_target ( test_TwxUI )
 
-include ( TwxTestCase )
+include ( TwxTestLib )
 twx_test_case ( twx_WorkingDirectory TARGET test_TwxUI )
 
 add_test (

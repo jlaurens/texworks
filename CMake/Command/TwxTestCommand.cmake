@@ -9,7 +9,7 @@ Command to setup the test folder.
 
 Usage:
 ```
-cmake ... -P .../TwxTestCaseCommand.cmake
+cmake ... -P .../TwxTestCommand.cmake
 ```
 Input state:
 - `TWX_TARGET`
@@ -22,7 +22,10 @@ Input state:
 *//*
 #]===============================================]
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake" )
+include (
+  "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
+  NO_POLICY_SCOPE
+)
 
 twx_assert_non_void ( TWX_TARGET )
 twx_assert_non_void ( TWX_SOURCE_DIR )
@@ -39,7 +42,7 @@ twx_assert_exists ( "${TWX_TEMPORARY_DIR}/WorkingDirectory" )
 file (
   REMOVE_RECURSE "${TWX_DESTINATION_DIR}/${TWX_TARGET}.WorkingDirectory"
 )
-message ( STATUS "DESTINATION: ${destination_}" )
+message ( STATUS "DESTINATION: ${TWX_DESTINATION_DIR}/${TWX_TARGET}.WorkingDirectory" )
 file (
   RENAME
     "${TWX_TEMPORARY_DIR}/WorkingDirectory"

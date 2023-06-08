@@ -76,10 +76,9 @@ twx_cfg_file_begin ( ID id ) {}
 /*
 #]=======]
 function ( twx_cfg_file_begin )
-  twx_assert_non_void ( PROJECT_NAME )
   twx_parse_arguments ( "" "ID" "" ${ARGN} )
   twx_assert_parsed ()
-  twx_assert_non_void ( my_twx_ID )
+  twx_assert_non_void ( PROJECT_NAME my_twx_ID )
   set ( busy_ ${PROJECT_NAME}_${my_twx_ID}_CFG_BUSY )
   if ( ${busy_} )
     twx_fatal ( "Missing twx_cfg_file_end ( ID ${my_twx_ID} )" )
@@ -137,7 +136,7 @@ twx_cfg_file_name_out ( var_out IN file_name ) {}
 Beware of regular expression syntax.
 #]=======]
 function ( twx_cfg_file_name_out var_out IN file_name )
-  twx_assert_equal ( "IN" "${IN}" )
+  twx_assert_equal ( IN ${IN} )
   if ( file_name MATCHES "^(.*)[.]in$" )
     set ( ${var_out} "${CMAKE_MATCH_1}" )
   elseif ( file_name MATCHES "^(.*)[.]in([.].+)$" )
@@ -203,7 +202,7 @@ function ( twx_cfg_file_end )
     twx_assert_non_void ( TWX_CFG__FILE_ID_CURRENT )
     set ( my_twx_ID "${TWX_CFG__FILE_ID_CURRENT}" )
   endif ()
-  twx_assert_non_void ( PROJECT_NAME )
+  twx_assert_non_void ( PROJECT_NAME my_twx_ID )
   twx_message_verbose (
     STATUS
     "twx_cfg_file_end: PROJECT => ${PROJECT_NAME}"
@@ -254,7 +253,7 @@ function ( twx_cfg_file_end )
     add_custom_command (
       OUTPUT
         "${stamped}"
-        "${output_}"
+        ${output_}
       COMMAND
         "${CMAKE_COMMAND}"
           "-DPROJECT_NAME=${PROJECT_NAME}"

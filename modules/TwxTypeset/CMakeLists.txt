@@ -29,7 +29,6 @@ endif ()
 include ( TwxModuleLib )
 twx_module_name ( TWX_MODULE NAME TWX_MODULE_NAME )
 
-twx_assert_non_void ( TWX_MODULE )
 set ( TWX_TEST OFF )
 
 project ( ${TWX_MODULE} )
@@ -48,6 +47,10 @@ if ( NOT TWX_NO_TEST )
   set ( TWX_TEST ON )
 	enable_testing ()
 	add_subdirectory ( Test TwxTest )
+endif ()
+
+if ( NOT TARGET Twx::Typeset )
+  add_library( Twx::Typeset ALIAS TwxTypeset )
 endif ()
 
 # ANCHOR - Summary
