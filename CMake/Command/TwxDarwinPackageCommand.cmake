@@ -3,8 +3,6 @@
 # This file is processed by `CONFIGURE_FILE` in `../CMakeLists.txt` which inserts
 # values for `@VARIABLE@` declarations. This is done to import values for some
 # variables that would otherwise be undefined when CPack is running.
-SET(TWX_NAME @TWX_NAME@)
-SET(TWX_COMMAND @TWX_COMMAND@)
 SET(TWX_PACKAGE_DIR @TWX_PACKAGE_DIR@)
 SET(PROJECT_BINARY_DIR @PROJECT_BINARY_DIR@)
 SET(TeXworks_LIB_DIRS @TeXworks_LIB_DIRS@)

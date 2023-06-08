@@ -206,7 +206,6 @@ function ( twx_cfg_setup )
   # The project may have changed since TWX_CFG_INI_DIR was defined
   twx_assert_non_void ( PROJECT_BINARY_DIR )
   set ( TWX_CFG_INI_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
-  message ( WARNING "twx_cfg_setup: TWX_CFG_INI_DIR => <${TWX_CFG_INI_DIR}>")
   if ( "${TWX_FACTORY_INI}" STREQUAL "" )
     set (
       TWX_FACTORY_INI
@@ -238,40 +237,42 @@ function ( twx_cfg_setup )
     PROPERTY CMAKE_CONFIGURE_DEPENDS
     ${TWX_FACTORY_INI}
   )
-  twx_cfg_path ( path_factory_twx ID "factory" )
-  add_custom_command (
-    OUTPUT ${path_factory_twx}
-    COMMAND "${CMAKE_COMMAND}"
-      "-DTWX_NAME=${TWX_NAME}"
-      "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
-      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-      "-DTWX_VERBOSE=${TWX_VERBOSE}"
-      "-DTWX_TEST=${TWX_TEST}"
-      "-DTWX_DEV=${TWX_DEV}"
-      -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
-    DEPENDS
-      ${TWX_FACTORY_INI}
-    COMMENT
-      "Update factory Cfg information"
-  )
-  twx_cfg_path ( path_git_twx ID "git" )
-  add_custom_command (
-    OUTPUT ${path_git_twx}
-    COMMAND "${CMAKE_COMMAND}"
-      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-      "-DTWX_VERBOSE=${TWX_VERBOSE}"
-      "-DTWX_TEST=${TWX_TEST}"
-      "-DTWX_DEV=${TWX_DEV}"
-      -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
-    DEPENDS
-      ${path_factory_twx}
-    COMMENT
-      "Update git Cfg information"
-  )
-  add_custom_target (
-    "${target_twx}" ALL
-    DEPENDS ${path_git_twx}
-  )
+  if ( COMMAND add_custom_command )
+    twx_cfg_path ( path_factory_twx ID "factory" )
+    add_custom_command (
+      OUTPUT ${path_factory_twx}
+      COMMAND "${CMAKE_COMMAND}"
+        "-DTWX_NAME=${TWX_NAME}"
+        "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
+        "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+        "-DTWX_VERBOSE=${TWX_VERBOSE}"
+        "-DTWX_TEST=${TWX_TEST}"
+        "-DTWX_DEV=${TWX_DEV}"
+        -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
+      DEPENDS
+        ${TWX_FACTORY_INI}
+      COMMENT
+        "Update factory Cfg information"
+    )
+    twx_cfg_path ( path_git_twx ID "git" )
+    add_custom_command (
+      OUTPUT ${path_git_twx}
+      COMMAND "${CMAKE_COMMAND}"
+        "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+        "-DTWX_VERBOSE=${TWX_VERBOSE}"
+        "-DTWX_TEST=${TWX_TEST}"
+        "-DTWX_DEV=${TWX_DEV}"
+        -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
+      DEPENDS
+        ${path_factory_twx}
+      COMMENT
+        "Update git Cfg information"
+    )
+    add_custom_target (
+      "${target_twx}" ALL
+      DEPENDS ${path_git_twx}
+    )
+    endif ()
   twx_cfg_update_factory ()
   twx_cfg_update_git ()
   twx_export ( TWX_FACTORY_INI )

@@ -37,9 +37,7 @@ twx_assert_non_void ( TWX_BUILD_DATA_DIR )
 
 include ( TwxQTLib )
 twx_Qt_fresh ()
-if ( TARGET TwxTypeset )
-  twx_fatal ( "FAIL" )
-endif ()
+
 twx_module_configure ()
 
 include ( TwxDoxydocLib )

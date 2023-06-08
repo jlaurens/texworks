@@ -45,9 +45,7 @@ at some early point.
 # Full include only once
 if ( DEFINED TWX_IS_BASED )
 # This has already been included
-  if ( TWX_VERBOSE )
-    message ( STATUS "TwxBase: ${CMAKE_PROJECT_NAME}" )
-  endif ()
+  twx_message_verbose ( STATUS "TwxBase: ${CMAKE_PROJECT_NAME}" )
 
 	set ( CMAKE_CXX_STANDARD 11 )
 	# Tell CMake to run moc and friends when necessary:
@@ -102,15 +100,6 @@ TWX_PRODUCT_DIR;
   * that follows a `project()` declaration.
   */
 TWX_DOC_DIR;
-# ANCHOR: TWX_DOWNLOAD_DIR
-/** @brief Main dowload directory: .../TwxDownload
-  *
-  * Contains the downloaded material.
-  *
-  * Set by the very first `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_DOWNLOAD_DIR;
 # ANCHOR: TWX_PACKAGE_DIR
 /** @brief Main dowload directory: .../TwxPackage
   *
@@ -120,18 +109,18 @@ TWX_DOWNLOAD_DIR;
   * that follows a `project()` declaration.
   */
 TWX_PACKAGE_DIR;
-# ANCHOR: TWX_MANUAL_DIR
-/** @brief Main dowload directory: .../TwxManual
+# ANCHOR: TWX_EXTERNAL_DIR
+/** @brief Main external directory: .../TwxExternal
   *
-  * Contains the material related to the manual.
+  * Contains the material related to the manual and popppler data.
   *
   * Set by the very first `include ( TwxBase )`
   * that follows a `project()` declaration.
   */
-TWX_PACKAGE_DIR;
+TWX_EXTERNAL_DIR;
 /*#]=======]
-if ( TWX_DIR STREQUAL "" )
-  __twx_base_setup_dir ( )
+if ( "${TWX_BUILD_DIR}" STREQUAL "" )
+  __twx_base_setup_dir ()
 endif ()
 
 # ANCHOR: TWX_PROJECT_BUILD_DIR
@@ -182,15 +171,15 @@ TWX_PROJECT_DOC_DIR;
   * that follows a `project()` declaration.
   */
 TWX_PROJECT_PACKAGE_DIR;
-# ANCHOR: TWX_PROJECT_MANUAL_DIR
-/** @brief Project documentation directory: .../TwxManual
+# ANCHOR: TWX_PROJECT_EXTERNAL_DIR
+/** @brief Project documentation directory: .../TwxExternal
   *
-  * Contains the project documentation.
+  * Contains the project documentation and poppler data.
   *
   * Set by the `include ( TwxBase )`
   * that follows a `project()` declaration.
   */
-TWX_PROJECT_PACKAGE_DIR;
+TWX_PROJECT_EXTERNAL_DIR;
 /*#]=======]
   __twx_base_setup_dir ( PROJECT_ )
 
@@ -278,8 +267,7 @@ macro ( __twx_base_setup_dir )
     set ( TWX_${ARGN}DOC_DIR         "${PROJECT_BINARY_DIR}/TwxDocumentation" )
     set ( TWX_${ARGN}DOWNLOAD_DIR    "${PROJECT_BINARY_DIR}/TwxDownload" )
     set ( TWX_${ARGN}PACKAGE_DIR     "${PROJECT_BINARY_DIR}/TwxPackage" )
-    set ( TWX_${ARGN}MANUAL_DIR      "${PROJECT_BINARY_DIR}/TwxManual" )
-    message ( WARNING "__twx_base_setup_dir: TWX_${ARGN}CFG_INI_DIR => ${TWX_${ARGN}CFG_INI_DIR}" )
+    set ( TWX_${ARGN}EXTERNAL_DIR    "${PROJECT_BINARY_DIR}/TwxExternal" )
   endif ()
 endmacro ()
 __twx_base_setup_dir ()

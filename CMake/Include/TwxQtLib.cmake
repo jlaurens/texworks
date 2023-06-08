@@ -240,4 +240,5 @@ macro ( twx_Qt_link_libraries )
 	endforeach ()
 endmacro ()
 
+message ( STATUS "TwxQtLib: Qt version ${QT_VERSION_MAJOR}" )
 #*/

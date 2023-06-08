@@ -33,9 +33,9 @@ This is the top level CMakeLists file
 #   │   └── <a href="unit-tests/CMakeLists.html">CMakeLists.txt</a>
 #   └── CMake
 #       └── packaging
-#           ├── <a href="Distribute/CMakeLists.html">CMakeLists.txt</a>
+#           ├── <a href="Package/CMakeLists.html">CMakeLists.txt</a>
 #           └── mac
-#               └── <a href="Distribute/mac/MacPackagingTasks.cmake.html">MacPackagingTasks.in.cmake</a>
+#               └── <a href="Package/mac/MacPackagingTasks.cmake.html">MacPackagingTasks.in.cmake</a>
 # </pre>
 #
 # Using CMake as a buildsystem offers some nice advantages:
@@ -617,12 +617,12 @@ foreach (_target ${Qt5Gui_PLUGINS} ${Qt5Widgets_PLUGINS})
 	list(APPEND QT_PLUGINS ${_path})
 endforeach()
 
-# The file `Distribute/CMakeLists.txt` controls the execution of tasks
+# The file `Package/CMakeLists.txt` controls the execution of tasks
 # specific to preparing binaries for packaging on a given platform. This script
 # is invoked via `ADD_SUBDIRECTORY` so that it executes after TeXworks and its
 # components are built and installed. You cannot fixup an application bundle
 # before it has been created...
-ADD_SUBDIRECTORY(${TWX_DIR}/Distribute)
+add_subdirectory ( "${TWX_DIR}/Package" )
 
 # # Set CPack variables.
 # SET(CPACK_PACKAGE_VERSION_MAJOR ${TWX_CFG_VERSION_MAJOR})
@@ -634,7 +634,7 @@ ADD_SUBDIRECTORY(${TWX_DIR}/Distribute)
 
 # # Configure Drag N' Drop installer.
 # IF ( APPLE )
-#   SET(mac_DIR_tws "${TWX_DIR}/Distribute/mac")
+#   SET(mac_DIR_tws "${TWX_DIR}/Package/mac")
 #   SET(CPACK_GENERATOR DragNDrop)
 #   SET( CPACK_DMG_BACKGROUND_IMAGE "${mac_DIR_tws}/texworks_dmg_background.png" )
 #   # Configure an AppleScript for applying a nice window layout to Drag N' Drop disk

@@ -45,10 +45,8 @@ twx_module_declare (
 		TwxTool.h
 	LIBRARIES
 		"-framework Foundation"
+	QT
+		Widgets
 )
-
-if ( COMMAND twx_QT_append )
-	twx_QT_append ( REQUIRED Widgets )
-endif ()
 
 #*/

@@ -10,21 +10,16 @@ Make a build folder and use cmake ... && cmake --build ...
 /*#]===============================================]
 
 cmake_minimum_required ( VERSION 3.1 )
+
+include (
+  "${CMAKE_CURRENT_LIST_DIR}/../../Include/TwxBase.cmake"
+  NO_POLICY_SCOPE
+)
+
 project ( TwxManualTest )
 
-set (
-  TwxManualCommand.cmake
-  "${CMAKE_CURRENT_LIST_DIR}/../../Command/TwxManualCommand.cmake"
-)
-if ( NOT EXISTS "${TwxManualCommand.cmake}" )
-  message ( FATAL_ERROR "Internal inconsistency" )
-endif ()
+include ( TwxBase )
 
-execute_process (
-  COMMAND "${CMAKE_COMMAND}"
-    "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-    "-DTWX_DEV=${TWX_DEV}"
-    "-DTWX_TEST=${TWX_TEST}"
-    "-DTWX_VERBOSE=${TWX_VERBOSE}"
-    -P "${TwxManualCommand.cmake}"
-)
+include ( TwxManualLib )
+twx_manual_setup ()
+twx_manual_process ()

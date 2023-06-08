@@ -47,15 +47,35 @@ define_property (
 include ( TwxCfgFileLib )
 include ( TwxCfgLib )
 
+# ANCHOR: twx_module_exists
+#[=======[*/
+/** @brief Whether a module exists.
+  *
+  * @param ans_var is the name of a boolean like variable holding the result.
+  * @param name for key NAME is a module name, without leading `Twx`.
+  */
+twx_module_exists( ans_var NAME name) {}
+/*#]=======]
+function ( twx_module_exists ans )
+  twx_parse_arguments ( "" "NAME" "" ${ARGN} )
+  twx_assert_parsed ()
+  twx_assert_non_void ( TWX_DIR )
+  set ( module_DIR_ "${TWX_DIR}/modules/Twx${my_twx_NAME}" )
+  if ( NOT "${my_twx_NAME}" STREQUAL "" AND EXISTS "${module_DIR_}" )
+    set ( ${ans} ON )
+  else ()
+    set ( ${ans} OFF )
+  endif ()
+  twx_export ( ${ans} )
+endfunction ()
+
 # ANCHOR: twx_module_name
 #[=======[*/
 /** @brief Get the module name.
   *
   * Retrieve the module name from the path.
-  *
-  * @see
-  * - `TwxCfgFileLib.cmake`
-  * - `TwxCfgPaths.cmake`
+  * This MUST be called from the the directory of the module.
+  * Used in various `/modules/Twx.../CMakeLists.txt`, indirectly in general.
   *
   * @param name is the name of the module to setup
   */
@@ -77,264 +97,26 @@ function ( twx_module_name name_var_ )
   set ( ${name_var_} "${CMAKE_MATCH_1}" PARENT_SCOPE )
 endfunction ()
 
-# ANCHOR: twx_module_setup
+# SECTION: Directories
+# ANCHOR: twx_module_dir
 #[=======[*/
-/** @brief Setup a module.
+/** @brief The location of a module.
   *
-  * Reads the `Setup.cmake` file of a module
-  *
-  * @see
-  * - `TwxCfgFileLib.cmake`
-  * - `TwxCfgPaths.cmake`
-  *
-  * @param name is the name of the module to setup
+  * @param ans_var is the name of a variable holding the result.
+  * @param name for key NAME is a module name, without leading `Twx`.
+  * @param MUST_EXIST a flag to raise if the module does not exist
   */
-twx_module_setup( NAME name ) {}
+twx_module_dir( ans_var NAME name MUST_EXIST ) {}
 /*#]=======]
-macro ( twx_module_setup NAME TWX_MODULE_NAME )
-  twx_assert_equal ( NAME ${NAME} )
-  twx_assert_non_void ( TWX_DIR )
-  # Default main ini file
-  twx_assert_non_void ( TWX_PROJECT_BUILD_DIR )
-  twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
-  twx_cfg_setup ()
-  foreach ( t_ SOURCES HEADERS UIS )
-    set ( Twx${TWX_MODULE_NAME}_IN_${t_} )
-    set ( Twx${TWX_MODULE_NAME}_${t_} )
-  endforeach ()
-  foreach ( t_ LIBRARIES MODULES INCLUDE_DIRECTORIES )
-    set ( Twx${TWX_MODULE_NAME}_${t_} )
-  endforeach ()
-  twx_module_src_dir ( src_DIR_ NAME ${TWX_MODULE_NAME} )
-  include ( "${src_DIR_}/Setup.cmake" )
-  twx_cfg_write_begin ( ID "${module_}_private" )
-  foreach ( f_ ${Twx${TWX_MODULE_NAME}_IN_SOURCES} ${${module_}_IN_HEADERS} )
-    if ( "${f_}" MATCHES "^(.*_private)[.](in[.])?([^.]+)$" )
-      twx_cfg_set (
-        include_${CMAKE_MATCH_1}_${CMAKE_MATCH_3}
-        "#include \"${f_}\""
-      )
-    endif ()
-  endforeach ()
-  twx_cfg_write_end ( ID "${module_}_private" )
-  twx_module_src_dir ( src_DIR_ NAME ${TWX_MODULE_NAME} )
-  include ( TwxCfgFileLib )
-  twx_cfg_files (
-    ID 			SOURCES
-    FILES 	${Twx${TWX_MODULE_NAME}_IN_SOURCES}
-    IN_DIR 	"${src_DIR_}"
-    OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src"
-    EXPORT 	Twx${TWX_MODULE_NAME}
-    ESCAPE_QUOTES
-  )
-  twx_cfg_files (
-    ID 			HEADERS
-    FILES 	${Twx${TWX_MODULE_NAME}_IN_HEADERS}
-    IN_DIR  "${src_DIR_}"
-    OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src"
-    EXPORT 	Twx${TWX_MODULE_NAME}
-  )
-  # twx_cfg_files (
-  #   ID 			UIS
-  #   FILES 	${Twx${TWX_MODULE_NAME}_IN_UIS}
-  #   IN_DIR  "${src_DIR_}" OR /ui?
-  #   OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src" 
-  #   EXPORT 	Twx${TWX_MODULE_NAME}
-  # )
-endmacro ()
-
-# ANCHOR: twx_module_declare
-#[=======[*/
-/** @brief Setup a module.
-  *
-  * Setup the files for the current module.
-  * The module is not yet configured.
-  * The module named is guessed from the file location.
-  * This must be called from inside the `src` folder
-  * of a module folder.
-  *
-  * @param sources for key SOURCES
-  * @param headers for key HEADERS
-  * @param uis for key UIS
-  * @param libraries for key LIBRARIES
-  * @param include_directories for key INCLUDE_DIRECTORIES
-  * @param modules for key MODULES
-  */
-twx_module_declare( SOURCES sources ... ) {}
-/*#]=======]
-macro ( twx_module_declare )
-  if ( NOT "${CMAKE_CURRENT_LIST_FILE}" MATCHES "/modules/Twx([^/]+)/src/Setup.cmake$" )
-    twx_fatal ( "Unexpected usage" )
-  endif ()
-  set ( name_ "${CMAKE_MATCH_1}" )
-  set ( module_ "Twx${name_}" )
-  twx_parse_arguments ( "" "" "SOURCES;HEADERS;UIS;LIBRARIES;MODULES;QT;INCLUDE_DIRECTORIES" ${ARGN} )
+function ( twx_module_dir dir_ )
+  twx_parse_arguments ( "MUST_EXIST" "NAME" "" ${ARGN} )
   twx_assert_parsed ()
-  foreach ( t_ SOURCES HEADERS UIS )
-    list ( APPEND "${module_}_IN_${t_}" ${my_twx_${t_}} )
-  endforeach ()
-  foreach ( t_ LIBRARIES MODULES QT INCLUDE_DIRECTORIES )
-    list ( APPEND "${module_}_${t_}" ${my_twx_${t_}} )
-  endforeach ()
-endmacro ()
-
-# ANCHOR: twx_module_configure
-#[=======[*/
-/** @brief Configure a module.
-  *
-  * This should be run from the module directory
-  * main `CMakeLists.txt` only. The name of the module
-  * is guessed from the location of this file.
-  *
-  * Input state:
-  * * `/modules/Twx<name>/src/Setup.cmake`, which defines
-  *   - `Twx<name>_SOURCES`, `Twx<name>_IN_SOURCES`:
-  *      the list of sources, either relative or absolute
-  *   - `Twx<name>_HEADERS`, `Twx<name>_IN_HEADERS`:
-  *     the list of headers, either relative or absolute
-  *   - `Twx<name>_LIBRARIES`, `Twx<name>_INCLUDE_DIRECTORIES`
-  *      and `Twx<name>_MODULES` for dependencies.
-  * * `/modules/Twx<name>/ui/Setup.cmake`, which defines
-  *   - `Twx<name>_UIS`, `Twx<name>_IN_UIS`:
-  *      the list of ui files, either relative or absolute
-  *      This is work in progress.
-  *
-  * Output: a static library target named Twx::<name>.
-  *
-  */
-twx_module_configure() {}
-/*#]=======]
-function ( twx_module_configure )
-  
   twx_assert_non_void ( TWX_DIR )
-  twx_assert_non_void ( TWX_PROJECT_PRODUCT_DIR )
-  twx_assert_non_void ( TWX_PROJECT_BUILD_DIR )
-
-  twx_module_name ( name_ )
-  
-  twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
-  twx_module_setup ( NAME "${name_}" )
-  
-  add_library(
-    ${module_}
-    STATIC
-    ${${module_}_SOURCES}
-    ${${module_}_HEADERS}
-  )
-  foreach ( qt_ ${${module_}_QT} )
-    twx_Qt_append ( ${qt_} )
-  endforeach ()
-  twx_Qt_link_libraries ( ${module_} )
-  target_link_libraries (
-    ${module_}
-    ${${module_}_LIBRARIES}
-  )
-  target_include_directories (
-    ${module_}
-    PRIVATE
-      "${TWX_PROJECT_BUILD_DIR}/src"
-      ${${module_}_INCLUDE_DIRECTORIES}
-  )
-  if ( NOT "${${module_}_MODULES}" STREQUAL "")
-    twx_module_add ( ${${module_}_MODULES} TARGETS ${module_} )
+  set ( ${dir_} "${TWX_DIR}/modules/Twx${my_twx_NAME}" )
+  if ( my_twx_MUST_EXIST AND NOT EXISTS "${${dir_}}" )
+    twx_fatal ( "No module named ${my_twx_NAME}" )
   endif ()
-  set_target_properties (
-    ${module_}
-    PROPERTIES
-      ARCHIVE_OUTPUT_DIRECTORY "${TWX_PROJECT_PRODUCT_DIR}"
-  )
-  twx_cfg_files (
-    TARGET 	${module_}
-    ID 			INCLUDE_HEADERS
-    FILES 	${${module_}_IN_HEADERS}
-    IN_DIR	"${src_DIR_}"
-    OUT_DIR	"include"
-    NO_PRIVATE
-  )
-  twx_cfg_files (
-    TARGET 	${module_}
-    ID 			INCLUDE_HEADERS_PRIVATE
-    FILES 	${${module_}_IN_HEADERS}
-    IN_DIR	"${src_DIR_}"
-    OUT_DIR	"include_for_testing"
-  )
-  set_target_properties (
-    ${module_}
-    PROPERTIES
-      TWX_SRC_DIR "${TWX_PROJECT_BUILD_DIR}/src"
-      TWX_INCLUDE_DIR "${TWX_PROJECT_PRODUCT_DIR}/include"
-      TWX_INCLUDE_DIR_FOR_TESTING "${TWX_PROJECT_PRODUCT_DIR}/include_for_testing"
-  )
-  include ( TwxWarning )
-  twx_warning_target ( ${module_} )
-
-  if ( NOT TARGET Twx::${name_} )
-    add_library ( Twx::${name_} ALIAS ${module_} )
-  endif ()
-
-  twx_export (
-    ${module_}_SOURCES
-    ${module_}_IN_SOURCES
-    ${module_}_HEADERS
-    ${module_}_IN_HEADERS
-    ${module_}_UIS
-    ${module_}_IN_UIS
-  )
-endfunction ()
-
-# ANCHOR: twx_module_load
-#[=======[*/
-/** @brief Load and setup a module.
-  *
-  * If the module is already loaded, do nothing.
-  * Elseways add the appropriate subdirectory.
-  * The `twx_module_configure()` should be used there.
-  *
-  * Raises if the module does not exist.
-  *
-  * This is not reentrant: subdirectories should
-  * never even try to load themselves.
-  *
-  * In practive, modules are loaded from:
-  *
-  * -  `/CMakeLists.txt`
-  * -  `/src/CMakeLists.txt`
-  * -  `/Test/CMakeLists.txt` and `/unit-tests/CMakeLists.txt`
-  *
-  * and from any other `Twx` module.
-  *
-  * -  `/modules/Twx_<name>/CMakeLists.txt`
-  * -  `/modules/Twx_<name>/src/CMakeLists.txt`
-  * -  `/modules/Twx_<name>/Test/CMakeLists.txt`
-  *
-  * Anyway, the `TwxBase` cmake library must be loaded ahead of time.
-  *
-  * Output: a static library target named Twx::<name>.
-  * Its custom properties TWX_INCLUDE_DIR and TWX_INCLUDE_DIR_FOR_TESTING
-  * point to the location of the corresponding headers.
-  *
-  * @param names is the module names to load
-  */
-twx_module_load(name ...) {}
-/*#]=======]
-function ( twx_module_load name_ )
-  list ( INSERT ARGN 0 "${name_}" )
-  foreach ( name_ ${ARGN} )
-    set ( module_ "Twx${name_}" )
-    if ( TARGET ${module_} )
-      continue ()
-    endif ()
-    twx_module_dir ( module_DIR_ NAME "${name_}" MUST_EXIST )
-    if ( Twx${name_}_IS_CURRENTLY_LOADING )
-      twx_fatal ( "Circular dependency of module ${name_}" )
-    endif ()
-    set ( Twx${name_}_IS_CURRENTLY_LOADING ON )
-    add_subdirectory ( "${module_DIR_}" "TwxModules/${module_}")
-    if ( NOT TARGET Twx::${name_} )
-      twx_fatal ( "Failed to load module ${name_}" )
-    endif ()
-    unset ( Twx${name_}_IS_CURRENTLY_LOADING )
-  endforeach ()
+  twx_export ( ${dir_} )
 endfunction ()
 
 # ANCHOR: twx_module_include_dir
@@ -408,9 +190,9 @@ twx_module_ui_dir( dir_var NAME name) {}
 function ( twx_module_ui_dir dir_ )
   twx_parse_arguments ( "" "NAME" "" ${ARGN} )
   twx_assert_parsed ()
-  set ( ${dir_} "${TWX_DIR}/modules/Twx${my_twx_MODULE}/ui" )
+  set ( ${dir_} "${TWX_DIR}/modules/Twx${my_twx_NAME}/ui" )
   if ( NOT EXISTS "${${dir_}}" )
-    twx_fatal ( "No module named ${my_twx_MODULE}" )
+    twx_fatal ( "No module named ${my_twx_NAME}" )
   endif ()
   twx_export ( ${dir_} )
 endfunction ()
@@ -430,11 +212,327 @@ twx_module_test_dir( dir_var NAME name) {}
 function ( twx_module_test_dir dir_ )
   twx_parse_arguments ( "" "NAME" "" ${ARGN} )
   twx_assert_parsed ()
-  set ( ${dir_} "${TWX_DIR}/modules/Twx${my_twx_MODULE}/Test" )
+  set ( ${dir_} "${TWX_DIR}/modules/Twx${my_twx_NAME}/Test" )
   if ( NOT EXISTS "${${dir_}}" )
-    twx_fatal ( "No module named ${my_twx_MODULE}" )
+    twx_fatal ( "No module named ${my_twx_NAME}" )
   endif ()
   twx_export ( ${dir_} )
+endfunction ()
+
+# ANCHOR: twx_module_CMake_dir
+#[=======[*/
+/** @brief Get the location of CMake files.
+  *
+  * This does not load the module
+  * but it raises if the module does not exist.
+  *
+  * @param dir_var is the name of a variable holding the resulr
+  * @param name for key NAME, is the name of a module, like Core, Typeset...
+  */
+twx_module_test_dir( dir_var NAME name) {}
+/*#]=======]
+function ( twx_module_CMake_dir dir_ )
+  twx_parse_arguments ( "" "NAME" "" ${ARGN} )
+  twx_assert_parsed ()
+  set ( ${dir_} "${TWX_DIR}/modules/Twx${my_twx_NAME}/CMake" )
+  if ( NOT EXISTS "${${dir_}}" )
+    twx_fatal ( "No module named ${my_twx_NAME}" )
+  endif ()
+  twx_export ( ${dir_} )
+endfunction ()
+
+# !SECTION
+
+# SECTION: Setup and use
+# ANCHOR: twx_module_setup
+#[=======[*/
+/** @brief Setup a module.
+  *
+  * Reads the `Setup.cmake` file of a module.
+  * 
+  * Output state:
+  * - `Twx<module name>_SOURCES`: the list of configured sources
+  * - `Twx<module name>_HEADERS`: the list of configured headers
+  *
+  * @see
+  * - `TwxCfgFileLib.cmake`
+  * - `TwxCfgPaths.cmake`
+  *
+  * @param name is the name of the module to setup
+  */
+twx_module_setup( NAME name ) {}
+/*#]=======]
+macro ( twx_module_setup NAME name_twx )
+  twx_assert_equal ( NAME ${NAME} )
+  twx_assert_non_void ( TWX_DIR )
+  twx_assert_non_void ( TWX_PROJECT_BUILD_DIR )
+  twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
+  twx_cfg_setup ()
+  set ( module_twx Twx${name_twx} )
+  foreach ( t_twx SOURCES HEADERS UIS )
+    set ( ${module_twx}_IN_${t_twx} )
+    set ( ${module_twx}_${t_twx} )
+  endforeach ()
+  foreach ( t_twx DIR LIBRARIES MODULES INCLUDE_DIRECTORIES )
+    set ( ${module_twx}_${t_twx} )
+  endforeach ()
+  twx_module_src_dir ( ${module_twx}_DIR NAME ${name_twx} )
+  include ( "${module_twx}_DIR/Setup.cmake" )
+  twx_cfg_write_begin ( ID "${module_twx}_private" )
+  foreach ( f_twx ${${module_twx}_IN_SOURCES} ${${module_twx}_IN_HEADERS} )
+    if ( "${f_twx}" MATCHES "^(.*_private)[.](in[.])?([^.]+)$" )
+      twx_cfg_set (
+        include_${CMAKE_MATCH_1}_${CMAKE_MATCH_3}
+        "#include \"${f_twx}\""
+      )
+    endif ()
+  endforeach ()
+  twx_cfg_write_end ( ID "${${module_twx}}_private" )
+  twx_module_src_dir ( src_DIR_ NAME ${name_twx} )
+  include ( TwxCfgFileLib )
+  twx_cfg_files (
+    ID 			SOURCES
+    FILES 	${${module_twx}_IN_SOURCES}
+    IN_DIR 	"${src_DIR_}"
+    OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src"
+    EXPORT 	${module_twx}
+    ESCAPE_QUOTES
+  )
+  twx_cfg_files (
+    ID 			HEADERS
+    FILES 	${${module_twx}_IN_HEADERS}
+    IN_DIR  "${src_DIR_}"
+    OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src"
+    EXPORT 	${module_twx}
+  )
+  # twx_cfg_files (
+  #   ID 			UIS
+  #   FILES 	${${module_twx}_IN_UIS}
+  #   IN_DIR  "${src_DIR_}" OR /ui?
+  #   OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src" 
+  #   EXPORT 	${module_twx}
+  # )
+  unset ( t_twx )
+  unset ( f_twx )
+  unset ( module_twx )
+endmacro ()
+
+# ANCHOR: twx_module_declare
+#[=======[*/
+/** @brief Setup a module.
+  *
+  * Setup the files for the current module.
+  * The module is not yet configured.
+  * The module named is guessed from the file location.
+  * This must be called from inside the `src` folder
+  * of a module folder.
+  *
+  * Output state:
+  * - `CMAKE_MODULE_PATH`
+  * - `Twx<module name>_DIR`: the location of the module
+  * - `Twx<module name>_IN_SOURCES`: list of sources, before configuration
+  * - `Twx<module name>_IN_HEADERS`: list of headers, before configuration
+  * - `Twx<module name>_IN_UIS`: list of uis, before configuration
+  * - `Twx<module name>_LIBRARIES`: list of libraries for linkage
+  * - `Twx<module name>_MODULES`: list of needed modules
+  * - `Twx<module name>_QT`: list of Qt library names (eg Widgets)
+  * - `Twx<module name>_INCLUDE_DIRECTORIES`: arguments of `include_directories`
+  *
+  * @param sources for key SOURCES
+  * @param headers for key HEADERS
+  * @param uis for key UIS
+  * @param libraries for key LIBRARIES
+  * @param include_directories for key INCLUDE_DIRECTORIES
+  * @param modules for key MODULES
+  */
+twx_module_declare( SOURCES sources ... ) {}
+/*#]=======]
+macro ( twx_module_declare )
+  if ( NOT "${CMAKE_CURRENT_LIST_FILE}" MATCHES "/modules/Twx([^/]+)/src/Setup.cmake$" )
+    twx_fatal ( "Unexpected usage" )
+  endif ()
+  set ( name_twx "${CMAKE_MATCH_1}" )
+  set ( module_twx "Twx${name_twx}" )
+  twx_parse_arguments ( "" "" "SOURCES;HEADERS;UIS;LIBRARIES;MODULES;QT;INCLUDE_DIRECTORIES" ${ARGN} )
+  twx_assert_parsed ()
+  foreach ( t_ SOURCES HEADERS UIS )
+    list ( APPEND "${module_twx}_IN_${t_}" ${my_twx_${t_}} )
+  endforeach ()
+  foreach ( t_ LIBRARIES MODULES QT INCLUDE_DIRECTORIES )
+    list ( APPEND "${module_twx}_${t_}" ${my_twx_${t_}} )
+  endforeach ()
+  twx_assert_non_void ( TWX_DIR )
+  set ( ${module_twx}_DIR "${TWX_DIR}/modules/${module_twx}" )
+  if ( EXISTS "${module_twx}_DIR/CMake" )
+    list (
+      INSERT CMAKE_MODULE_PATH 0
+      "${module_twx}_DIR/CMake"
+    )
+    list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
+  endif ()
+endmacro ()
+
+# ANCHOR: twx_module_configure
+#[=======[*/
+/** @brief Configure a module.
+  *
+  * This should be run from the module directory
+  * main `CMakeLists.txt` only. The name of the module
+  * is guessed from the location of this file.
+  *
+  * Input state:
+  * * `/modules/Twx<name>/src/Setup.cmake`, which defines
+  *   - `Twx<name>_SOURCES`, `Twx<name>_IN_SOURCES`:
+  *      the list of sources, either relative or absolute
+  *   - `Twx<name>_HEADERS`, `Twx<name>_IN_HEADERS`:
+  *     the list of headers, either relative or absolute
+  *   - `Twx<name>_LIBRARIES`, `Twx<name>_INCLUDE_DIRECTORIES`
+  *      and `Twx<name>_MODULES` for dependencies.
+  * * `/modules/Twx<name>/ui/Setup.cmake`, which defines
+  *   - `Twx<name>_UIS`, `Twx<name>_IN_UIS`:
+  *      the list of ui files, either relative or absolute
+  *      This is work in progress.
+  *
+  * Output state: a static library target named Twx::<name>.
+  * The `CMAKE_MODULE_PATH` is updated if there are CMake files
+  * specific to the module.
+  */
+twx_module_configure() {}
+/*#]=======]
+function ( twx_module_configure )
+  
+  twx_assert_non_void ( TWX_DIR )
+  twx_assert_non_void ( TWX_PROJECT_PRODUCT_DIR )
+  twx_assert_non_void ( TWX_PROJECT_BUILD_DIR )
+
+  twx_module_name ( name_twx )
+  twx_module_setup ( NAME "${name_twx}" )
+  
+  set ( module_twx "Twx${name_twx}" )
+
+  add_library (
+    ${module_twx}
+    STATIC
+    ${${module_twx}_SOURCES}
+    ${${module_twx}_HEADERS}
+  )
+  foreach ( qt_ ${${module_twx}_QT} )
+    twx_Qt_append ( ${qt_} )
+  endforeach ()
+  twx_Qt_link_libraries ( ${module_twx} )
+  target_link_libraries (
+    ${module_twx}
+    ${${module_twx}_LIBRARIES}
+  )
+  target_include_directories (
+    ${module_twx}
+    PRIVATE
+      "${TWX_PROJECT_BUILD_DIR}/src"
+      ${${module_twx}_INCLUDE_DIRECTORIES}
+  )
+  if ( NOT "${${module_twx}_MODULES}" STREQUAL "")
+    twx_module_add ( ${${module_twx}_MODULES} TARGETS ${module_twx} )
+  endif ()
+  set_target_properties (
+    ${module_twx}
+    PROPERTIES
+      ARCHIVE_OUTPUT_DIRECTORY "${TWX_PROJECT_PRODUCT_DIR}"
+  )
+  twx_cfg_files (
+    TARGET 	${module_twx}
+    ID 			INCLUDE_HEADERS
+    FILES 	${${module_twx}_IN_HEADERS}
+    IN_DIR	"${src_DIR_}"
+    OUT_DIR	"include"
+    NO_PRIVATE
+  )
+  twx_cfg_files (
+    TARGET 	${module_twx}
+    ID 			INCLUDE_HEADERS_PRIVATE
+    FILES 	${${module_twx}_IN_HEADERS}
+    IN_DIR	"${src_DIR_}"
+    OUT_DIR	"include_for_testing"
+  )
+  set_target_properties (
+    ${module_twx}
+    PROPERTIES
+      TWX_SRC_DIR "${TWX_PROJECT_BUILD_DIR}/src"
+      TWX_INCLUDE_DIR "${TWX_PROJECT_PRODUCT_DIR}/include"
+      TWX_INCLUDE_DIR_FOR_TESTING "${TWX_PROJECT_PRODUCT_DIR}/include_for_testing"
+  )
+  include ( TwxWarning )
+  twx_warning_target ( ${module_twx} )
+
+  if ( NOT TARGET Twx::${name_twx} )
+    add_library ( Twx::${name_twx} ALIAS ${module_twx} )
+  endif ()
+
+  twx_export (
+    ${module_twx}_DIR
+    ${module_twx}_SOURCES
+    ${module_twx}_IN_SOURCES
+    ${module_twx}_HEADERS
+    ${module_twx}_IN_HEADERS
+    ${module_twx}_UIS
+    ${module_twx}_IN_UIS
+    CMAKE_MODULE_PATH
+  )
+
+endfunction ()
+
+# ANCHOR: twx_module_load
+#[=======[*/
+/** @brief Load and setup a module.
+  *
+  * If the module is already loaded, do nothing.
+  * Elseways add the appropriate subdirectory.
+  * The `twx_module_configure()` should be used there.
+  *
+  * Raises if the module does not exist.
+  *
+  * This is not reentrant: subdirectories should
+  * never even try to load themselves.
+  *
+  * In practive, modules are loaded from:
+  *
+  * -  `/CMakeLists.txt`
+  * -  `/src/CMakeLists.txt`
+  * -  `/Test/CMakeLists.txt` and `/unit-tests/CMakeLists.txt`
+  *
+  * and from any other `Twx` module.
+  *
+  * -  `/modules/Twx_<name>/CMakeLists.txt`
+  * -  `/modules/Twx_<name>/src/CMakeLists.txt`
+  * -  `/modules/Twx_<name>/Test/CMakeLists.txt`
+  *
+  * Anyway, the `TwxBase` cmake library must be loaded ahead of time.
+  *
+  * Output: a static library target named Twx::<name>.
+  * Its custom properties TWX_INCLUDE_DIR and TWX_INCLUDE_DIR_FOR_TESTING
+  * point to the location of the corresponding headers.
+  *
+  * @param names is the module names to load
+  */
+twx_module_load(name ...) {}
+/*#]=======]
+function ( twx_module_load name_twx )
+  list ( INSERT ARGN 0 "${name_twx}" )
+  foreach ( name_twx ${ARGN} )
+    set ( module_twx "Twx${name_twx}" )
+    if ( TARGET ${module_twx} )
+      continue ()
+    endif ()
+    twx_module_dir ( module_DIR_ NAME "${name_twx}" MUST_EXIST )
+    if ( ${module_twx}_IS_CURRENTLY_LOADING )
+      twx_fatal ( "Circular dependency of module ${name_twx}" )
+    endif ()
+    set ( ${module_twx}_IS_CURRENTLY_LOADING ON )
+    add_subdirectory ( "${module_DIR_}" "TwxModules/${module_}")
+    if ( NOT TARGET Twx::${name_twx} )
+      twx_fatal ( "Failed to load module ${name_twx}" )
+    endif ()
+    unset ( ${module_twx}_IS_CURRENTLY_LOADING )
+  endforeach ()
 endfunction ()
 
 # ANCHOR: twx_module_add
@@ -510,50 +608,6 @@ function ( twx_module_src_include )
       )
     endforeach ()
   endforeach ()
-endfunction ()
-
-# ANCHOR: twx_module_exists
-#[=======[*/
-/** @brief Whether a module exists.
-  *
-  * @param ans_var is the name of a boolean like variable holding the result.
-  * @param name for key NAME is a module name, without leading `Twx`.
-  */
-twx_module_exists( ans_var NAME name) {}
-/*#]=======]
-function ( twx_module_exists ans )
-  twx_parse_arguments ( "" "NAME" "" ${ARGN} )
-  twx_assert_parsed ()
-  twx_assert_non_void ( TWX_DIR )
-  set ( module_DIR_ "${TWX_DIR}/modules/Twx${my_twx_NAME}" )
-  if ( NOT "${my_twx_NAME}" STREQUAL "" AND EXISTS "${module_DIR_}" )
-    set ( ${ans} ON )
-  else ()
-    set ( ${ans} OFF )
-  endif ()
-  twx_export ( ${ans} )
-endfunction ()
-
-
-# ANCHOR: twx_module_dir
-#[=======[*/
-/** @brief Whether a module exists.
-  *
-  * @param ans_var is the name of a variable holding the result.
-  * @param name for key NAME is a module name, without leading `Twx`.
-  * @param MUST_EXIST a flag to raise if the module does not exist
-  */
-twx_module_dir( ans_var NAME name MUST_EXIST ) {}
-/*#]=======]
-function ( twx_module_dir dir_ )
-  twx_parse_arguments ( "MUST_EXIST" "NAME" "" ${ARGN} )
-  twx_assert_parsed ()
-  twx_assert_non_void ( TWX_DIR )
-  set ( ${dir_} "${TWX_DIR}/modules/Twx${my_twx_NAME}" )
-  if ( my_twx_MUST_EXIST AND NOT EXISTS "${${dir_}}" )
-    twx_fatal ( "No module named ${my_twx_NAME}" )
-  endif ()
-  twx_export ( ${dir_} )
 endfunction ()
 
 #*/

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>TwxPackageTest</string>
+	<key>CFBundleDisplayName</key>
+	<string>TwxPackageTest</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en_US</string>
+	<key>CFBundleIconFile</key>
+	<string>TwxPackageTest.icns</string>
+	<key>CFBundleExecutable</key>
+	<string>TwxPackageTest</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.tug.TwxPackageTest</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1</string>
+	<key>CFBundleVersion</key>
+	<string>0.1.2</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2023 Jérôme Laurens</string>
+</dict>
+</plist>

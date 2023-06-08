@@ -130,11 +130,13 @@ TWX_COMMAND;
 if ( "${TWX_NAME}" STREQUAL "" )
   if ( TWX_DEV )
     set ( TWX_NAME TeXworks-dev )
-    set ( TWX_COMMAND texworks-dev )
   else ()
     set ( TWX_NAME TeXworks )
-    set ( TWX_COMMAND texworks )
   endif ()
+endif ()
+
+if ( "${TWX_COMMAND}" STREQUAL "" )
+  string ( TOLOWER "${TWX_NAME}" TWX_COMMAND)
 endif ()
 
 message ( STATUS "TwxCoreLib: TWX_NAME => ${TWX_NAME}" )
