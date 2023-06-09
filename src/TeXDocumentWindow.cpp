@@ -48,6 +48,8 @@ using TpstMngr = Twx::Typeset::Manager;
 #include <TwxEngineManager.h>
 using NgnMngr = Twx::Typeset::EngineManager;
 
+#include <TwxUtil.h>
+
 #include <QAbstractButton>
 #include <QAbstractItemView>
 #include <QAbstractTextDocumentLayout>
@@ -3042,7 +3044,7 @@ void TeXDocumentWindow::anchorClicked(const QUrl& url)
 			target->textEdit->setFocus(Qt::OtherFocusReason);
 	}
 	else {
-		TWApp::instance()->openUrl(url);
+		Twx::Util::openUrl(url);
 	}
 }
 

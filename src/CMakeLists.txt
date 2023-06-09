@@ -239,7 +239,7 @@ target_link_libraries (
   ${TeXworks_LIBRARIES}
 )
 
-twx_module_add ( Core Typeset TARGETS TeXworks )
+twx_module_add ( Core Typeset Util TARGETS TeXworks )
 
 # Disallow automatic casts from char* to QString (enforcing the use of tr() or
 # explicitly specifying the string encoding)

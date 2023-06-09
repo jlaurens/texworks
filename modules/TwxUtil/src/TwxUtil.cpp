@@ -20,6 +20,7 @@
 */
 
 #include "TwxUtil.h"
+#include "TwxConst.h"
 
 #include <QUrl>
 #include <QDesktopServices>
@@ -43,6 +44,11 @@ bool Util::openUrl(const QUrl & url)
 	}
 #endif	
 	return true;
+}
+
+bool Util::openUrlHome()
+{
+	return openUrl(URL::home);
 }
 
 } // namespace Twx

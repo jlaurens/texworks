@@ -21,11 +21,14 @@
 #ifndef TwxTypeset_Manager_H
 #define TwxTypeset_Manager_H
 
-#include <QMap>
 #include <QObject>
 #include <QString>
 
 namespace Twx {
+
+namespace Const {
+	extern const QString & index_html;
+}
 namespace Typeset {
 
 @TWX_CFG_include_TwxNamespaceTestMain_private_h@
@@ -49,31 +52,8 @@ class Manager: public QObject
 {
 	Q_OBJECT
 public:
-  static Manager * emitter();
-	// In practice, the returned object should be a TeXDocumentWindow; to avoid
-	// interdependencies of headers (and to enable other types as owners in the
-	// future) we use a generic QObject* here instead
-	static QObject * getOwnerForRootFile(const QString & rootFile);
-	static bool isTypesetting(const QString & rootFile);
+  static bool open(const QString & helpDirName);
 
-	// Returns true if it is safe to start typesetting, false if typesetting
-	// should not be started (e.g. because another owner is already typesetting
-	// the specified root file)
-	// The root file should always be a canonical file path
-	static bool startTypesetting(const QString & rootFile, QObject * const owner);
-	static void stopTypesetting(QObject * const owner);
-
-signals:
-	void typesettingStarted(const QString rootFile);
-	void typesettingStopped(const QString rootFile);
-
-private:
-  Manager() = default;
-	~Manager() = default;
-	Manager(Manager& other) = delete;
-	Manager(Manager&& other) = delete;
-  void operator=(const Manager&) = delete;
-  void operator=(const Manager&&) = delete;
 @TWX_CFG_include_TwxTypesetManager_private_h@
 @TWX_CFG_include_TwxFriendTestMain_private_h@
 };

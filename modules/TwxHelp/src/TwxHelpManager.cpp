@@ -20,16 +20,26 @@
 */
 #include "TwxHelpManager.h"
 
+#include <TwxUtil.h>
+
+#include <QCoreApplication>
+
 namespace Twx {
+
+namespace Const {
+	const QString & index_html = QStringLiteral("index.html");
+}
 namespace Help {
 
-void Manager::open(const QString & helpDirName)
+bool Manager::open(const QString & helpDirName)
 {
 	QDir helpDir(helpDirName);
-	if (helpDir.exists(QString::fromLatin1("index.html")))
-		openUrl(QUrl::fromLocalFile(helpDir.absoluteFilePath(QString::fromLatin1("index.html"))));
-	else
-		QMessageBox::warning(nullptr, applicationName(), tr("Unable to find help file."));
+	if (helpDir.exists(Const::index_html)) {
+		return Twx::Util::openUrl(QUrl::fromLocalFile(helpDir.absoluteFilePath(Const::index_html)));
+	} else {
+		QMessageBox::warning(nullptr, QCoreApplication::applicationName(), tr("Unable to find help file."));
+		return false;
+	}
 }
 
 } // namespace Help

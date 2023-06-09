@@ -413,17 +413,14 @@ void TWApp::about()
 	QMessageBox::about(nullptr, tr("About %1").arg(applicationName()), aboutText);
 }
 
-void TWApp::openUrl(const QUrl& url)
+void TWApp::openUrl(const QUrl & url)
 {
-	if (!QDesktopServices::openUrl(url))
-		QMessageBox::warning(nullptr, applicationName(),
-							 tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
-							 .arg(url.toString()));
+	Twx::Util::openUrl(url);
 }
 
 void TWApp::goToHomePage()
 {
-	openUrl(QUrl(QString::fromLatin1("http://www.tug.org/texworks/")));
+	Twx::Util::openUrlHome();
 }
 
 #if defined(Q_OS_WIN)

@@ -39,11 +39,19 @@ class Util: QObject
 	Q_OBJECT
 
 public:
-/** \brief Utility class
+/** \brief Open an Url.
  	* 
+	* Open the given Url with the system application.
+	*
 	* \param url is a `QUrl` instance.
 	*/
 	static bool openUrl(const QUrl & url);
+
+/** \brief Open the home page
+ 	* 
+	* Open the home page with the system application.
+	*/
+	static bool openUrlHome()
 
 @TWX_CFG_include_TwxUtil_private_h@
 @TWX_CFG_include_TwxFriendTestMain_private_h@

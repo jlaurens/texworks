@@ -84,6 +84,16 @@ namespace Path {
 	const QString setup_ini           = QStringLiteral("@TWX_CFG_NAME_LOWER@-setup.ini");
 } // namespace Path
 
+namespace URL {
+  const QUrl gpl 		= QUrl(QStringLiteral("@TWX_CFG_URL_GPL@"));
+  const QUrl home 		= QUrl(QStringLiteral("@TWX_CFG_URL_HOME@"));
+  const QUrl home_dev	= QUrl(QStringLiteral("@TWX_CFG_URL_HOME_DEV@"));
+  const QUrl issues  	= QUrl(QStringLiteral("@TWX_CFG_URL_ISSUES@"));
+}
+namespace Const {
+	const QString mail_address = QStringLiteral("@TWX_CFG_MAIL_ADDRESS@");
+}
+
 namespace PropertyKey {
 // the `_twx` suffix limits name collision
 

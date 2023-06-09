@@ -55,7 +55,7 @@ twx_Qt_link_libraries ( test_TwxTypeset )
 
 twx_module_add ( Core TARGETS test_TwxTypeset )
 
-include ( TwxTestCase )
+include ( TwxTestLib )
 twx_test_case ( twx_WorkingDirectory TARGET test_TwxTypeset )
 
 add_test (

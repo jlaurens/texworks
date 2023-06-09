@@ -75,7 +75,7 @@ target_sources (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxUtilTest.h"
 )
 
-include ( TwxTestCase )
+include ( TwxTestLib )
 twx_test_case ( twx_WorkingDirectory TARGET test_TwxUtil )
 
 add_test (
