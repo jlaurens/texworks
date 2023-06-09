@@ -48,7 +48,7 @@ using TpstMngr = Twx::Typeset::Manager;
 #include <TwxEngineManager.h>
 using NgnMngr = Twx::Typeset::EngineManager;
 
-#include <TwxUtil.h>
+#include <TwxW3.h>
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
@@ -180,7 +180,7 @@ void TeXDocumentWindow::init()
 	connect(actionOpen, &QAction::triggered, this, static_cast<void (TeXDocumentWindow::*)()>(&TeXDocumentWindow::open));
 	connect(actionAbout_TW, &QAction::triggered, TWApp::instance(), &TWApp::about);
 	connect(actionSettings_and_Resources, &QAction::triggered, TWApp::instance(), &TWApp::doResourcesDialog);
-	connect(actionGoToHomePage, &QAction::triggered, TWApp::instance(), &TWApp::goToHomePage);
+	connect(actionGoToHomePage, &QAction::triggered, TWApp::instance(), &TWApp::openUrlHome);
 	connect(actionWriteToMailingList, &QAction::triggered, TWApp::instance(), &TWApp::writeToMailingList);
 
 	connect(actionSave, &QAction::triggered, this, &TeXDocumentWindow::save);
@@ -3044,7 +3044,7 @@ void TeXDocumentWindow::anchorClicked(const QUrl& url)
 			target->textEdit->setFocus(Qt::OtherFocusReason);
 	}
 	else {
-		Twx::Util::openUrl(url);
+		Twx::W3::openUrl(url);
 	}
 }
 

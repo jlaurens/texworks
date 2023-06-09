@@ -14,7 +14,7 @@ Input:
 /*
 #]===============================================]
 
-if ( TARGET test_TwxUtil )
+if ( TARGET test_TwxW3 )
   return ()
 endif ()
 

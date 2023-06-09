@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2023  Stefan Löffler, Jérôme LAURENS
+	Copyright (C) 2023  Jérôme LAURENS
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 /** \file
  	* \brief Utilities.
 	*/
-#ifndef TwxUtil_H
-#define TwxUtil_H
+#ifndef TwxW3_H
+#define TwxW3_H
 
 #include <QObject>
 
@@ -34,11 +34,24 @@ namespace Twx {
  	* 
 	* All methods are static
 	*/
-class Util: QObject
+class W3: QObject
 {
 	Q_OBJECT
 
 public:
+/** \brief Signal emitter
+	* 
+	* Usage:
+	* ```cpp
+	* connect(
+	*   W3::emitter(),
+	*   &W3::openUrlHome,
+	*   ...
+	* );
+	* ```
+	*	\return a shared W3 instance which sole task is to emit signals.
+	*/
+static W3 * emitter();
 /** \brief Open an Url.
  	* 
 	* Open the given Url with the system application.
@@ -51,12 +64,34 @@ public:
  	* 
 	* Open the home page with the system application.
 	*/
-	static bool openUrlHome()
+	static bool openUrlHome();
 
-@TWX_CFG_include_TwxUtil_private_h@
+	/** \brief Constants */
+	static const QString mail_address;
+
+	/** \brief
+		* Various url for onlline information.
+		* 
+		*/
+	struct URL {
+		static const QUrl GPL;
+		static const QUrl home;
+		static const QUrl homeDev;
+		static const QUrl issues;
+	};
+
+private:
+  W3() = default;
+	~W3() = default;
+	W3(W3& other) = delete;
+	W3(W3&& other) = delete;
+  void operator=(const W3&) = delete;
+  void operator=(const W3&&) = delete;
+
+@TWX_CFG_include_TwxW3_private_h@
 @TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Twx
 
-#endif // TwxUtil_H
+#endif // TwxW3_H

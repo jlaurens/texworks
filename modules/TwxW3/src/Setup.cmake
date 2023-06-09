@@ -7,7 +7,7 @@ https://github.com/TeXworks/texworks
 
 Usage:
 
-  twx_module_setup ( NAME Util )
+  twx_module_setup ( NAME W3 )
 
 Not suitable outside of this module directory.
 
@@ -20,10 +20,10 @@ Output:
 
 twx_module_declare (
 	SOURCES
-		TwxUtil.cpp
+		TwxW3.in.cpp
 	HEADERS
-		TwxUtil.in.h
-		TwxUtil_private.h
+		TwxW3.in.h
+		TwxW3_private.h
 		TwxFriendTestMain_private.h
 		TwxNamespaceTestMain_private.h
 	QT

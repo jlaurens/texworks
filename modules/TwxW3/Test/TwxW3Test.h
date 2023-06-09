@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2023 Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ private slots:
   void init();
   void cleanup();
 
+	void test_URL();
 	void test_openUrl_A();
 	void test_openUrl_B();
 

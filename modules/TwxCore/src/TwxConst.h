@@ -52,17 +52,6 @@ namespace Path {
 
 /** \brief Constants */
 namespace Const {
-	extern const QString mail_address;
-}
-
-/** \brief
- 	* Various url for onlline information.
- 	* 
- 	*/
-namespace URL {
-  extern const QUrl home;
-  extern const QUrl home_dev;
-  extern const QUrl issues;
 }
 
 /** \brief

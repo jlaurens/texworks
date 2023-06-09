@@ -59,7 +59,7 @@ private:
 
 public slots:
 
-	void goToHomePage();
+	void openUrlHome();
 	void openHelpFile(const QString& helpDirName);
 	void openUrl(const QUrl& url);
 

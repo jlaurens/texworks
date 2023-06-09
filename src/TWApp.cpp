@@ -210,7 +210,7 @@ void TWApp::init()
 
 	homePageAction = new QAction(tr("Go to TeXworks home page"), this);
 	menuHelp->addAction(homePageAction);
-	connect(homePageAction, &QAction::triggered, this, &TWApp::goToHomePage);
+	connect(homePageAction, &QAction::triggered, this, &TWApp::openUrlHome);
 	mailingListAction = new QAction(tr("Email to the mailing list"), this);
 	menuHelp->addAction(mailingListAction);
 	connect(mailingListAction, &QAction::triggered, this, &TWApp::writeToMailingList);
@@ -413,14 +413,9 @@ void TWApp::about()
 	QMessageBox::about(nullptr, tr("About %1").arg(applicationName()), aboutText);
 }
 
-void TWApp::openUrl(const QUrl & url)
+void TWApp::openUrlHome()
 {
-	Twx::Util::openUrl(url);
-}
-
-void TWApp::goToHomePage()
-{
-	Twx::Util::openUrlHome();
+	Twx::W3::openUrlHome();
 }
 
 #if defined(Q_OS_WIN)
@@ -618,7 +613,7 @@ void TWApp::writeToMailingList()
 	body.replace(QChar::fromLatin1('\n'), QLatin1String("\r\n"));
 #endif
 
-	openUrl(QUrl(QString::fromLatin1("mailto:%1?subject=&body=%2").arg(address, QString::fromLatin1(QUrl::toPercentEncoding(body).constData()))));
+	Twx::W3::openUrl(QUrl(QString::fromLatin1("mailto:%1?subject=&body=%2").arg(address, QString::fromLatin1(QUrl::toPercentEncoding(body).constData()))));
 }
 
 void TWApp::launchAction()
@@ -987,7 +982,7 @@ void TWApp::openHelpFile(const QString& helpDirName)
 {
 	QDir helpDir(helpDirName);
 	if (helpDir.exists(QString::fromLatin1("index.html")))
-		openUrl(QUrl::fromLocalFile(helpDir.absoluteFilePath(QString::fromLatin1("index.html"))));
+		Twx::W3::openUrl(QUrl::fromLocalFile(helpDir.absoluteFilePath(QString::fromLatin1("index.html"))));
 	else
 		QMessageBox::warning(nullptr, applicationName(), tr("Unable to find help file."));
 }

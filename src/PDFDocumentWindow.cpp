@@ -196,7 +196,7 @@ void PDFDocumentWindow::init()
 
 	connect(actionAbout_TW, &QAction::triggered, TWApp::instance(), &TWApp::about);
 	connect(actionSettings_and_Resources, &QAction::triggered, TWApp::instance(), &TWApp::doResourcesDialog);
-	connect(actionGoToHomePage, &QAction::triggered, TWApp::instance(), &TWApp::goToHomePage);
+	connect(actionGoToHomePage, &QAction::triggered, TWApp::instance(), &TWApp::openUrlHome);
 	connect(actionWriteToMailingList, &QAction::triggered, TWApp::instance(), &TWApp::writeToMailingList);
 
 	connect(actionNew, &QAction::triggered, TWApp::instance(), &TWApp::newFile);

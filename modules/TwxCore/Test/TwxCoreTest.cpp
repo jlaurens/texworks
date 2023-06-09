@@ -173,17 +173,9 @@ void Main::testConst()
 		Env::TW_LIBPATH,
 		Env::LOCALAPPDATA,
 		Env::SystemDrive,
-		PropertyKey::listPATH,
-		Const::mail_address
+		PropertyKey::listPATH
 	}) {
 		QVERIFY(!s.isEmpty());
-	}
-	for (const auto & url: QList<QUrl>{
-		URL::home,
-		URL::home_dev,
-		URL::issues
-	}) {
-		QVERIFY(!url.toString().isEmpty());
 	}
 }
 

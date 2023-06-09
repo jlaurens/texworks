@@ -19,9 +19,9 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "TwxUtilTest.h"
+#include "TwxW3Test.h"
 
-#include "TwxUtil.h"
+#include "TwxW3.h"
 
 namespace Twx {
 
@@ -29,9 +29,9 @@ namespace Test {
 
 Main::Main(): QObject()
 {
-	QCoreApplication::setOrganizationName("org.tug.TwxUtil");
-  QCoreApplication::setOrganizationDomain("TwxUtil.tug.org");
-  QCoreApplication::setApplicationName("You can definitely trash me (TwxUtil)");
+	QCoreApplication::setOrganizationName("org.tug.TwxW3");
+  QCoreApplication::setOrganizationDomain("TwxW3.tug.org");
+  QCoreApplication::setApplicationName("You can definitely trash me (TwxW3)");
 }
 
 Main::~Main()
@@ -79,22 +79,34 @@ On Windows, everything goes to a "qttest" directory under %APPDATA%.
 #endif
 }
 
+void Main::test_URL()
+{
+	QVERIFY(!W3::mail_address.isEmpty());
+	for (const auto & url: QList<QUrl>{
+		W3::URL::home,
+		W3::URL::homeDev,
+		W3::URL::issues
+	}) {
+		QVERIFY(!url.toString().isEmpty());
+	}
+}
+
 void Main::test_openUrl_A()
 {
-#if !defined(TwxUtil_TEST_NO_OpenUrl)
+#if !defined(TwxW3_TEST_NO_OpenUrl)
 	auto path = QDir::current().absoluteFilePath(QStringLiteral("index_A.html"));
 	auto url = QUrl::fromLocalFile(path);
-	QVERIFY(Twx::Util::openUrl(url));
+	QVERIFY(Twx::W3::openUrl(url));
 #endif	
 }
 
 void Main::test_openUrl_B()
 {
-#if !defined(TwxUtil_TEST_NO_OpenUrl)
+#if !defined(TwxW3_TEST_NO_OpenUrl)
 	auto path = QDir::current().absoluteFilePath(QStringLiteral("index_B.html"));
 	auto url = QUrl::fromLocalFile(path);
-	Twx::Util::gui_mode = false;
-	QVERIFY(!Twx::Util::openUrl(url));
+	Twx::W3::gui_mode = false;
+	QVERIFY(!Twx::W3::openUrl(url));
 #endif	
 }
 

@@ -9,7 +9,7 @@ Includes Test as a subdirectory.
 /*
 #]===============================================]
 
-if ( TARGET TwxUtil )
+if ( TARGET TwxW3 )
   twx_fatal ( "FAIL" )
 endif ()
 

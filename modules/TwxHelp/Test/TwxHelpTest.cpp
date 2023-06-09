@@ -75,9 +75,9 @@ void Main::feedEngineList()
 
 Main::Main(): QObject()
 {
-	QCoreApplication::setOrganizationName("org.tug.TwxHelp");
-  QCoreApplication::setOrganizationDomain("TwxHelp.tug.org");
-  QCoreApplication::setApplicationName("You can definitely trash me (TwxHelp)");
+	QCoreApplication::setOrganizationName("org.tug.TwxTypeset");
+  QCoreApplication::setOrganizationDomain("TwxTypeset.tug.org");
+  QCoreApplication::setApplicationName("You can definitely trash me (TwxTypeset)");
 	Settings settings;
 	QFile::remove(settings.fileName());
 }

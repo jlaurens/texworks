@@ -19,13 +19,13 @@
 	see <http://www.tug.org/texworks/>.
 */
 /** \file
- 	* \brief Location of assets.
+ 	* \brief Private W3.
 	*/
-#ifndef TwxUtil_private_H
-#define TwxUtil_private_H
+#ifndef TwxW3_private_H
+#define TwxW3_private_H
 
 private:
 
 	static bool gui_mode;
 
-#endif // TwxUtil_private_H
+#endif // TwxW3_private_H

@@ -82,8 +82,6 @@ public:
 	QTextCodec *getDefaultCodec();
 	void setDefaultCodec(QTextCodec *codec);
 
-	void openUrl(const QUrl& url);
-
 	static TWApp *instance();
 
 	static QStringList getTranslationList();
@@ -164,7 +162,7 @@ public slots:
 
 	void activatedWindow(QWidget* theWindow);
 
-	void goToHomePage();
+	void openUrlHome();
 	void writeToMailingList();
 	void openHelpFile(const QString& helpDirName);
 

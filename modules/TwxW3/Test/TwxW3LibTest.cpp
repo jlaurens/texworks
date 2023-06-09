@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2020-2023  Stefan Löffler, Jérôme LAURENS
+	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,36 +19,49 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "TwxUtil.h"
-#include "TwxConst.h"
+#include "TwxW3LibTest.h"
 
-#include <QUrl>
-#include <QDesktopServices>
-#include <QMessageBox>
-#include <QCoreApplication>
+#include <QFileInfo>
+#include <QDir>
+#include <QUuid>
 
 namespace Twx {
+namespace Test {
 
-bool Util::gui_mode = false;
-
-bool Util::openUrl(const QUrl & url)
+Main::Main(): QObject()
 {
-#if !defined(TwxUtil_TEST_NO_OpenUrl)
-	if (!QDesktopServices::openUrl(url)) {
-		if (gui_mode) {
-			QMessageBox::warning(nullptr, QCoreApplication::applicationName(),
-								tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
-								.arg(url.toString()));
-		}
-		return false;
-	}
-#endif	
-	return true;
+	QCoreApplication::setOrganizationName("org.tug.TwxW3Lib");
+  QCoreApplication::setOrganizationDomain("TwxW3Lib.tug.org");
+  QCoreApplication::setApplicationName("You can definitely trash me (TwxW3Lib)");
 }
 
-bool Util::openUrlHome()
+Main::~Main()
 {
-	return openUrl(URL::home);
 }
 
+void Main::initTestCase()
+{
+	QStandardPaths::setTestModeEnabled(true);
+}
+
+void Main::cleanupTestCase()
+{
+	QStandardPaths::setTestModeEnabled(false);
+}
+
+void Main::init()
+{
+}
+
+void Main::cleanup()
+{
+}
+
+void Main::test()
+{
+}
+
+} // namespace Test
 } // namespace Twx
+
+QTEST_MAIN(Twx::Test::Main)

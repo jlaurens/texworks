@@ -57,7 +57,7 @@ void TwxPackageTest::init()
 
 	homePageAction = new QAction(tr("Go to TeXworks home page"), this);
 	menuHelp->addAction(homePageAction);
-	connect(homePageAction, &QAction::triggered, this, &TwxPackageTest::goToHomePage);
+	connect(homePageAction, &QAction::triggered, this, &TwxPackageTest::openUrlHome);
 	mailingListAction = new QAction(tr("Email to the mailing list"), this);
 	menuHelp->addAction(mailingListAction);
 
@@ -144,7 +144,7 @@ void TwxPackageTest::openUrl(const QUrl& url)
 							 tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
 							 .arg(url.toString()));
 }
-void TwxPackageTest::goToHomePage()
+void TwxPackageTest::openUrlHome()
 {
 	openUrl(QUrl(QString::fromLatin1("http://www.tug.org/texworks/")));
 }

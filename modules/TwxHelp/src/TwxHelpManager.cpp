@@ -20,7 +20,7 @@
 */
 #include "TwxHelpManager.h"
 
-#include <TwxUtil.h>
+#include <TwxW3.h>
 
 #include <QCoreApplication>
 
@@ -35,7 +35,7 @@ bool Manager::open(const QString & helpDirName)
 {
 	QDir helpDir(helpDirName);
 	if (helpDir.exists(Const::index_html)) {
-		return Twx::Util::openUrl(QUrl::fromLocalFile(helpDir.absoluteFilePath(Const::index_html)));
+		return Twx::W3::openUrl(QUrl::fromLocalFile(helpDir.absoluteFilePath(Const::index_html)));
 	} else {
 		QMessageBox::warning(nullptr, QCoreApplication::applicationName(), tr("Unable to find help file."));
 		return false;
