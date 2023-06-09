@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2023  Stefan Löffler, Jérôme LAURENS
+	Copyright (C) 2020-2023  Stefan Löffler, Jérôme LAURENS
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,34 +18,31 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-/** \file
- 	* \brief Location of assets.
-	*/
-#ifndef TwxUtil_H
-#define TwxUtil_H
 
-class QUrl;
+#include "TwxUtil.h"
+
+#include <QUrl>
+#include <QDesktopServices>
+#include <QMessageBox>
+#include <QCoreApplication>
 
 namespace Twx {
 
-/** \brief Utility class
- 	* 
-	* All methods are static and public
-	*/
-class Util: QObject
+bool Util::gui_mode = false;
+
+bool Util::openUrl(const QUrl & url)
 {
-	Q_OJBECT
+#if !defined(TwxUtil_TEST_NO_OpenUrl)
+	if (!QDesktopServices::openUrl(url)) {
+		if (gui_mode) {
+			QMessageBox::warning(nullptr, QCoreApplication::applicationName(),
+								tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
+								.arg(url.toString()));
+		}
+		return false;
+	}
+#endif	
+	return true;
+}
 
-public:
-/** \brief Utility class
- 	* 
-	* \param url is a `QUrl` instance.
-	*/
-	static void openUrl(const QUrl & url);
-
-};
-
-} // namespace Util
 } // namespace Twx
-
-#endif // TwxUtil_H

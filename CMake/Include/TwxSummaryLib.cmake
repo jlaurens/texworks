@@ -36,6 +36,14 @@ Each function is documented below.
 
 #]===============================================]
 
+if ( NOT TWX_IS_BASED )
+  message ( FATAL_ERROR "Base is not loaded." )
+endif ()
+
+set ( TWX_VERBOSE OFF )
+include ( TwxCfgLib )
+twx_cfg_read ( factory git )
+
 if ( DEFINED twx-format-reset )
   return ()
 endif ()

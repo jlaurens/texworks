@@ -7,7 +7,7 @@ https://github.com/TeXworks/texworks
 
 Usage:
 
-  twx_module_setup ( NAME Typeset )
+  twx_module_setup ( NAME Util )
 
 Not suitable outside of this module directory.
 
@@ -20,20 +20,14 @@ Output:
 
 twx_module_declare (
 	SOURCES
-    TwxEngine.cpp
-    TwxEngineManager.cpp
-    TwxTypesetManager.cpp
+		TwxUtil.cpp
 	HEADERS
-    TwxEngine_private.h
-    TwxEngine.in.h
-    TwxEngineManager_private.h
-    TwxEngineManager.in.h
-    TwxFriendTestMain_private.h
-    TwxNamespaceTestMain_private.h
-    TwxTypesetManager_private.h
-    TwxTypesetManager.in.h
-  MODULES
-		Core
+		TwxUtil.in.h
+		TwxUtil_private.h
+		TwxFriendTestMain_private.h
+		TwxNamespaceTestMain_private.h
+	QT
+		Widgets
 )
 
 #*/

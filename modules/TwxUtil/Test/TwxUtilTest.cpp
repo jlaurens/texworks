@@ -21,6 +21,8 @@
 
 #include "TwxUtilTest.h"
 
+#include "TwxUtil.h"
+
 namespace Twx {
 
 namespace Test {
@@ -77,9 +79,23 @@ On Windows, everything goes to a "qttest" directory under %APPDATA%.
 #endif
 }
 
-void Main::test()
+void Main::test_openUrl_A()
 {
-	QVERIFY(false);
+#if !defined(TwxUtil_TEST_NO_OpenUrl)
+	auto path = QDir::current().absoluteFilePath(QStringLiteral("index_A.html"));
+	auto url = QUrl::fromLocalFile(path);
+	QVERIFY(Twx::Util::openUrl(url));
+#endif	
+}
+
+void Main::test_openUrl_B()
+{
+#if !defined(TwxUtil_TEST_NO_OpenUrl)
+	auto path = QDir::current().absoluteFilePath(QStringLiteral("index_B.html"));
+	auto url = QUrl::fromLocalFile(path);
+	Twx::Util::gui_mode = false;
+	QVERIFY(!Twx::Util::openUrl(url));
+#endif	
 }
 
 } // namespace Test

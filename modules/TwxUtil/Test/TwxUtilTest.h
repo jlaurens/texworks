@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2020-2023  Stefan Löffler, Jérôme LAURENS
+	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,23 +18,30 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-
-#include "TwxUtil.h"
-
-#include <QUrl>
-#include <QDesktopServices>
-#include <QMessageBox>
-#include <QCoreApplication>
+#include <QtTest>
+#include <QString>
 
 namespace Twx {
+namespace Test {
 
-void Util::openUrl(const QUrl & url)
+class Main: public QObject
 {
-	if (!QDesktopServices::openUrl(url)) {
-		QMessageBox::warning(nullptr, QCoreApplication::applicationName(),
-							 tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
-							 .arg(url.toString()));
-	}
-}
+	Q_OBJECT
 
+private slots:
+	void initTestCase();
+	void cleanupTestCase();
+
+  void init();
+  void cleanup();
+
+	void test_openUrl_A();
+	void test_openUrl_B();
+
+public:
+  Main();
+  ~Main();
+};
+
+} // namespace Test
 } // namespace Twx

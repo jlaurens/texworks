@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2023 Jérôme Laurens
+	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,8 +19,49 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-private:
-	QString _name;
-	QString _program;
-	QStringList _arguments;
-	bool _showPdf{false};
+#include "TwxUtilLibTest.h"
+
+#include <QFileInfo>
+#include <QDir>
+#include <QUuid>
+
+namespace Twx {
+namespace Test {
+
+Main::Main(): QObject()
+{
+	QCoreApplication::setOrganizationName("org.tug.TwxUtilLib");
+  QCoreApplication::setOrganizationDomain("TwxUtilLib.tug.org");
+  QCoreApplication::setApplicationName("You can definitely trash me (TwxUtilLib)");
+}
+
+Main::~Main()
+{
+}
+
+void Main::initTestCase()
+{
+	QStandardPaths::setTestModeEnabled(true);
+}
+
+void Main::cleanupTestCase()
+{
+	QStandardPaths::setTestModeEnabled(false);
+}
+
+void Main::init()
+{
+}
+
+void Main::cleanup()
+{
+}
+
+void Main::test()
+{
+}
+
+} // namespace Test
+} // namespace Twx
+
+QTEST_MAIN(Twx::Test::Main)

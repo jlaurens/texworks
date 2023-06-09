@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2023  Stefan Löffler, Jérôme Laurens
+	Copyright (C) 2008-2023  Stefan Löffler, Jérôme LAURENS
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,29 +18,37 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#include <QtTest>
-#include <QString>
+/** \file
+ 	* \brief Utilities.
+	*/
+#ifndef TwxUtil_H
+#define TwxUtil_H
+
+#include <QObject>
+
+class QUrl;
 
 namespace Twx {
-namespace Test {
-
-class Main: public QObject
+@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+/** \brief Utility class
+ 	* 
+	* All methods are static
+	*/
+class Util: QObject
 {
 	Q_OBJECT
 
-private slots:
-	void initTestCase();
-	void cleanupTestCase();
-
-  void init();
-  void cleanup();
-
-	void test();
-
 public:
-  Main();
-  ~Main();
+/** \brief Utility class
+ 	* 
+	* \param url is a `QUrl` instance.
+	*/
+	static bool openUrl(const QUrl & url);
+
+@TWX_CFG_include_TwxUtil_private_h@
+@TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 
-} // namespace Test
 } // namespace Twx
+
+#endif // TwxUtil_H

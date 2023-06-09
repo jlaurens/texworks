@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2022-2023  Jérôme Laurens
+	Copyright (C) 2008-2023  Jérôme LAURENS
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef TwxTypesetManager_private_h
-#define TwxTypesetManager_private_h
+/** \file
+ 	* \brief Location of assets.
+	*/
+#ifndef TwxUtil_private_H
+#define TwxUtil_private_H
 
 private:
-#if TwxTypeset_TEST
-  static int test_count;
-#endif
-  static QMap<QString, QObject*> running_m;
-	static QMap<QObject *, QMetaObject::Connection> connections_m;
 
-#endif // TwxTypesetManager_private_h
+	static bool gui_mode;
+
+#endif // TwxUtil_private_H
