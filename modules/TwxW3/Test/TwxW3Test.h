@@ -36,6 +36,8 @@ private slots:
   void cleanup();
 
 	void test_URL();
+	void test_Misc();
+	void test_openUrl();
 	void test_openUrl_A();
 	void test_openUrl_B();
 

@@ -55,7 +55,7 @@ target_compile_definitions (
 if ( TWX_TEST_NO_OpenUrl )
 	target_compile_definitions (
 		test_TwxW3
-		PRIVATE TwxW3_TEST_NO_OpenUrl
+		PRIVATE TwxW3_TEST_NO_openUrl
 	)
 endif ()
 
@@ -99,6 +99,11 @@ twx_Qt_link_libraries ( test_TwxW3Lib )
 target_compile_definitions ( 
   test_TwxW3Lib
   PRIVATE TwxW3Lib_TEST
+)
+set_target_properties (
+	test_TwxW3Lib
+	PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY "${TWX_PROJECT_PRODUCT_DIR}"
 )
 
 add_test (

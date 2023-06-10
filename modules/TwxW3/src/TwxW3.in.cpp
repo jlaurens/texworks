@@ -28,7 +28,9 @@
 
 namespace Twx {
 
-bool W3::gui_mode = false;
+#if defined(TwxW3_TEST)
+W3::ModeOpenUrl W3::modeOpenUrl = W3::ModeOpenUrl::Normal;
+#endif
 
 const QUrl W3::URL::home 		= QUrl(QStringLiteral("@TWX_CFG_URL_HOME@"));
 const QUrl W3::URL::homeDev	= QUrl(QStringLiteral("@TWX_CFG_URL_HOME_DEV@"));
@@ -44,17 +46,30 @@ W3 * W3::emitter ()
 
 bool W3::openUrl(const QUrl & url)
 {
-#if !defined(TwxW3_TEST_NO_OpenUrl)
+#if !defined(TwxW3_TEST_NO_openUrl)
+	#if defined(TwxW3_TEST)
+	if (modeOpenUrl == ModeOpenUrl::ReturnTrue) return true;
+	if (modeOpenUrl == ModeOpenUrl::ReturnFalse) return false;
+	#endif
 	if (!QDesktopServices::openUrl(url)) {
-		if (gui_mode) {
-			QMessageBox::warning(nullptr, QCoreApplication::applicationName(),
-								tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
-								.arg(url.toString()));
-		}
+		#if defined(TwxW3_TEST)
+		if (modeOpenUrl == ModeOpenUrl::NoGUI) return false;
+		#endif
+		QMessageBox::warning(
+			nullptr,
+			QCoreApplication::applicationName(),
+			warningText(url)
+		);
 		return false;
 	}
 #endif	
 	return true;
+}
+
+QString W3::warningText(const QUrl & url)
+{
+	return tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
+							.arg(url.toString());
 }
 
 bool W3::openUrlHome()

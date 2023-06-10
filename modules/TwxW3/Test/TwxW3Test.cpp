@@ -23,6 +23,8 @@
 
 #include "TwxW3.h"
 
+#include <QDesktopServices>
+
 namespace Twx {
 
 namespace Test {
@@ -53,6 +55,7 @@ void Main::cleanupTestCase()
 void Main::init()
 {
 	QStandardPaths::setTestModeEnabled(true);
+	W3::modeOpenUrl = W3::ModeOpenUrl::Normal;
 }
 
 void Main::cleanup()
@@ -91,22 +94,49 @@ void Main::test_URL()
 	}
 }
 
+static QUrl getUrl(const QString & fileName)
+{
+	auto path = QDir::current().absoluteFilePath(fileName);
+	return QUrl::fromLocalFile(path);
+}
+
+void Main::test_Misc()
+{
+	QVERIFY(!W3::warningText(getUrl("index.html")).isEmpty());
+}
+
+void Main::test_openUrl()
+{
+	auto url = getUrl("index.html");
+	W3::modeOpenUrl = W3::ModeOpenUrl::ReturnTrue;
+	QVERIFY(W3::modeOpenUrl == W3::ModeOpenUrl::ReturnTrue);
+	QVERIFY(W3::modeOpenUrl != W3::ModeOpenUrl::ReturnFalse);
+	QVERIFY(W3::openUrl(url));
+	W3::modeOpenUrl = W3::ModeOpenUrl::ReturnFalse;
+	QVERIFY(W3::modeOpenUrl != W3::ModeOpenUrl::ReturnTrue);
+	QVERIFY(W3::modeOpenUrl == W3::ModeOpenUrl::ReturnFalse);
+#if defined(TwxW3_TEST_NO_openUrl)
+	QVERIFY(W3::openUrl(url));
+#else
+	QVERIFY(!W3::openUrl(url));
+#endif
+}
+
 void Main::test_openUrl_A()
 {
-#if !defined(TwxW3_TEST_NO_OpenUrl)
-	auto path = QDir::current().absoluteFilePath(QStringLiteral("index_A.html"));
-	auto url = QUrl::fromLocalFile(path);
-	QVERIFY(Twx::W3::openUrl(url));
+#if !defined(TwxW3_TEST_NO_openUrl)
+	auto url = getUrl("index_A.html");
+	QVERIFY(W3::modeOpenUrl == W3::ModeOpenUrl::Normal);
+	QVERIFY(W3::openUrl(url));
 #endif	
 }
 
 void Main::test_openUrl_B()
 {
-#if !defined(TwxW3_TEST_NO_OpenUrl)
-	auto path = QDir::current().absoluteFilePath(QStringLiteral("index_B.html"));
-	auto url = QUrl::fromLocalFile(path);
-	Twx::W3::gui_mode = false;
-	QVERIFY(!Twx::W3::openUrl(url));
+#if !defined(TwxW3_TEST_NO_openUrl)
+	auto url = getUrl("index_B.html");
+	W3::modeOpenUrl = W3::ModeOpenUrl::NoGUI;
+	QVERIFY(!W3::openUrl(url));
 #endif	
 }
 

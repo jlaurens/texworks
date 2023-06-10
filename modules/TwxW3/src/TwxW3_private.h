@@ -26,6 +26,16 @@
 
 private:
 
-	static bool gui_mode;
+static QString warningText(const QUrl & url);
+
+#if defined(TwxW3_TEST)
+	enum class ModeOpenUrl{
+		ReturnTrue,
+		ReturnFalse,
+		NoGUI,
+		Normal
+	};
+	static ModeOpenUrl modeOpenUrl;
+#endif
 
 #endif // TwxW3_private_H

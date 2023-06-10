@@ -43,6 +43,7 @@ using Settings = Twx::Core::Settings;
 using Locate = Twx::Core::Locate;
 #include <TwxSetup.h>
 #include <TwxAssets.h>
+#include <TwxW3.h>
 
 #include <QAction>
 #include <QDesktopServices>
