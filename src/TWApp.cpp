@@ -74,41 +74,6 @@ TWApp * TWApp::theAppInstance = nullptr;
 
 const QEvent::Type TWDocumentOpenEvent::type = static_cast<QEvent::Type>(QEvent::registerEventType());
 
-QString replaceEnvironmentVariables(const QString & s)
-{
-	QString rv{s};
-
-	// If there is nothing to replace, don't bother trying
-#ifdef Q_OS_WINDOWS
-	if (!s.contains(QStringLiteral("%"))) {
-		return rv;
-	}
-#else
-	if (!s.contains(QStringLiteral("$"))) {
-		return rv;
-	}
-#endif
-
-	QProcessEnvironment env{QProcessEnvironment::systemEnvironment()};
-	QStringList vars = env.keys();
-	// Sort the variable names from longest to shortest to appropriately handle
-	// cases like $HOMEPATH (if $HOME also exists)
-	std::sort(vars.begin(), vars.end(), [](const QString & a, const QString & b) { return a.length() > b.length(); });
-
-	foreach(const QString & var, vars) {
-#ifdef Q_OS_WINDOWS
-		// Replace "%VAR%" by the value of the corresponding environment variable
-		rv = rv.replace(QStringLiteral("%") + var + QStringLiteral("%"), env.value(var), Qt::CaseInsensitive);
-#else
-		// Replace "${VAR}" and "$VAR" by the value of the corresponding
-		// environment variable (but not "\$HOME")
-		QRegularExpression re{QStringLiteral("(?<!\\\\)\\$(%1|\\{%1\\})").arg(QRegularExpression::escape(var))};
-		rv.replace(re, env.value(var));
-#endif
-	}
-	return rv;
-}
-
 TWApp::TWApp(int &argc, char **argv)
 	: QApplication(argc, argv)
 {
