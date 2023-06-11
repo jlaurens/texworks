@@ -47,13 +47,13 @@ function( twx_translation_create_pro_file path_var_ )
   )
   twx_assert_parsed ()
   twx_assert_non_void ( path_var_ )
-  twx_assert_non_void ( my_twx_TARGET )
+  twx_assert_non_void ( twxR_TARGET )
   foreach ( label_ SOURCES HEADERS FORMS RESOURCES RC_FILE ICON TRANSLATIONS )
     set ( _my_${label_} )
   endforeach ()
-  set ( pro_DIR_twx "${my_twx_BUILD_DIR}/trans" )
+  set ( pro_DIR_twx "${twxR_BUILD_DIR}/trans" )
   # Sort files into different categories
-  foreach ( _file ${my_twx_INPUT_FILES} )
+  foreach ( _file ${twxR_INPUT_FILES} )
     # TODO: Possibly skip files with GENERATED property
     get_filename_component ( _ext ${_file} EXT )
     get_filename_component ( _abs ${_file} ABSOLUTE )
@@ -101,11 +101,11 @@ function( twx_translation_create_pro_file path_var_ )
 error(\"This file is not intended for building.\n\
 Please use CMake instead. See README.md for further instructions.\")"
   )
-  if ( NOT my_twx_INCLUDE_PATH STR_EQUAL "" )
+  if ( NOT twxR_INCLUDE_PATH STR_EQUAL "" )
     list (
       APPEND pro_contents_twx
       # INCLUDEPATH must be set so lupdate finds headers, namespace declarations, etc
-      "INCLUDEPATH += ${my_twx_INCLUDEPATH}"
+      "INCLUDEPATH += ${twxR_INCLUDEPATH}"
     )
   endif ()
 
@@ -123,7 +123,7 @@ Please use CMake instead. See README.md for further instructions.\")"
   endforeach ()
   
   string ( REPLACE ";" "\n" pro_contents_twx "${pro_contents_twx}" )
-  set ( ${path_var_} "${pro_DIR_twx}/${my_twx_TARGET}.pro" )
+  set ( ${path_var_} "${pro_DIR_twx}/${twxR_TARGET}.pro" )
   file ( WRITE "${${path_var_}}(busy)" "${pro_contents_twx}\n" )
   execute_process (
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

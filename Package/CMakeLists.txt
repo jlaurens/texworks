@@ -15,7 +15,7 @@ This is called by the
 # ===============
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.1 )
+	cmake_minimum_required ( VERSION 3.13 )
   include (
 		"${CMAKE_CURRENT_LIST_DIR}/../CMake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
@@ -40,7 +40,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 			Test/src/TwxPackageTest.cpp
 			${icns}
 		)
-		twx_Qt_link_libraries ( TwxPackageTest )
+		twx_Qt_link_libraries ( TARGETS TwxPackageTest )
 	endif ()
 endif ()
 

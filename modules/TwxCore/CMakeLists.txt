@@ -10,7 +10,7 @@ Includes Test as a subdirectory.
 #]===============================================]
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.1 )
+	cmake_minimum_required ( VERSION 3.13 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
@@ -35,11 +35,7 @@ twx_module_configure ()
 include ( TwxDoxydocLib )
 twx_doxydoc ()
 
-if ( NOT TWX_NO_TEST )
-  set ( TWX_TEST ON )
-	enable_testing ()
-	add_subdirectory ( Test TwxTest)
-endif ()
+twx_module_test ()
 
 # ANCHOR - Summary
 # =======

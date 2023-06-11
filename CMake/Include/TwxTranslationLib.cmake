@@ -40,40 +40,40 @@ Usage
 twx_translation_target_setup ( target ) {}
 /*
 #]=======]
-function ( twx_translation_target_setup my_twx_TARGET )
+function ( twx_translation_target_setup twxR_TARGET )
   twx_parse_arguments ( "" "BUILD_DIR" "TS_FILES;QM_FILES;UI_FILES" ${ARGN} )
   twx_assert_parsed ()
-  twx_assert_non_void ( my_twx_TARGET )
-  twx_assert_non_void ( my_twx_BUILD_DIR )
+  twx_assert_non_void ( twxR_TARGET )
+  twx_assert_non_void ( twxR_BUILD_DIR )
   twx_assert_non_void ( QtMAJOR )
 
-  list ( SORT my_twx_TS_FILES )
-  qt_add_translation ( my_generated_qm ${my_twx_TS_FILES} )
+  list ( SORT twxR_TS_FILES )
+  qt_add_translation ( my_generated_qm ${twxR_TS_FILES} )
   set (
     my_qrc_path
-    "${my_twx_BUILD_DIR}/trans/${my_twx_TARGET}.qrc"
+    "${twxR_BUILD_DIR}/trans/${twxR_TARGET}.qrc"
   )
   twx_translation_make_qrc (
     ${my_qrc_path}
-    QM_FILES "${my_generated_qm}" ${my_twx_QM_FILES}
+    QM_FILES "${my_generated_qm}" ${twxR_QM_FILES}
   )
-  target_sources ( ${my_twx_TARGET} PRIVATE ${my_qrc_path} )
+  target_sources ( ${twxR_TARGET} PRIVATE ${my_qrc_path} )
   # Explicitly set the generated .qm files as dependencies for the autogen
   # target to ensure they are built before AUTORCC is run
   set_target_properties (
-    ${my_twx_TARGET}
+    ${twxR_TARGET}
     PROPERTIES
       AUTOGEN_TARGET_DEPENDS "${my_qrc_path}"
   )
 
   get_target_property ( _lupdate_path ${QtMAJOR}::lupdate LOCATION )
-  get_target_property ( _sources ${my_twx_TARGET} SOURCES )
+  get_target_property ( _sources ${twxR_TARGET} SOURCES )
   add_custom_target (
-    ${my_twx_TARGET}_translation
+    ${twxR_TARGET}_translation
     COMMAND "${CMAKE_COMMAND}"
-      "-DTWX_BUILD_DIR=\"${my_twx_BUILD_DIR}\""
-      "-DTWX_TARGET=\"${my_twx_TARGET}\""
-      "-DTWX_INPUT_FILES=\"${_sources};${${my_twx_TARGET}_UIS};${${my_twx_TARGET}_TRANS_TS}\""
+      "-DTWX_BUILD_DIR=\"${twxR_BUILD_DIR}\""
+      "-DTWX_TARGET=\"${twxR_TARGET}\""
+      "-DTWX_INPUT_FILES=\"${_sources};${${twxR_TARGET}_UIS};${${twxR_TARGET}_TRANS_TS}\""
       "-DTWX_INCLUDE_PATH=\"${TYWX_DIR}/src\""
       "-DQt_LUPDATE_EXECUTABLE=\"${_lupdate_path}\""
       -P "${TWX_DIR}/CMake/Command/TwxTranslationCommand.cmake"
@@ -83,7 +83,7 @@ function ( twx_translation_target_setup my_twx_TARGET )
   endif ()
   add_dependencies (
     UpdateTranslations
-    ${my_twx_TARGET}_translation
+    ${twxR_TARGET}_translation
   )
 endfunction ( twx_translation_target_setup )
 
@@ -106,7 +106,7 @@ function ( twx_translation_make_qrc outfile )
     "<RCC version=\"1.0\">"
     "<qresource>"
   )
-  foreach ( _file ${my_twx_QM_FILES} )
+  foreach ( _file ${twxR_QM_FILES} )
     get_filename_component ( _filename "${_file}" NAME )
     list ( APPEND _contents
       "<file alias=\"resfiles/translations/${_filename}\">${_file}</file>"

@@ -14,7 +14,7 @@ if ( TARGET TwxW3 )
 endif ()
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.1 )
+	cmake_minimum_required ( VERSION 3.13 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
@@ -26,7 +26,7 @@ twx_module_name ( TWX_MODULE NAME TWX_MODULE_NAME )
 twx_assert_non_void ( TWX_MODULE )
 set ( TWX_TEST OFF )
 
-project ( Twx${TWX_MODULE} )
+project ( ${TWX_MODULE} )
 include ( TwxBase )
 
 twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
@@ -39,11 +39,7 @@ twx_module_configure ()
 include ( TwxDoxydocLib )
 twx_doxydoc ()
 
-if ( NOT TWX_NO_TEST )
-  set ( TWX_TEST ON )
-	enable_testing ()
-	add_subdirectory ( Test TwxTest)
-endif ()
+twx_module_test ()
 
 # ANCHOR - Summary
 # =======
@@ -51,7 +47,6 @@ endif ()
 message ( "" )
 
 include ( TwxSummaryLib )
-include ( TwxCfgLib )
 
 twx_summary_begin (
 	BOLD_GREEN

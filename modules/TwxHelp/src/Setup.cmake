@@ -24,6 +24,10 @@ twx_module_declare (
 	HEADERS
     TwxHelpManager_private.h
     TwxHelpManager.in.h
+  MODULES
+    W3
+  QT
+    Widgets
 )
 
 #*/

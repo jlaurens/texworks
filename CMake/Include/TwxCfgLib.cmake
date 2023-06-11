@@ -75,20 +75,20 @@ twx_cfg_path ( variable ID id [STAMPED] ) {}
 function ( twx_cfg_path ans_ )
   twx_parse_arguments ( "STAMPED" "ID" "" ${ARGN} )
   twx_assert_parsed ()
-  if ( EXISTS "${my_twx_ID}" )
-    set ( ${ans_} "${my_twx_ID}" )
+  if ( EXISTS "${twxR_ID}" )
+    set ( ${ans_} "${twxR_ID}" )
     twx_export ( ${ans_} )
     return ()
   endif ()
   twx_assert_non_void ( TWX_CFG_INI_DIR )
-  if ( my_twx_STAMPED )
+  if ( twxR_STAMPED )
     set ( extension "stamped" )
   else ()
     set ( extension "ini" )
   endif ()
   set (
     ${ans_}
-    "${TWX_CFG_INI_DIR}/TwxCfg_${my_twx_ID}.${extension}"
+    "${TWX_CFG_INI_DIR}/TwxCfg_${twxR_ID}.${extension}"
   )
   twx_export ( ${ans_} )
 endfunction ()
@@ -152,8 +152,8 @@ twx_cfg_target ( target_var ) {}
 function ( twx_cfg_target target_ )
   twx_parse_arguments ( "" "ID" "" ${ARGN} )
   twx_assert_parsed ()
-  twx_assert_non_void ( my_twx_ID )
-  set ( ${target_var} "TwxCfg_${my_twx_ID}_target" PARENT_SCOPE)
+  twx_assert_non_void ( twxR_ID )
+  set ( ${target_var} "TwxCfg_${twxR_ID}_target" PARENT_SCOPE)
 endfunction ()
 
 # ANCHOR: twx_cfg_setup
@@ -312,14 +312,14 @@ twx_cfg_write_begin ( ID id ) {}
 /** @brief Reserved variable*/ cfg_values_<id>_twx;
 /*
 #]=======]
-macro ( twx_cfg_write_begin ID my_twx_ID )
+macro ( twx_cfg_write_begin ID twxR_ID )
   twx_assert_equal ( "ID" "${ID}" )
-  if ( DEFINED cfg_keys_${my_twx_ID}_twx )
-    twx_fatal ( "Missing `twx_cfg_write_end( ID ${my_twx_ID} )`" )
+  if ( DEFINED cfg_keys_${twxR_ID}_twx )
+    twx_fatal ( "Missing `twx_cfg_write_end( ID ${twxR_ID} )`" )
   endif ()
-  set ( cfg_keys_${my_twx_ID}_twx )
-  set ( cfg_values_${my_twx_ID}_twx )
-  set ( TWX_CURRENT_ID_CFG "${my_twx_ID}" )
+  set ( cfg_keys_${twxR_ID}_twx )
+  set ( cfg_values_${twxR_ID}_twx )
+  set ( TWX_CURRENT_ID_CFG "${twxR_ID}" )
 endmacro ()
 
 # ANCHOR: Utility `twx_cfg_set`
@@ -372,13 +372,13 @@ twx_cfg_write_end ( [ID id] ) {}
 function ( twx_cfg_write_end )
   twx_parse_arguments ( "" "ID" "" ${ARGN} )
   twx_assert_parsed ()
-  if ( "${my_twx_ID}" STREQUAL "" )
-    set ( my_twx_ID "${TWX_CURRENT_ID_CFG}" )
+  if ( "${twxR_ID}" STREQUAL "" )
+    set ( twxR_ID "${TWX_CURRENT_ID_CFG}" )
   endif ()
-  if ( "${my_twx_ID}" STREQUAL "_private" )
+  if ( "${twxR_ID}" STREQUAL "_private" )
     message ( FATAL_ERROR "FAILURE" )
   endif ()
-  twx_cfg_path ( path_ ID "${my_twx_ID}" )
+  twx_cfg_path ( path_ ID "${twxR_ID}" )
   if ( NOT ";${${PROJECT_NAME}_TWX_CFG_IDS};" MATCHES ";${path_};" )
     list ( APPEND ${PROJECT_NAME}_TWX_CFG_IDS ${path_})
   endif()
@@ -392,22 +392,22 @@ function ( twx_cfg_write_end )
     contents_ "\
 ;READ ONLY
 ;This file was generated automatically by the TWX build system
-[${PROJECT_NAME} ${my_twx_ID} informations]
+[${PROJECT_NAME} ${twxR_ID} informations]
 "
   )
   # find the largest key for pretty printing
   set ( length 0 )
-  foreach ( key_ IN LISTS cfg_keys_${my_twx_ID}_twx )
+  foreach ( key_ IN LISTS cfg_keys_${twxR_ID}_twx )
     string ( LENGTH "${key_}" l )
     if ( l GREATER length )
       set ( length "${l}" )
     endif ()
   endforeach ()
   # Set the contents
-  while ( NOT "${cfg_keys_${my_twx_ID}_twx}" STREQUAL "" )
-    list ( GET cfg_keys_${my_twx_ID}_twx 0 key_ )
-    list ( REMOVE_AT cfg_keys_${my_twx_ID}_twx 0 )
-    if ( "${cfg_values_${my_twx_ID}_twx}" STREQUAL "" )
+  while ( NOT "${cfg_keys_${twxR_ID}_twx}" STREQUAL "" )
+    list ( GET cfg_keys_${twxR_ID}_twx 0 key_ )
+    list ( REMOVE_AT cfg_keys_${twxR_ID}_twx 0 )
+    if ( "${cfg_values_${twxR_ID}_twx}" STREQUAL "" )
       twx_fatal ( "Internal inconsistency: <${key_}>")
     endif ()
     string ( LENGTH "${key_}" l )
@@ -417,8 +417,8 @@ function ( twx_cfg_write_end )
         string ( APPEND key_ " " )
       endforeach ()
     endif ()
-    list ( GET cfg_values_${my_twx_ID}_twx 0 value_ )
-    list ( REMOVE_AT cfg_values_${my_twx_ID}_twx 0 )
+    list ( GET cfg_values_${twxR_ID}_twx 0 value_ )
+    list ( REMOVE_AT cfg_values_${twxR_ID}_twx 0 )
     string ( REPLACE "{{{semicolon}}}" ";" value_ "${value_}" )
     if ( "${value_}" MATCHES "^<(.*)>$" )
       set ( value_ "${CMAKE_MATCH_1}" )
@@ -438,8 +438,8 @@ function ( twx_cfg_write_end )
     COMMAND ${CMAKE_COMMAND} -E remove
       "${path_}(busy)"
   )
-  unset ( cfg_keys_${my_twx_ID}_twx   PARENT_SCOPE )
-  unset ( cfg_values_${my_twx_ID}_twx PARENT_SCOPE )
+  unset ( cfg_keys_${twxR_ID}_twx   PARENT_SCOPE )
+  unset ( cfg_values_${twxR_ID}_twx PARENT_SCOPE )
   # Now we can start another write sequence in the parent scope
 endfunction ()
 
@@ -473,8 +473,8 @@ function ( twx_cfg_read )
     ${ARGN}
   )
   # core ids or absolute paths: mixed
-  set ( cfg_ini_mixed_ "${my_twx_UNPARSED_ARGUMENTS}" )
-  foreach ( l IN LISTS my_twx_LISTS )
+  set ( cfg_ini_mixed_ "${twxR_UNPARSED_ARGUMENTS}" )
+  foreach ( l IN LISTS twxR_LISTS )
     list ( APPEND cfg_ini_mixed_ "${l_}" )
   endforeach ()
   if ( "${cfg_ini_mixed_}" STREQUAL "" )
@@ -498,7 +498,7 @@ function ( twx_cfg_read )
   foreach ( id_ IN LISTS cfg_ini_mixed_ )
     twx_cfg_path ( p_ ID "${id_}" )
     if ( NOT EXISTS "${p_}" )
-      if ( my_twx_QUIET )
+      if ( twxR_QUIET )
         set ( TWX_CFG_READ_FAILED ON PARENT_SCOPE )
         return ()
       else ()
@@ -506,7 +506,7 @@ function ( twx_cfg_read )
       endif ()
       # readability is not tested
     endif ()
-    if ( my_twx_NO_PRIVATE )
+    if ( twxR_NO_PRIVATE )
       get_filename_component ( n_ "${p_}" NAME )
       if ("${n_}" MATCHES "private" )
         continue ()
@@ -546,7 +546,7 @@ function ( twx_cfg_read )
           "${CMAKE_MATCH_2}"
           PARENT_SCOPE
         )
-        if ( NOT name_ STREQUAL "" AND NOT my_twx_ONLY_CONFIGURE )
+        if ( NOT name_ STREQUAL "" AND NOT twxR_ONLY_CONFIGURE )
           set (
             TWX_${PROJECT_NAME}_CFG_${CMAKE_MATCH_1}
             "${CMAKE_MATCH_2}"
@@ -556,14 +556,14 @@ function ( twx_cfg_read )
         math ( EXPR count_ "${count_}+1" )
       endif ()
     endforeach ( line )
-    if ( my_twx_ONLY_CONFIGURE )
+    if ( twxR_ONLY_CONFIGURE )
       twx_core_timestamp (
         "${name_}"
         ${name_}_TWX_TIMESTAMP_CFG
       )
     endif ()
     twx_message_verbose ( STATUS "twx_cfg_read: ${count_} records in ${name_}" )
-    if ( my_twx_QUIET )
+    if ( twxR_QUIET )
       return ()
     endif ()
   endforeach ( name_ )

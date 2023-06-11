@@ -78,13 +78,13 @@ twx_cfg_file_begin ( ID id ) {}
 function ( twx_cfg_file_begin )
   twx_parse_arguments ( "" "ID" "" ${ARGN} )
   twx_assert_parsed ()
-  twx_assert_non_void ( PROJECT_NAME my_twx_ID )
-  set ( busy_ ${PROJECT_NAME}_${my_twx_ID}_CFG_BUSY )
+  twx_assert_non_void ( PROJECT_NAME twxR_ID )
+  set ( busy_ ${PROJECT_NAME}_${twxR_ID}_CFG_BUSY )
   if ( ${busy_} )
-    twx_fatal ( "Missing twx_cfg_file_end ( ID ${my_twx_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_end ( ID ${twxR_ID} )" )
   endif ()
   set ( ${busy_} ON PARENT_SCOPE )
-  set ( TWX_CFG__FILE_ID_CURRENT "${my_twx_ID}" PARENT_SCOPE )
+  set ( TWX_CFG__FILE_ID_CURRENT "${twxR_ID}" PARENT_SCOPE )
 endfunction ()
 
 # ANCHOR: twx_cfg_file_add
@@ -105,17 +105,17 @@ twx_cfg_file_add ( [ID id] FILES file ... ) {}
 function ( twx_cfg_file_add )
   twx_parse_arguments ( "" "ID" "FILES" ${ARGN} )
   twx_assert_parsed ()
-  if ( NOT my_twx_ID )
+  if ( NOT twxR_ID )
     twx_assert_non_void ( TWX_CFG__FILE_ID_CURRENT )
-    set ( my_twx_ID "${TWX_CFG__FILE_ID_CURRENT}" )
+    set ( twxR_ID "${TWX_CFG__FILE_ID_CURRENT}" )
   endif ()
-  twx_assert_non_void ( my_twx_ID )
-  set ( busy_ ${PROJECT_NAME}_${my_twx_ID}_CFG_BUSY )
+  twx_assert_non_void ( twxR_ID )
+  set ( busy_ ${PROJECT_NAME}_${twxR_ID}_CFG_BUSY )
   if ( NOT ${busy_} )
-    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${my_twx_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${twxR_ID} )" )
   endif ()
-  set ( files_ ${PROJECT_NAME}_${my_twx_ID}_CFG_FILES )
-  list ( APPEND ${files_} ${my_twx_FILES} )
+  set ( files_ ${PROJECT_NAME}_${twxR_ID}_CFG_FILES )
+  list ( APPEND ${files_} ${twxR_FILES} )
   twx_export( ${files_} )
 endfunction ()
 
@@ -198,25 +198,25 @@ function ( twx_cfg_file_end )
   )
   twx_assert_parsed ()
   twx_assert_non_void ( IN_DIR OUT_DIR )
-  if ( "${my_twx_ID}" STREQUAL "" )
+  if ( "${twxR_ID}" STREQUAL "" )
     twx_assert_non_void ( TWX_CFG__FILE_ID_CURRENT )
-    set ( my_twx_ID "${TWX_CFG__FILE_ID_CURRENT}" )
+    set ( twxR_ID "${TWX_CFG__FILE_ID_CURRENT}" )
   endif ()
-  twx_assert_non_void ( PROJECT_NAME my_twx_ID )
+  twx_assert_non_void ( PROJECT_NAME twxR_ID )
   twx_message_verbose (
     STATUS
     "twx_cfg_file_end: PROJECT => ${PROJECT_NAME}"
-    "twx_cfg_file_end: ID      => ${my_twx_ID}"
+    "twx_cfg_file_end: ID      => ${twxR_ID}"
   )
-  set ( busy_ ${PROJECT_NAME}_${my_twx_ID}_CFG_BUSY )
+  set ( busy_ ${PROJECT_NAME}_${twxR_ID}_CFG_BUSY )
   if ( NOT ${busy_} )
-    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${my_twx_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${twxR_ID} )" )
   endif ()
-  set ( files_ ${PROJECT_NAME}_${my_twx_ID}_CFG_FILES )
+  set ( files_ ${PROJECT_NAME}_${twxR_ID}_CFG_FILES )
   set ( in_ )
   set ( out_ )
   foreach ( file.in ${${files_}} )
-    if ( my_twx_NO_PRIVATE AND "${file.in}" MATCHES "private" )
+    if ( twxR_NO_PRIVATE AND "${file.in}" MATCHES "private" )
       continue ()
     endif ()
     twx_cfg_file_name_out ( file.out IN "${file.in}" )
@@ -224,12 +224,12 @@ function ( twx_cfg_file_end )
     list ( APPEND out_ "${file.out}" )
   endforeach ()
 
-  if ( "${my_twx_TARGET}" STREQUAL "" )
+  if ( "${twxR_TARGET}" STREQUAL "" )
     # No TARGET given
-    twx_cfg_path ( stamped ID "${PROJECT_NAME}_${my_twx_ID}_file" STAMPED )
+    twx_cfg_path ( stamped ID "${PROJECT_NAME}_${twxR_ID}_file" STAMPED )
     set (
       target_
-      ${PROJECT_NAME}_${my_twx_ID}_cfg_ini
+      ${PROJECT_NAME}_${twxR_ID}_cfg_ini
     )
     if ( NOT TARGET ${target_} )
       add_custom_target (
@@ -238,17 +238,17 @@ function ( twx_cfg_file_end )
         DEPENDS
           ${stamped}
         COMMENT
-          "Configure ${PROJECT_NAME} files for ${my_twx_ID}"
+          "Configure ${PROJECT_NAME} files for ${twxR_ID}"
       )
     endif ()
     # For the custom command below:
     set ( depends_ )
     set ( output_ )
     foreach ( file_ ${in_} )
-      list ( APPEND depends_ "${my_twx_IN_DIR}/${file_}" )
+      list ( APPEND depends_ "${twxR_IN_DIR}/${file_}" )
     endforeach ()
     foreach ( file_ ${out_} )
-      list ( APPEND output_ "${my_twx_OUT_DIR}/${file_}" )
+      list ( APPEND output_ "${twxR_OUT_DIR}/${file_}" )
     endforeach ()
     add_custom_command (
       OUTPUT
@@ -259,12 +259,12 @@ function ( twx_cfg_file_end )
           "-DPROJECT_NAME=${PROJECT_NAME}"
           "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
           "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-          "-DTWX_IN_DIR=${my_twx_IN_DIR}"
-          "-DTWX_OUT_DIR=${my_twx_OUT_DIR}"
+          "-DTWX_IN_DIR=${twxR_IN_DIR}"
+          "-DTWX_OUT_DIR=${twxR_OUT_DIR}"
           "-DTWX_IN=${in_}"
-          "-DTWX_CFG_INI_IDS=${my_twx_CFG_INI_IDS}"
-          "-DTWX_ESCAPE_QUOTES=${my_twx_ESCAPE_QUOTES}"
-          "-DTWX_NO_PRIVATE=${my_twx_NO_PRIVATE}"
+          "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
+          "-DTWX_ESCAPE_QUOTES=${twxR_ESCAPE_QUOTES}"
+          "-DTWX_NO_PRIVATE=${twxR_NO_PRIVATE}"
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
           "-DTWX_DEV=${TWX_DEV}"
           -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
@@ -274,39 +274,39 @@ function ( twx_cfg_file_end )
       DEPENDS
         ${depends_}
       COMMENT
-        "Configure ${PROJECT_NAME} files for ${my_twx_ID}"
+        "Configure ${PROJECT_NAME} files for ${twxR_ID}"
       VERBATIM
     )
-  elseif ( NOT TARGET ${my_twx_TARGET} )
-    twx_fatal ( "Unknown target ${my_twx_TARGET}" )
+  elseif ( NOT TARGET ${twxR_TARGET} )
+    twx_fatal ( "Unknown target ${twxR_TARGET}" )
   else ()
-    if ( IS_ABSOLUTE "${my_twx_OUT_DIR}" )
-      set ( output_directory_ "${my_twx_OUT_DIR}" )
+    if ( IS_ABSOLUTE "${twxR_OUT_DIR}" )
+      set ( output_directory_ "${twxR_OUT_DIR}" )
     else ()
       get_target_property(
         output_directory_
-        ${my_twx_TARGET}
+        ${twxR_TARGET}
         ARCHIVE_OUTPUT_DIRECTORY
       )
       if ( output_directory_ MATCHES "NOTFOUND" )
-        twx_fatal ( "Target ${my_twx_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
+        twx_fatal ( "Target ${twxR_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
       endif ()
-      set ( output_directory_ "${output_directory_}/${my_twx_OUT_DIR}" )
+      set ( output_directory_ "${output_directory_}/${twxR_OUT_DIR}" )
     endif ()
     add_custom_command (
-      TARGET "${my_twx_TARGET}"
+      TARGET "${twxR_TARGET}"
       POST_BUILD
       COMMAND
         "${CMAKE_COMMAND}"
           "-DPROJECT_NAME=${PROJECT_NAME}"
           "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
           "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-          "-DTWX_IN_DIR=${my_twx_IN_DIR}"
+          "-DTWX_IN_DIR=${twxR_IN_DIR}"
           "-DTWX_OUT_DIR=${output_directory_}"
           "-DTWX_IN=${in_}"
-          "-DTWX_CFG_INI_IDS=${my_twx_CFG_INI_IDS}"
-          "-DTWX_ESCAPE_QUOTES=${my_twx_ESCAPE_QUOTES}"
-          "-DTWX_NO_PRIVATE=${my_twx_NO_PRIVATE}"
+          "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
+          "-DTWX_ESCAPE_QUOTES=${twxR_ESCAPE_QUOTES}"
+          "-DTWX_NO_PRIVATE=${twxR_NO_PRIVATE}"
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
           "-DTWX_DEV=${TWX_DEV}"
           -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
@@ -315,14 +315,14 @@ function ( twx_cfg_file_end )
       VERBATIM
     )
   endif ()
-  if ( NOT "${my_twx_EXPORT}" STREQUAL "" )
+  if ( NOT "${twxR_EXPORT}" STREQUAL "" )
     set ( export_ )
     foreach ( file_ ${out_} )
-      list ( APPEND export_ "${my_twx_OUT_DIR}/${file_}")
+      list ( APPEND export_ "${twxR_OUT_DIR}/${file_}")
     endforeach ()
     list ( SORT export_ )
-    set ( ${my_twx_EXPORT}_${my_twx_ID} "${export_}" PARENT_SCOPE )
-    set ( ${my_twx_EXPORT}_${my_twx_ID}_target "${target_}" PARENT_SCOPE )
+    set ( ${twxR_EXPORT}_${twxR_ID} "${export_}" PARENT_SCOPE )
+    set ( ${twxR_EXPORT}_${twxR_ID}_target "${target_}" PARENT_SCOPE )
   endif ()
   unset ( ${files_} PARENT_SCOPE )
   unset ( ${busy_} PARENT_SCOPE )
@@ -365,35 +365,35 @@ function ( twx_cfg_files )
     ${ARGN}
   )
   twx_assert_parsed ()
-  twx_assert_non_void ( my_twx_IN_DIR )
-  twx_assert_non_void ( my_twx_OUT_DIR )
-  twx_cfg_file_begin ( ID "${my_twx_ID}" )
+  twx_assert_non_void ( twxR_IN_DIR )
+  twx_assert_non_void ( twxR_OUT_DIR )
+  twx_cfg_file_begin ( ID "${twxR_ID}" )
   twx_message_more_verbose (
     STATUS
     "twx_cfg_files: ${TWX_CFG__FILE_ID_CURRENT}"
-    "twx_cfg_files: my_twx_FILES =>"
+    "twx_cfg_files: twxR_FILES =>"
   )
   twx_message_more_verbose (
-    ${my_twx_FILES}
+    ${twxR_FILES}
   )
   twx_cfg_file_add (
-    ID    "${my_twx_ID}"
-    FILES ${my_twx_FILES}
+    ID    "${twxR_ID}"
+    FILES ${twxR_FILES}
   )
   twx_pass_option ( ESCAPE_QUOTES )
   twx_pass_option ( NO_PRIVATE )
   twx_cfg_file_end (
-    ID          "${my_twx_ID}"
-    IN_DIR      "${my_twx_IN_DIR}"
-    OUT_DIR     "${my_twx_OUT_DIR}"
-    CFG_INI_IDS "${my_twx_CFG_INI_IDS}"
-    EXPORT      ${my_twx_EXPORT}
-    TARGET      ${my_twx_TARGET}
-    ${my_twx_ESCAPE_QUOTES}
-    ${my_twx_NO_PRIVATE}
+    ID          "${twxR_ID}"
+    IN_DIR      "${twxR_IN_DIR}"
+    OUT_DIR     "${twxR_OUT_DIR}"
+    CFG_INI_IDS "${twxR_CFG_INI_IDS}"
+    EXPORT      ${twxR_EXPORT}
+    TARGET      ${twxR_TARGET}
+    ${twxR_ESCAPE_QUOTES}
+    ${twxR_NO_PRIVATE}
   )
-  if ( NOT "${my_twx_EXPORT}" STREQUAL "" )
-    twx_export ( ${my_twx_EXPORT}_${my_twx_ID} )
+  if ( NOT "${twxR_EXPORT}" STREQUAL "" )
+    twx_export ( ${twxR_EXPORT}_${twxR_ID} )
   endif ()
 endfunction ()
 

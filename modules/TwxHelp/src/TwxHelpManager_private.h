@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2023  Jérôme Laurens
+	Copyright (C) 2022-2023  Stefan Löffler, Jérôme Laurens
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+#ifndef TwxHelp_Manager_private_H
+#define TwxHelp_Manager_private_H
 
-namespace Test {
-	class Main;
-}
+#endif // TwxHelp_Manager_private_H

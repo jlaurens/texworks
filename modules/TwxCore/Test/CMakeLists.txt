@@ -22,7 +22,7 @@ if ( TARGET test_TwxCore )
 endif ()
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.1 )
+	cmake_minimum_required ( VERSION 3.13 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
@@ -53,14 +53,14 @@ twx_module_setup ( NAME Core )
 twx_QT_append ( REQUIRED Test )
 
 add_executable ( test_TwxCore )
-twx_module_src_include ( Core TARGETS test_TwxCore )
+twx_module_includes ( Core TARGETS test_TwxCore )
 include ( TwxTestLib )
 twx_test_case ( twx_WorkingDirectory TARGET test_TwxCore )
 twx_assert_target ( test_TwxCore.WorkingDirectory )
 
 add_executable ( test_TwxCore_macOS )
 add_dependencies ( test_TwxCore_macOS test_TwxCore )
-twx_module_src_include ( Core TARGETS test_TwxCore_macOS )
+twx_module_includes ( Core TARGETS test_TwxCore_macOS )
 
 target_compile_definitions (
 	test_TwxCore
@@ -237,8 +237,8 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
 )
 
-twx_module_add ( Core TARGETS test_TwxCoreLib )
-twx_Qt_link_libraries ( test_TwxCoreLib )
+twx_module_add ( NAMES Core TO_TARGETS test_TwxCoreLib )
+twx_Qt_link_libraries ( TARGETS test_TwxCoreLib )
 
 target_compile_definitions ( 
   test_TwxCoreLib
@@ -258,8 +258,8 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
 )
 
-twx_module_add ( Core TARGETS test_TwxCoreLib2 TEST )
-twx_Qt_link_libraries ( test_TwxCoreLib2 )
+twx_module_add ( NAMES Core TO_TARGETS test_TwxCoreLib2 TEST )
+twx_Qt_link_libraries ( TARGETS test_TwxCoreLib2 )
 
 add_test (
 	NAME test_TwxCoreLib2

@@ -19,7 +19,7 @@ if ( TARGET test_TwxW3 )
 endif ()
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.1 )
+	cmake_minimum_required ( VERSION 3.13 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
@@ -49,13 +49,13 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxTypesetTest.h"
 )
 
-twx_module_src_include ( Typeset TARGETS test_TwxTypeset )
+twx_module_includes ( Typeset TARGETS test_TwxTypeset )
 
 target_compile_definitions (
 	test_TwxTypeset
 	PRIVATE TWX_TEST TwxTypeset_TEST
 )
-twx_Qt_link_libraries ( test_TwxTypeset )
+twx_Qt_link_libraries ( TARGETS test_TwxTypeset )
 
 twx_module_add ( Core TARGETS test_TwxTypeset )
 

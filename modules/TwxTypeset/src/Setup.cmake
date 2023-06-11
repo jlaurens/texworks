@@ -28,8 +28,6 @@ twx_module_declare (
     TwxEngine.in.h
     TwxEngineManager_private.h
     TwxEngineManager.in.h
-    TwxFriendTestMain_private.h
-    TwxNamespaceTestMain_private.h
     TwxTypesetManager_private.h
     TwxTypesetManager.in.h
   MODULES

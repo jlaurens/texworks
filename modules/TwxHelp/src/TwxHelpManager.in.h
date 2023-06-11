@@ -18,8 +18,8 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
-#ifndef TwxTypeset_Manager_H
-#define TwxTypeset_Manager_H
+#ifndef TwxHelp_Manager_H
+#define TwxHelp_Manager_H
 
 #include <QObject>
 #include <QString>
@@ -29,23 +29,12 @@ namespace Twx {
 namespace Const {
 	extern const QString & index_html;
 }
-namespace Typeset {
+namespace Help {
 
 @TWX_CFG_include_TwxNamespaceTestMain_private_h@
-/** \file TwxTypesetManager.h
- 	*	\brief Typeset manager.
- 	* 
-	* Keeps track of all running typesetting processes and their owner.
-	* 
-	* This helps avoid running multiple processes on the same input file (which
-	* would wreak havoc in the auxiliary and output files) and provides information
-	* in which object (window) information about a currently running typesetting
-	* process for a given input (root) file can be found.
-	*
-	* Static methods, only one emitter.
-	*
-	* TODO: interact with a project manager
-	* This is actually a weak design.
+/** \file TwxHelpManager.h
+ 	*	\brief Help manager.
+ 	*
  	*/
 
 class Manager: public QObject
@@ -54,11 +43,11 @@ class Manager: public QObject
 public:
   static bool open(const QString & helpDirName);
 
-@TWX_CFG_include_TwxTypesetManager_private_h@
+@TWX_CFG_include_TwxHelpManager_private_h@
 @TWX_CFG_include_TwxFriendTestMain_private_h@
 };
 
-} // namespace Typeset
+} // namespace Help
 } // namespace Twx
 
-#endif // TwxTypeset_Manager_H
+#endif // TwxHelp_Manager_H

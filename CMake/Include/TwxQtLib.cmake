@@ -128,28 +128,83 @@ macro ( twx_QT_append )
 	# Find all the packages
 	find_package (
 		${QtMAJOR}
-		REQUIRED COMPONENTS ${my_twx_REQUIRED}
-		OPTIONAL_COMPONENTS ${my_twx_OPTIONAL} QUIET
+		REQUIRED COMPONENTS ${twxR_REQUIRED}
+		OPTIONAL_COMPONENTS ${twxR_OPTIONAL} QUIET
 	)
 	# Record the libraries, when not already done.
-	foreach ( TWX_comp IN LISTS my_twx_REQUIRED )
-	  list ( FIND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} TWX_k )
-		if ( ${TWX_k} LESS 0 )
-		  list ( APPEND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} )
+	foreach ( component_twx IN LISTS twxR_REQUIRED )
+	  list ( FIND QT_LIBRARIES ${QtMAJOR}::${component_twx} k_twx )
+		if ( ${k_twx} LESS 0 )
+		  list ( APPEND QT_LIBRARIES ${QtMAJOR}::${component_twx} )
 		endif ()
 	endforeach ()
-	foreach ( TWX_comp IN LISTS my_twx_OPTIONAL )
+	foreach ( component_twx IN LISTS twxR_OPTIONAL )
 # TODO: move to CMake 3.3
-		list ( FIND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} TWX_k )
-		if ( ${TWX_k} LESS 0 )
-   		list ( APPEND QT_LIBRARIES ${QtMAJOR}::${TWX_comp} )
+		list ( FIND QT_LIBRARIES ${QtMAJOR}::${component_twx} k_twx )
+		if ( ${k_twx} LESS 0 )
+   		list ( APPEND QT_LIBRARIES ${QtMAJOR}::${component_twx} )
 		endif ()
 	endforeach ()
 	# unset local variables
-	unset ( my_twx_REQUIRED )
-	unset ( my_twx_OPTIONAL )
-	unset ( TWX_comp )
-	unset ( TWX_k )
+	unset ( twxR_REQUIRED )
+	unset ( twxR_OPTIONAL )
+	unset ( component_twx )
+	unset ( k_twx )
+endmacro ()
+
+# ANCHOR: twx_QT_find
+#[=======[
+*//**
+This function will load Qt components.
+The libraries are possibly collected in the `QT_LIBRARIES` variable.
+
+Usage:
+```
+twx_QT_find (
+	[REQUIRED required ...]
+	[OPTIONAL optional ...]
+	[COLLECT]
+)
+```
+@param required for key REQUIRED, optional list of component
+@param optional for key OPTIONAL, optional list of component
+@param COLLECT optional flag to collect the found components in `QT_LIBRARIES`.
+*/
+twx_QT_find([REQUIRED ...] [OPTIONAL ...] [COLLECT]) {}
+/*
+This must be a macro because the found packages are likely to
+change variables within the caller's scope,
+at least the "..._FOUND" ones.
+And this must be called from the scope where the components are used.
+#]=======]
+macro ( twx_QT_find )
+	twx_parse_arguments ( "COLLECT" "" "REQUIRED;OPTIONAL" ${ARGN} )
+	twx_assert_parsed ()
+	# Find all the packages
+	find_package (
+		${QtMAJOR}
+		REQUIRED COMPONENTS ${twxR_REQUIRED}
+		OPTIONAL_COMPONENTS ${twxR_OPTIONAL} QUIET
+	)
+	# Record the libraries, when not already done.
+	foreach ( component_twx ${twxR_REQUIRED} )
+	  list ( FIND QT_LIBRARIES ${QtMAJOR}::${component_twx} k_twx )
+		if ( ${k_twx} LESS 0 )
+		  list ( APPEND QT_LIBRARIES ${QtMAJOR}::${component_twx} )
+		endif ()
+	endforeach ()
+	foreach ( component_twx ${twxR_OPTIONAL} )
+# TODO: move to CMake 3.3
+		list ( FIND QT_LIBRARIES ${QtMAJOR}::${component_twx} k_twx )
+		if ( ${k_twx} LESS 0 )
+   		list ( APPEND QT_LIBRARIES ${QtMAJOR}::${component_twx} )
+		endif ()
+	endforeach ()
+	# unset local variables
+	unset ( twxR_REQUIRED )
+	unset ( twxR_OPTIONAL )
+	unset ( component_twx )
+	unset ( k_twx )
 endmacro ()
 
 # ANCHOR: twx_Qt_target_guards
@@ -225,12 +280,13 @@ endmacro ()
 *//**
 @brief Link the current Qt libraries to the given target.
 
-@param ... list of targets.
+@param ... list of targets for key TARGETS.
 */
 twx_Qt_link_libraries ( ... ) {}
 /*
 #]=======]
-macro ( twx_Qt_link_libraries )
+macro ( twx_Qt_link_libraries TARGETS )
+  twx_assert_equal ( TARGETS "${TARGETS}" )
   foreach ( target_ ${ARGN} )
 	  twx_assert_target ( ${target_} )
 		target_link_libraries (

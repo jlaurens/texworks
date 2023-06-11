@@ -34,12 +34,10 @@ twx_module_declare (
 		TwxAssets.in.h
 		TwxAssetsTrackDB_private.h
 		TwxAssetsTrackDB.in.h
-		TwxFriendTestMain_private.h
 		TwxConst.h
 		TwxInfo.in.h
 		TwxLocate_private.h
 		TwxLocate.in.h
-		TwxNamespaceTestMain_private.h
 		TwxSettings.in.h
 		TwxSetup.h
 		TwxTool.h

@@ -181,16 +181,16 @@ twx_assert_non_void(variable_name ... ) {}
 /*#]=======]
 function ( twx_assert_non_void )
   twx_parse_arguments ( "NO_MY_TWX" "" "" ${ARGN} )
-  foreach ( variable_ ${my_twx_UNPARSED_ARGUMENTS} )
-    if ( "${variable_}" MATCHES "$my_twx_(.+)$" )
+  foreach ( variable_ ${twxR_UNPARSED_ARGUMENTS} )
+    if ( "${variable_}" MATCHES "$twxR_(.+)$" )
       if ( "${${variable_}}" STREQUAL "" )
         twx_fatal ( "Missing ${variable_}")
       endif ()
     elseif ( "${${variable_}}" STREQUAL "" )
-      if ( my_twx_NO_MY_TWX )
+      if ( twxR_NO_MY_TWX )
         twx_fatal ( "Missing ${variable_}")
-      elseif ( "${my_twx_${variable_}}" STREQUAL "" )
-        twx_fatal ( "Missing ${variable_} (or my_twx_${variable_})")
+      elseif ( "${twxR_${variable_}}" STREQUAL "" )
+        twx_fatal ( "Missing ${variable_} (or twxR_${variable_})")
       endif ()
     endif ()
   endforeach ( variable_ )
@@ -265,14 +265,14 @@ include ( CMakeParseArguments )
 
 # ANCHOR: twx_parse_arguments
 #[=======[*/
-/** @brief Covers `cmake_parse_arguments` with name `my_twx`.
+/** @brief Covers `cmake_parse_arguments` with name `twxR`.
   *
-  * @param ..., forwards to `cmake_parse_arguments(my_twx ...)`.
+  * @param ..., forwards to `cmake_parse_arguments(twxR ...)`.
   */
 twx_parse_arguments(...) {}
 /*#]=======]
 macro ( twx_parse_arguments OPTIONALS ONES MANIES )
-  cmake_parse_arguments ( my_twx "${OPTIONALS}" "${ONES}" "${MANIES}" ${ARGN} )
+  cmake_parse_arguments ( twxR "${OPTIONALS}" "${ONES}" "${MANIES}" ${ARGN} )
 endmacro ()
 
 # ANCHOR: twx_assert_parsed
@@ -282,8 +282,8 @@ twx_assert_parsed() {}
 /*#]=======]
 macro ( twx_assert_parsed )
   # NB remember that arguments in functions and macros are not the same
-  if ( NOT "${my_twx_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    twx_fatal ( "Unparsed arguments ${my_twx_UNPARSED_ARGUMENTS}" )
+  if ( NOT "${twxR_UNPARSED_ARGUMENTS}" STREQUAL "" )
+    twx_fatal ( "Unparsed arguments ${twxR_UNPARSED_ARGUMENTS}" )
   endif ()
 endmacro ()
 
@@ -293,8 +293,8 @@ endmacro ()
   *
   * Used in conjunction with `twx_parse_arguments()`.
   * When an option FOO is parsed, we retrieve either `TRUE` or `FALSE`
-  * in `my_twx_FOO`. This transforms the contents in `FOO` or an empty string
-  * to allow the usage of `my_twx_FOO` as argument of a command that accepts
+  * in `twxR_FOO`. This transforms the contents in `FOO` or an empty string
+  * to allow the usage of `twxR_FOO` as argument of a command that accepts
   * the same FOO flag.
   * 
   * @param option is the flag name
@@ -302,10 +302,10 @@ endmacro ()
 twx_pass_option( option ) {}
 /*#]=======]
 macro ( twx_pass_option OPTION_ )
-  if ( my_twx_${OPTION_} )
-    set ( my_twx_${OPTION_} ${OPTION_} )
+  if ( twxR_${OPTION_} )
+    set ( twxR_${OPTION_} ${OPTION_} )
   else ()
-    set ( my_twx_${OPTION_} )
+    set ( twxR_${OPTION_} )
   endif ()
 endmacro ()
 
@@ -415,8 +415,8 @@ twx_export(... [EXPORT_PREFIX prefix] ){}
 #]=======]
 macro ( twx_export )
   twx_parse_arguments ( "" "EXPORT_PREFIX" "" ${ARGN} )
-  foreach ( var_twx ${my_twx_UNPARSED_ARGUMENTS} )
-    set ( var_twx "${my_twx_EXPORT_PREFIX}${var_twx}" )
+  foreach ( var_twx ${twxR_UNPARSED_ARGUMENTS} )
+    set ( var_twx "${twxR_EXPORT_PREFIX}${var_twx}" )
     set ( ${var_twx} ${${var_twx}} PARENT_SCOPE )
   endforeach ()
 endmacro ()

@@ -39,7 +39,7 @@ NB: The transition to Twx is not complete
 
 if ( NOT DEFINED TWX_IS_BASED )
 	# This file is primary
-	cmake_minimum_required ( VERSION 3.1 )
+	cmake_minimum_required ( VERSION 3.13 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE

@@ -82,48 +82,48 @@ function ( twx_manual_prepare )
   twx_parse_arguments ( "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" ${ARGN} )
   twx_assert_parsed ()
 
-  if ( EXISTS "${my_twx_ARCHIVE}" )
-    file ( SHA256 "${my_twx_ARCHIVE}" actual_sha256_ )
-    if ( NOT actual_sha256_ STREQUAL my_twx_SHA256 )
-      file ( REMOVE "${my_twx_ARCHIVE}" )
-      file ( REMOVE_RECURSE "${my_twx_BASE}" )
+  if ( EXISTS "${twxR_ARCHIVE}" )
+    file ( SHA256 "${twxR_ARCHIVE}" actual_sha256_ )
+    if ( NOT actual_sha256_ STREQUAL twxR_SHA256 )
+      file ( REMOVE "${twxR_ARCHIVE}" )
+      file ( REMOVE_RECURSE "${twxR_BASE}" )
     endif ()
   endif ()
 
-  if ( NOT EXISTS "${my_twx_ARCHIVE}" )
+  if ( NOT EXISTS "${twxR_ARCHIVE}" )
     message (
       STATUS
-      "Downloading TeXworks HTML manual from ${my_twx_URL}"
+      "Downloading TeXworks HTML manual from ${twxR_URL}"
     )
     file (
-      DOWNLOAD "${my_twx_URL}"
-      "${my_twx_ARCHIVE}"
-      EXPECTED_HASH SHA256=${my_twx_SHA256}
+      DOWNLOAD "${twxR_URL}"
+      "${twxR_ARCHIVE}"
+      EXPECTED_HASH SHA256=${twxR_SHA256}
       SHOW_PROGRESS
     )
   else ( )
     message (
-      STATUS "Using archive in '${my_twx_ARCHIVE}'"
+      STATUS "Using archive in '${twxR_ARCHIVE}'"
     )
   endif ()
 
-  if ( NOT EXISTS "${my_twx_BASE}" )
+  if ( NOT EXISTS "${twxR_BASE}" )
     message (
-      STATUS "Creating '${my_twx_BASE}'"
+      STATUS "Creating '${twxR_BASE}'"
     )
     file (
-      MAKE_DIRECTORY "${my_twx_BASE}"
+      MAKE_DIRECTORY "${twxR_BASE}"
     )
     execute_process (
-      COMMAND unzip "${my_twx_ARCHIVE}"
-      WORKING_DIRECTORY "${my_twx_BASE}"
+      COMMAND unzip "${twxR_ARCHIVE}"
+      WORKING_DIRECTORY "${twxR_BASE}"
     )
   else ()
     message (
-      STATUS "Using '${my_twx_BASE}'"
+      STATUS "Using '${twxR_BASE}'"
     )
   endif ()
-  twx_assert_exists ( my_twx_BASE )
+  twx_assert_exists ( twxR_BASE )
 endfunction ()
 
 # ANCHOR: Utility `twx_manual_process`

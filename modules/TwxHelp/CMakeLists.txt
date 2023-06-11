@@ -17,7 +17,7 @@ if ( TARGET TwxHelp )
 endif ()
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.1 )
+	cmake_minimum_required ( VERSION 3.13 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Include/TwxBase.cmake"
 		NO_POLICY_SCOPE
@@ -40,11 +40,7 @@ twx_module_configure ()
 include ( TwxDoxydocLib )
 twx_doxydoc ()
 
-if ( NOT TWX_NO_TEST )
-  set ( TWX_TEST ON )
-	enable_testing ()
-	add_subdirectory ( Test TwxTest )
-endif ()
+twx_module_test ()
 
 # ANCHOR - Summary
 # =======
@@ -74,8 +70,8 @@ twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
 twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )
 twx_summary_end ()
 
-twx_summary_section_compiler ( TwxTypeset )
-twx_summary_section_files    ( TwxTypeset )
+twx_summary_section_compiler ( TwxHelp )
+twx_summary_section_files    ( TwxHelp )
 
 twx_summary_end ( NO_EOL )
 

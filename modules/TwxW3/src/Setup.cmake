@@ -24,8 +24,6 @@ twx_module_declare (
 	HEADERS
 		TwxW3.in.h
 		TwxW3_private.h
-		TwxFriendTestMain_private.h
-		TwxNamespaceTestMain_private.h
 	QT
 		Widgets
 )

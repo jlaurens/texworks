@@ -22,7 +22,11 @@
 
 #include <TwxW3.h>
 
+#include <QString>
+#include <QDir>
+#include <QUrl>
 #include <QCoreApplication>
+#include <QMessageBox>
 
 namespace Twx {
 
