@@ -7,7 +7,7 @@ https://github.com/TeXworks/texworks
 
 Usage:
 
-  twx_module_setup ( NAME Typeset )
+  twx_module_setup ( Typeset )
 
 Not suitable outside of this module directory.
 

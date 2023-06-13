@@ -17,10 +17,6 @@ Input:
 /*
 #]===============================================]
 
-if ( TARGET test_TwxCore )
-  return ()
-endif ()
-
 if ( NOT DEFINED TWX_IS_BASED )
 	cmake_minimum_required ( VERSION 3.13 )
 	include (
@@ -28,98 +24,103 @@ if ( NOT DEFINED TWX_IS_BASED )
 		NO_POLICY_SCOPE
 	)
 endif ()
-project ( TwxCoreTest )
+
+twx_module_guess ( VAR_MODULE TWX_MODULE VAR_NAME TWX_MODULE_NAME )
+set ( TWX_NAME ${TWX_MODULE}Test )
+
+if ( TARGET test_${TWX_MODULE} )
+  return ()
+endif ()
+
+project ( ${TWX_NAME} )
 include ( TwxBase )
 
 include ( TwxModuleLib )
 
 set ( TWX_TEST ON )
 
-include ( TwxQTLib )
-twx_Qt_fresh()
-
-set ( TWX_TEST ON	)
-
 enable_testing ()
 
-set (
-	TWX_FACTORY_INI
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.ini"
-)
-set ( TWX_NAME TwxCoreTest )
+if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.ini" )
+	set (
+		TWX_FACTORY_INI
+		"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.ini"
+	)
+endif ()
 
-twx_module_setup ( NAME Core )
+twx_module_setup ( ${TWX_MODULE} )
 
-twx_QT_append ( REQUIRED Test )
-
-add_executable ( test_TwxCore )
-twx_module_includes ( Core TARGETS test_TwxCore )
+add_executable ( test_${TWX_MODULE} )
+twx_module_includes ( MODULES ${TWX_MODULE} TO_TARGETS test_${TWX_MODULE} )
 include ( TwxTestLib )
-twx_test_case ( twx_WorkingDirectory TARGET test_TwxCore )
-twx_assert_target ( test_TwxCore.WorkingDirectory )
+twx_test_case ( VAR twx_WorkingDirectory TARGET test_${TWX_MODULE} )
+twx_assert_non_void ( twx_WorkingDirectory )
+twx_assert_target ( test_${TWX_MODULE}.WorkingDirectory )
 
-add_executable ( test_TwxCore_macOS )
-add_dependencies ( test_TwxCore_macOS test_TwxCore )
-twx_module_includes ( Core TARGETS test_TwxCore_macOS )
-
-target_compile_definitions (
-	test_TwxCore
-	PRIVATE TWX_TEST TwxCore_TEST TwxAssets_TEST
-)
-target_compile_definitions (
-	test_TwxCore_macOS
-	PRIVATE TWX_TEST TwxCore_TEST TwxAssets_TEST
-)
+add_executable ( test_${TWX_MODULE}_macOS )
+add_dependencies ( test_${TWX_MODULE}_macOS test_${TWX_MODULE} )
+twx_module_includes ( MODULES Core TO_TARGETS test_${TWX_MODULE}_macOS )
 
 target_compile_definitions (
-	test_TwxCore
-	PRIVATE TwxLocate_TEST
+	test_${TWX_MODULE}
+	PRIVATE
+		TWX_TEST
+		${TWX_MODULE}_TEST
+		TwxAssets_TEST
+		TwxLocate_TEST
 )
+target_compile_definitions (
+	test_${TWX_MODULE}_macOS
+	PRIVATE TWX_TEST ${TWX_MODULE}_TEST TwxAssets_TEST
+)
+
+include ( TwxQTLib )
+twx_Qt_fresh ( TEST )
 
 target_link_libraries (
-	test_TwxCore
-	${TwxCore_LIBRARIES}
+	test_${TWX_MODULE}
 	${QT_LIBRARIES}
+	${${TWX_MODULE}_LIBRARIES}
 )
 target_link_libraries (
-	test_TwxCore_macOS
-	${TwxCore_LIBRARIES}
+	test_${TWX_MODULE}_macOS
 	${QT_LIBRARIES}
+	${${TWX_MODULE}_LIBRARIES}
 )
 
 include ( TwxWarning )
-twx_warning_target ( test_TwxCore test_TwxCore_macOS )
+twx_warning_target ( test_${TWX_MODULE} test_${TWX_MODULE}_macOS )
 
 target_sources (
-	test_TwxCore
-	PRIVATE ${TwxCore_SOURCES} ${TwxCore_HEADERS}
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.h"
+	test_${TWX_MODULE}
+	PRIVATE ${${TWX_MODULE}_SOURCES} ${${TWX_MODULE}_HEADERS}
+	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.h"
 )
 
 target_sources (
-	test_TwxCore_macOS
-	PRIVATE	${TwxCore_SOURCES} ${TwxCore_HEADERS}
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest_macOS.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest_macOS.h"
+	test_${TWX_MODULE}_macOS
+	PRIVATE	${${TWX_MODULE}_SOURCES} ${${TWX_MODULE}_HEADERS}
+	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test_macOS.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test_macOS.h"
 )
 
 set_target_properties (
-	test_TwxCore_macOS
+	test_${TWX_MODULE}_macOS
   PROPERTIES
 		RUNTIME_OUTPUT_DIRECTORY
 			"${twx_WorkingDirectory}/ExpectedDirName_macOS/Fake.app/Contents/MacOS"
 )
 
 add_test (
-	NAME test_TwxCore
-	COMMAND test_TwxCore
+	NAME test_${TWX_MODULE}
+	COMMAND test_${TWX_MODULE}
 	WORKING_DIRECTORY
 		"${twx_WorkingDirectory}"
 )
 add_test (
-	NAME test_TwxCore_macOS
-	COMMAND test_TwxCore_macOS
+	NAME test_${TWX_MODULE}_macOS
+	COMMAND test_${TWX_MODULE}_macOS
 	WORKING_DIRECTORY
 	"${twx_WorkingDirectory}"
 )
@@ -127,31 +128,31 @@ add_test (
 # define executables, with or without extension.
 # in the working directory or below
 set ( main.cpp ${CMAKE_CURRENT_LIST_DIR}/main.cpp )
-add_executable ( TwxCore_auxiliary           ${main.cpp} )
-add_dependencies ( TwxCore_auxiliary test_TwxCore )
-add_executable ( TwxCore_auxiliary_program   ${main.cpp} )
-add_dependencies ( TwxCore_auxiliary_program test_TwxCore )
+add_executable ( ${TWX_MODULE}_auxiliary           ${main.cpp} )
+add_dependencies ( ${TWX_MODULE}_auxiliary test_${TWX_MODULE} )
+add_executable ( ${TWX_MODULE}_auxiliary_program   ${main.cpp} )
+add_dependencies ( ${TWX_MODULE}_auxiliary_program test_${TWX_MODULE} )
 set_target_properties (
-	TwxCore_auxiliary   TwxCore_auxiliary_program
+	${TWX_MODULE}_auxiliary   ${TWX_MODULE}_auxiliary_program
   PROPERTIES
 		RUNTIME_OUTPUT_DIRECTORY "${twx_WorkingDirectory}/Locate/A"
 )
 set_target_properties (
- 	TwxCore_auxiliary TwxCore_auxiliary_program
+	${TWX_MODULE}_auxiliary ${TWX_MODULE}_auxiliary_program
   PROPERTIES
 	OUTPUT_NAME "program"
 )
 set_target_properties (
-	TwxCore_auxiliary_program
+	${TWX_MODULE}_auxiliary_program
   PROPERTIES
 		SUFFIX ".program"
 )
 add_executable (
-	TwxCore_Locate_absoluteProgramPath_program ${main.cpp}
+	${TWX_MODULE}_Locate_absoluteProgramPath_program ${main.cpp}
 )
-add_dependencies ( TwxCore_Locate_absoluteProgramPath_program test_TwxCore )
+add_dependencies ( ${TWX_MODULE}_Locate_absoluteProgramPath_program test_${TWX_MODULE} )
 set_target_properties (
-	TwxCore_Locate_absoluteProgramPath_program
+	${TWX_MODULE}_Locate_absoluteProgramPath_program
 	PROPERTIES
 		OUTPUT_NAME "program"
 		SUFFIX ".program"
@@ -161,7 +162,7 @@ if ( NOT UNIX )
   set ( .exe_twx .exe )
 endif ()
 add_custom_command (
-	TARGET TwxCore_Locate_absoluteProgramPath_program POST_BUILD
+	TARGET ${TWX_MODULE}_Locate_absoluteProgramPath_program POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy
 		"${twx_WorkingDirectory}/Locate/absoluteProgramPath/program.program"
 		"${twx_WorkingDirectory}/Locate/absoluteProgramPath/program${.exe_twx}"
@@ -193,14 +194,14 @@ List of subdirectories of `bin`:
 
 #]=======]
 add_executable (
-	TwxCore_Locate_appendListPATH_tex ${main.cpp}
+	${TWX_MODULE}_Locate_appendListPATH_tex ${main.cpp}
 )
 add_dependencies (
-	TwxCore_Locate_absoluteProgramPath_program
-	test_TwxCore.WorkingDirectory
+	${TWX_MODULE}_Locate_absoluteProgramPath_program
+	test_${TWX_MODULE}.WorkingDirectory
 )
 set_target_properties (
-	TwxCore_Locate_appendListPATH_tex
+	${TWX_MODULE}_Locate_appendListPATH_tex
 	PROPERTIES
 		OUTPUT_NAME "tex"
 		RUNTIME_OUTPUT_DIRECTORY "${twx_WorkingDirectory}/Locate/appendListPATH"
@@ -221,7 +222,7 @@ foreach ( year 1111 2222 3333 )
 			"${twx_WorkingDirectory}/Locate/usr/local/texlive/${year}/bin/${bin}/tex${.exe_twx}"
 		)
 		add_custom_command(
-			TARGET TwxCore_Locate_appendListPATH_tex POST_BUILD
+			TARGET ${TWX_MODULE}_Locate_appendListPATH_tex POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy
 				${input_twx}
 				${output_twx}
@@ -232,45 +233,80 @@ endforeach ()
 # Finally the library test
 
 add_executable (
-	test_TwxCoreLib
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
+	test_${TWX_MODULE}Lib
+	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}LibTest.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}LibTest.h"
 )
 
-twx_module_add ( NAMES Core TO_TARGETS test_TwxCoreLib )
-twx_Qt_link_libraries ( TARGETS test_TwxCoreLib )
+twx_Qt_link_libraries ( TARGETS test_${TWX_MODULE}Lib )
+target_link_libraries (
+	test_${TWX_MODULE}Lib
+	PRIVATE TwxCore
+)
+twx_module_add ( MODULES Core TO_TARGETS test_${TWX_MODULE}Lib )
 
 target_compile_definitions ( 
-  test_TwxCoreLib
-  PRIVATE TwxCoreLib_TEST
+  test_${TWX_MODULE}Lib
+  PRIVATE ${TWX_MODULE}Lib_TEST
 )
 
 add_test (
-	NAME test_TwxCoreLib
-	COMMAND test_TwxCoreLib
+	NAME test_${TWX_MODULE}Lib
+	COMMAND test_${TWX_MODULE}Lib
 	WORKING_DIRECTORY
 		"${twx_WorkingDirectory}"
 )
+
+# add_executable (
+# 	test_${TWX_MODULE}Lib2
+# 	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}LibTest.cpp"
+# 	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}LibTest.h"
+# )
+
+# twx_Qt_fresh ( TEST )
+# #twx_Qt_link_libraries ( TARGETS test_${TWX_MODULE}Lib2 )
+# target_link_libraries (
+# 	test_${TWX_MODULE}Lib
+# 	PRIVATE Qt5::Core Qt5::Test
+# )
+# twx_module_add ( MODULES Core TO_TARGETS test_${TWX_MODULE}Lib2 )
+
+# # target_compile_definitions ( 
+# #   test_${TWX_MODULE}Lib2
+# #   PRIVATE ${TWX_MODULE}Lib2_TEST
+# # )
+
+# add_test (
+# 	NAME test_${TWX_MODULE}Lib2
+# 	COMMAND test_${TWX_MODULE}Lib2
+# 	WORKING_DIRECTORY
+# 		"${twx_WorkingDirectory}"
+# )
 
 add_executable (
-	test_TwxCoreLib2
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/TwxCoreLibTest.h"
+	test_${TWX_MODULE}Lib2
+	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}LibTest.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}LibTest.h"
 )
 
-twx_module_add ( NAMES Core TO_TARGETS test_TwxCoreLib2 TEST )
-twx_Qt_link_libraries ( TARGETS test_TwxCoreLib2 )
-
-add_test (
-	NAME test_TwxCoreLib2
-	COMMAND test_TwxCoreLib2
-	WORKING_DIRECTORY
-		"${twx_WorkingDirectory}"
+twx_Qt_fresh ( TEST )
+# twx_Qt_link_libraries ( TARGETS test_${TWX_MODULE}Lib )
+target_link_libraries (
+	test_${TWX_MODULE}Lib2
+	PRIVATE Qt5::Core Qt5::Test
 )
+twx_module_add ( MODULES Core TO_TARGETS test_${TWX_MODULE}Lib2 TEST )
 
 target_compile_definitions ( 
-  test_TwxCoreLib2
-  PRIVATE TwxCoreLib2_TEST
+  test_${TWX_MODULE}Lib2
+  PRIVATE ${TWX_MODULE}Lib2_TEST
+)
+
+add_test (
+	NAME test_${TWX_MODULE}Lib2
+	COMMAND test_${TWX_MODULE}Lib2
+	WORKING_DIRECTORY
+		"${twx_WorkingDirectory}"
 )
 
 unset ( twx_WorkingDirectory )
@@ -291,10 +327,10 @@ twx_summary_begin (
 twx_summary_section_compiler ()
 
 twx_summary_begin ( BOLD_MAGENTA "Tests" )
-twx_summary_log ( "1" "test_TwxCore" )
-twx_summary_log ( "2" "test_TwxCore_macOS" )
-twx_summary_log ( "3" "test_TwxCoreLib" )
-twx_summary_log ( "4" "test_TwxCoreLib2" )
+twx_summary_log ( "1" "test_${TWX_MODULE}" )
+twx_summary_log ( "2" "test_${TWX_MODULE}_macOS" )
+twx_summary_log ( "3" "test_${TWX_MODULE}Lib" )
+twx_summary_log ( "4" "test_${TWX_MODULE}Lib2" )
 twx_summary_end ()
 
 twx_summary_section_git ()

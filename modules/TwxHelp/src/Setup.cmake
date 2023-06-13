@@ -7,12 +7,12 @@ https://github.com/TeXworks/texworks
 
 Usage:
 
-  twx_module_setup ( NAME Help )
+  twx_module_setup ( Help )
 
 Not suitable outside of this module directory.
 
 Output:
-- necessary `Qt` libs are appended
+- necessary `Qt` components are appended
 
 */
 /*
@@ -26,7 +26,7 @@ twx_module_declare (
     TwxHelpManager.in.h
   MODULES
     W3
-  QT
+  QT_COMPONENTS
     Widgets
 )
 

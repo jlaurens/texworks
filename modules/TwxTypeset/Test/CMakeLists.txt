@@ -29,13 +29,12 @@ project ( TwxTypesetTest )
 include ( TwxBase )
 
 include ( TwxQTLib )
-twx_Qt_fresh()
-twx_QT_append ( REQUIRED Test )
+twx_Qt_fresh ( REQUIRED Test )
 
 include ( TwxCfgLib )
 twx_cfg_setup ()
 include ( TwxModuleLib )
-twx_module_setup ( NAME Typeset )
+twx_module_setup ( Typeset )
 
 set ( TwxTypesetLib_DIR "${PROJECT_BINARY_DIR}/TwxModules/TwxTypeset" )
 
@@ -49,7 +48,7 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxTypesetTest.h"
 )
 
-twx_module_includes ( Typeset TARGETS test_TwxTypeset )
+twx_module_includes ( MODULES Typeset TO_TARGETS test_TwxTypeset )
 
 target_compile_definitions (
 	test_TwxTypeset
@@ -57,10 +56,10 @@ target_compile_definitions (
 )
 twx_Qt_link_libraries ( TARGETS test_TwxTypeset )
 
-twx_module_add ( Core TARGETS test_TwxTypeset )
+twx_module_add ( MODULES Core TO_TARGETS test_TwxTypeset )
 
 include ( TwxTestLib )
-twx_test_case ( twx_WorkingDirectory TARGET test_TwxTypeset )
+twx_test_case ( VAR twx_WorkingDirectory TARGET test_TwxTypeset )
 
 add_test (
 	NAME test_TwxTypeset

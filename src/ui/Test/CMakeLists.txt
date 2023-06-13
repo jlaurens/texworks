@@ -56,8 +56,7 @@ set ( TwxUI_TEST_IS_ROOT ON )
 enable_testing ()
 
 include ( TwxQTLib )
-twx_Qt_fresh ( TEST )
-twx_QT_append ( REQUIRED Widgets )
+twx_Qt_fresh ( TEST REQUIRED Widgets )
 
 include ( SrcTwxUISetup )
 
@@ -91,7 +90,7 @@ include ( TwxWarning )
 twx_warning_target ( test_TwxUI )
 
 include ( TwxTestLib )
-twx_test_case ( twx_WorkingDirectory TARGET test_TwxUI )
+twx_test_case ( VAR twx_WorkingDirectory TARGET test_TwxUI )
 
 add_test (
 	NAME test_TwxUI

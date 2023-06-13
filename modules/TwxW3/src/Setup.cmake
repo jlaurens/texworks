@@ -7,7 +7,7 @@ https://github.com/TeXworks/texworks
 
 Usage:
 
-  twx_module_setup ( NAME W3 )
+  twx_module_setup ( W3 )
 
 Not suitable outside of this module directory.
 
@@ -24,7 +24,7 @@ twx_module_declare (
 	HEADERS
 		TwxW3.in.h
 		TwxW3_private.h
-	QT
+	QT_COMPONENTS
 		Widgets
 )
 

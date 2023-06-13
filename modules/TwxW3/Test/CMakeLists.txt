@@ -31,13 +31,12 @@ project ( TwxW3Test )
 include ( TwxBase )
 
 include ( TwxQTLib )
-twx_Qt_fresh()
-twx_QT_append ( REQUIRED Test )
+twx_Qt_fresh ( REQUIRED Test )
 
 include ( TwxCfgLib )
 twx_cfg_setup ()
 include ( TwxModuleLib )
-twx_module_setup ( NAME W3 )
+twx_module_setup ( W3 )
 
 set ( TwxTypesetLib_DIR "${PROJECT_BINARY_DIR}/TwxModules/TwxTypeset" )
 
@@ -45,7 +44,7 @@ set ( TWX_TEST ON )
 enable_testing ()
 
 add_executable ( test_TwxW3 )
-twx_module_includes ( W3 TARGETS test_TwxW3 )
+twx_module_includes ( MODULES W3 TO_TARGETS test_TwxW3 )
 
 target_compile_definitions (
 	test_TwxW3
@@ -76,7 +75,7 @@ target_sources (
 )
 
 include ( TwxTestLib )
-twx_test_case ( twx_WorkingDirectory TARGET test_TwxW3 )
+twx_test_case ( VAR twx_WorkingDirectory TARGET test_TwxW3 )
 
 add_test (
 	NAME test_TwxW3
@@ -93,7 +92,7 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxW3LibTest.h"
 )
 
-twx_module_add ( W3 TARGETS test_TwxW3Lib )
+twx_module_add ( MODULES W3 TO_TARGETS test_TwxW3Lib )
 twx_Qt_link_libraries ( TARGETS test_TwxW3Lib )
 
 target_compile_definitions ( 

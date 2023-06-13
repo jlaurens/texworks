@@ -31,6 +31,8 @@ endif ()
 
 # CMake 3.1 significantly improves support for imported targets, Qt5, c++11, etc.
 # 3.13 allows to alter an already defined target
+# New in version 3.13: The <target> doesn't have to be defined in the same directory as the target_link_libraries call.
+# New in version 3.11: The source files can be omitted if they are added later using target_sources().
 cmake_policy ( VERSION 3.13 )
 
 # Silence warning about linking to qtmain.lib statically on Windows

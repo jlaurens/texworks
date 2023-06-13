@@ -7,7 +7,7 @@ https://github.com/TeXworks/texworks
 
 Usage:
 
-  twx_module_setup ( NAME Core )
+  twx_module_setup ( Core )
 
 Not suitable outside of this module directory.
 
@@ -41,9 +41,9 @@ twx_module_declare (
 		TwxSettings.in.h
 		TwxSetup.h
 		TwxTool.h
-	LIBRARIES
+	OTHER_LIBRARIES
 		"-framework Foundation"
-	QT
+	QT_COMPONENTS
 		Widgets
 )
 

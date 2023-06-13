@@ -29,13 +29,12 @@ project ( TwxHelpTest )
 include ( TwxBase )
 
 include ( TwxQTLib )
-twx_Qt_fresh()
-twx_QT_append ( REQUIRED Test )
+twx_Qt_fresh ( REQUIRED Test )
 
 include ( TwxCfgLib )
 twx_cfg_setup ()
 include ( TwxModuleLib )
-twx_module_setup ( NAME Help )
+twx_module_setup ( Help )
 
 set ( TwxHelpLib_DIR "${PROJECT_BINARY_DIR}/TwxModules/TwxHelp" )
 
@@ -49,17 +48,17 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxHelpTest.h"
 )
 
-twx_module_includes ( Help TARGETS test_TwxHelp )
+twx_module_includes ( MODULES Help TO_TARGETS test_TwxHelp )
 target_compile_definitions (
 	test_TwxHelp
 	PRIVATE TWX_TEST TwxHelp_TEST
 )
 twx_Qt_link_libraries ( TARGETS test_TwxHelp )
 
-twx_module_add ( NAMES Help TO_TARGETS test_TwxHelp )
+twx_module_add ( MODULES Help TO_TARGETS test_TwxHelp )
   
 include ( TwxTestLib )
-twx_test_case ( twx_WorkingDirectory TARGET test_TwxHelp )
+twx_test_case ( VAR twx_WorkingDirectory TARGET test_TwxHelp )
 
 add_test (
 	NAME test_TwxHelp

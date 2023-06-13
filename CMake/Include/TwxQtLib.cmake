@@ -84,15 +84,15 @@ QT_VERSION_PATCH;
 #]=======]
 set ( QtMAJOR "Qt${QT_VERSION_MAJOR}" )
 
-if ( COMMAND twx_QT_append )
+if ( COMMAND twx_Qt_find )
   # Already loaded, only initialize `QT_LIBRARIES`
 	set ( QT_LIBRARIES )
-	twx_QT_append ( REQUIRED Core )
+	twx_Qt_find ( REQUIRED Core )
 	if ( QT_VERSION_MAJOR EQUAL 6 )
-		twx_QT_append ( REQUIRED Core5Compat )
+		twx_Qt_find ( REQUIRED Core5Compat )
 	endif ()
 	if ( WITH_TEST OR TWX_TEST )
-		twx_QT_append ( REQUIRED Test )
+		twx_Qt_find ( REQUIRED Test )
 	endif ()
   return ()
 endif ()
@@ -100,111 +100,66 @@ endif ()
 # 1 utilities to find a package and append a component to the given variable
 # in general QT_LIBRARIES.
 
-# ANCHOR: twx_QT_append
+# ANCHOR: twx_Qt_find
 #[=======[
 *//**
 This function will load Qt components.
-The libraries are collected in the `QT_LIBRARIES` variable.
+
+The libraries are possibly collected in the `QT_LIBRARIES` variable
+or in a variable provided by the caller.
+Modules will provide the variable.
 
 Usage:
 ```
-twx_QT_append (
+twx_Qt_find (
+	[VAR components]
 	[REQUIRED required ...]
 	[OPTIONAL optional ...]
 )
 ```
-@param required for key REQUIRED, component
-@param optional for key OPTIONAL, component
-*/
-twx_QT_append(...) {}
-/*
-this must be a macro because the found packages are likely to
-change variables within the caller's scope,
-at least the "..._FOUND" ones.
-#]=======]
-macro ( twx_QT_append )
-	twx_parse_arguments ( "" "" "REQUIRED;OPTIONAL" ${ARGN} )
-	twx_assert_parsed ()
-	# Find all the packages
-	find_package (
-		${QtMAJOR}
-		REQUIRED COMPONENTS ${twxR_REQUIRED}
-		OPTIONAL_COMPONENTS ${twxR_OPTIONAL} QUIET
-	)
-	# Record the libraries, when not already done.
-	foreach ( component_twx IN LISTS twxR_REQUIRED )
-	  list ( FIND QT_LIBRARIES ${QtMAJOR}::${component_twx} k_twx )
-		if ( ${k_twx} LESS 0 )
-		  list ( APPEND QT_LIBRARIES ${QtMAJOR}::${component_twx} )
-		endif ()
-	endforeach ()
-	foreach ( component_twx IN LISTS twxR_OPTIONAL )
-# TODO: move to CMake 3.3
-		list ( FIND QT_LIBRARIES ${QtMAJOR}::${component_twx} k_twx )
-		if ( ${k_twx} LESS 0 )
-   		list ( APPEND QT_LIBRARIES ${QtMAJOR}::${component_twx} )
-		endif ()
-	endforeach ()
-	# unset local variables
-	unset ( twxR_REQUIRED )
-	unset ( twxR_OPTIONAL )
-	unset ( component_twx )
-	unset ( k_twx )
-endmacro ()
-
-# ANCHOR: twx_QT_find
-#[=======[
-*//**
-This function will load Qt components.
-The libraries are possibly collected in the `QT_LIBRARIES` variable.
-
-Usage:
-```
-twx_QT_find (
-	[REQUIRED required ...]
-	[OPTIONAL optional ...]
-	[COLLECT]
-)
-```
+@param found for key VAR is an optional list var name that
+	will hold on return the list of found components at its end.
+	When no variable name is provided, the found components are collected
+	in list variable `QT_LIBRARIES`.
 @param required for key REQUIRED, optional list of component
 @param optional for key OPTIONAL, optional list of component
-@param COLLECT optional flag to collect the found components in `QT_LIBRARIES`.
 */
-twx_QT_find([REQUIRED ...] [OPTIONAL ...] [COLLECT]) {}
+twx_Qt_find([VAR name] [REQUIRED ...] [OPTIONAL ...]) {}
 /*
 This must be a macro because the found packages are likely to
 change variables within the caller's scope,
 at least the "..._FOUND" ones.
 And this must be called from the scope where the components are used.
 #]=======]
-macro ( twx_QT_find )
-	twx_parse_arguments ( "COLLECT" "" "REQUIRED;OPTIONAL" ${ARGN} )
+macro ( twx_Qt_find )
+	twx_parse_arguments ( "" "VAR" "REQUIRED;OPTIONAL" ${ARGN} )
 	twx_assert_parsed ()
-	# Find all the packages
-	find_package (
-		${QtMAJOR}
-		REQUIRED COMPONENTS ${twxR_REQUIRED}
-		OPTIONAL_COMPONENTS ${twxR_OPTIONAL} QUIET
-	)
+	# Find all the components
+	if ( NOT "${twxR_REQUIRED}" STREQUAL "" )
+		find_package (
+			${QtMAJOR}
+			REQUIRED COMPONENTS ${twxR_REQUIRED}
+		)
+	endif ()
+	if ( NOT "${twxR_OPTIONAL}" STREQUAL "" )
+		find_package (
+			${QtMAJOR}
+			OPTIONAL_COMPONENTS ${twxR_OPTIONAL} QUIET
+		)
+	endif ()
+	if ( "${twxR_VAR}" STREQUAL "" )
+		set ( twxR_VAR QT_LIBRARIES )
+	endif ()
 	# Record the libraries, when not already done.
-	foreach ( component_twx ${twxR_REQUIRED} )
-	  list ( FIND QT_LIBRARIES ${QtMAJOR}::${component_twx} k_twx )
-		if ( ${k_twx} LESS 0 )
-		  list ( APPEND QT_LIBRARIES ${QtMAJOR}::${component_twx} )
-		endif ()
-	endforeach ()
-	foreach ( component_twx ${twxR_OPTIONAL} )
-# TODO: move to CMake 3.3
-		list ( FIND QT_LIBRARIES ${QtMAJOR}::${component_twx} k_twx )
-		if ( ${k_twx} LESS 0 )
-   		list ( APPEND QT_LIBRARIES ${QtMAJOR}::${component_twx} )
+	foreach ( component_twx ${twxR_REQUIRED} ${twxR_OPTIONAL} )
+		if ( NOT ${QtMAJOR}::${component_twx} IN_LIST ${twxR_VAR} )
+			list ( APPEND ${twxR_VAR} ${QtMAJOR}::${component_twx} )
 		endif ()
 	endforeach ()
 	# unset local variables
 	unset ( twxR_REQUIRED )
 	unset ( twxR_OPTIONAL )
 	unset ( component_twx )
-	unset ( k_twx )
 endmacro ()
 
 # ANCHOR: twx_Qt_target_guards
@@ -242,7 +197,7 @@ if ( NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_L
 endif ()
 set ( QT_LIBRARIES )
 
-twx_QT_append ( REQUIRED Core )
+twx_Qt_find ( REQUIRED Core )
 
 set ( QT_VERSION_MINOR "${${QtMAJOR}_VERSION_MINOR}" )
 set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
@@ -251,6 +206,7 @@ set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
 *//**
 @brief Setup a fresh `Qt` state.
 
+Calls at the end `twx_Qt_find()`
 @param TEST optional key, when provided and `TWX_TEST` is not set
   raise an error.
 */
@@ -258,21 +214,35 @@ twx_Qt_fresh ( [TEST] ) {}
 /*
 #]=======]
 macro ( twx_Qt_fresh )
-	set ( QT_LIBRARIES )
-	twx_QT_append ( REQUIRED Core )
-	if ( QT_VERSION_MAJOR EQUAL 6 )
-		twx_QT_append ( REQUIRED Core5Compat )
+message ( "twx_Qt_fresh: A" )
+  twx_parse_arguments ( "TEST" "VAR" "" ${ARGN} )
+	if ( "${twxR_VAR}" STREQUAL "" )
+	  set ( twxR_VAR QT_LIBRARIES )
 	endif ()
-	if ( WITH_TESTS OR TWX_TEST OR "${ARGN}" STREQUAL "TEST" )
-		twx_QT_append ( OPTIONAL Test )
+	set ( twx_Qt_fresh_UNPARSED_ARGUMENTS "${twxR_UNPARSED_ARGUMENTS}" )
+	set ( ${twxR_VAR} )
+	message ( "twx_Qt_fresh: B" )
+	twx_Qt_find ( VAR ${twxR_VAR} REQUIRED Core )
+	if ( QT_VERSION_MAJOR EQUAL 6 )
+		twx_Qt_find ( VAR ${twxR_VAR} REQUIRED Core5Compat )
+	endif ()
+	message ( "twx_Qt_fresh: ${twxR_VAR} => ${${twxR_VAR}}" )
+	if ( WITH_TESTS OR TWX_TEST OR ${twxR_TEST} )
+		twx_Qt_find ( VAR ${twxR_VAR} OPTIONAL Test )
+		message ( "twx_Qt_fresh: ${twxR_VAR} => ${${twxR_VAR}}" )
 		if ( NOT ${QtMAJOR}Test_FOUND )
 			set ( WITH_TESTS OFF )
 			set ( TWX_TEST OFF )
 		endif ()
 	endif ()
-	if ( "${ARGN}" STREQUAL "TEST" AND NOT WITH_TESTS AND NOT TWX_TEST )
+	if ( ${twxR_TEST} AND NOT WITH_TESTS AND NOT TWX_TEST )
 		twx_fatal ( "QTest is not available" )
 	endif ()
+	twx_Qt_find ( VAR ${twxR_VAR} ${twx_Qt_fresh_UNPARSED_ARGUMENTS} )
+	message ( "twx_Qt_fresh: ${twxR_VAR} => ${${twxR_VAR}}" )
+	unset ( twxR_VAR )
+	unset ( twxR_TEST )
+	unset ( twx_Qt_fresh_UNPARSED_ARGUMENTS )
 endmacro ()
 
 # ANCHOR: twx_Qt_link_libraries
@@ -280,21 +250,22 @@ endmacro ()
 *//**
 @brief Link the current Qt libraries to the given target.
 
-@param ... list of targets for key TARGETS.
+@param ... for key TARGETS, list of targets.
 */
 twx_Qt_link_libraries ( ... ) {}
 /*
 #]=======]
-macro ( twx_Qt_link_libraries TARGETS )
-  twx_assert_equal ( TARGETS "${TARGETS}" )
-  foreach ( target_ ${ARGN} )
+function ( twx_Qt_link_libraries )
+  twx_parse_arguments ( "" "" "TARGETS" ${ARGN} )
+	twx_assert_parsed ()
+  foreach ( target_ ${twxR_TARGETS} )
 	  twx_assert_target ( ${target_} )
 		target_link_libraries (
 			${target_}
-			${QT_LIBRARIES}
+			PRIVATE ${QT_LIBRARIES}
 		)
 	endforeach ()
-endmacro ()
+endfunction (twx_Qt_link_libraries)
 
 message ( STATUS "TwxQtLib: Qt version ${QT_VERSION_MAJOR}" )
 #*/

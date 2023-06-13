@@ -35,33 +35,36 @@ it must exist.
 The destination is `<executable>.WorkingDirectory` near the executable.
 In order to track the changes, a custom command is used.
 
-@param executable the name of a valid executable
-@param variable contains on return the full directory path
-for the tests on return.
+@param ans for key VAR, contains on return the full directory path
+for the tests.
+@param executable for key TARGET, the name of a valid executable
 
 Includes `TwxBase`
 */
-twx_test_case ( variable TARGET executable ) {}
+twx_test_case ( VAR ans TARGET executable ) {}
 /*
 #]=======]
-function ( twx_test_case twxR_variable TARGET twxR_target )
+function ( twx_test_case )
   if ( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory" )
     twx_fatal ( "No WorkingDirectory" )
   endif ()
-  twx_assert_equal ( TARGET ${TARGET} )
-  twx_assert_target ( ${twxR_target} )
+  twx_parse_arguments ( "" "VAR;TARGET" "" ${ARGN} )
+  twx_assert_parsed ()
+  twx_assert_target ( ${twxR_TARGET} )
+  twx_assert_non_void ( twxR_VAR )
   twx_assert_non_void ( TWX_PROJECT_PRODUCT_DIR )
   file ( MAKE_DIRECTORY "${TWX_PROJECT_PRODUCT_DIR}" )
   set_target_properties (
-    ${twxR_target}
+    ${twxR_TARGET}
     PROPERTIES
       RUNTIME_OUTPUT_DIRECTORY "${TWX_PROJECT_PRODUCT_DIR}"
   )
   set (
-    ${twxR_variable}
-    "${TWX_PROJECT_PRODUCT_DIR}/${twxR_target}.WorkingDirectory"
+    ${twxR_VAR}
+    "${TWX_PROJECT_PRODUCT_DIR}/${twxR_TARGET}.WorkingDirectory"
   )
   if ( NOT "" STREQUAL "" )
+  # Remove this branch when done
     set ( temporaryDir_ "${TWX_PROJECT_BUILD_DATA_DIR}/Temporary" )
     message ( STATUS "FROM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
     file (
@@ -72,27 +75,27 @@ function ( twx_test_case twxR_variable TARGET twxR_target )
       twx_fatal ( "COPY FAILED" )
     endif ()
     file (
-      REMOVE_RECURSE "${${twxR_variable}}"
+      REMOVE_RECURSE "${${twxR_VAR}}"
     )
-    message ( STATUS "DESTINATION: ${${twxR_variable}}" )
+    message ( STATUS "DESTINATION: ${${twxR_VAR}}" )
     file (
       RENAME
         "${temporaryDir_}/WorkingDirectory"
-        "${${twxR_variable}}"
+        "${${twxR_VAR}}"
     )
     file (
       REMOVE_RECURSE "${temporaryDir_}"
     )
   else ()
-    if ( NOT TARGET ${twxR_target}.WorkingDirectory )
+    if ( NOT TARGET ${twxR_TARGET}.WorkingDirectory )
       twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
       set (
         stamped_
-        "${TWX_PROJECT_BUILD_DATA_DIR}/${twxR_target}.WorkingDirectory.stamped"
+        "${TWX_PROJECT_BUILD_DATA_DIR}/${twxR_TARGET}.WorkingDirectory.stamped"
       )
       add_custom_command (
         COMMAND "${CMAKE_COMMAND}"
-          "-DTWX_TARGET=\"${twxR_target}\""
+          "-DTWX_TARGET=\"${twxR_TARGET}\""
           "-DTWX_SOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}\""
           "-DTWX_TEMPORARY_DIR=\"${TWX_PROJECT_BUILD_DATA_DIR}/Temporary\""
           "-DTWX_DESTINATION_DIR=\"${TWX_PROJECT_PRODUCT_DIR}\""
@@ -104,17 +107,17 @@ function ( twx_test_case twxR_variable TARGET twxR_target )
           "${CMAKE_COMMAND}"
             -E touch "${stamped_}"
         COMMENT
-          "Setup ${twxR_target} working directory"
+          "Setup ${twxR_TARGET} working directory"
         OUTPUT "${stamped_}"
       )
       add_custom_target (
-        ${twxR_target}.WorkingDirectory
+        ${twxR_TARGET}.WorkingDirectory
         DEPENDS
         "${stamped_}"
       )
     endif ()
-    add_dependencies( ${twxR_target} ${twxR_target}.WorkingDirectory )
+    add_dependencies( ${twxR_TARGET} ${twxR_TARGET}.WorkingDirectory )
   endif ()
-  twx_export ( ${twxR_variable} )
+  twx_export ( ${twxR_VAR} )
 endfunction ()
 #*/

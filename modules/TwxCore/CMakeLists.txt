@@ -18,7 +18,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 endif ()
 
 include ( TwxModuleLib )
-twx_module_name ( TWX_MODULE NAME TWX_MODULE_NAME )
+twx_module_guess ( VAR_MODULE TWX_MODULE VAR_NAME TWX_MODULE_NAME )
 
 project ( ${TWX_MODULE} )
 include ( TwxBase )
