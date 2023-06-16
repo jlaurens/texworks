@@ -931,17 +931,18 @@ endmacro ( twx_module_configure_main )
 twx_module_configure_test() {}
 /*#]=======]
 macro ( twx_module_configure_test )
-  twx_module_guess ( VAR_MODULE module_ VAR_NAME name_ )
-  twx_message_verbose ( "twx_module_configure_test: ${name_}" DEEPER )
   twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME )
-  include ( TwxQTLib )
-  twx_Qt_fresh ( TEST )
-  include ( TwxCfgLib )
-  twx_cfg_setup ()
+  twx_message_verbose ( "${TWX_MODULE} test suite:" DEEPER )
   include ( TwxModuleLib )
-  twx_module_setup ()
   set ( TWX_TEST ON )
   enable_testing ()
+  if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.ini" )
+    set (
+      TWX_FACTORY_INI
+      "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.ini"
+    )
+  endif ()
+  twx_module_setup ( ${TWX_MODULE} )
   add_executable (
     test_${TWX_MODULE}
     ${${TWX_MODULE}_SOURCES} ${${TWX_MODULE}_HEADERS}
@@ -949,24 +950,43 @@ macro ( twx_module_configure_test )
     "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.h"
   )
   twx_module_includes ( ${TWX_MODULE} TO_TARGETS test_${TWX_MODULE} )
-  target_compile_definitions (
-    test_${TWX_MODULE}
-    PRIVATE TWX_TEST ${TWX_MODULE}_TEST
-  )
-  twx_Qt_link_libraries ( TARGETS test_${TWX_MODULE} )
   include ( TwxTestLib )
   twx_test_case ( VAR twx_WorkingDirectory TARGET test_${TWX_MODULE} )
+  twx_assert_non_void ( twx_WorkingDirectory )
+  twx_assert_target ( test_${TWX_MODULE}.WorkingDirectory )
+  target_compile_definitions (
+    test_${TWX_MODULE}
+    PRIVATE
+      TWX_TEST
+      ${TWX_MODULE}_TEST
+  )
+  include ( TwxQTLib )
+  twx_Qt_fresh ( TEST )
+  target_link_libraries (
+    test_${TWX_MODULE}
+    ${QT_LIBRARIES}
+    ${${TWX_MODULE}_LIBRARIES}
+  )
+  include ( TwxWarning )
+  twx_warning_target ( test_${TWX_MODULE} test_${TWX_MODULE}_macOS )
   add_test (
     NAME test_${TWX_MODULE}
     COMMAND test_${TWX_MODULE}
     WORKING_DIRECTORY
       "${twx_WorkingDirectory}"
   )
-  if ( EXISTS TestSetup.cmake )
-    include ( TestSetup.cmake )
+  target_compile_definitions (
+    test_${TWX_MODULE}
+    PRIVATE
+      TwxAssets_TEST
+      TwxLocate_TEST
+  )
+  set ( ${TWX_MODULE}_TEST_SUITE ${TWX_MODULE_NAME} ) 
+  if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/TestSetup.cmake" )
+    include ( "${CMAKE_CURRENT_LIST_DIR}/TestSetup.cmake" )
   endif ()
   unset ( twx_WorkingDirectory )
-  twx_module_summary ( TEST NO_EOL )
+  twx_module_summary ( NO_EOL )
 endmacro ( twx_module_configure_test )
 
 # ANCHOR: twx_module_summary
@@ -975,20 +995,18 @@ endmacro ( twx_module_configure_test )
   *
   * Convenient method called from the main and test `CMakeLists.txt`
   *
-  * @param TEST is an optional flag. When set the main banner refers to test suite
-  * otherwise it refers to a module.
   * @param NO_EOL is an optional flag passed to `twx_summary_end()`.
   */
-twx_module_summary( [TEST] ) {}
+twx_module_summary( [NO_EOL] ) {}
 /*#]=======]
 function ( twx_module_summary )
   twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME )
-  twx_parse_arguments ( "TEST;NO_EOL" "" "" ${ARGN} )
+  twx_parse_arguments ( "NO_EOL" "" "" ${ARGN} )
   twx_assert_parsed ()
-  if ( twxR_TEST )
-    set ( b_ "test suite" )
-  else ()
+  if ( "${TWX_MODULE}_TEST_SUITE" STREQUAL "" )
     set ( b_ "library" )
+  else ()
+    set ( b_ "test suite" )
   endif ()
   message ( "" )
   include ( TwxSummaryLib )
@@ -1002,9 +1020,19 @@ function ( twx_module_summary )
   twx_summary_begin ( BOLD_MAGENTA "Version info" )
   twx_summary_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )
   twx_summary_end ()
-  twx_summary_section_libraries ( ${TWX_MODULE_NAME} )
-  twx_summary_section_build_settings ( ${TWX_MODULE_NAME} )
-  twx_summary_section_files ( ${TWX_MODULE_NAME} )
+  if ( "${TWX_MODULE}_TEST_SUITE" STREQUAL "" )
+    twx_summary_section_files ( ${TWX_MODULE_NAME} )
+    twx_summary_section_build_settings ( ${TWX_MODULE_NAME} )
+    twx_summary_section_libraries ( ${TWX_MODULE_NAME} )
+  else ()
+    foreach ( t_ ${${TWX_MODULE}_TEST_SUITE} )
+      twx_summary_begin( BOLD_BLUE "Test ${t_}:" )
+        twx_summary_section_files ( test_Twx${t_} )
+        twx_summary_section_build_settings ( test_Twx${t_} )
+        twx_summary_section_libraries ( test_Twx${t_} )
+      twx_summary_end ()
+    endforeach ()
+  endif ()
   twx_pass_option ( NO_EOL )
   twx_summary_end ( ${twxR_NO_EOL} )
 endfunction ( twx_module_summary )
