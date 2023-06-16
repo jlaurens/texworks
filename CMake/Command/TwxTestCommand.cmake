@@ -33,6 +33,7 @@ twx_assert_exists ( "${TWX_SOURCE_DIR}/WorkingDirectory" )
 twx_assert_non_void ( TWX_TEMPORARY_DIR )
 twx_assert_non_void ( TWX_DESTINATION_DIR )
 
+twx_message_deeper ()
 file ( MAKE_DIRECTORY "${TWX_TEMPORARY_DIR}" )
 file (
   COPY "${TWX_SOURCE_DIR}/WorkingDirectory"
@@ -42,7 +43,7 @@ twx_assert_exists ( "${TWX_TEMPORARY_DIR}/WorkingDirectory" )
 file (
   REMOVE_RECURSE "${TWX_DESTINATION_DIR}/${TWX_TARGET}.WorkingDirectory"
 )
-message ( STATUS "DESTINATION: ${TWX_DESTINATION_DIR}/${TWX_TARGET}.WorkingDirectory" )
+twx_message_verbose ( "TwxTestCommand DESTINATION: ${TWX_DESTINATION_DIR}/${TWX_TARGET}.WorkingDirectory" )
 file (
   RENAME
     "${TWX_TEMPORARY_DIR}/WorkingDirectory"
@@ -51,5 +52,5 @@ file (
 file (
   REMOVE_RECURSE "${TWX_TEMPORARY_DIR}/WorkingDirectory"
 )
-twx_message_verbose ( STATUS "Setup: ${TWX_DESTINATION_DIR}/${TWX_TARGET}.WorkingDirectory")
+twx_message_verbose ( "TwxTestCommand Setup: ${TWX_DESTINATION_DIR}/${TWX_TARGET}.WorkingDirectory")
 #*/

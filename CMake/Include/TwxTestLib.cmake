@@ -66,7 +66,7 @@ function ( twx_test_case )
   if ( NOT "" STREQUAL "" )
   # Remove this branch when done
     set ( temporaryDir_ "${TWX_PROJECT_BUILD_DATA_DIR}/Temporary" )
-    message ( STATUS "FROM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
+    twx_message_verbose ( "twx_test_case FROM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
     file (
       COPY "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory"
       DESTINATION "${temporaryDir_}"
@@ -77,7 +77,7 @@ function ( twx_test_case )
     file (
       REMOVE_RECURSE "${${twxR_VAR}}"
     )
-    message ( STATUS "DESTINATION: ${${twxR_VAR}}" )
+    twx_message_verbose ( "twx_test_case DESTINATION: ${${twxR_VAR}}" )
     file (
       RENAME
         "${temporaryDir_}/WorkingDirectory"
@@ -102,6 +102,7 @@ function ( twx_test_case )
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
           "-DTWX_TEST=${TWX_TEST}"
           "-DTWX_DEV=${TWX_DEV}"
+          "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
           -P "${TWX_DIR}/CMake/Command/TwxTestCommand.cmake"
         COMMAND
           "${CMAKE_COMMAND}"

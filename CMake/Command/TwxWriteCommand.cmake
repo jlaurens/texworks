@@ -22,7 +22,7 @@ include (
 )
 twx_assert_non_void ( TWX_OUTPUT )
 
-twx_message_verbose ( STATUS "TwxWriteCommand: -> ${TWX_OUTPUT}" )
+twx_message_verbose ( "TwxWriteCommand: -> ${TWX_OUTPUT}" )
 
 file (
   WRITE

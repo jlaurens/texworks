@@ -129,6 +129,7 @@ function ( twx_poppler_data_process )
       "-DTWX_DEV=${TWX_DEV}"
       "-DTWX_TEST=${TWX_TEST}"
       "-DTWX_VERBOSE=${TWX_VERBOSE}"
+      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
       -P "${TwxPopplerDataCommand.cmake}"
   )
 endfunction ()

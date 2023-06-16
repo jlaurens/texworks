@@ -15,6 +15,7 @@ Input:
   - `TWX_NAME`
   - `TWX_FACTORY_INI`
   - `TWX_CFG_INI_DIR`
+  - `TWX_MESSAGE_DEPTH`
 
 Output:
   - an updated factory Cfg data file
@@ -74,14 +75,15 @@ twx_assert_non_void ( TWX_NAME )
 
 include ( TwxCfgLib )
 
-twx_message_more_verbose ( STATUS
+twx_message_more_verbose (
   "TwxCfg_factory: TWX_NAME        => ${TWX_NAME}"
   "TwxCfg_factory: TWX_FACTORY_INI => ${TWX_FACTORY_INI}"
   "TwxCfg_factory: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
+  DEEPER
 )
 
 # Parse the ini contents
-twx_message_verbose ( STATUS "Parsing ${TWX_FACTORY_INI}" )
+twx_message_more_verbose ( "TwxCfg_factory: Parsing ${TWX_FACTORY_INI}" )
 twx_cfg_read ( "${TWX_FACTORY_INI}" )
 twx_cfg_write_begin ( ID "factory" )
 # verify the expectations

@@ -39,7 +39,7 @@ include (
 twx_assert_non_void ( TWX_INPUT )
 twx_assert_non_void ( TWX_OUTPUT )
 
-twx_message_verbose ( STATUS "TwxCfgOneFileCommand: ${TWX_INPUT} -> ${TWX_OUTPUT}" )
+twx_message_verbose ( "TwxCfgOneFileCommand: ${TWX_INPUT} -> ${TWX_OUTPUT}" DEEPER )
 
 include ( TwxCfgLib )
 include ( TwxCfgFileLib )
@@ -70,7 +70,7 @@ if (  _ts_output GREATER _ts_input
   AND _ts_output GREATER TWX_TIMESTAMP_static_CFG
   AND _ts_output GREATER TWX_TIMESTAMP_git_CFG
 )
-twx_message_verbose ( STATUS "TwxCfgFileCommand: ${TWX_INPUT} => ${TWX_OUTPUT}" )
+twx_message_verbose ( "TwxCfgFileCommand: ${TWX_INPUT} => ${TWX_OUTPUT}" )
 configure_file (
   "${TWX_INPUT}"
   "${TWX_OUTPUT}"
@@ -78,6 +78,6 @@ configure_file (
   @ONLY
 )
 
-twx_message_verbose ( STATUS "TwxCfgOneFileCommand... DONE" )
+twx_message_verbose ( "TwxCfgOneFileCommand... DONE" )
 
 #*/

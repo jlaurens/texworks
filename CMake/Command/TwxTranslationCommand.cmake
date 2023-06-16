@@ -143,9 +143,9 @@ twx_translation_create_pro_file (
 	INPUT_FILES "${TWX_INPUT_FILES}"
 )
 
-twx_message_verbose ( STATUS "${pro_path_}" )
+twx_message_verbose ( "TwxTranslationCommand: ${pro_path_}" DEEPER )
 
-message ( STATUS "Running lupdate ${TWX_TARGET}.pro" )
+message ( STATUS "TwxTranslationCommand: Running lupdate ${TWX_TARGET}.pro" )
 execute_process (
 	COMMAND "${Qt_LUPDATE_EXECUTABLE}" "${TWX_TARGET}.pro"
 )

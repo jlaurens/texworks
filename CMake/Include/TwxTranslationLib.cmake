@@ -76,6 +76,7 @@ function ( twx_translation_target_setup twxR_TARGET )
       "-DTWX_INPUT_FILES=\"${_sources};${${twxR_TARGET}_UIS};${${twxR_TARGET}_TRANS_TS}\""
       "-DTWX_INCLUDE_PATH=\"${TYWX_DIR}/src\""
       "-DQt_LUPDATE_EXECUTABLE=\"${_lupdate_path}\""
+      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
       -P "${TWX_DIR}/CMake/Command/TwxTranslationCommand.cmake"
   )
   if ( NOT TARGET UpdateTranslations )

@@ -48,14 +48,14 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxHelpTest.h"
 )
 
-twx_module_includes ( MODULES Help TO_TARGETS test_TwxHelp )
+twx_module_includes ( Help TO_TARGETS test_TwxHelp )
 target_compile_definitions (
 	test_TwxHelp
 	PRIVATE TWX_TEST TwxHelp_TEST
 )
 twx_Qt_link_libraries ( TARGETS test_TwxHelp )
 
-twx_module_add ( MODULES Help TO_TARGETS test_TwxHelp )
+twx_module_add ( Help TO_TARGETS test_TwxHelp )
   
 include ( TwxTestLib )
 twx_test_case ( VAR twx_WorkingDirectory TARGET test_TwxHelp )

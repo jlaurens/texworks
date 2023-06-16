@@ -45,7 +45,7 @@ at some early point.
 # Full include only once
 if ( DEFINED TWX_IS_BASED )
 # This has already been included
-  twx_message_verbose ( STATUS "TwxBase: ${CMAKE_PROJECT_NAME}" )
+  twx_message_more_verbose ( "TwxBase: CMAKE_PROJECT_NAME => ${CMAKE_PROJECT_NAME}" )
 
 	set ( CMAKE_CXX_STANDARD 11 )
 	# Tell CMake to run moc and friends when necessary:
@@ -119,9 +119,9 @@ TWX_PACKAGE_DIR;
   */
 TWX_EXTERNAL_DIR;
 /*#]=======]
-if ( "${TWX_BUILD_DIR}" STREQUAL "" )
-  __twx_base_setup_dir ()
-endif ()
+  if ( "${TWX_BUILD_DIR}" STREQUAL "" )
+    __twx_base_setup_dir ()
+  endif ()
 
 # ANCHOR: TWX_PROJECT_BUILD_DIR
 #[=======[*/

@@ -113,6 +113,7 @@ macro ( twx_cfg_update_factory )
       "-DTWX_VERBOSE=${TWX_VERBOSE}"
       "-DTWX_TEST=${TWX_TEST}"
       "-DTWX_DEV=${TWX_DEV}"
+      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
       -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
     RESULT_VARIABLE result_twx
   )
@@ -134,6 +135,7 @@ macro ( twx_cfg_update_git )
       "-DTWX_VERBOSE=${TWX_VERBOSE}"
       "-DTWX_TEST=${TWX_TEST}"
       "-DTWX_DEV=${TWX_DEV}"
+      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
       -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
   )
   twx_cfg_read ( "git" )
@@ -217,7 +219,6 @@ function ( twx_cfg_setup )
     twx_assert_exists ( TWX_FACTORY_INI )
     set ( target_twx "TwxCfg_${PROJECT_NAME}" )
     twx_message_verbose (
-      STATUS
       "${target_twx}"
       "${TWX_FACTORY_INI}"
       "${TWX_CFG_INI_DIR}"
@@ -248,6 +249,7 @@ function ( twx_cfg_setup )
         "-DTWX_VERBOSE=${TWX_VERBOSE}"
         "-DTWX_TEST=${TWX_TEST}"
         "-DTWX_DEV=${TWX_DEV}"
+        "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
         -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
       DEPENDS
         ${TWX_FACTORY_INI}
@@ -262,6 +264,7 @@ function ( twx_cfg_setup )
         "-DTWX_VERBOSE=${TWX_VERBOSE}"
         "-DTWX_TEST=${TWX_TEST}"
         "-DTWX_DEV=${TWX_DEV}"
+        "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
         -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
       DEPENDS
         ${path_factory_twx}
@@ -351,7 +354,7 @@ function ( twx_cfg_set ID id_ )
   list ( APPEND cfg_keys_${id_}_twx "${key_}" )
   string ( REPLACE ";" "{{{semicolon}}}" value_ "${value_}" )
   list ( APPEND cfg_values_${id_}_twx "<${value_}>" )
-  twx_message_more_verbose ( STATUS "TwxCfg(${id_}): ${key_} => <${value_}>" )
+  twx_message_more_verbose ( "TwxCfg(${id_}): ${key_} => <${value_}>" )
   twx_export (
     cfg_keys_${id_}_twx
     cfg_values_${id_}_twx
@@ -429,14 +432,28 @@ function ( twx_cfg_write_end )
     )
   endwhile ()
   # write the file
-  twx_message_verbose ( STATUS "Writing ${path_}" )
+  twx_message_verbose ( "twx_cfg_write_end: Writing ${path_}" )
   file ( WRITE "${path_}(busy)" "${contents_}" )
+  if ( NOT EXISTS "${path_}(busy)" )
+    twx_fatal ( "Could not create ${path_}(busy)" )
+  endif ()
+  set ( ans_twx )
   execute_process (
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${path_}(busy)"
       "${path_}"
+    RESULT_VARIABLE ans_twx
+  )
+  if ( NOT ans_twx EQUAL 0 )
+    twx_message_verbose ( WARNING "copy_if_different: ans_twx => ${ans_twx}" )
+  endif ()
+  if ( NOT EXISTS "${path_}" )
+    twx_fatal ( "Could not create ${path_}" )
+  endif ()
+  execute_process (
     COMMAND ${CMAKE_COMMAND} -E remove
       "${path_}(busy)"
+    RESULT_VARIABLE ans_twx
   )
   unset ( cfg_keys_${twxR_ID}_twx   PARENT_SCOPE )
   unset ( cfg_values_${twxR_ID}_twx PARENT_SCOPE )
@@ -529,7 +546,7 @@ function ( twx_cfg_read )
   endwhile ()
   # Parse the files
   foreach ( name_ IN LISTS cfg_ini_ordered_ )
-    twx_message_more_verbose ( STATUS "twx_cfg_read: ${name_}" )
+    twx_message_more_verbose ( "twx_cfg_read: ${name_}" )
     file (
       STRINGS "${name_}"
       lines
@@ -562,7 +579,7 @@ function ( twx_cfg_read )
         ${name_}_TWX_TIMESTAMP_CFG
       )
     endif ()
-    twx_message_verbose ( STATUS "twx_cfg_read: ${count_} records in ${name_}" )
+    twx_message_more_verbose ( "twx_cfg_read: ${count_} records in ${name_}" )
     if ( twxR_QUIET )
       return ()
     endif ()

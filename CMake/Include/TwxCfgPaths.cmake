@@ -189,9 +189,7 @@ twx_cfg_set ( FACTORY_PATH "${TWX_paths}" )
 
 twx_cfg_write_end ( ID "paths" )
 
-if ( TWX_VERBOSE )
-  message ( STATUS "Paths updated" )
-endif ()
+twx_message_verbose ( "TwxCfgPaths: Paths updated" )
 
 if ( TWX_VERBOSE AND NOT "${TWX_paths}" STREQUAL "" )
 	if ( WIN32 )

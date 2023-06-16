@@ -73,7 +73,7 @@ target_compile_options(test_Scripting PRIVATE ${WARNING_OPTIONS})
 target_link_libraries(test_Scripting ${QT_LIBRARIES} ${ZLIB_LIBRARIES} ${TEXWORKS_ADDITIONAL_LIBS})
 add_test(NAME test_Scripting COMMAND test_Scripting WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
 include ( TwxModuleLib )
-twx_module_add ( MODULES Core TO_TARGETS test_Scripting )
+twx_module_add ( Core TO_TARGETS test_Scripting )
 
 IF ( LUA_FOUND AND WITH_LUA )
 	add_executable(test_LuaScripting
@@ -130,4 +130,4 @@ target_link_libraries(test_Document QtPDF::qtpdf SyncTeX::synctex Hunspell::huns
 add_test(NAME test_Document COMMAND test_Document WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/testcases")
 
 include ( TwxModuleLib )
-twx_module_add ( MODULES Core TO_TARGETS test_Document )
+twx_module_add ( Core TO_TARGETS test_Document )

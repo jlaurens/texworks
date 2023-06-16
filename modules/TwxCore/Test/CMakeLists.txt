@@ -35,6 +35,8 @@ endif ()
 project ( ${TWX_NAME} )
 include ( TwxBase )
 
+twx_message_verbose ( "${TWX_MODULE} test suite:" DEEPER )
+
 include ( TwxModuleLib )
 
 set ( TWX_TEST ON )
@@ -51,7 +53,7 @@ endif ()
 twx_module_setup ( ${TWX_MODULE} )
 
 add_executable ( test_${TWX_MODULE} )
-twx_module_includes ( MODULES ${TWX_MODULE} TO_TARGETS test_${TWX_MODULE} )
+twx_module_includes ( ${TWX_MODULE} TO_TARGETS test_${TWX_MODULE} )
 include ( TwxTestLib )
 twx_test_case ( VAR twx_WorkingDirectory TARGET test_${TWX_MODULE} )
 twx_assert_non_void ( twx_WorkingDirectory )
@@ -59,7 +61,7 @@ twx_assert_target ( test_${TWX_MODULE}.WorkingDirectory )
 
 add_executable ( test_${TWX_MODULE}_macOS )
 add_dependencies ( test_${TWX_MODULE}_macOS test_${TWX_MODULE} )
-twx_module_includes ( MODULES Core TO_TARGETS test_${TWX_MODULE}_macOS )
+twx_module_includes ( ${TWX_MODULE} TO_TARGETS test_${TWX_MODULE}_macOS )
 
 target_compile_definitions (
 	test_${TWX_MODULE}
@@ -87,7 +89,6 @@ target_link_libraries (
 	${QT_LIBRARIES}
 	${${TWX_MODULE}_LIBRARIES}
 )
-
 include ( TwxWarning )
 twx_warning_target ( test_${TWX_MODULE} test_${TWX_MODULE}_macOS )
 
@@ -96,6 +97,11 @@ target_sources (
 	PRIVATE ${${TWX_MODULE}_SOURCES} ${${TWX_MODULE}_HEADERS}
 	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.h"
+)
+get_target_property(
+	p_
+	test_${TWX_MODULE}
+	SOURCES
 )
 
 target_sources (
@@ -243,7 +249,7 @@ target_link_libraries (
 	test_${TWX_MODULE}Lib
 	PRIVATE TwxCore
 )
-twx_module_add ( MODULES Core TO_TARGETS test_${TWX_MODULE}Lib )
+twx_module_add ( Core TO_TARGETS test_${TWX_MODULE}Lib )
 
 target_compile_definitions ( 
   test_${TWX_MODULE}Lib
@@ -269,7 +275,7 @@ add_test (
 # 	test_${TWX_MODULE}Lib
 # 	PRIVATE Qt5::Core Qt5::Test
 # )
-# twx_module_add ( MODULES Core TO_TARGETS test_${TWX_MODULE}Lib2 )
+# twx_module_add ( Core TO_TARGETS test_${TWX_MODULE}Lib2 )
 
 # # target_compile_definitions ( 
 # #   test_${TWX_MODULE}Lib2
@@ -295,7 +301,7 @@ target_link_libraries (
 	test_${TWX_MODULE}Lib2
 	PRIVATE Qt5::Core Qt5::Test
 )
-twx_module_add ( MODULES Core TO_TARGETS test_${TWX_MODULE}Lib2 TEST )
+twx_module_add ( Core TO_TARGETS test_${TWX_MODULE}Lib2 TEST )
 
 target_compile_definitions ( 
   test_${TWX_MODULE}Lib2
@@ -343,11 +349,11 @@ twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
 twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )
 twx_summary_end ()
 
-foreach ( t_ Core CoreLib CoreLib2 Core_macOS )
-	twx_summary_section_build_settings ( test_Twx${t_} VERBOSE )
+foreach ( t_ Core Core_macOS CoreLib CoreLib2 )
 	twx_summary_section_files ( test_Twx${t_} VERBOSE )
+	twx_summary_section_build_settings ( test_Twx${t_} VERBOSE )
+	twx_summary_section_libraries ( test_Twx${t_} VERBOSE )
 endforeach ()
-
 twx_summary_end ()
 
 #*/

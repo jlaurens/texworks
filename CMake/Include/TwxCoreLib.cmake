@@ -57,23 +57,47 @@ list (
 )
 list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
 
+# ANCHOR: twx_message_deeper
+#[=======[*/
+/** @brief Deeper message
+  *
+  * @param EXPORT, optional flag: export the depth when set
+  */
+twx_message_deeper(...) {}
+/*#]=======]
+macro ( twx_message_deeper )
+  if ( DEFINED TWX_MESSAGE_DEPTH )
+    set ( TWX_MESSAGE_DEPTH "..${TWX_MESSAGE_DEPTH}" )
+  else ()
+    set ( TWX_MESSAGE_DEPTH "" )
+  endif ()
+  if ( "${ARGN}" STREQUAL "DEEPER" )
+    twx_export ( TWX_MESSAGE_DEPTH )
+  endif ()
+endmacro ()
+
 # ANCHOR: twx_message_verbose
 #[=======[*/
 /** @brief Log status message in verbose mode
   *
   * @param ... are text messages
+  * @param DEEPER, optional flag to call `twx_message_deeper()` upfront.
   */
-twx_message_verbose(...) {}
+twx_message_verbose(... [DEEPER] ) {}
 /*#]=======]
 function ( twx_message_verbose mode_ )
+  cmake_parse_arguments ( "twxR" "DEEPER" "" "" ${ARGN} )
   if ( TWX_VERBOSE OR TWX_MORE_VERBOSE )
     if ( NOT "${mode_}" STREQUAL "STATUS" )
-      list ( INSERT ARGN 0 "${mode_}" )
+      list ( INSERT twxR_UNPARSED_ARGUMENTS 0 "${mode_}" )
       set ( mode_ )
     endif ()
-    foreach ( msg_ ${ARGN} )
-      message ( ${mode_} "${msg_}" )
+    foreach ( msg_ ${twxR_UNPARSED_ARGUMENTS} )
+      message ( ${mode_} "${TWX_MESSAGE_DEPTH}${msg_}" )
     endforeach ()
+  endif ()
+  if ( twxR_DEEPER )
+    twx_message_deeper ( EXPORT )
   endif ()
 endfunction ()
 
@@ -92,7 +116,7 @@ function ( twx_message_more_verbose mode_ )
       set ( mode_ )
     endif ()
     foreach ( msg_ ${ARGN} )
-      message ( ${mode_} "${msg_}" )
+      message ( ${mode_} "${TWX_MESSAGE_DEPTH}${msg_}" )
     endforeach ()
   endif ()
 endfunction ()
@@ -159,7 +183,7 @@ if ( "${TWX_COMMAND}" STREQUAL "" )
   string ( TOLOWER "${TWX_NAME}" TWX_COMMAND)
 endif ()
 
-twx_message_verbose ( STATUS "TwxCoreLib: TWX_NAME => ${TWX_NAME}" )
+twx_message_more_verbose ( "TwxCoreLib loading: TWX_NAME => ${TWX_NAME}" )
 
 # ANCHOR: twx_fatal
 #[=======[
@@ -421,6 +445,6 @@ macro ( twx_export )
   endforeach ()
 endmacro ()
 
-twx_message_verbose ( STATUS "TwxCoreLib loaded: ${TWX_DIR}" )
+twx_message_more_verbose ( "TwxCoreLib loaded: ${TWX_DIR}" )
 
 #*/

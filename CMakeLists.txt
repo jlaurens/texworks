@@ -389,6 +389,7 @@ if ( APPLE )
     COMMAND "${CMAKE_COMMAND}"
     "-DTWX_INPUT=${PROJECT_NAME}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}"
+    "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
     -P "${TWX_DIR}/CMake/Command/TwxCfgOneFileCommand.cmake"
     DEPENDS
       ${TWX_${PROJECT_NAME}_INI}
@@ -499,6 +500,7 @@ add_custom_command (
   COMMAND ${CMAKE_COMMAND}
     "-DTWX_CONTENTS=${TWX_CFG_VERSION}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}/TwxVersion.txt"
+    "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
     -P "${TWX_DIR}/CMake/Command/TwxWriteCommand.cmake"
 )
 

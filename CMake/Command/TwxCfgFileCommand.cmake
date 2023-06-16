@@ -63,16 +63,16 @@ twx_assert_non_void ( TWX_IN )
 twx_assert_non_void ( TWX_IN_DIR )
 twx_assert_non_void ( TWX_OUT_DIR )
 
-twx_message_verbose ( STATUS "TwxCfgFileCommand: ${TWX_IN_DIR} -> ${TWX_OUT_DIR}" )
+if ( TWX_NO_PRIVATE )
+  set ( NO_PRIVATE_args_ NO_PRIVATE )
+  twx_message_verbose ( "TwxCfgFileCommand (NO_PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
+else ()
+  set ( NO_PRIVATE_args_ )
+  twx_message_verbose ( "TwxCfgFileCommand (PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
+endif ()
 
 include ( TwxCfgLib )
 include ( TwxCfgFileLib )
-
-if ( TWX_NO_PRIVATE )
-  set ( NO_PRIVATE_args_ NO_PRIVATE )
-else ()
-  set ( NO_PRIVATE_args_ )
-endif ()
 
 twx_cfg_read ( ${TWX_CFG_INI_IDS} ${NO_PRIVATE_args_} ONLY_CONFIGURE )
  
@@ -100,7 +100,7 @@ foreach ( file.in ${TWX_IN} )
   )
     continue ()
   endif ()
-  twx_message_verbose ( STATUS "TwxCfgFileCommand: ${file.in} => ${file.out}" )
+  twx_message_verbose ( "TwxCfgFileCommand: ${file.in} => ${file.out}" )
   configure_file (
     "${input}"
     "${output}"
@@ -109,6 +109,6 @@ foreach ( file.in ${TWX_IN} )
   )
 endforeach ()
 
-twx_message_verbose ( STATUS "TwxCfgFileCommand... DONE" )
+twx_message_verbose ( "TwxCfgFileCommand... DONE" )
 
 #*/

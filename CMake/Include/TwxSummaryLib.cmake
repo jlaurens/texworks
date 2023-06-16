@@ -40,9 +40,12 @@ if ( NOT TWX_IS_BASED )
   message ( FATAL_ERROR "Base is not loaded." )
 endif ()
 
+set ( TWX_VERBOSE_SAVED ${TWX_VERBOSE} )
 set ( TWX_VERBOSE OFF )
 include ( TwxCfgLib )
 twx_cfg_read ( factory git )
+set ( TWX_VERBOSE ${TWX_VERBOSE_SAVED} )
+unset ( TWX_VERBOSE_SAVED )
 
 if ( DEFINED twx-format-reset )
   return ()
@@ -151,7 +154,7 @@ endif ()
 # ANCHOR: __twx_summary_parse_arguments
 # Private macro to parse the leading `<format>`
 # and the trailing `VERBOSE`.
-# Outputs twxR_VERBOSE, twxR_HIDE, twxR_ARGN
+# Outputs twxR_VERBOSE, twxR_EOL
 macro ( __twx_summary_parse_arguments )
 # nothing to show if the whole section is hidden
   twx_parse_arguments ( "VERBOSE;EOL" "" "" ${ARGN} )
@@ -287,7 +290,7 @@ endfunction()
 @param key some label
 @param value is displayed as `yes` or `no` with `FLAG`,
   variable content with `VAR` and as is otherwise.
-@param VERBOSE mode, nothing is displayed except if
+@param VERBOSE mode, when unset nothing is displayed except if
   `TWX_VERBOSE` is set.
 */
 twx_summary_log_kv ( [format] key [FLAG|VAR] value [VERBOSE] ) {}
@@ -356,7 +359,7 @@ function ( twx_summary_begin )
   # Is this section hidden?
   __twx_summary_parse_arguments ( ${ARGN} )
   if ( twxR_HIDE )
-    set ( TWX_SUMMARY_section_hidden_l on )
+    set ( TWX_SUMMARY_section_hidden_l ON )
   endif ()
   if ( TWX_SUMMARY_section_hidden_l )
     list ( INSERT TWX_SUMMARY_stack 0 "-" )
@@ -437,31 +440,33 @@ endmacro ( twx_summary_end )
 
 # ANCHOR: __twx_summary_common_ancestor
 # problem if the arguments are not canonical paths
-function ( __twx_summary_common_ancestor ancestor_ relative_ )
-  set ( ${ancestor_} )
-  set ( ${relative_} "${ARGN}" )
-  if ( "${ARGN}" STREQUAL "" )
-    twx_export ( ${ancestor_} )
-    twx_export ( ${relative_} )
+# @param VAR_ANCESTOR to collect the common ancestor
+function ( __twx_summary_common_ancestor )
+  twx_parse_arguments ( "" "VAR_ANCESTOR;VAR_RELATIVE" "" ${ARGN} )
+  set ( ${twxR_VAR_ANCESTOR} )
+  set ( ${twxR_VAR_RELATIVE} "${twxR_UNPARSED_ARGUMENTS}" )
+  if ( NOT "${twxR_UNPARSED_ARGUMENTS}" MATCHES ";" )
+    twx_export ( ${twxR_VAR_ANCESTOR} )
+    twx_export ( ${twxR_VAR_RELATIVE} )
     return ()
   endif ()
-  list ( GET ARGN 0 ref_ )
+  list ( GET twxR_UNPARSED_ARGUMENTS 0 ref_ )
   while ( "${ref_}" MATCHES "^([^/]*/)(.+)$" )
     set ( common_ "${CMAKE_MATCH_1}" )
     set ( ref_ "${CMAKE_MATCH_2}" )
     set ( new_ )
-    foreach ( x_ ${${relative_}} )
+    foreach ( x_ ${${twxR_VAR_RELATIVE}} )
       if ( "${x_}" MATCHES "^${common_}(.+)$" )
         list ( APPEND new_ "${CMAKE_MATCH_1}" )
       else ()
-        twx_export ( ${relative_} ${ancestor_} )
+        twx_export ( ${twxR_VAR_RELATIVE} ${twxR_VAR_ANCESTOR} )
         return ()
       endif ()  
-    endforeach ()
-    set ( ${ancestor_} "${${ancestor_}}${common_}" )
-    set ( ${relative_} "${new_}" )
+    endforeach ( x_ )
+    set ( ${twxR_VAR_ANCESTOR} "${${twxR_VAR_ANCESTOR}}${common_}" )
+    set ( ${twxR_VAR_RELATIVE} "${new_}" )
   endwhile ()
-  twx_export ( ${relative_} ${ancestor_} )
+  twx_export ( ${twxR_VAR_RELATIVE} ${twxR_VAR_ANCESTOR} )
 endfunction ( __twx_summary_common_ancestor )
 
 # SECTION: sections
@@ -478,11 +483,7 @@ twx_summary_section_files( target ) {}
 #]=======]
 function ( twx_summary_section_files )
   twx_parse_arguments ( "VERBOSE" "" "" ${ARGN} )
-  if ( twxR_VERBOSE )
-    set ( twxR_VERBOSE VERBOSE )
-  else ()
-    set ( twxR_VERBOSE )
-  endif ()
+  twx_pass_option ( VERBOSE )
   foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
     if ( NOT TARGET "${target_}" )
       set ( target_ "Twx${target_}")
@@ -496,7 +497,8 @@ function ( twx_summary_section_files )
       ${target_}
       SOURCES
     )
-    if ( files_ MATCHES "NOTFOUND" )
+    if ( files_ MATCHES "NOTFOUND$" )
+      twx_message_verbose ( "No SOURCES in target: ${target_}" )
       continue ()
     endif ()
     # get_target_property (
@@ -514,8 +516,16 @@ function ( twx_summary_section_files )
         list ( APPEND raw_ "${f_}" )
       endif ()
     endforeach ()
-    __twx_summary_common_ancestor ( built_dir_ built_rel_ ${built_} )
-    __twx_summary_common_ancestor ( raw_dir_   raw_rel_   ${raw_} )
+    __twx_summary_common_ancestor (
+      VAR_ANCESTOR built_dir_
+      VAR_RELATIVE built_rel_
+      ${built_}
+    )
+    __twx_summary_common_ancestor (
+      VAR_ANCESTOR raw_dir_
+      VAR_RELATIVE raw_rel_
+      ${raw_}
+    )
     set ( Private_ )
     set ( SOURCES_ )
     set ( HEADERS_ )
@@ -538,7 +548,8 @@ function ( twx_summary_section_files )
       AND "${Other_}"   STREQUAL "" )
       continue ()
     endif ()
-    twx_summary_begin ( BOLD_BLUE "${target_} files" ${twxR_VERBOSE} )
+    set ( twxR_VERBOSE )
+    twx_summary_begin ( BOLD_BLUE "${target_} files" VERBOSE ${twxR_VERBOSE} )
     if ( NOT "${built_dir_}" STREQUAL "" )
       twx_summary_log_kv ( "Build dir" VAR built_dir_ )
     endif ()
@@ -554,14 +565,14 @@ function ( twx_summary_section_files )
   endforeach ()
 endfunction ( twx_summary_section_files )
 
-# ANCHOR: twx_summary_section_build_settings
+# ANCHOR: twx_summary_section_compiler
 #[=======[
 */
-/** @brief Log target build settings info
+/** @brief Log target compiler info
   *
   * @param ... are target names.
   */
-twx_summary_section_build_settings( target ) {}
+twx_summary_section_compiler( target ) {}
 /*
 #]=======]
 function ( twx_summary_section_compiler )
@@ -587,40 +598,45 @@ endfunction ()
 function ( twx_summary_section_build_settings )
   twx_parse_arguments ( "VERBOSE" "" "" ${ARGN} )
   twx_pass_option ( VERBOSE )
-  foreach ( target_ IN LISTS twxR_UNPARSED_ARGUMENTS )
+  foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
     if ( NOT TARGET ${target_} )
       set ( target_ "Twx${target_}" )
       if ( NOT TARGET ${target_} )
         twx_fatal ( "Unknown target ${target_}" )
       endif ()
     endif ()
-    foreach ( t_ IN ITEMS OPTIONS DEFINITIONS )
+    foreach ( t_ COMPILE_OPTIONS COMPILE_DEFINITIONS INCLUDE_DIRECTORIES )
       get_target_property (
         ${t_}_
         ${target_}
-        COMPILE_${t_}
+        ${t_}
       )
     endforeach ()
-    get_target_property (
-      INCLUDE_DIRECTORIES_
-      ${target_}
-      INCLUDE_DIRECTORIES
-    )
-    if ( "${OPTIONS_}" MATCHES "NOTFOUND"
-    AND "${DEFINITIONS_}" MATCHES "NOTFOUND"
+    if ( "${COMPILE_OPTIONS_OPTIONS_}" MATCHES "NOTFOUND"
+    AND "${COMPILE_OPTIONS_DEFINITIONS_}" MATCHES "NOTFOUND"
     AND "${INCLUDE_DIRECTORIES_}" MATCHES "NOTFOUND")
       continue ()
     endif ()
     twx_summary_begin ( BOLD_BLUE "${target_} build settings" ${twxR_VERBOSE} )
-    if ( NOT "${OPTIONS_}" MATCHES "NOTFOUND" )
+    if ( NOT "${COMPILE_OPTIONS_}" MATCHES "NOTFOUND" )
       # TODO: include the test in twx_summary_log_kv
-      twx_summary_log_kv ( "Compile options" VAR OPTIONS_ )
+      twx_summary_log_kv ( "Compile options" VAR COMPILE_OPTIONS_ )
     endif ()
-    if ( NOT "${DEFINITIONS_}" MATCHES "NOTFOUND" )
-      twx_summary_log_kv ( "Compile definitions" VAR DEFINITIONS_ )
+    if ( NOT "${COMPILE_DEFINITIONS_}" MATCHES "NOTFOUND" )
+      twx_summary_log_kv ( "Compile definitions" VAR COMPILE_DEFINITIONS_ )
     endif ()
     if ( NOT "${INCLUDE_DIRECTORIES_}" MATCHES "NOTFOUND" )
-      twx_summary_log_kv ( "Include directories" VAR INCLUDE_DIRECTORIES_ )
+      __twx_summary_common_ancestor (
+        VAR_ANCESTOR dir_
+        VAR_RELATIVE rel_
+        ${INCLUDE_DIRECTORIES_}
+      )
+      if ( NOT "${dir_}" STREQUAL "" )
+        twx_summary_log_kv ( "Include directories from" VAR dir_ )
+      endif ()
+      if ( NOT "${rel_}" STREQUAL "" )
+        twx_summary_log_kv ( "Include directories" VAR rel_ )
+      endif ()
     endif ()
     twx_summary_end ()
   endforeach ()
@@ -638,12 +654,8 @@ twx_summary_section_libraries( target ... ) {}
 #]=======]
 function ( twx_summary_section_libraries )
   twx_parse_arguments ( "VERBOSE" "" "" ${ARGN} )
-  if ( twxR_VERBOSE )
-    set ( twxR_VERBOSE VERBOSE )
-  else ()
-    set ( twxR_VERBOSE )
-  endif ()
-  foreach ( target_ IN LISTS twxR_UNPARSED_ARGUMENTS )
+  twx_pass_option ( VERBOSE )
+  foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
     if ( NOT TARGET ${target_} )
       set ( target_ "Twx${target_}" )
       if ( NOT TARGET ${target_} )
@@ -655,32 +667,35 @@ function ( twx_summary_section_libraries )
       ${target_}
       LINK_LIBRARIES
     )
-    if ( NOT "${libraries_}" MATCHES "NOTFOUND" )
-      #
-      set ( Qt_libraries_ )
-      set ( Twx_libraries_ )
-      set ( Other_libraries_ )
-      foreach ( l_ IN LISTS libraries_ )
-        if ( ${l_} MATCHES "^Twx" )
-          list ( APPEND Twx_libraries_ ${l_} )
-        elseif ( ${l_} MATCHES "^Qt" )
-          list ( APPEND Qt_libraries_ ${l_} )
-        else ()
-          list ( APPEND Other_libraries_ ${l_} )
-        endif ()
-      endforeach ()
-      twx_summary_begin ( BOLD_BLUE "${target_} libraries" ${twxR_VERBOSE} )
-        if ( NOT "${Qt_libraries_}" STREQUAL "" )
-          twx_summary_log_kv ( "${QtMAJOR} libraries" VAR Qt_libraries_ )
-        endif ()
-        if ( NOT "${Twx_libraries_}" STREQUAL "" )
-          twx_summary_log_kv ( "Twx modules" VAR Twx_libraries_ )
-        endif ()
-        if ( NOT "${Other_libraries_}" STREQUAL "" )
-          twx_summary_log_kv ( "Other libraries" VAR Other_libraries_ )
-        endif ()
-      twx_summary_end ()
+    if ( "${libraries_}" MATCHES "NOTFOUND" )
+      continue ()
     endif ()
+    set ( Qt_libraries_ )
+    set ( Twx_libraries_ )
+    set ( Other_libraries_ )
+    foreach ( l_ IN LISTS libraries_ )
+      if ( ${l_} MATCHES "^Twx" )
+        list ( APPEND Twx_libraries_ ${l_} )
+      elseif ( ${l_} MATCHES "^Qt" )
+        list ( APPEND Qt_libraries_ ${l_} )
+      else ()
+        list ( APPEND Other_libraries_ ${l_} )
+      endif ()
+    endforeach ()
+    twx_summary_begin ( BOLD_BLUE "${target_} libraries" ${twxR_VERBOSE} )
+      if ( NOT "${Qt_libraries_}" STREQUAL "" )
+        list ( REMOVE_DUPLICATES Qt_libraries_ )
+        twx_summary_log_kv ( "${QtMAJOR} libraries" VAR Qt_libraries_ )
+      endif ()
+      if ( NOT "${Twx_libraries_}" STREQUAL "" )
+        list ( REMOVE_DUPLICATES Twx_libraries_ )
+        twx_summary_log_kv ( "Twx modules" VAR Twx_libraries_ )
+      endif ()
+      if ( NOT "${Other_libraries_}" STREQUAL "" )
+        list ( REMOVE_DUPLICATES Other_libraries_ )
+        twx_summary_log_kv ( "Other libraries" VAR Other_libraries_ )
+      endif ()
+    twx_summary_end ()
   endforeach ()
 endfunction ( twx_summary_section_libraries )
 

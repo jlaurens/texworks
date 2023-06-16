@@ -202,11 +202,9 @@ function ( twx_cfg_file_end )
     twx_assert_non_void ( TWX_CFG__FILE_ID_CURRENT )
     set ( twxR_ID "${TWX_CFG__FILE_ID_CURRENT}" )
   endif ()
-  twx_assert_non_void ( PROJECT_NAME twxR_ID )
-  twx_message_verbose (
-    STATUS
-    "twx_cfg_file_end: PROJECT => ${PROJECT_NAME}"
-    "twx_cfg_file_end: ID      => ${twxR_ID}"
+  twx_assert_non_void ( twxR_ID )
+  twx_message_more_verbose (
+    "twx_cfg_file_end: PROJECT/ID => ${PROJECT_NAME}/${twxR_ID}"
   )
   set ( busy_ ${PROJECT_NAME}_${twxR_ID}_CFG_BUSY )
   if ( NOT ${busy_} )
@@ -267,6 +265,7 @@ function ( twx_cfg_file_end )
           "-DTWX_NO_PRIVATE=${twxR_NO_PRIVATE}"
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
           "-DTWX_DEV=${TWX_DEV}"
+          "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
           -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
       COMMAND
         "${CMAKE_COMMAND}"
@@ -309,6 +308,7 @@ function ( twx_cfg_file_end )
           "-DTWX_NO_PRIVATE=${twxR_NO_PRIVATE}"
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
           "-DTWX_DEV=${TWX_DEV}"
+          "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
           -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
       COMMENT
         "Configure ${PROJECT_NAME} include directory"
@@ -369,7 +369,6 @@ function ( twx_cfg_files )
   twx_assert_non_void ( twxR_OUT_DIR )
   twx_cfg_file_begin ( ID "${twxR_ID}" )
   twx_message_more_verbose (
-    STATUS
     "twx_cfg_files: ${TWX_CFG__FILE_ID_CURRENT}"
     "twx_cfg_files: twxR_FILES =>"
   )
