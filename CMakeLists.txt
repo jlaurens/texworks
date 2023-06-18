@@ -71,7 +71,7 @@ include (
 )
 # Set project name.
 project ( ${TWX_NAME} )
-include ( TwxBase )
+twx_base_after_project ()
 include ( TwxCfgLib )
 twx_cfg_setup ()
 

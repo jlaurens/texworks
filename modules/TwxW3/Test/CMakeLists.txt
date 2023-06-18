@@ -28,7 +28,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 	)
 endif ()
 project ( TwxW3Test )
-include ( TwxBase )
+twx_base_after_project ()
 
 include ( TwxQTLib )
 twx_Qt_fresh ( REQUIRED Test )
@@ -42,7 +42,7 @@ set ( TWX_TEST ON )
 enable_testing ()
 
 add_executable ( test_TwxW3 )
-twx_module_includes ( W3 TO_TARGETS test_TwxW3 )
+twx_module_includes ( W3 INTERFACE_COMPILE_DEFINITIONS_TARGETS test_TwxW3 )
 
 target_compile_definitions (
 	test_TwxW3

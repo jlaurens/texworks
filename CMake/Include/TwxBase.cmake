@@ -44,6 +44,21 @@ at some early point.
 
 # Full include only once
 if ( DEFINED TWX_IS_BASED )
+  return ()
+endif ()
+# ANCHOR: twx_target_include_src
+#[=======[*/
+/** @brief Include `src` directories.
+  *
+  * Add the main `.../src` directory as well the `src`
+  * subdirectory of the project binary directory to
+  * the list of include directories of the given target.
+  *
+  * @param ... is a list of existing target names
+  */
+twx_target_include_src(...) {}
+/*#]=======]
+macro ( twx_base_after_project )
 # This has already been included
   twx_message_more_verbose ( "TwxBase: CMAKE_PROJECT_NAME => ${CMAKE_PROJECT_NAME}" )
 
@@ -188,8 +203,7 @@ TWX_PROJECT_EXTERNAL_DIR;
   if ( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}" )
     set ( TWX_PROJECT_IS_ROOT OFF )
   endif ()
-  return ()
-endif ()
+endmacro ( twx_base_after_project )
 
 set ( TWX_IS_BASED ON )
 

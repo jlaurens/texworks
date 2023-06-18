@@ -46,7 +46,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 		NO_POLICY_SCOPE
 	)
 	project ( TwxUI_Test )
-	include ( TwxBase )
+	twx_base_after_project ()
 
   set ( TWX_TEST ON	)
   set ( TwxUI_TEST ON	)
@@ -58,7 +58,7 @@ if ( NOT DEFINED TWX_IS_BASED )
   twx_doxydoc ()
 elseif ( TWX_TEST )
 	project ( TwxUI_Test )
-	include ( TwxBase )
+	twx_base_after_project ()
   set ( TwxUI_TEST ON	)
 endif ()
 

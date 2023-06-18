@@ -47,7 +47,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 endif ()
 
 project ( TwxUI_Test )
-include ( TwxBase )
+twx_base_after_project ()
 
 set ( TWX_TEST ON	)
 set ( TwxUI_TEST ON	)

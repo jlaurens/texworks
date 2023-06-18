@@ -280,7 +280,7 @@ twx_assert_parsed() {}
 macro ( twx_assert_target target_ )
   if ( NOT TARGET "${target_}" )
     if ( NOT TARGET "${${target_}}" )
-      twx_fatal ( "Unknwon target ${target_} (${${target_}})" )
+      twx_fatal ( "Unknown target ${target_} (${${target_}})" )
     endif ()
   endif ()
 endmacro ()

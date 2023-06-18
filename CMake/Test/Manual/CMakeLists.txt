@@ -18,7 +18,7 @@ include (
 
 project ( TwxManualTest )
 
-include ( TwxBase )
+twx_base_after_project ()
 
 include ( TwxManualLib )
 twx_manual_setup ()

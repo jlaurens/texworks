@@ -151,7 +151,6 @@ endfunction ()
 #[=======[
 */
 /** @brief End the `cfg_file` grouping.
-  *
   * 
   * Usage
   *
@@ -178,8 +177,8 @@ endfunction ()
   * @param ESCAPE_QUOTES, optional flag mainly for cpp files.
   * @param NO_PRIVATE, optional flag to exclude private files.
   *   In that case privately named header files are ignored.
-  * @param target for key TARGET, optional target name.
-  *   Useful to create the inlude header directory for static libraries.
+  * @param module for key MODULE, optional module name.
+  *   Useful to create the include header directory for static libraries.
   *   When the target has an ARCHIVE_OUTPUT_DIRECTORY property,
   *   the `out_dir` is relative to that location. This is not suitable to
   *   configure sources before the build stage, use an explicit target dependency.
@@ -192,7 +191,7 @@ function ( twx_cfg_file_end )
   twx_assert_non_void ( PROJECT_NAME )
   twx_parse_arguments (
     "ESCAPE_QUOTES;NO_PRIVATE"
-    "ID;EXPORT;TARGET;IN_DIR;OUT_DIR"
+    "MODULE;ID;EXPORT;TARGET;IN_DIR;OUT_DIR"
     "CFG_INI_IDS"
     ${ARGN}
   )
@@ -222,8 +221,43 @@ function ( twx_cfg_file_end )
     list ( APPEND out_ "${file.out}" )
   endforeach ()
 
-  if ( "${twxR_TARGET}" STREQUAL "" )
-    # No TARGET given
+  if ( TARGET "${twxR_TARGET}" )
+    if ( IS_ABSOLUTE "${twxR_OUT_DIR}" )
+      set ( output_directory_ "${twxR_OUT_DIR}" )
+    else ()
+      get_target_property(
+        output_directory_
+        ${twxR_TARGET}
+        ARCHIVE_OUTPUT_DIRECTORY
+      )
+      if ( output_directory_ MATCHES "NOTFOUND" )
+        twx_fatal ( "Target ${twxR_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
+      endif ()
+      set ( output_directory_ "${output_directory_}/${twxR_OUT_DIR}" )
+    endif ()
+    add_custom_command (
+      TARGET "${twxR_TARGET}"
+      POST_BUILD
+      COMMAND
+        "${CMAKE_COMMAND}"
+          "-DPROJECT_NAME=${PROJECT_NAME}"
+          "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+          "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+          "-DTWX_IN_DIR=${twxR_IN_DIR}"
+          "-DTWX_OUT_DIR=${output_directory_}"
+          "-DTWX_IN=${in_}"
+          "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
+          "-DTWX_ESCAPE_QUOTES=${twxR_ESCAPE_QUOTES}"
+          "-DTWX_NO_PRIVATE=${twxR_NO_PRIVATE}"
+          "-DTWX_VERBOSE=${TWX_VERBOSE}"
+          "-DTWX_DEV=${TWX_DEV}"
+          "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+          -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
+      COMMENT
+        "Configure ${PROJECT_NAME}'s ${twxR_TARGET} include directory"
+      VERBATIM
+    )
+  else ()
     twx_cfg_path ( stamped ID "${PROJECT_NAME}_${twxR_ID}_file" STAMPED )
     set (
       target_
@@ -276,53 +310,24 @@ function ( twx_cfg_file_end )
         "Configure ${PROJECT_NAME} files for ${twxR_ID}"
       VERBATIM
     )
-  elseif ( NOT TARGET ${twxR_TARGET} )
-    twx_fatal ( "Unknown target ${twxR_TARGET}" )
-  else ()
-    if ( IS_ABSOLUTE "${twxR_OUT_DIR}" )
-      set ( output_directory_ "${twxR_OUT_DIR}" )
-    else ()
-      get_target_property(
-        output_directory_
-        ${twxR_TARGET}
-        ARCHIVE_OUTPUT_DIRECTORY
-      )
-      if ( output_directory_ MATCHES "NOTFOUND" )
-        twx_fatal ( "Target ${twxR_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
-      endif ()
-      set ( output_directory_ "${output_directory_}/${twxR_OUT_DIR}" )
-    endif ()
-    add_custom_command (
-      TARGET "${twxR_TARGET}"
-      POST_BUILD
-      COMMAND
-        "${CMAKE_COMMAND}"
-          "-DPROJECT_NAME=${PROJECT_NAME}"
-          "-DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
-          "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-          "-DTWX_IN_DIR=${twxR_IN_DIR}"
-          "-DTWX_OUT_DIR=${output_directory_}"
-          "-DTWX_IN=${in_}"
-          "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
-          "-DTWX_ESCAPE_QUOTES=${twxR_ESCAPE_QUOTES}"
-          "-DTWX_NO_PRIVATE=${twxR_NO_PRIVATE}"
-          "-DTWX_VERBOSE=${TWX_VERBOSE}"
-          "-DTWX_DEV=${TWX_DEV}"
-          "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
-          -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
-      COMMENT
-        "Configure ${PROJECT_NAME} include directory"
-      VERBATIM
-    )
   endif ()
-  if ( NOT "${twxR_EXPORT}" STREQUAL "" )
+  twx_assert_target ( "${target_}" )
+  if ( NOT "${twxR_MODULE}" STREQUAL "" )
+    set ( export_ )
+    foreach ( file_ ${out_} )
+      list ( APPEND export_ "${twxR_OUT_DIR}/${file_}")
+    endforeach ()
+    list ( SORT export_ )
+    set ( ${twxR_ID} "${export_}" PARENT_SCOPE )
+    set ( ${twxR_ID}_TARGET "${target_}" PARENT_SCOPE )
+  elseif ( NOT "${twxR_EXPORT}" STREQUAL "" )
     set ( export_ )
     foreach ( file_ ${out_} )
       list ( APPEND export_ "${twxR_OUT_DIR}/${file_}")
     endforeach ()
     list ( SORT export_ )
     set ( ${twxR_EXPORT}_${twxR_ID} "${export_}" PARENT_SCOPE )
-    set ( ${twxR_EXPORT}_${twxR_ID}_target "${target_}" PARENT_SCOPE )
+    set ( ${twxR_EXPORT}_${twxR_ID}_TARGET "${target_}" PARENT_SCOPE )
   endif ()
   unset ( ${files_} PARENT_SCOPE )
   unset ( ${busy_} PARENT_SCOPE )
@@ -348,26 +353,68 @@ twx_cfg_file_add ( ... )
 ...
 twx_cfg_file_end ( ... )
 ```
-@param id is a unique id, same for `twx_cfg_files_begin()`
-@param added is the name of a variable that contains on return
-  the `;` separated list of all the configured files
-@param file is a file path in the top source directory `TWX_DIR`.
-@param ... more file paths
+@param module for key MODULE, an optional module name. When not provided,
+  configuration relates to the current project.
+@param type for key TYPE, is a unique type identifier like `SOURCES`, `HEADERS`.
+  Same as in `twx_cfg_files_begin()`.
+  When a module is provided, the unique identifier is `<module>_<type>`
+  such that many different modules can be configured within a unique project.
+@param id for key ID, is a unique identifier within a project.
+  When not provided, it defaults to `<module>_<type>` if there is a
+  was given or simply to `<type>` otherwise.
+@param export for key EXPORT, is the name prefix of a variable that contains on return
+  the `;` separated list of all the configured files. The full variable name
+  is `<export>_<type>`. If a module is given, this argument is ignored and
+  and the list of configured files is exported in the variable simply named `<type>`.
+  If no EXPORT nor MODULE is used, no exportation takes place.
+@param files for key FILES is an optional list of sources to `configure_file()`.
+  These are relative to `input_dir` before and to `output_dir` after.
+  When non provided, it defaults to the value of `<module>_IN_<type>`.
+@param target for key TARGET, an optional target name for `twx_cfg_file_end()`.
+  Very similar to `<module>`, see `twx_cfg_file_end()`.
+@param input_dir for key IN_DIR, an optional input directory. When not specified,
+  it defaults to the value of `<module>_SRC_IN_DIR`.
+@param output_dir for key OUT_DIR, an optional output directory. When not specified,
+  it defaults to the value of `<module>_SRC_OUT_DIR`.
+@param ESCAPE_QUOTES optional flag to indicate whether quotes should be escaped.
+  Used for some SOURCES but not for some HEADERS, for example.
+@param NO_PRIVATE optional flag to indicate whether private cfg ini files
+  should be used.
+@param ini_ids for key CFG_INI_IDS, specify the exact list of cfg ini files
+  used with `configure_file`.
 */
-twx_cfg_files ( [ID id] ... ) {}
+twx_cfg_files ( [TYPE type] ... ) {}
 /*
 #]=======]
 function ( twx_cfg_files )
   twx_parse_arguments (
     "ESCAPE_QUOTES;NO_PRIVATE"
-    "ID;EXPORT;TARGET;IN_DIR;OUT_DIR"
+    "MODULE;TYPE;ID;EXPORT;TARGET;IN_DIR;OUT_DIR"
     "CFG_INI_IDS;FILES"
     ${ARGN}
   )
   twx_assert_parsed ()
+  twx_assert_non_void ( twxR_TYPE )
+  if ( NOT twxR_IN_DIR )
+    twx_assert_non_void ( twxR_MODULE )
+    set ( twxR_IN_DIR "${${twxR_MODULE}_SRC_IN_DIR}" )
+  endif ()
+  if ( NOT twxR_OUT_DIR )
+    twx_assert_non_void ( twxR_MODULE )
+    set ( twxR_OUT_DIR "${${twxR_MODULE}_SRC_OUT_DIR}" )
+  endif ()
+  if ( NOT twxR_FILES )
+    twx_assert_non_void ( twxR_MODULE )
+    set ( twxR_FILES "${${twxR_MODULE}_IN_${twxR_TYPE}}" )
+  endif ()
   twx_assert_non_void ( twxR_IN_DIR )
   twx_assert_non_void ( twxR_OUT_DIR )
-  twx_cfg_file_begin ( ID "${twxR_ID}" )
+  if ( twxR_MODULE )
+    set ( id_ "${twxR_MODULE}_${twxR_TYPE}" )
+  else ()
+    set ( id_ "${twxR_TYPE}" )
+  endif ()
+  twx_cfg_file_begin ( ID "${id_}" )
   twx_message_more_verbose (
     "twx_cfg_files: ${TWX_CFG__FILE_ID_CURRENT}"
     "twx_cfg_files: twxR_FILES =>"
@@ -376,23 +423,26 @@ function ( twx_cfg_files )
     ${twxR_FILES}
   )
   twx_cfg_file_add (
-    ID    "${twxR_ID}"
+    ID    "${id_}"
     FILES ${twxR_FILES}
   )
   twx_pass_option ( ESCAPE_QUOTES )
   twx_pass_option ( NO_PRIVATE )
   twx_cfg_file_end (
-    ID          "${twxR_ID}"
+    ID          "${id_}"
     IN_DIR      "${twxR_IN_DIR}"
     OUT_DIR     "${twxR_OUT_DIR}"
     CFG_INI_IDS "${twxR_CFG_INI_IDS}"
-    EXPORT      ${twxR_EXPORT}
+    MODULE      ${twxR_MODULE}
     TARGET      ${twxR_TARGET}
+    EXPORT      ${twxR_EXPORT}
     ${twxR_ESCAPE_QUOTES}
     ${twxR_NO_PRIVATE}
   )
-  if ( NOT "${twxR_EXPORT}" STREQUAL "" )
-    twx_export ( ${twxR_EXPORT}_${twxR_ID} )
+  if ( NOT "${twxR_MODULE}" STREQUAL "" )
+    twx_export ( ${twxR_TYPE} )
+  elseif ( NOT "${twxR_EXPORT}" STREQUAL "" )
+    twx_export ( ${twxR_EXPORT}_${twxR_TYPE} )
   endif ()
 endfunction ()
 

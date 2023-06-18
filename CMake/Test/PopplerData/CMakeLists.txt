@@ -18,7 +18,7 @@ include (
 
 project ( TwxPopplerDataTest )
 
-include ( TwxBase )
+twx_base_after_project ()
 
 include ( TwxPopplerDataLib )
 twx_poppler_data_setup ()

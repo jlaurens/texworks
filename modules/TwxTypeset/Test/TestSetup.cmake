@@ -5,18 +5,15 @@ https://github.com/TeXworks/texworks
 @file
 @brief TwxTypeset/Test Cmake file
 
-Defines a test suite.
+Custom setup.
 
-Input:
-- `TwxTypeset_SOURCES`
-- `TwxTypeset_HEADERS`
 */
 /*
 #]===============================================]
 
 # A fake typesetting engine
-twx_assert_non_void ( TWX_MODULE )
-twx_assert_target ( ${TWX_MODULE}Test )
+twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME TWX_MODULE_TEST )
+twx_assert_target ( test_${TWX_MODULE} )
 add_executable (
   engine_${TWX_MODULE}
   main.cpp

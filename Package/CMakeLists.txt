@@ -21,7 +21,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 		NO_POLICY_SCOPE
 	)
 	project ( TwxPackageTest )
-	include ( TwxBase )
+	twx_base_after_project ()
 	include ( TwxQtLib )
 	twx_Qt_fresh ( REQUIRED Widgets )
 

@@ -416,22 +416,17 @@ function ( twx_module_setup )
     include ( TwxCfgFileLib )
     set ( ${module_}_SRC_OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src" )
     twx_cfg_files (
-      ID 			SOURCES
-      FILES 	${${module_}_IN_SOURCES}
-      IN_DIR 	"${${module_}_SRC_IN_DIR}"
-      OUT_DIR "${${module_}_SRC_OUT_DIR}"
-      EXPORT 	${module_}
+      MODULE 	${module_}
+      TYPE		SOURCES
       ESCAPE_QUOTES
     )
     twx_cfg_files (
-      ID 			HEADERS
-      FILES 	${${module_}_IN_HEADERS}
-      IN_DIR  "${${module_}_SRC_IN_DIR}"
-      OUT_DIR "${${module_}_SRC_OUT_DIR}"
-      EXPORT 	${module_}
+      MODULE 	${module_}
+      TYPE		HEADERS
     )
     # twx_cfg_files (
-    #   ID 			UIS
+    #   MODULE 	${module_}
+    #   TYPE		UIS
     #   FILES 	${${module_}_IN_UIS}
     #   IN_DIR  "${${module_}_SRC_IN_DIR}" OR /ui?
     #   OUT_DIR "${${module_}_SRC_OUT_DIR}" 
@@ -592,18 +587,16 @@ function ( twx_module_configure )
       ARCHIVE_OUTPUT_DIRECTORY "${TWX_PROJECT_PRODUCT_DIR}"
   )
   twx_cfg_files (
-    TARGET 	${module_}
-    ID 			INCLUDE_HEADERS
+    MODULE 	${module_}
+    TYPE		INCLUDE_HEADERS
     FILES 	${${module_}_IN_HEADERS}
-    IN_DIR	"${${module_}_SRC_IN_DIR}"
     OUT_DIR	"include"
     NO_PRIVATE
   )
   twx_cfg_files (
-    TARGET 	${module_}
-    ID 			INCLUDE_HEADERS_PRIVATE
+    MODULE 	${module_}
+    TYPE		INCLUDE_HEADERS_PRIVATE
     FILES 	${${module_}_IN_HEADERS}
-    IN_DIR	"${${module_}_SRC_IN_DIR}"
     OUT_DIR	"include_for_testing"
   )
   include ( TwxWarning )
@@ -808,6 +801,7 @@ function ( twx_module_add )
     endif ()
     list ( APPEND modules_to_add_ ${m_} )
   endforeach ()
+  # load all the modules
   twx_module_load ( ${modules_to_add_} )
   # Add the modules to the targets
   foreach ( target_ ${twxR_TO_TARGETS} )
@@ -852,27 +846,32 @@ endfunction ( twx_module_add )
   *
   * Add the `src` build subdirectory of the modules to the given targets.
   * The modules are not loaded but they are set up in order to use the real
-  * source files after the various `configure_file()` step.
+  * source files after the various `configure_file()` steps.
   *
   * This is mainly used by test suites that do not link with a module
   * but include its sources, as well as the shared modules include folder.
   * Nevertheless, the module is loaded.
   *
   * @param modules is a list of module names or short names
-  * @param targets for key TO_TARGETS is a list of existing target names
+  * @param targets for key IN_TARGETS is a list of existing target names
   */
-twx_module_includes(modules ... TO_TARGETS targets ... ) {}
+twx_module_includes(modules ... IN_TARGETS targets ... ) {}
 /*#]=======]
 function ( twx_module_includes )
   twx_message_deeper ()
-  twx_parse_arguments ( "" "" "TO_TARGETS" ${ARGN} )
-  foreach ( target_ ${twxR_TO_TARGETS} )
+  twx_parse_arguments ( "" "" "IN_TARGETS" ${ARGN} )
+  foreach ( target_ ${twxR_IN_TARGETS} )
     twx_assert_target ( "${target_}" )
     foreach ( module_ ${twxR_UNPARSED_ARGUMENTS} )
       if ( NOT module_ MATCHES "^Twx" )
         set ( module_ Twx${module_} )
       endif ()
-      twx_assert_non_void ( ${module_}_IS_SETUP NO_TWXR )
+      twx_module_setup ( ${module_} )
+      twx_assert_non_void (
+        ${module_}_IS_SETUP
+        ${module_}_SRC_OUT_DIR
+        NO_TWXR
+      )
       twx_message_verbose ( "twx_module_includes: ${target_} <= ${module_}" )
       add_dependencies ( ${target_} ${module_} )
       target_include_directories (
@@ -919,6 +918,8 @@ macro ( twx_module_configure_main )
   twx_doxydoc ()
   twx_message_verbose ( "twx_module_configure_main: TEST" )
   twx_module_test ()
+  twx_message_verbose ( "DEBUG: twx_module_configure_main: DONE" )
+  twx_message_verbose ( "DEBUG: ${TWX_MODULE}_TEST_SUITE" )
   twx_module_summary ()
 endmacro ( twx_module_configure_main )
 
@@ -931,25 +932,28 @@ endmacro ( twx_module_configure_main )
 twx_module_configure_test() {}
 /*#]=======]
 macro ( twx_module_configure_test )
-  twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME )
+  twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME TWX_MODULE_TEST )
   twx_message_verbose ( "${TWX_MODULE} test suite:" DEEPER )
   include ( TwxModuleLib )
   set ( TWX_TEST ON )
   enable_testing ()
-  if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.ini" )
+  if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE_TEST}.ini" )
     set (
       TWX_FACTORY_INI
-      "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.ini"
+      "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE_TEST}.ini"
     )
   endif ()
   twx_module_setup ( ${TWX_MODULE} )
   add_executable (
     test_${TWX_MODULE}
     ${${TWX_MODULE}_SOURCES} ${${TWX_MODULE}_HEADERS}
-    "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}Test.h"
+    "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE_TEST}.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE_TEST}.h"
   )
-  twx_module_includes ( ${TWX_MODULE} TO_TARGETS test_${TWX_MODULE} )
+  twx_module_includes ( ${TWX_MODULE} IN_TARGETS test_${TWX_MODULE} )
+  if ( NOT "${${TWX_MODULE}_MODULES}" STREQUAL "" )
+    twx_module_add ( ${${TWX_MODULE}_MODULES} TO_TARGETS test_${TWX_MODULE} )
+  endif ()
   include ( TwxTestLib )
   twx_test_case ( VAR twx_WorkingDirectory TARGET test_${TWX_MODULE} )
   twx_assert_non_void ( twx_WorkingDirectory )
@@ -1000,10 +1004,11 @@ endmacro ( twx_module_configure_test )
 twx_module_summary( [NO_EOL] ) {}
 /*#]=======]
 function ( twx_module_summary )
+  message ( WARNING "DEBUG: ${TWX_MODULE}, ${${TWX_MODULE}_TEST_SUITE}")
   twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME )
   twx_parse_arguments ( "NO_EOL" "" "" ${ARGN} )
   twx_assert_parsed ()
-  if ( "${TWX_MODULE}_TEST_SUITE" STREQUAL "" )
+  if ( "${${TWX_MODULE}_TEST_SUITE}" STREQUAL "" )
     set ( b_ "library" )
   else ()
     set ( b_ "test suite" )
@@ -1024,7 +1029,7 @@ function ( twx_module_summary )
     twx_summary_section_files ( ${TWX_MODULE_NAME} )
     twx_summary_section_build_settings ( ${TWX_MODULE_NAME} )
     twx_summary_section_libraries ( ${TWX_MODULE_NAME} )
-  else ()
+  elseif ( "${${TWX_MODULE}_TEST_SUITE}" MATCHES ";" )
     foreach ( t_ ${${TWX_MODULE}_TEST_SUITE} )
       twx_summary_begin( BOLD_BLUE "Test ${t_}:" )
         twx_summary_section_files ( test_Twx${t_} )
@@ -1032,9 +1037,45 @@ function ( twx_module_summary )
         twx_summary_section_libraries ( test_Twx${t_} )
       twx_summary_end ()
     endforeach ()
+  else ()
+    twx_summary_section_files ( test_${TWX_MODULE} )
+    twx_summary_section_build_settings ( test_${TWX_MODULE} )
+    twx_summary_section_libraries ( test_${TWX_MODULE} )
   endif ()
   twx_pass_option ( NO_EOL )
   twx_summary_end ( ${twxR_NO_EOL} )
 endfunction ( twx_module_summary )
+
+#ANCHOR - twx_module_after_project ()
+#[=======[
+/** @brief Terminate configuration after the project is set.
+  *
+  * Must be called after any `project()` invocation.
+  * No argument.
+#]=======]
+function ( twx_module_after_project )
+  twx_assert_non_void ( PROJECT_NAME )
+  set ( TWX_MODULES_INCLUDE_DIR "${TWX_DIR}/modules/include/" )
+  file ( GLOB privates_ "${TWX_MODULES_INCLUDE_DIR}*_private.h" )
+  set ( includes_ )
+  foreach ( p_ ${privates_} )
+    if ( "${p_}" MATCHES "^${TWX_MODULES_INCLUDE_DIR}(.+)$")
+      set ( n_ "CMAKE_MATCH_1" )
+    else ()
+      get_filename_component ( n_ "${p_}" NAME )
+    endif ()
+    list ( APPEND includes_ "${n_}" )
+  endforeach ()
+  include ( TwxCfgFileLib )
+  twx_cfg_files (
+    TYPE		MODULES_INCLUDE
+    FILES 	${includes_}
+    IN_DIR 	"${TWX_MODULES_INCLUDE_DIR}"
+    OUT_DIR "${TWX_PROJECT_BUILD_DIR}modules/include/"
+    EXPORT TWX
+  )
+  twx_assert_target ( ${TWX_MODULES_INCLUDE_TARGET} )
+  twx_export ( TWX_MODULES_INCLUDE_DIR )
+endfunction ( twx_module_after_project )
 
 #*/

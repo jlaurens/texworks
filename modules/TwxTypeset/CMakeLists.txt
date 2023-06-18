@@ -26,7 +26,10 @@ if ( TARGET ${TWX_MODULE} )
 endif ()
 
 project ( ${TWX_MODULE} )
-include ( TwxBase )
+twx_base_after_project ()
+twx_module_after_project ()
+
+twx_message_deeper()
 
 twx_module_configure_main ()
 

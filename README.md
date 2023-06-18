@@ -76,3 +76,7 @@ pages:
 -   <https://github.com/TeXworks/texworks/wiki/Building>
 -   <https://github.com/TeXworks/texworks/wiki/Building-on-Windows-(MinGW)>
 -   <https://github.com/TeXworks/texworks/wiki/Building-on-macOS-(Homebrew)>
+
+For developers
+--------------
+The `Developer` folder contains informations needed for development.

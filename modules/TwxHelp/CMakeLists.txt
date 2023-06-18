@@ -30,7 +30,7 @@ twx_assert_non_void ( TWX_MODULE_NAME )
 set ( TWX_TEST OFF )
 
 project ( ${TWX_MODULE} )
-include ( TwxBase )
+twx_base_after_project ()
 twx_assert_non_void ( TWX_BUILD_DATA_DIR )
 
 include ( TwxQTLib )

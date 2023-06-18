@@ -165,7 +165,7 @@ IF ( WIN32 )
   twx_cfg_write_end ()
   include ( TwxCfgFileLib)
   twx_cfg_files (
-    ID 			PACKAGE_WINDOWS
+    TYPE		PACKAGE_WINDOWS
     FILES 	${TWX_NAME}.in.rc ${TWX_NAME}.in.exe.manifest
     IN_DIR 	"${TWX_DIR}/res/os_windows/"
     OUT_DIR "${TWX_PROJECT_BUILD_DIR}/res/os_windows/"

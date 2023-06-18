@@ -26,7 +26,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 	)
 endif ()
 project ( TwxHelpTest )
-include ( TwxBase )
+twx_base_after_project ()
 
 include ( TwxQTLib )
 twx_Qt_fresh ( REQUIRED Test )
@@ -48,7 +48,7 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/TwxHelpTest.h"
 )
 
-twx_module_includes ( Help TO_TARGETS test_TwxHelp )
+twx_module_includes ( Help IN_TARGETS test_TwxHelp )
 target_compile_definitions (
 	test_TwxHelp
 	PRIVATE TWX_TEST TwxHelp_TEST

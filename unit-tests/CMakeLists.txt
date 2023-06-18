@@ -11,7 +11,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 		NO_POLICY_SCOPE
 	)
 	project ( TwxAllTests )
-	include ( TwxBase )
+	twx_base_after_project ()
 	set ( TWX_unit-tests_IS_ROOT ON )
 	enable_testing ()
 	include ( TwxQTLib )

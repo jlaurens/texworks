@@ -18,6 +18,7 @@ Input:
 #]===============================================]
 
 twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME )
+twx_assert_target ( test_${TWX_MODULE} )
 
 target_compile_definitions (
 	test_${TWX_MODULE}
@@ -37,7 +38,7 @@ list (
   ${TWX_MODULE_NAME}_macOS
 )
 add_dependencies ( test_${TWX_MODULE}_macOS test_${TWX_MODULE} )
-twx_module_includes ( ${TWX_MODULE} TO_TARGETS test_${TWX_MODULE}_macOS )
+twx_module_includes ( ${TWX_MODULE} IN_TARGETS test_${TWX_MODULE}_macOS )
 include ( TwxWarning )
 twx_warning_target ( test_${TWX_MODULE}_macOS )
 target_compile_definitions (
