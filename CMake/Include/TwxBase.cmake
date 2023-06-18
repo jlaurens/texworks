@@ -21,7 +21,7 @@ __Do not forget `NO_POLICY_SCOPE`!__
 
 After a new `project(...)` instruction is executed, issue
 ```
-include ( Base )
+twx_base_after_project ()
 ```
 Output:
 - `TWX_DIR`

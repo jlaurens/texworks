@@ -2,10 +2,10 @@
 
 (Work in progress)
 
-* `Command` contains various tools to be used directly by CMake.
+* `Command` contains various tools to be used directly by CMake with `-P` switch.
 * `Modules` contains custom package loaders. Each file inside is included
   with the `find_package` instruction. (In progress)
-* `Include` contains various tools to be used with instruction `include`.
+* `Include` contains various libraries to be used with instruction `include`.
   None will load a package, it may eventually provide tools to load a package.
 
 Various `CMakeLists.txt`
@@ -51,8 +51,7 @@ else ()
 endif ()
 ```
 
-The other `.cmake` files shall not include `TwxBase.cmake`,
-except the tools.
+The other `.cmake` files shall not in general include `TwxBase.cmake`.
 
 ### Global variables
 All of them are prefixed with `TWX_`.
@@ -80,10 +79,11 @@ set(TWX_GUARD_CMake_Include_<file name>)
 ```
 At least it guards from including twice the same file at the same scope level.
 `TWX_GUARD_CMake_Include_<file name>` may be replaced by anything more relevant.
+Similar ideas may be used instead.
 
 ## Coding style
 It is a weak convention to prefix global variables by `TWX_`, macros and functions or local variables by `twx_`. When inside a function,
-a leading or trailing `_` denotes local variables.
+a leading or trailing `_` denotes local variables. Inside macros, a trailing `_twx` is used to avoid collisions with outside variables.
 
 The global commands defined here are prefixed with `twx_`,
 which clearly indicates that they are not standard commands. 
