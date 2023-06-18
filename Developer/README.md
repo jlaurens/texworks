@@ -9,7 +9,7 @@ Building and testing TeXworks is based on `CMake`. The `CMake` folder contains s
 
 Modularity
 ----------
-The whole source is organised in a tree of separate entities that can build and test independently. [See](modules/Readme.md).
+The whole source is organised in a tree of separate entities that can build and test independently. [See](../modules/README.md).
 
 The documentation
 -----------------
