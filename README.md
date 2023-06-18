@@ -80,4 +80,4 @@ pages:
 For developers
 --------------
 The `Developer` folder contains informations needed for development.
-[See](Developer/Readme.md).
+[See](Developer/README.md).
