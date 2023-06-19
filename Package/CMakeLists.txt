@@ -54,11 +54,11 @@ set ( TWX_NAME TwxPackageTest )
 # form `${VARIABLE}` will be left untouched.
 set (
 	packagingTasks.cmake
-	"${TWX_BUILD_DATA_DIR}/CPackPackagingTasks.cmake"
+	"${TWX_BUILD_DATA_DIR}CPackPackagingTasks.cmake"
 )
 if ( APPLE )
   configure_file (
-    "${TWX_DIR}/Package/os_darwin/CPackPackagingTasks.in.cmake"
+    "${TWX_DIR}Package/os_darwin/CPackPackagingTasks.in.cmake"
     "${packagingTasks.cmake}"
     @ONLY
   )
@@ -78,7 +78,7 @@ install (
 
 set (
 	CPACK_PROJECT_CONFIG_FILE
-	"${TWX_DIR}/Package/CPackProjectConfig.txt"
+	"${TWX_DIR}Package/CPackProjectConfig.txt"
 )
 
 if ( WIN32 )
@@ -94,20 +94,20 @@ if ( WIN32 )
 		DOWNLOAD_DIR "${TWX_EXTERNAL_DIR}"
 	)
 	file (
-		COPY "${TWX_DIR}/win32/fonts"
-		DESTINATION "${TWX_PACKAGE_DIR}/share"
+		COPY "${TWX_DIR}win32/fonts"
+		DESTINATION "${TWX_PACKAGE_DIR}share"
 	)
 	install (
-		DIRECTORY "${TWX_PACKAGE_DIR}/share"
+		DIRECTORY "${TWX_PACKAGE_DIR}share"
 		DESTINATION "."
 		PATTERN pkgconfig EXCLUDE
 	)
 	install (
-		FILES "${TWX_DIR}/COPYING"
+		FILES "${TWX_DIR}COPYING"
 		DESTINATION "."
 	)
 	install (
-		FILES "${TWX_DIR}/win32/README.win.txt"
+		FILES "${TWX_DIR}win32/README.win.txt"
 		DESTINATION "."
 		RENAME "README.txt"
 	)
@@ -121,10 +121,10 @@ if ( WIN32 )
 		INSTALL_COMMAND
 			${CMAKE_COMMAND} -E copy_directory
 				"."
-				"${TWX_PACKAGE_DIR}/texworks-help/TeXworks-manual"
+				"${TWX_PACKAGE_DIR}texworks-help/TeXworks-manual"
 	)
 	install (
-		DIRECTORY "${TWX_PACKAGE_DIR}/texworks-help"
+		DIRECTORY "${TWX_PACKAGE_DIR}texworks-help"
 		DESTINATION "."
 	)
 elseif (APPLE)
@@ -135,12 +135,12 @@ elseif (APPLE)
 		poppler-data
 		URL "${TWX_CFG_POPPLER_DATA_URL}"
 		URL_HASH SHA256=${TWX_CFG_POPPLER_DATA_SHA256}
-		PREFIX "${TWX_BUILD_DIR}/poppler-data/"
+		PREFIX "${TWX_BUILD_DIR}poppler-data/"
 		CMAKE_CACHE_ARGS -DCMAKE_INSTALL_PREFIX:STRING=${Contents_DIR}/
 	)
 	file ( REMOVE_RECURSE "${Contents_DIR}/share/pkgconfig" )
 	set ( target_twx texworks-help )
-	set ( prefix_Dir_twx "${TWX_BUILD_DIR}/${target_twx}/" )
+	set ( prefix_Dir_twx "${TWX_BUILD_DIR}${target_twx}/" )
 	set ( manual_Dir_twx "${prefix_Dir_twx}/src/${target_twx}/" )
 	ExternalProject_Add (
 		${target_twx}
@@ -154,7 +154,7 @@ elseif (APPLE)
 			"${manual_Dir_twx}"
 			"${Contents_DIR}/${TWX_COMMAND}-help/${TWX_NAME}-manual"
 	)
-	set ( prefix_DIR_tws "${TWX_BUILD_DIR}/urw35-fonts/" )
+	set ( prefix_DIR_tws "${TWX_BUILD_DIR}urw35-fonts/" )
 	set ( pfb_DIR_tws "${prefix_DIR_tws}/src/urw35-fonts/pfb" )
 	ExternalProject_Add (
 		urw35-fonts
@@ -183,7 +183,7 @@ elseif (APPLE)
 				"${Contents_DIR}/share/fonts"
 	)
 	file (
-		COPY "${TWX_DIR}/Package/os_darwin/fonts.conf"
+		COPY "${TWX_DIR}Package/os_darwin/fonts.conf"
 		DESTINATION "${Contents_DIR}/etc/fonts"
 	)
 endif ()
@@ -198,7 +198,7 @@ set ( CPACK_PACKAGE_NAME ${TWX_NAME} )
 
 # Configure Drag N' Drop installer.
 if ( APPLE )
-  set ( darwin_DIR_tws "${TWX_DIR}/Package/os_darwin" )
+  set ( darwin_DIR_tws "${TWX_DIR}Package/os_darwin" )
   set ( CPACK_GENERATOR DragNDrop )
   set ( CPACK_DMG_BACKGROUND_IMAGE "${mac_DIR_tws}/texworks_dmg_background.png" )
   # Configure an AppleScript for applying a nice window layout to Drag N' Drop disk
@@ -206,12 +206,12 @@ if ( APPLE )
   twx_cfg_read ( NO_PRIVATE ONLY_CONFIGURE )
   configure_file (
     "${darwin_DIR_tws}/DMGSetup.in.scpt"
-    "${TWX_BUILD_DATA_DIR}/DMGSetup.scpt"
+    "${TWX_BUILD_DATA_DIR}DMGSetup.scpt"
     @ONLY
   )
   set (
 		CPACK_DMG_DS_STORE_SETUP_SCRIPT
-		"${TWX_BUILD_DATA_DIR}/DMGSetup.scpt"
+		"${TWX_BUILD_DATA_DIR}DMGSetup.scpt"
 	)
   unset ( darwin_DIR_tws )
 endif ()
