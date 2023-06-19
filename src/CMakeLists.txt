@@ -6,8 +6,8 @@ twx_assert_target ( TeXworks )
 target_include_directories (
   TeXworks
   PRIVATE
-  "${TWX_DIR}/src"
-  "${TWX_PROJECT_BUILD_DIR}/src"
+  "${TWX_DIR}src"
+  "${TWX_PROJECT_BUILD_DIR}src"
 )
 
 # Collect Source Files
@@ -149,8 +149,8 @@ set ( TeXworks_UIS
 )
 
 set ( TeXworks_RCS
-  "${TWX_DIR}/res/resfiles.qrc"
-  "${TWX_DIR}/res/resources.qrc"
+  "${TWX_DIR}res/resfiles.qrc"
+  "${TWX_DIR}res/resources.qrc"
 )
 
 IF ( WIN32 )
@@ -159,16 +159,16 @@ IF ( WIN32 )
   endif (NOT MSVC)
   include ( TwxCfgLib )
   twx_cfg_write_begin ( ID "package-private" )
-  twx_cfg_set ( PKG_APP_ICO   "${TWX_DIR}/res/images/TeXworks.ico" )
-  twx_cfg_set ( PKG_DOC_ICO   "${TWX_DIR}/res/images/TeXworks-doc.ico" )
-  twx_cfg_set ( EXE_MANIFEST  "${TWX_PROJECT_BUILD_DIR}/res/os_windows/TeXworks.exe.manifest" )
+  twx_cfg_set ( PKG_APP_ICO   "${TWX_DIR}res/images/TeXworks.ico" )
+  twx_cfg_set ( PKG_DOC_ICO   "${TWX_DIR}res/images/TeXworks-doc.ico" )
+  twx_cfg_set ( EXE_MANIFEST  "${TWX_PROJECT_BUILD_DIR}res/os_windows/TeXworks.exe.manifest" )
   twx_cfg_write_end ()
   include ( TwxCfgFileLib)
   twx_cfg_files (
     TYPE		PACKAGE_WINDOWS
     FILES 	${TWX_NAME}.in.rc ${TWX_NAME}.in.exe.manifest
-    IN_DIR 	"${TWX_DIR}/res/os_windows/"
-    OUT_DIR "${TWX_PROJECT_BUILD_DIR}/res/os_windows/"
+    IN_DIR 	"${TWX_DIR}res/os_windows/"
+    OUT_DIR "${TWX_PROJECT_BUILD_DIR}res/os_windows/"
     EXPORT twx
   )
   list(
@@ -183,15 +183,15 @@ ENDIF ( WIN32 )
 # build processes of the scripting language plugins.
 set (
   TeXworks_SCRIPT_API
-  "${TWX_DIR}/src/scripting/Script.cpp"
-  "${TWX_DIR}/src/scripting/ScriptAPI.cpp"
+  "${TWX_DIR}src/scripting/Script.cpp"
+  "${TWX_DIR}src/scripting/ScriptAPI.cpp"
   PARENT_SCOPE
 )
 set (
   TeXworks_SCRIPT_API_H
-  "${TWX_DIR}/src/scripting/Script.h"
-  "${TWX_DIR}/src/scripting/ScriptAPI.h"
-  "${TWX_DIR}/src/TWSystemCmd.h"
+  "${TWX_DIR}src/scripting/Script.h"
+  "${TWX_DIR}src/scripting/ScriptAPI.h"
+  "${TWX_DIR}src/TWSystemCmd.h"
   PARENT_SCOPE
 )
 
