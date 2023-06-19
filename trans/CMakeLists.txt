@@ -15,8 +15,8 @@ endif ()
 
 twx_assert_non_void ( TWX_BUILD_DIR )
 
-file ( GLOB TeXworks_TRANS_TS   "${TWX_DIR}/src/*.ts" )
-file ( GLOB QT_TRANS_QM         "${TWX_DIR}/src/*.qm" )
+file ( GLOB TeXworks_TRANS_TS   "${TWX_DIR}src/*.ts" )
+file ( GLOB QT_TRANS_QM         "${TWX_DIR}src/*.qm" )
 
 include ( TwxTranslationLib )
 
