@@ -23,7 +23,7 @@ add_subdirectory (
 	src/ui
 )
 include_directories (
-	"${TWX_DIR}/src"
+	"${TWX_DIR}src"
 	${TeXworks_INCLUDE_DIRS}
 )
 
@@ -32,8 +32,8 @@ add_executable (
 	test_BibTeXFile
 	BibTeXFile_test.cpp
 	BibTeXFile_test.h
-	"${TWX_DIR}/src/BibTeXFile.cpp"
-	"${TWX_DIR}/src/BibTeXFile.h"
+	"${TWX_DIR}src/BibTeXFile.cpp"
+	"${TWX_DIR}src/BibTeXFile.h"
 )
 
 include ( TwxWarning )
@@ -45,7 +45,7 @@ target_link_libraries (
 add_test (
 	NAME test_BibTeXFile
 	COMMAND test_BibTeXFile
-	WORKING_DIRECTORY "${TWX_DIR}/testcases"
+	WORKING_DIRECTORY "${TWX_DIR}testcases"
 )
 
 if ( TWX_unit-tests_IS_ROOT )
