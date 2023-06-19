@@ -53,11 +53,11 @@ function ( twx_manual_setup )
   endif ()
   set (
     TWX_MANUAL_ARCHIVE
-    "${TWX_EXTERNAL_DIR}/${CMAKE_MATCH_1}"
+    "${TWX_EXTERNAL_DIR}${CMAKE_MATCH_1}"
   )
   set (
     TWX_MANUAL_BASE
-    "${TWX_EXTERNAL_DIR}/${CMAKE_MATCH_2}/texworks-help"
+    "${TWX_EXTERNAL_DIR}${CMAKE_MATCH_2}/texworks-help"
   )
   set ( TWX_MANUAL_SHA256 "${TWX_CFG_MANUAL_HTML_SHA256}" )
   twx_export (
