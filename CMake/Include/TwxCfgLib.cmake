@@ -88,7 +88,7 @@ function ( twx_cfg_path ans_ )
   endif ()
   set (
     ${ans_}
-    "${TWX_CFG_INI_DIR}/TwxCfg_${twxR_ID}.${extension}"
+    "${TWX_CFG_INI_DIR}TwxCfg_${twxR_ID}.${extension}"
   )
   twx_export ( ${ans_} )
 endfunction ()
@@ -114,7 +114,7 @@ macro ( twx_cfg_update_factory )
       "-DTWX_TEST=${TWX_TEST}"
       "-DTWX_DEV=${TWX_DEV}"
       "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
-      -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
+      -P "${TWX_DIR}CMake/Command/TwxCfg_factory.cmake"
     RESULT_VARIABLE result_twx
   )
   twx_assert_0 ( result_twx )
@@ -136,7 +136,7 @@ macro ( twx_cfg_update_git )
       "-DTWX_TEST=${TWX_TEST}"
       "-DTWX_DEV=${TWX_DEV}"
       "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
-      -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
+      -P "${TWX_DIR}CMake/Command/TwxCfg_git.cmake"
   )
   twx_cfg_read ( "git" )
 endmacro ()
@@ -211,7 +211,7 @@ function ( twx_cfg_setup )
   if ( "${TWX_FACTORY_INI}" STREQUAL "" )
     set (
       TWX_FACTORY_INI
-      "${TWX_DIR}/${TWX_NAME}.ini"
+      "${TWX_DIR}${TWX_NAME}.ini"
     )
     twx_assert_exists ( TWX_FACTORY_INI )
     set ( target_twx TwxCfg )
@@ -250,7 +250,7 @@ function ( twx_cfg_setup )
         "-DTWX_TEST=${TWX_TEST}"
         "-DTWX_DEV=${TWX_DEV}"
         "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
-        -P "${TWX_DIR}/CMake/Command/TwxCfg_factory.cmake"
+        -P "${TWX_DIR}CMake/Command/TwxCfg_factory.cmake"
       DEPENDS
         ${TWX_FACTORY_INI}
       COMMENT
@@ -265,7 +265,7 @@ function ( twx_cfg_setup )
         "-DTWX_TEST=${TWX_TEST}"
         "-DTWX_DEV=${TWX_DEV}"
         "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
-        -P "${TWX_DIR}/CMake/Command/TwxCfg_git.cmake"
+        -P "${TWX_DIR}CMake/Command/TwxCfg_git.cmake"
       DEPENDS
         ${path_factory_twx}
       COMMENT

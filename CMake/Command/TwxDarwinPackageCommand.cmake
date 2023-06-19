@@ -30,34 +30,34 @@ if ( NOT "${CMAKE_INSTALL_PREFIX}" MATCHES .*/_CPack_Packages/.* )
 endif ()
 # Download and install TeXworks manual
 # ------------------------------------
-if ( NOT EXISTS "${TWX_PACKAGE_DIR}/${manual_archive_}" )
+if ( NOT EXISTS "${TWX_PACKAGE_DIR}${manual_archive_}" )
   message (
     STATUS
     "Downloading TeXworks HTML manual from ${TWX_CFG_MANUAL_HTML_URL}"
   )
   file (
     DOWNLOAD "${TWX_CFG_MANUAL_HTML_URL}"
-    "${TWX_PACKAGE_DIR}/${manual_archive_}"
+    "${TWX_PACKAGE_DIR}${manual_archive_}"
     EXPECTED_HASH SHA256=${TWX_CFG_MANUAL_HTML_SHA256}
     SHOW_PROGRESS
   )
 else ( )
   message (
-    STATUS "Using manual files in '${TWX_PACKAGE_DIR}/${manual_archive_}'"
+    STATUS "Using manual files in '${TWX_PACKAGE_DIR}${manual_archive_}'"
   )
 endif ()
 
-if ( NOT EXISTS "${TWX_PACKAGE_DIR}/${manual_base_}" )
+if ( NOT EXISTS "${TWX_PACKAGE_DIR}${manual_base_}" )
   file (
-    MAKE_DIRECTORY "${TWX_PACKAGE_DIR}/${manual_base_}"
+    MAKE_DIRECTORY "${TWX_PACKAGE_DIR}${manual_base_}"
   )
   execute_process (
-    COMMAND unzip "${TWX_PACKAGE_DIR}/${manual_archive_}"
-    WORKING_DIRECTORY "${TWX_PACKAGE_DIR}/${manual_base_}"
+    COMMAND unzip "${TWX_PACKAGE_DIR}${manual_archive_}"
+    WORKING_DIRECTORY "${TWX_PACKAGE_DIR}${manual_base_}"
   )
 else ( )
   message (
-    STATUS "'${TWX_PACKAGE_DIR}/${manual_base_}' already present"
+    STATUS "'${TWX_PACKAGE_DIR}${manual_base_}' already present"
   )
 endif ()
 
@@ -65,7 +65,7 @@ message (
   STATUS "Bundling manual files"
 )
 file (
-  INSTALL "${TWX_PACKAGE_DIR}/${manual_base_}/TeXworks-manual"
+  INSTALL "${TWX_PACKAGE_DIR}${manual_base_}/TeXworks-manual"
   DESTINATION "${CMAKE_INSTALL_PREFIX}/${TWX_NAME}.app/Contents/${TWX_COMMAND}-help/"
 )
 

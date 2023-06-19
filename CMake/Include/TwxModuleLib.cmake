@@ -12,14 +12,21 @@ The modules are expected to share the same structure.
 See the `/modules/TwxCore` directory for an example.
 
 A module is a set of data and informations.
-It comes in two flavours: one for testing purposes
+It is uniquely identified by its short name `<name>` or full name `Twx<name>`.
+The full name is exactly one of the `modules` subfolder.
+The short name is used for better readability.
+
+A module comes in two flavours: one for testing purposes
 and one for normal use.
 
 On normal use, a static library target is created by calls to
 `twx_module_load()`. In order to allow such calls to happen in blocks,
 we record the informations related to the module into the target,
 without the need to export them before returning from functions.
-The `twx_module_expose()` ensures that variables are properly set.
+Later, the `twx_module_expose()` ensures that variables are properly set.
+
+The data available correspond to the custom `TWX_...` property names defined below.
+The `TWX_MODULE_TARGET_PROPERTIES` is the list of such property names.
 
 On test use, the information is available at the current test level and 
 there is no need to use the target as global storage.
@@ -147,7 +154,7 @@ define_property (
 )
 
 set (
-  twx_module_properties
+  TWX_MODULE_TARGET_PROPERTIES
   DIR SRC_IN_DIR SRC_OUT_DIR INCLUDE_DIR INCLUDE_DIR_FOR_TESTING
   IN_SOURCES IN_HEADERS IN_UIS SOURCES HEADERS UIS
   QT_COMPONENTS QT_LIBRARIES OTHER_LIBRARIES LIBRARIES
@@ -161,12 +168,13 @@ include ( TwxCfgLib )
 #[=======[*/
 /** @brief Get the module name.
   *
-  * This MUST be called from the the directory of the module
-  * or its test subdirectory.
+  * This function allows to share a great amount of code between modules.
   * Used in various `/modules/Twx.../CMakeLists.txt`, indirectly in general.
+  * This MUST be called from either the directory of the module
+  * or its test subdirectory.
   *
-  * @param module_var for key VAR_MODULE holds on return the full module name
-  * @param name_var for key VAR_NAME, holds on return the base module name, without the leading `Twx`.
+  * @param module_var for key VAR_MODULE holds on return the full module name. Optional.
+  * @param name_var for key VAR_NAME, holds on return the short module name, without the leading `Twx`. Optional.
   */
 twx_module_guess ( VAR_MODULE module_var VAR_NAME  name_var ) {}
 /*#]=======]
@@ -174,7 +182,6 @@ function ( twx_module_guess )
   twx_parse_arguments ( "" "VAR_MODULE;VAR_NAME" "" ${ARGN} )
   twx_assert_parsed ()
   twx_assert_non_void ( TWX_DIR )
-  twx_assert_non_void ( twxR_VAR_MODULE twxR_VAR_NAME )
   get_filename_component (
     module_
     "${CMAKE_CURRENT_LIST_DIR}"
@@ -192,9 +199,9 @@ function ( twx_module_guess )
       NAME
     )
   endif ()
-  if ( NOT "${TWX_DIR}/modules/${module_}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}" )
-    if ( NOT "${TWX_DIR}/modules/${module_}/Test" STREQUAL "${CMAKE_CURRENT_LIST_DIR}" )
-      twx_fatal ( "Bad usage: ${CMAKE_CURRENT_LIST_DIR} != ${TWX_DIR}/modules/${module_}" )
+  if ( NOT "${TWX_DIR}modules/${module_}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}" )
+    if ( NOT "${TWX_DIR}modules/${module_}/Test" STREQUAL "${CMAKE_CURRENT_LIST_DIR}" )
+      twx_fatal ( "Bad usage: ${CMAKE_CURRENT_LIST_DIR} != ${TWX_DIR}modules/${module_}" )
     endif ()
   endif ()
   if ( NOT "${module_}" MATCHES "^Twx(.*)$")
@@ -209,6 +216,10 @@ endfunction ()
 #[=======[*/
 /** @brief The location of a module.
   *
+  * Global function that returns the location of a module in the source tree.
+  * This does not load the module
+  * but it may raise if the module does not exist.
+  * 
   * @param ans for key VAR, is the name of a variable holding the result.
   * @param module for key MODULE, is a module name or short name (without leading `Twx`).
   * @param MUST_EXIST optional flag to raise if the module does not exist
@@ -223,7 +234,7 @@ function ( twx_module_dir )
   if ( NOT twxR_MODULE MATCHES "^Twx" )
     set ( twxR_MODULE Twx${twxR_MODULE} )
   endif ()
-  set ( ${twxR_VAR} "${TWX_DIR}/modules/${twxR_MODULE}" )
+  set ( ${twxR_VAR} "${TWX_DIR}modules/${twxR_MODULE}" )
   if ( NOT EXISTS "${${twxR_VAR}}" )
     if ( twxR_MUST_EXIST )
       twx_fatal ( "No module named ${twxR_MODULE} (${ARGN})" )
@@ -310,46 +321,52 @@ function ( twx_module_CMake_dir )
   set ( ${twxR_VAR} "${${twxR_VAR}}/CMake" PARENT_SCOPE )
 endfunction ()
 
-# ANCHOR: twx_module_include_dir
-#[=======[*/
-/** @brief Get the location of headers.
-  *
-  * If the module is not already loaded, load it
-  * with `twx_module_load()`.
-  * Then put the header location in the variable.
-  *
-  * @param dir for key VAR is the name of a variable holding the result
-  * @param module for key MODULE, is the name or short name of a module, like Core, Typeset...
-  * @param TEST is a flag to choose between normal and testing headers
-  */
-twx_module_include_dir( VAR dir MODULE module [TEST]) {}
-/*#]=======]
-function ( twx_module_include_dir )
-  twx_parse_arguments ( "TEST" "VAR;MODULE" "" ${ARGN} )
-  twx_assert_parsed ()
-  twx_assert_non_void ( twxR_VAR )
-  twx_assert_non_void ( twxR_MODULE )
-  if ( NOT twxR_MODULE MATCHES "^Twx" )
-    set ( twxR_MODULE Twx${twxR_MODULE} )
-  endif ()
-  if ( twxR_TEST )
-    set ( p_ INCLUDE_DIR_FOR_TESTING )
-  else ()
-    set ( p_ INCLUDE_DIR )
-  endif ()
-  twx_module_load ( ${twxR_MODULE} )
-  twx_module_expose ( ${twxR_MODULE} )
-  set (
-    ${twxR_VAR}
-    ${${twxR_MODULE}_${p_}}
-  )
-  twx_assert_non_void ( ${twxR_VAR} )
-  twx_export ( ${twxR_VAR} )
-endfunction ()
-
 # !SECTION
 
 # SECTION: Setup and use
+
+#ANCHOR - twx_module_after_project ()
+#[=======[
+/** @brief Terminate configuration after the project is set.
+  *
+  * Must be called after any `project()` invocation.
+  * The purpose is to copy to the build src folder the private headers of
+  * `.../modules/include/`.
+  * No argument.
+  *
+  * Output state:
+  * - `TWX_MODULES_DIR` is the location of all the modules.
+  * - `TWX_MODULES_INCLUDE_DIR` is the location of shared source and header files.
+  * - The target named `${PROJECT_NAME}_MODULES_INCLUDE_cfg_files` created by `twx_cfg_files()`
+  *
+#]=======]
+function ( twx_module_after_project )
+  twx_assert_non_void ( PROJECT_NAME )
+  set ( TWX_MODULES_DIR "${TWX_DIR}modules/" )
+  set ( TWX_MODULES_INCLUDE_DIR "${TWX_MODULES_DIR}include/" )
+  file ( GLOB privates_ "${TWX_MODULES_INCLUDE_DIR}*_private.h" )
+  set ( includes_ )
+  foreach ( p_ ${privates_} )
+    if ( "${p_}" MATCHES "^${TWX_MODULES_INCLUDE_DIR}(.+)$")
+      set ( n_ "${CMAKE_MATCH_1}" )
+    else ()
+      # Very unlikely to happen...
+      get_filename_component ( n_ "${p_}" NAME )
+    endif ()
+    list ( APPEND includes_ "${n_}" )
+  endforeach ()
+  include ( TwxCfgFileLib )
+  twx_cfg_files (
+    TYPE		MODULES_INCLUDE
+    FILES 	${includes_}
+    IN_DIR 	"${TWX_MODULES_INCLUDE_DIR}"
+    OUT_DIR "${TWX_PROJECT_BUILD_DIR}modules/include/"
+    EXPORT TWX
+  )
+  twx_assert_target ( ${PROJECT_NAME}_MODULES_INCLUDE_cfg_files )
+  twx_export ( TWX_MODULES_DIR )
+  twx_export ( TWX_MODULES_INCLUDE_DIR )
+endfunction ( twx_module_after_project )
 
 # ANCHOR: twx_module_setup
 #[=======[*/
@@ -395,14 +412,14 @@ function ( twx_module_setup )
       continue ()
     endif ()
     twx_message_verbose ( "twx_module_setup: ${name_}" "-----------------")
-    foreach ( p_ ${twx_module_properties} )
+    foreach ( p_ ${TWX_MODULE_TARGET_PROPERTIES} )
       set ( ${module_}_${p_} )
     endforeach ()
     twx_module_src_in_dir ( VAR ${module_}_SRC_IN_DIR MODULE ${module_} )
     twx_assert_non_void ( ${module_}_SRC_IN_DIR )
     include ( "${${module_}_SRC_IN_DIR}/Setup.cmake" )
     twx_cfg_write_begin ( ID "${name_}_private" )
-    file ( GLOB includes_ "${TWX_DIR}/modules/include/*_private.h" )
+    file ( GLOB includes_ "${TWX_DIR}modules/include/*_private.h" )
     foreach ( f_ ${${module_}_IN_SOURCES} ${${module_}_IN_HEADERS} ${includes_} )
       get_filename_component ( f_ "${f_}" NAME )
       if ( "${f_}" MATCHES "^(.*_private)[.](in[.])?([^.]+)$" )
@@ -414,7 +431,7 @@ function ( twx_module_setup )
     endforeach ( f_ )
     twx_cfg_write_end ()
     include ( TwxCfgFileLib )
-    set ( ${module_}_SRC_OUT_DIR "${TWX_PROJECT_BUILD_DIR}/src" )
+    set ( ${module_}_SRC_OUT_DIR "${TWX_PROJECT_BUILD_DIR}src" )
     twx_cfg_files (
       MODULE 	${module_}
       TYPE		SOURCES
@@ -443,11 +460,11 @@ function ( twx_module_setup )
       INSERT
       ${module_}_INCLUDE_DIRECTORIES
       0
-      "${TWX_DIR}/modules/include"
+      "${TWX_DIR}modules/include"
     )
     set ( ${module_}_IS_SETUP ON )
     twx_export (
-      ${twx_module_properties} IS_SETUP
+      ${TWX_MODULE_TARGET_PROPERTIES} IS_SETUP
       EXPORT_PREFIX ${module_}_
     )
     twx_export (
@@ -503,7 +520,7 @@ macro ( twx_module_declare )
     list ( APPEND "${module_twx}_${t_}" ${twxR_${t_}} )
   endforeach ()
   twx_assert_non_void ( TWX_DIR )
-  set ( ${module_twx}_DIR "${TWX_DIR}/modules/${module_twx}" )
+  set ( ${module_twx}_DIR "${TWX_DIR}modules/${module_twx}" )
   if ( EXISTS "${module_twx}_DIR/CMake" )
     list (
       INSERT CMAKE_MODULE_PATH 0
@@ -608,15 +625,15 @@ function ( twx_module_configure )
   # store the properties
   set (
     ${module_}_SRC_OUT_DIR
-    "${TWX_PROJECT_BUILD_DIR}/src"
+    "${TWX_PROJECT_BUILD_DIR}src"
   )
   set (
     ${module_}_INCLUDE_DIR
-    "${TWX_PROJECT_PRODUCT_DIR}/include"
+    "${TWX_PROJECT_PRODUCT_DIR}include"
   )
   set (
     ${module_}_INCLUDE_DIR_FOR_TESTING
-    "${TWX_PROJECT_PRODUCT_DIR}/include_for_testing"
+    "${TWX_PROJECT_PRODUCT_DIR}include_for_testing"
   )
   twx_module_synchronize ( ${module_} )
   twx_export (
@@ -642,7 +659,7 @@ function ( twx_module_synchronize )
       set ( m_ Twx${m_} )
     endif ()
     twx_assert_target ( ${m_} ) 
-    foreach ( p_ ${twx_module_properties} )
+    foreach ( p_ ${TWX_MODULE_TARGET_PROPERTIES} )
       set ( v_ "${${m_}_${p_}}")
       set_target_properties ( ${m_} PROPERTIES TWX_${p_} "${v_}" )
     endforeach ()
@@ -670,7 +687,7 @@ function ( twx_module_expose )
       set ( m_ Twx${m_} )
     endif ()
     twx_module_load ( ${m_} )
-    foreach ( p_ ${twx_module_properties} )
+    foreach ( p_ ${TWX_MODULE_TARGET_PROPERTIES} )
       get_target_property ( v_ ${m_} TWX_${p_} )
       twx_message_more_verbose ( "twx_module_expose: ${m_}_${p_} => ${v_}")
       if ( "${v_}" MATCHES "NOTFOUND" )
@@ -681,31 +698,6 @@ function ( twx_module_expose )
     set ( ${m_}_IS_MODULE "ON" PARENT_SCOPE )
   endforeach ()
 endfunction ( twx_module_expose )
-
-# ANCHOR: twx_module_debug
-#[=======[*/
-/** @brief Display module properties.
-  *
-  * For debugging purposes
-  *
-  * @param ... is a list of module names or short names.
-  */
-twx_module_debug( ... ) {}
-/*#]=======]
-function ( twx_module_debug )
-  foreach ( m_ ${ARGN})
-    if ( NOT m_ MATCHES "^Twx" )
-      set ( m_ Twx${m_} )
-    endif ()
-    twx_assert_target ( ${m_} )
-    message ( "MODULE: ${m_}" )
-#    twx_assert_module ( ${m_} )
-    foreach ( p_ ${twx_module_properties} )
-      get_target_property ( v_ ${m_} TWX_${p_} )
-      message ( "  ${p_} => ${v_} == ${${m_}_${p_}}" )
-    endforeach ()
-  endforeach ()
-endfunction ( twx_module_debug )
 
 # ANCHOR: twx_module_load
 #[=======[*/
@@ -765,6 +757,44 @@ function ( twx_module_load twxR_name )
     twx_assert_equal ( "${${module_}__twx_module_load}" "" )
   endforeach ()
 endfunction ( twx_module_load )
+
+# ANCHOR: twx_module_include_dir
+#[=======[*/
+/** @brief Get the location of headers.
+  *
+  * If the module is not already loaded, load it
+  * with `twx_module_load()`.
+  * Then put the header location in the variable.
+  * The result depends on the module flavour.
+  * This is indirectly used by targets that link against the module.
+  *
+  * @param dir for key VAR is the name of a variable holding the result
+  * @param module for key MODULE, is the name or short name of a module, like Core, Typeset...
+  * @param TEST is a flag to choose between normal and testing headers
+  */
+twx_module_include_dir( VAR dir MODULE module [TEST]) {}
+/*#]=======]
+function ( twx_module_include_dir )
+  twx_parse_arguments ( "TEST" "VAR;MODULE" "" ${ARGN} )
+  twx_assert_parsed ()
+  twx_assert_non_void ( twxR_VAR twxR_MODULE )
+  if ( NOT twxR_MODULE MATCHES "^Twx" )
+    set ( twxR_MODULE Twx${twxR_MODULE} )
+  endif ()
+  twx_module_load ( ${twxR_MODULE} )
+  twx_module_expose ( ${twxR_MODULE} )
+  if ( twxR_TEST )
+    set ( p_ INCLUDE_DIR_FOR_TESTING )
+  else ()
+    set ( p_ INCLUDE_DIR )
+  endif ()
+  set (
+    ${twxR_VAR}
+    ${${twxR_MODULE}_${p_}}
+  )
+  twx_assert_non_void ( ${twxR_VAR} )
+  twx_export ( ${twxR_VAR} )
+endfunction ()
 
 # ANCHOR: twx_module_add
 #[=======[*/
@@ -833,7 +863,7 @@ function ( twx_module_add )
         target_include_directories (
           ${target_}
           # Next is not very strong
-          PRIVATE "${TWX_DIR}/modules/include"
+          PRIVATE "${TWX_DIR}modules/include"
         )
       endif ()
     endforeach ()
@@ -1046,36 +1076,29 @@ function ( twx_module_summary )
   twx_summary_end ( ${twxR_NO_EOL} )
 endfunction ( twx_module_summary )
 
-#ANCHOR - twx_module_after_project ()
-#[=======[
-/** @brief Terminate configuration after the project is set.
+# ANCHOR: twx_module_debug
+#[=======[*/
+/** @brief Display module properties.
   *
-  * Must be called after any `project()` invocation.
-  * No argument.
-#]=======]
-function ( twx_module_after_project )
-  twx_assert_non_void ( PROJECT_NAME )
-  set ( TWX_MODULES_INCLUDE_DIR "${TWX_DIR}/modules/include/" )
-  file ( GLOB privates_ "${TWX_MODULES_INCLUDE_DIR}*_private.h" )
-  set ( includes_ )
-  foreach ( p_ ${privates_} )
-    if ( "${p_}" MATCHES "^${TWX_MODULES_INCLUDE_DIR}(.+)$")
-      set ( n_ "CMAKE_MATCH_1" )
-    else ()
-      get_filename_component ( n_ "${p_}" NAME )
+  * For debugging purposes
+  *
+  * @param ... is a list of module names or short names.
+  */
+twx_module_debug( ... ) {}
+/*#]=======]
+function ( twx_module_debug )
+  foreach ( m_ ${ARGN})
+    if ( NOT m_ MATCHES "^Twx" )
+      set ( m_ Twx${m_} )
     endif ()
-    list ( APPEND includes_ "${n_}" )
+    twx_assert_target ( ${m_} )
+    message ( "MODULE: ${m_}" )
+#    twx_assert_module ( ${m_} )
+    foreach ( p_ ${TWX_MODULE_TARGET_PROPERTIES} )
+      get_target_property ( v_ ${m_} TWX_${p_} )
+      message ( "  ${p_} => ${v_} == ${${m_}_${p_}}" )
+    endforeach ()
   endforeach ()
-  include ( TwxCfgFileLib )
-  twx_cfg_files (
-    TYPE		MODULES_INCLUDE
-    FILES 	${includes_}
-    IN_DIR 	"${TWX_MODULES_INCLUDE_DIR}"
-    OUT_DIR "${TWX_PROJECT_BUILD_DIR}modules/include/"
-    EXPORT TWX
-  )
-  twx_assert_target ( ${TWX_MODULES_INCLUDE_TARGET} )
-  twx_export ( TWX_MODULES_INCLUDE_DIR )
-endfunction ( twx_module_after_project )
+endfunction ( twx_module_debug )
 
 #*/

@@ -61,11 +61,11 @@ function ( twx_test_case )
   )
   set (
     ${twxR_VAR}
-    "${TWX_PROJECT_PRODUCT_DIR}/${twxR_TARGET}.WorkingDirectory"
+    "${TWX_PROJECT_PRODUCT_DIR}${twxR_TARGET}.WorkingDirectory"
   )
   if ( NOT "" STREQUAL "" )
   # Remove this branch when done
-    set ( temporaryDir_ "${TWX_PROJECT_BUILD_DATA_DIR}/Temporary" )
+    set ( temporaryDir_ "${TWX_PROJECT_BUILD_DATA_DIR}Temporary" )
     twx_message_verbose ( "twx_test_case FROM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
     file (
       COPY "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory"
@@ -91,19 +91,19 @@ function ( twx_test_case )
       twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
       set (
         stamped_
-        "${TWX_PROJECT_BUILD_DATA_DIR}/${twxR_TARGET}.WorkingDirectory.stamped"
+        "${TWX_PROJECT_BUILD_DATA_DIR}${twxR_TARGET}.WorkingDirectory.stamped"
       )
       add_custom_command (
         COMMAND "${CMAKE_COMMAND}"
           "-DTWX_TARGET=\"${twxR_TARGET}\""
-          "-DTWX_SOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}\""
-          "-DTWX_TEMPORARY_DIR=\"${TWX_PROJECT_BUILD_DATA_DIR}/Temporary\""
+          "-DTWX_SOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}/\""
+          "-DTWX_TEMPORARY_DIR=\"${TWX_PROJECT_BUILD_DATA_DIR}Temporary/\""
           "-DTWX_DESTINATION_DIR=\"${TWX_PROJECT_PRODUCT_DIR}\""
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
           "-DTWX_TEST=${TWX_TEST}"
           "-DTWX_DEV=${TWX_DEV}"
           "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
-          -P "${TWX_DIR}/CMake/Command/TwxTestCommand.cmake"
+          -P "${TWX_DIR}CMake/Command/TwxTestCommand.cmake"
         COMMAND
           "${CMAKE_COMMAND}"
             -E touch "${stamped_}"

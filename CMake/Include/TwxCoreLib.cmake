@@ -41,10 +41,12 @@ relative to this included file.
 #]=======]
 get_filename_component (
   TWX_DIR
-  "${CMAKE_CURRENT_LIST_DIR}/../.."
+  "${CMAKE_CURRENT_LIST_DIR}/../../"
   REALPATH
 )
-
+if ( NOT "${TWX_DIR}" MATCHES "/$" )
+  set ( TWX_DIR "${TWX_DIR}/")
+endif ()
 #[=======[ setup `CMAKE_MODULE_PATH`
 Make the contents of `CMake/Include` and `CMake/Modules` available.
 The former contains tools and utilities whereas
@@ -52,8 +54,8 @@ the latter only contains modules at a higher level.
 ]=======]
 list (
   INSERT CMAKE_MODULE_PATH 0
-  "${TWX_DIR}/CMake/Include"
-  "${TWX_DIR}/CMake/Modules"
+  "${TWX_DIR}CMake/Include"
+  "${TWX_DIR}CMake/Modules"
 )
 list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
 

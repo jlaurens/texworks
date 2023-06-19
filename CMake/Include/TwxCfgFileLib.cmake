@@ -252,23 +252,23 @@ function ( twx_cfg_file_end )
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
           "-DTWX_DEV=${TWX_DEV}"
           "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
-          -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
+          -P "${TWX_DIR}CMake/Command/TwxCfgFileCommand.cmake"
       COMMENT
         "Configure ${PROJECT_NAME}'s ${twxR_TARGET} include directory"
       VERBATIM
     )
   else ()
-    twx_cfg_path ( stamped ID "${PROJECT_NAME}_${twxR_ID}_file" STAMPED )
+    twx_cfg_path ( stamped_ ID "${PROJECT_NAME}_${twxR_ID}_file" STAMPED )
     set (
       target_
-      ${PROJECT_NAME}_${twxR_ID}_cfg_ini
+      ${PROJECT_NAME}_${twxR_ID}_cfg_files
     )
     if ( NOT TARGET ${target_} )
       add_custom_target (
         ${target_}
         ALL
         DEPENDS
-          ${stamped}
+          ${stamped_}
         COMMENT
           "Configure ${PROJECT_NAME} files for ${twxR_ID}"
       )
@@ -284,7 +284,7 @@ function ( twx_cfg_file_end )
     endforeach ()
     add_custom_command (
       OUTPUT
-        "${stamped}"
+        "${stamped_}"
         ${output_}
       COMMAND
         "${CMAKE_COMMAND}"
@@ -300,10 +300,10 @@ function ( twx_cfg_file_end )
           "-DTWX_VERBOSE=${TWX_VERBOSE}"
           "-DTWX_DEV=${TWX_DEV}"
           "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
-          -P "${TWX_DIR}/CMake/Command/TwxCfgFileCommand.cmake"
+          -P "${TWX_DIR}CMake/Command/TwxCfgFileCommand.cmake"
       COMMAND
         "${CMAKE_COMMAND}"
-          -E touch "${stamped}"
+          -E touch "${stamped_}"
       DEPENDS
         ${depends_}
       COMMENT

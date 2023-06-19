@@ -68,13 +68,13 @@ function ( twx_doxydoc )
   if ( NOT EXISTS "${twx_in}" )
     set (
       twx_in
-      "${TWX_DIR}/Developer/doxydoc.in.txt"
+      "${TWX_DIR}Developer/doxydoc.in.txt"
     )
   endif ()
   twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
   set (
     twx_out
-    "${TWX_PROJECT_BUILD_DATA_DIR}/doxydoc.txt"
+    "${TWX_PROJECT_BUILD_DATA_DIR}doxydoc.txt"
   )
   twx_assert_non_void ( CMAKE_CURRENT_BINARY_DIR )
   set (

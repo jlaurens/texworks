@@ -53,11 +53,11 @@ function ( twx_poppler_data_setup )
   endif ()
   set (
     TWX_POPPLER_DATA_ARCHIVE
-    "${TWX_EXTERNAL_DIR}/${CMAKE_MATCH_1}"
+    "${TWX_EXTERNAL_DIR}${CMAKE_MATCH_1}"
   )
   set (
     TWX_POPPLER_DATA_BASE
-    "${TWX_EXTERNAL_DIR}/${CMAKE_MATCH_2}/texworks-help"
+    "${TWX_EXTERNAL_DIR}${CMAKE_MATCH_2}/texworks-help"
   )
   set ( TWX_POPPLER_DATA_SHA256 "${TWX_CFG_POPPLER_DATA_SHA256}" )
   twx_export (

@@ -12,6 +12,6 @@ include ( SrcTwxUISetup )
 *//*
 #]===============================================]
 
-include ( "${TWX_DIR}/src/ui/Setup.cmake" )
+include ( "${TWX_DIR}src/ui/Setup.cmake" )
 
 #*/

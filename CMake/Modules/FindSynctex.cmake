@@ -78,7 +78,7 @@ else ()
 
   # If we didn't find a system-wide synctex (or didn't look for one), use the
   # bundled version
-  set(SYNCTEX_INCLUDE_DIR "${TWX_DIR}/modules/synctex")
+  set(SYNCTEX_INCLUDE_DIR "${TWX_DIR}modules/synctex")
   set(SYNCTEX_LIBRARIES "SyncTeX")
   add_subdirectory("${SYNCTEX_INCLUDE_DIR}" "TwxModules/synctex")
 

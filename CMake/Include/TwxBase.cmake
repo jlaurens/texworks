@@ -98,7 +98,7 @@ TWX_BUILD_DATA_DIR;
 /** @brief Main build directory: .../TwxBuildData */
 TWX_CFG_INI_DIR;
 # ANCHOR: TWX_PRODUCT_DIR
-/** @brief Main build directory: .../TwxProduct
+/** @brief Main build directory: .../TwxProduct/
   *
   * Contains the main built products, executables, tests and bundles.
   *
@@ -160,7 +160,7 @@ TWX_PROJECT_BUILD_DIR;
   */
 TWX_PROJECT_BUILD_DATA_DIR;
 # ANCHOR: TWX_PROJECT_PRODUCT_DIR
-/** @brief Project build directory: .../TwxProduct
+/** @brief Project build directory: .../TwxProduct/
   *
   * Contains the built products, executables, tests and bundles.
   *
@@ -246,7 +246,7 @@ function ( twx_target_include_src )
         ${target_}
         PRIVATE
           "${PROJECT_SOURCE_DIR}/src"
-          "${TWX_PROJECT_BUILD_DIR}/src"
+          "${TWX_PROJECT_BUILD_DIR}src"
       )
     endforeach ()
   else ()
@@ -254,7 +254,7 @@ function ( twx_target_include_src )
     target_include_directories (
         ${target_}
         PRIVATE
-          "${TWX_DIR}/src"
+          "${TWX_DIR}src"
           "${PROJECT_BINARY_DIR}/src"
       )
     endforeach ()
@@ -265,8 +265,8 @@ endfunction ( twx_target_include_src )
 #[=======[
 /** @brief Setup the various DIR variables
   *
-  * Set by the very first `include ( TwxBase )`
-  * that follows a `project()` declaration.
+  * Used by `twx_base_after_project ()`.
+  * All the locations end with a `/` character.
   */
 __twx_base_setup_dir(...) {}
 /*#]=======]
@@ -275,14 +275,14 @@ macro ( __twx_base_setup_dir )
     twx_fatal ( "Unsupported argument: ${ARGN}" )
   endif ()
   if ( NOT "${PROJECT_BINARY_DIR}" STREQUAL "" )
-    set ( TWX_${ARGN}BUILD_DIR       "${PROJECT_BINARY_DIR}/TwxBuild" )
-    set ( TWX_${ARGN}BUILD_DATA_DIR  "${PROJECT_BINARY_DIR}/TwxBuildData" )
-    set ( TWX_${ARGN}CFG_INI_DIR     "${PROJECT_BINARY_DIR}/TwxBuildData" )
-    set ( TWX_${ARGN}PRODUCT_DIR     "${PROJECT_BINARY_DIR}/TwxProduct" )
-    set ( TWX_${ARGN}DOC_DIR         "${PROJECT_BINARY_DIR}/TwxDocumentation" )
-    set ( TWX_${ARGN}DOWNLOAD_DIR    "${PROJECT_BINARY_DIR}/TwxDownload" )
-    set ( TWX_${ARGN}PACKAGE_DIR     "${PROJECT_BINARY_DIR}/TwxPackage" )
-    set ( TWX_${ARGN}EXTERNAL_DIR    "${PROJECT_BINARY_DIR}/TwxExternal" )
+    set ( TWX_${ARGN}BUILD_DIR       "${PROJECT_BINARY_DIR}/TwxBuild/" )
+    set ( TWX_${ARGN}BUILD_DATA_DIR  "${PROJECT_BINARY_DIR}/TwxBuildData/" )
+    set ( TWX_${ARGN}CFG_INI_DIR     "${PROJECT_BINARY_DIR}/TwxBuildData/" )
+    set ( TWX_${ARGN}PRODUCT_DIR     "${PROJECT_BINARY_DIR}/TwxProduct/" )
+    set ( TWX_${ARGN}DOC_DIR         "${PROJECT_BINARY_DIR}/TwxDocumentation/" )
+    set ( TWX_${ARGN}DOWNLOAD_DIR    "${PROJECT_BINARY_DIR}/TwxDownload/" )
+    set ( TWX_${ARGN}PACKAGE_DIR     "${PROJECT_BINARY_DIR}/TwxPackage/" )
+    set ( TWX_${ARGN}EXTERNAL_DIR    "${PROJECT_BINARY_DIR}/TwxExternal/" )
   endif ()
 endmacro ()
 __twx_base_setup_dir ()
