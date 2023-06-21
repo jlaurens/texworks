@@ -216,9 +216,9 @@ void Main::testTool()
 void Main::testInfo()
 {
 	QCOMPARE(Info::name, "TwxCoreTest");
-	QCOMPARE(Info::organizationName, "test.organization.name");
-	QCOMPARE(Info::organizationShortName, "test.organization.short.name");
-	QCOMPARE(Info::organizationDomain, "test.organization.domain");
+	QCOMPARE(Info::organizationName, "test_ORGANIZATION_NAME");
+	QCOMPARE(Info::organizationShortName, "test_ORGANIZATION_SHORT_NAME");
+	QCOMPARE(Info::organizationDomain, "test_ORGANIZATION_DOMAIN");
 	QCOMPARE(Info::authors, QString::fromUtf8("test.authors.Ò∂ƒﬁ🥹"));
 	QCOMPARE(Info::copyrightYears, QString::fromUtf8("5678-9012"));
 	QCOMPARE(Info::copyrightHolders, QString::fromUtf8("test.holders.æê®†\"Úºîœπ‡Ò∂\"ƒﬁÌÏÈ"));

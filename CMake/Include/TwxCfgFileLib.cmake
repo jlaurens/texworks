@@ -235,6 +235,7 @@ function ( twx_cfg_file_end )
       endif ()
       set ( output_directory_ "${output_directory_}/${twxR_OUT_DIR}" )
     endif ()
+    twx_state_serialize ()
     add_custom_command (
       TARGET "${twxR_TARGET}"
       POST_BUILD
@@ -249,9 +250,7 @@ function ( twx_cfg_file_end )
           "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
           "-DTWX_ESCAPE_QUOTES=${twxR_ESCAPE_QUOTES}"
           "-DTWX_NO_PRIVATE=${twxR_NO_PRIVATE}"
-          "-DTWX_VERBOSE=${TWX_VERBOSE}"
-          "-DTWX_DEV=${TWX_DEV}"
-          "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+          "${TWX_STATE_ARGUMENT}"
           -P "${TWX_DIR}CMake/Command/TwxCfgFileCommand.cmake"
       COMMENT
         "Configure ${PROJECT_NAME}'s ${twxR_TARGET} include directory"
@@ -277,11 +276,12 @@ function ( twx_cfg_file_end )
     set ( depends_ )
     set ( output_ )
     foreach ( file_ ${in_} )
-      list ( APPEND depends_ "${twxR_IN_DIR}/${file_}" )
+      list ( APPEND depends_ "${twxR_IN_DIR}${file_}" )
     endforeach ()
     foreach ( file_ ${out_} )
-      list ( APPEND output_ "${twxR_OUT_DIR}/${file_}" )
+      list ( APPEND output_ "${twxR_OUT_DIR}${file_}" )
     endforeach ()
+    twx_state_serialize ()
     add_custom_command (
       OUTPUT
         "${stamped_}"
@@ -297,9 +297,7 @@ function ( twx_cfg_file_end )
           "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
           "-DTWX_ESCAPE_QUOTES=${twxR_ESCAPE_QUOTES}"
           "-DTWX_NO_PRIVATE=${twxR_NO_PRIVATE}"
-          "-DTWX_VERBOSE=${TWX_VERBOSE}"
-          "-DTWX_DEV=${TWX_DEV}"
-          "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+          "${TWX_STATE_ARGUMENT}"
           -P "${TWX_DIR}CMake/Command/TwxCfgFileCommand.cmake"
       COMMAND
         "${CMAKE_COMMAND}"
@@ -315,12 +313,14 @@ function ( twx_cfg_file_end )
   if ( NOT "${twxR_MODULE}" STREQUAL "" )
     set ( export_ )
     foreach ( file_ ${out_} )
-      list ( APPEND export_ "${twxR_OUT_DIR}/${file_}")
+      list ( APPEND export_ "${twxR_OUT_DIR}${file_}")
     endforeach ()
     list ( SORT export_ )
     set ( ${twxR_ID} "${export_}" PARENT_SCOPE )
     set ( ${twxR_ID}_TARGET "${target_}" PARENT_SCOPE )
-  elseif ( NOT "${twxR_EXPORT}" STREQUAL "" )
+    twx_message_verbose ( "DEBUG: EXPORTED ${twxR_ID} => <${export_}>" )
+    twx_message_verbose ( "DEBUG: EXPORTED ${twxR_ID}_TARGET => <${target_}>" )
+  elseif ( NOT "${twxR_EXPORT}" STREQUAL "${twxR_ID}" )
     set ( export_ )
     foreach ( file_ ${out_} )
       list ( APPEND export_ "${twxR_OUT_DIR}/${file_}")
@@ -328,6 +328,7 @@ function ( twx_cfg_file_end )
     list ( SORT export_ )
     set ( ${twxR_EXPORT}_${twxR_ID} "${export_}" PARENT_SCOPE )
     set ( ${twxR_EXPORT}_${twxR_ID}_TARGET "${target_}" PARENT_SCOPE )
+    twx_message_verbose ( "DEBUG: EXPORTED ${twxR_EXPORT}_${twxR_ID}/${twxR_EXPORT}_${twxR_ID}_TARGET/" )
   endif ()
   unset ( ${files_} PARENT_SCOPE )
   unset ( ${busy_} PARENT_SCOPE )
@@ -354,18 +355,18 @@ twx_cfg_file_add ( ... )
 twx_cfg_file_end ( ... )
 ```
 @param module for key MODULE, an optional module name. When not provided,
-  configuration relates to the current project.
+  configuration relates to the current project. 
 @param type for key TYPE, is a unique type identifier like `SOURCES`, `HEADERS`.
   Same as in `twx_cfg_files_begin()`.
   When a module is provided, the unique identifier is `<module>_<type>`
   such that many different modules can be configured within a unique project.
 @param id for key ID, is a unique identifier within a project.
-  When not provided, it defaults to `<module>_<type>` if there is a
+  When not provided, it defaults to `<module>_<type>` if a module
   was given or simply to `<type>` otherwise.
 @param export for key EXPORT, is the name prefix of a variable that contains on return
   the `;` separated list of all the configured files. The full variable name
   is `<export>_<type>`. If a module is given, this argument is ignored and
-  and the list of configured files is exported in the variable simply named `<type>`.
+  and the list of configured files is exported in the variable simply named `<id>`.
   If no EXPORT nor MODULE is used, no exportation takes place.
 @param files for key FILES is an optional list of sources to `configure_file()`.
   These are relative to `input_dir` before and to `output_dir` after.
@@ -409,12 +410,14 @@ function ( twx_cfg_files )
   endif ()
   twx_assert_non_void ( twxR_IN_DIR )
   twx_assert_non_void ( twxR_OUT_DIR )
-  if ( twxR_MODULE )
-    set ( id_ "${twxR_MODULE}_${twxR_TYPE}" )
-  else ()
-    set ( id_ "${twxR_TYPE}" )
+  if ( "${twxR_ID}" STREQUAL "" )
+    if ( twxR_MODULE )
+      set ( twxR_ID "${twxR_MODULE}_${twxR_TYPE}" )
+    else ()
+      set ( twxR_ID "${twxR_TYPE}" )
+    endif ()
   endif ()
-  twx_cfg_file_begin ( ID "${id_}" )
+  twx_cfg_file_begin ( ID "${twxR_ID}" )
   twx_message_more_verbose (
     "twx_cfg_files: ${TWX_CFG__FILE_ID_CURRENT}"
     "twx_cfg_files: twxR_FILES =>"
@@ -423,13 +426,13 @@ function ( twx_cfg_files )
     ${twxR_FILES}
   )
   twx_cfg_file_add (
-    ID    "${id_}"
+    ID    "${twxR_ID}"
     FILES ${twxR_FILES}
   )
   twx_pass_option ( ESCAPE_QUOTES )
   twx_pass_option ( NO_PRIVATE )
   twx_cfg_file_end (
-    ID          "${id_}"
+    ID          "${twxR_ID}"
     IN_DIR      "${twxR_IN_DIR}"
     OUT_DIR     "${twxR_OUT_DIR}"
     CFG_INI_IDS "${twxR_CFG_INI_IDS}"
@@ -440,9 +443,11 @@ function ( twx_cfg_files )
     ${twxR_NO_PRIVATE}
   )
   if ( NOT "${twxR_MODULE}" STREQUAL "" )
-    twx_export ( ${twxR_TYPE} )
+    twx_export ( ${twxR_ID} ${twxR_ID}_TARGET )
+    twx_message_verbose ( "DEBUG: EXPORTED ${twxR_ID} => ${${twxR_ID}}" )
+    twx_message_verbose ( "DEBUG: EXPORTED ${twxR_ID}_TARGET => ${${twxR_ID}_TARGET}" )
   elseif ( NOT "${twxR_EXPORT}" STREQUAL "" )
-    twx_export ( ${twxR_EXPORT}_${twxR_TYPE} )
+    twx_export ( ${twxR_EXPORT}_${twxR_TYPE} ${twxR_EXPORT}_${twxR_TYPE}_TARGET )
   endif ()
 endfunction ()
 

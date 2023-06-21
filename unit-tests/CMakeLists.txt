@@ -23,7 +23,7 @@ add_subdirectory (
 	src/ui
 )
 include_directories (
-	"${TWX_DIR}src"
+	"${TWX_DIR}src/"
 	${TeXworks_INCLUDE_DIRS}
 )
 

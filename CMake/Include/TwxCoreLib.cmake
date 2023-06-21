@@ -447,6 +447,45 @@ macro ( twx_export )
   endforeach ()
 endmacro ()
 
+# ANCHOR: twx_state_serialize ()
+#[=======[
+/** @brief Serialize the current state
+  *
+  * Serialize the current state into variable `TWX_STATE_ARGUMENT`.
+  * To forward the current state to CMake `-P` commands.
+  * See the balancing `twx_state_deserialize ()`.
+  */
+twx_state_serialize(...) {}
+/*#]=======]
+set ( TWX_STATE_KEYS VERBOSE MORE_VERBOSE TEST DEV MESSAGE_DEPTH )
+function ( twx_state_serialize )
+  set ( state_ )
+  foreach ( k_ ${TWX_STATE_KEYS} )
+    list ( APPEND state_ "<<<${k_}:${TWX_${k_}}>>>" )
+  endforeach ()
+  set ( TWX_STATE_ARGUMENT "-DTWX_STATE=\"${state_}\"" PARENT_SCOPE )
+endfunction ()
+
+# ANCHOR: twx_state_deserialize ()
+#[=======[
+/** @brief Deserialize to the current state
+  *
+  * To forward the current state to CMake `-P` commands.
+  * Deserialize the `TWX_STATE` variable into the current state.
+  * See the balancing `twx_state_serialize ()`.
+  */
+twx_state_deserialize(...) {}
+/*#]=======]
+macro ( twx_state_deserialize )
+  foreach ( k_ ${TWX_STATE_KEYS} )
+    if ( "${TWX_STATE}" MATCHES "<<<${k_}:([^>]*)>>>" )
+      set ( TWX_${k_} "${CMAKE_MATCH_1}" )
+    else ()
+      set ( TWX_${k_} )
+    endif ()
+  endforeach ()
+endmacro ()
+
 twx_message_more_verbose ( "TwxCoreLib loaded: ${TWX_DIR}" )
 
 #*/

@@ -33,6 +33,7 @@ if ( NOT DEFINED TWX_IS_BASED )
     NO_POLICY_SCOPE
   )
 endif ()
+twx_state_deserialize ()
 
 twx_message_more_verbose ( "TwxCfg_git: ${TWX_DIR}" DEEPER )
 

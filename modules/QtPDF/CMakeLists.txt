@@ -364,12 +364,13 @@ file(GLOB TRANSLATIONS_SOURCES trans/*.ts)
 target_add_qt_translations(qtpdf TS_FILES ${TRANSLATIONS_SOURCES} INCLUDEPATH "../src/")
 get_target_property(lupdatePath Qt${QT_VERSION_MAJOR}::lupdate LOCATION)
 get_target_property(_sources qtpdf SOURCES)
+twx_state_serialize ()
 add_custom_target(${PROJECT_NAME}_UpdateTranslations COMMAND "${CMAKE_COMMAND}"
   "-DOUTPUTFILE=\"${CMAKE_CURRENT_SOURCE_DIR}/trans/QtPDF_trans.pro\""
   "-DPROJECT_NAME=\"${PROJECT_NAME}\""
   "-DQt_LUPDATE_EXECUTABLE=\"${lupdatePath}\""
   "-DFILES=\"${_sources};${QTPDF_UIS};${TRANSLATIONS_SOURCES}\""
-  "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+  "${TWX_STATE_ARGUMENT}"
   -P "${PROJECT_SOURCE_DIR}/CMake/Modules/UpdateTranslations.cmake"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 if (NOT TARGET UpdateTranslations)

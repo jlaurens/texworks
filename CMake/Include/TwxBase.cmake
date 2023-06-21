@@ -245,8 +245,8 @@ function ( twx_target_include_src )
       target_include_directories (
         ${target_}
         PRIVATE
-          "${PROJECT_SOURCE_DIR}/src"
-          "${TWX_PROJECT_BUILD_DIR}src"
+          "${PROJECT_SOURCE_DIR}/src/"
+          "${TWX_PROJECT_BUILD_DIR}src/"
       )
     endforeach ()
   else ()
@@ -254,8 +254,8 @@ function ( twx_target_include_src )
     target_include_directories (
         ${target_}
         PRIVATE
-          "${TWX_DIR}src"
-          "${PROJECT_BINARY_DIR}/src"
+          "${TWX_DIR}src/"
+          "${PROJECT_BINARY_DIR}/src/"
       )
     endforeach ()
   endif ()

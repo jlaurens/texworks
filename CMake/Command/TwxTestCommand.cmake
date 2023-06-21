@@ -26,6 +26,7 @@ include (
   "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
+twx_state_deserialize ()
 
 twx_assert_non_void ( TWX_TARGET )
 twx_assert_non_void ( TWX_SOURCE_DIR )

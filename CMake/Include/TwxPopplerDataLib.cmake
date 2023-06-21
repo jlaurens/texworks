@@ -120,16 +120,14 @@ twx_poppler_data_process () {}
 /*
 #]=======]
 function ( twx_poppler_data_process )
+  twx_state_serialize ()
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_URL=${TWX_POPPLER_DATA_URL}"
       "-DTWX_ARCHIVE=${TWX_POPPLER_DATA_ARCHIVE}"
       "-DTWX_BASE=${TWX_POPPLER_DATA_BASE}"
       "-DTWX_SHA256=${TWX_POPPLER_DATA_SHA256}"
-      "-DTWX_DEV=${TWX_DEV}"
-      "-DTWX_TEST=${TWX_TEST}"
-      "-DTWX_VERBOSE=${TWX_VERBOSE}"
-      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+      "${TWX_STATE_ARGUMENT}"
       -P "${TwxPopplerDataCommand.cmake}"
   )
 endfunction ()

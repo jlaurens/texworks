@@ -6,8 +6,8 @@ twx_assert_target ( TeXworks )
 target_include_directories (
   TeXworks
   PRIVATE
-  "${TWX_DIR}src"
-  "${TWX_PROJECT_BUILD_DIR}src"
+  "${TWX_DIR}src/"
+  "${TWX_PROJECT_BUILD_DIR}src/"
 )
 
 # Collect Source Files

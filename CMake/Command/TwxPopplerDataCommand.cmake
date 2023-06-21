@@ -30,6 +30,7 @@ include (
   "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
+twx_state_deserialize ()
 
 include ( TwxPopplerDataLib )
 twx_poppler_data_prepare (

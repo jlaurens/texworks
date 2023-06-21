@@ -38,7 +38,7 @@ if (NOT MSVC)
 endif ()
 
 target_include_directories(TWPythonPlugin SYSTEM PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_include_directories(TWPythonPlugin PRIVATE ${TWX_DIR}src)
+target_include_directories(TWPythonPlugin PRIVATE ${TWX_DIR}src/)
 
 # Specify link libraries even if the plugin is built statically so all the
 # interface properties of the Qt targets (include directories, lib directories,

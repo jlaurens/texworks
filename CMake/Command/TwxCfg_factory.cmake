@@ -70,25 +70,25 @@ if ( NOT DEFINED TWX_IS_BASED )
     NO_POLICY_SCOPE
   )
 endif ()
+twx_state_deserialize ()
 
 twx_assert_non_void ( TWX_NAME )
 
 include ( TwxCfgLib )
 
-twx_message_more_verbose (
+twx_message_verbose (
   "TwxCfg_factory: TWX_NAME        => ${TWX_NAME}"
-  "TwxCfg_factory: TWX_FACTORY_INI => ${TWX_FACTORY_INI}"
   "TwxCfg_factory: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
   DEEPER
 )
 
 # Parse the ini contents
-twx_message_more_verbose ( "TwxCfg_factory: Parsing ${TWX_FACTORY_INI}" )
+twx_message_verbose ( "TwxCfg_factory: Parsing ${TWX_FACTORY_INI}" )
 twx_cfg_read ( "${TWX_FACTORY_INI}" )
 twx_cfg_write_begin ( ID "factory" )
 # verify the expectations
 foreach (
-  key
+  key_
   VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK
   COPYRIGHT_YEARS COPYRIGHT_HOLDERS AUTHORS
   ORGANIZATION_DOMAIN ORGANIZATION_NAME ORGANIZATION_SHORT_NAME
@@ -96,30 +96,29 @@ foreach (
   MANUAL_HTML_URL MANUAL_HTML_SHA256
   URL_HOME URL_HOME_DEV URL_ISSUES URL_GPL MAIL_ADDRESS
 )
-  if ( DEFINED TWX_CFG_${key} )
-    twx_cfg_set ( "${key}" "${TWX_CFG_${key}}" )
+  if ( DEFINED TWX_CFG_${key_} )
+    twx_cfg_set ( "${key_}" "${TWX_CFG_${key_}}" )
   else ()
-    message (
-      FATAL_ERROR
-      "Missing value for key ${key} in TWX_FACTORY_INI (${TWX_FACTORY_INI})"
+    twx_fatal (
+      "Missing value for key_ ${key_} in TWX_FACTORY_INI (${TWX_FACTORY_INI})"
     )
   endif ()
 endforeach ()
 # ANCHOR: Git info verification
 set ( GIT_OK )
-foreach ( key GIT_HASH GIT_DATE )
+foreach ( key_ GIT_HASH GIT_DATE )
   # We assume that both keys are defined
-  if ( DEFINED TWX_CFG_${key} )
-    if ( TWX_CFG_${key} MATCHES "\\$Format:.*\\$" )
-      twx_cfg_set ( "${key}" "" )
+  if ( DEFINED TWX_CFG_${key_} )
+    if ( TWX_CFG_${key_} MATCHES "\\$Format:.*\\$" )
+      twx_cfg_set ( "${key_}" "" )
     else ()
-      twx_cfg_set ( "${key}" "${TWX_CFG_${key}}" )
-      set ( GIT_OK "${GIT_OK}${TWX_CFG_${key}}" )
+      twx_cfg_set ( "${key_}" "${TWX_CFG_${key_}}" )
+      set ( GIT_OK "${GIT_OK}${TWX_CFG_${key_}}" )
     endif ()
   else ()
     message (
       FATAL_ERROR
-      "Missing value for key ${key} in TWX_FACTORY_INI: ${lines}"
+      "Missing value for key_ ${key_} in TWX_FACTORY_INI: ${lines}"
     )
   endif ()
 endforeach ()
@@ -150,11 +149,11 @@ ${TWX_CFG_VERSION_MINOR}"
 )
 # ANCHOR: NAMING
 twx_cfg_set ( NAME "${TWX_NAME}" )
-string ( TOLOWER "${TWX_NAME}" s )
-twx_cfg_set ( NAME_LOWER "${s}" )
-twx_cfg_set ( COMMAND "${s}" )
-string ( TOUPPER "${TWX_NAME}" s )
-twx_cfg_set ( NAME_UPPER "${s}" )
+string ( TOLOWER "${TWX_NAME}" s_ )
+twx_cfg_set ( NAME_LOWER "${s_}" )
+twx_cfg_set ( COMMAND "${s_}" )
+string ( TOUPPER "${TWX_NAME}" s_ )
+twx_cfg_set ( NAME_UPPER "${s_}" )
 # Packaging
 if ( "${TWX_BUILD_ID}" STREQUAL "" )
   set ( TWX_BUILD_ID "personal" )

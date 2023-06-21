@@ -23,7 +23,6 @@ Expected input state:
 - `TWX_OUT_DIR`, location of the output files
 - `TWX_CFG_INI_IDS`
 - `TWX_ESCAPE_QUOTES` (usual boolean like text)
-- `TWX_VERBOSE`
 - required file: each one of the `TWX_IN` lists.
 
 Reads both `...cfg.ini` files of the `TwxBuildData` folder for
@@ -58,6 +57,7 @@ include (
   "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
+twx_state_deserialize ()
 
 twx_assert_non_void ( TWX_IN )
 twx_assert_non_void ( TWX_IN_DIR )

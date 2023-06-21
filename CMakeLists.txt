@@ -385,11 +385,12 @@ if ( APPLE )
     output_
     "${TWX_PROJECT_BUILD_DIR}res/os_darwin/${TWX_NAME}.plist"
   )
+  twx_state_serialize ()
   add_custom_command (
     COMMAND "${CMAKE_COMMAND}"
     "-DTWX_INPUT=${PROJECT_NAME}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}"
-    "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+    "${TWX_STATE_ARGUMENT}"
     -P "${TWX_DIR}CMake/Command/TwxCfgOneFileCommand.cmake"
     DEPENDS
       ${TWX_${PROJECT_NAME}_INI}
@@ -463,10 +464,10 @@ endif ()
 #     RUNTIME_OUTPUT_DIRECTORY ${TWX_PROJECT_PRODUCT_DIR}
 # )
 
-add_subdirectory ( src "${TWX_PROJECT_BUILD_DIR}src" )
+add_subdirectory ( src "${TWX_PROJECT_BUILD_DIR}src/" )
 
 # Add translations
-add_subdirectory ( trans "${TWX_PROJECT_BUILD_DIR}trans" )
+add_subdirectory ( trans "${TWX_PROJECT_BUILD_DIR}trans/" )
 
 # On OS X, ensure there is always a `qt.conf` file as all hell will break loose
 # if one isn't there.  This may need to be customized for use on non-Apple
@@ -494,13 +495,14 @@ endif ()
 
 # One package.sh needs the version 
 
+twx_state_serialize ()
 add_custom_command (
   TARGET TeXworks
   POST_BUILD
   COMMAND ${CMAKE_COMMAND}
     "-DTWX_CONTENTS=${TWX_CFG_VERSION}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}/TwxVersion.txt"
-    "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+    "${TWX_STATE_ARGUMENT}"
     -P "${TWX_DIR}CMake/Command/TwxWriteCommand.cmake"
 )
 

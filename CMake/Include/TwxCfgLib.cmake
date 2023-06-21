@@ -104,16 +104,17 @@ twx_cfg_update_factory ( ) {}
 /*
 #]=======]
 macro ( twx_cfg_update_factory )
+  twx_message_verbose (
+    "twx_cfg_update_factory: ${TWX_FACTORY_INI}"
+  )
   twx_assert_non_void ( TWX_CFG_INI_DIR )
+  twx_state_serialize ()
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_NAME=${TWX_NAME}"
       "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
       "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-      "-DTWX_VERBOSE=${TWX_VERBOSE}"
-      "-DTWX_TEST=${TWX_TEST}"
-      "-DTWX_DEV=${TWX_DEV}"
-      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+      "${TWX_STATE_ARGUMENT}"
       -P "${TWX_DIR}CMake/Command/TwxCfg_factory.cmake"
     RESULT_VARIABLE result_twx
   )
@@ -129,13 +130,11 @@ twx_cfg_update_git ( ) {}
 /*
 #]=======]
 macro ( twx_cfg_update_git )
+  twx_state_serialize ()
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-      "-DTWX_VERBOSE=${TWX_VERBOSE}"
-      "-DTWX_TEST=${TWX_TEST}"
-      "-DTWX_DEV=${TWX_DEV}"
-      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+      "${TWX_STATE_ARGUMENT}"
       -P "${TWX_DIR}CMake/Command/TwxCfg_git.cmake"
   )
   twx_cfg_read ( "git" )
@@ -207,7 +206,7 @@ TWX_FACTORY_INI;
 function ( twx_cfg_setup )
   # The project may have changed since TWX_CFG_INI_DIR was defined
   twx_assert_non_void ( PROJECT_BINARY_DIR )
-  set ( TWX_CFG_INI_DIR "${PROJECT_BINARY_DIR}/TwxBuildData" )
+  set ( TWX_CFG_INI_DIR "${PROJECT_BINARY_DIR}/TwxBuildData/" )
   if ( "${TWX_FACTORY_INI}" STREQUAL "" )
     set (
       TWX_FACTORY_INI
@@ -218,13 +217,12 @@ function ( twx_cfg_setup )
   else ()
     twx_assert_exists ( TWX_FACTORY_INI )
     set ( target_twx "TwxCfg_${PROJECT_NAME}" )
-    twx_message_verbose (
-      "${target_twx}"
-      "${TWX_FACTORY_INI}"
-      "${TWX_CFG_INI_DIR}"
-    )
   endif ()
-  
+  twx_message_verbose (
+    "twx_cfg_setup target: ${target_twx}"
+    "${TWX_FACTORY_INI}"
+    "${TWX_CFG_INI_DIR}"
+  )
   if ( TARGET "${target_twx}" OR NOT "${CMAKE_SCRIPT_MODE_FILE}" STREQUAL "" )
     twx_cfg_update_factory ()
     twx_cfg_update_git ()
@@ -240,16 +238,14 @@ function ( twx_cfg_setup )
   )
   if ( COMMAND add_custom_command )
     twx_cfg_path ( path_factory_twx ID "factory" )
+    twx_state_serialize ()
     add_custom_command (
       OUTPUT ${path_factory_twx}
       COMMAND "${CMAKE_COMMAND}"
         "-DTWX_NAME=${TWX_NAME}"
         "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
         "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-        "-DTWX_VERBOSE=${TWX_VERBOSE}"
-        "-DTWX_TEST=${TWX_TEST}"
-        "-DTWX_DEV=${TWX_DEV}"
-        "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+        "${TWX_STATE_ARGUMENT}"
         -P "${TWX_DIR}CMake/Command/TwxCfg_factory.cmake"
       DEPENDS
         ${TWX_FACTORY_INI}
@@ -257,14 +253,12 @@ function ( twx_cfg_setup )
         "Update factory Cfg information"
     )
     twx_cfg_path ( path_git_twx ID "git" )
+    twx_state_serialize ()
     add_custom_command (
       OUTPUT ${path_git_twx}
       COMMAND "${CMAKE_COMMAND}"
         "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-        "-DTWX_VERBOSE=${TWX_VERBOSE}"
-        "-DTWX_TEST=${TWX_TEST}"
-        "-DTWX_DEV=${TWX_DEV}"
-        "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+        "${TWX_STATE_ARGUMENT}"
         -P "${TWX_DIR}CMake/Command/TwxCfg_git.cmake"
       DEPENDS
         ${path_factory_twx}
@@ -275,7 +269,7 @@ function ( twx_cfg_setup )
       "${target_twx}" ALL
       DEPENDS ${path_git_twx}
     )
-    endif ()
+  endif ()
   twx_cfg_update_factory ()
   twx_cfg_update_git ()
   twx_export ( TWX_FACTORY_INI )

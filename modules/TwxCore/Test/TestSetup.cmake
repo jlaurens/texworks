@@ -52,7 +52,6 @@ target_link_libraries (
 	${${TWX_MODULE}_LIBRARIES}
 )
 
-
 set_target_properties (
 	test_${TWX_MODULE}_macOS
   PROPERTIES
@@ -179,6 +178,11 @@ add_executable (
 	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}LibTest.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE}LibTest.h"
 )
+set_target_properties (
+	test_${TWX_MODULE}Lib
+	PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY "${TWX_PROJECT_PRODUCT_DIR}"
+)
 list (
   APPEND ${TWX_MODULE}_TEST_SUITE
   ${TWX_MODULE_NAME}Lib
@@ -236,6 +240,11 @@ add_executable (
 list (
   APPEND ${TWX_MODULE}_TEST_SUITE
   ${TWX_MODULE_NAME}Lib2
+)
+set_target_properties (
+	test_${TWX_MODULE}Lib2
+	PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY "${TWX_PROJECT_PRODUCT_DIR}"
 )
 twx_Qt_fresh ( TEST )
 # twx_Qt_link_libraries ( TARGETS test_${TWX_MODULE}Lib )

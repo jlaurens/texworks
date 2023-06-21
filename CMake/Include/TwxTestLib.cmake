@@ -93,16 +93,14 @@ function ( twx_test_case )
         stamped_
         "${TWX_PROJECT_BUILD_DATA_DIR}${twxR_TARGET}.WorkingDirectory.stamped"
       )
+      twx_state_serialize ()
       add_custom_command (
         COMMAND "${CMAKE_COMMAND}"
           "-DTWX_TARGET=\"${twxR_TARGET}\""
           "-DTWX_SOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}/\""
           "-DTWX_TEMPORARY_DIR=\"${TWX_PROJECT_BUILD_DATA_DIR}Temporary/\""
           "-DTWX_DESTINATION_DIR=\"${TWX_PROJECT_PRODUCT_DIR}\""
-          "-DTWX_VERBOSE=${TWX_VERBOSE}"
-          "-DTWX_TEST=${TWX_TEST}"
-          "-DTWX_DEV=${TWX_DEV}"
-          "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+          "${TWX_STATE_ARGUMENT}"
           -P "${TWX_DIR}CMake/Command/TwxTestCommand.cmake"
         COMMAND
           "${CMAKE_COMMAND}"

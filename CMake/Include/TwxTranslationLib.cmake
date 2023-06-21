@@ -68,6 +68,7 @@ function ( twx_translation_target_setup twxR_TARGET )
 
   get_target_property ( _lupdate_path ${QtMAJOR}::lupdate LOCATION )
   get_target_property ( _sources ${twxR_TARGET} SOURCES )
+  twx_state_serialize ()
   add_custom_target (
     ${twxR_TARGET}_translation
     COMMAND "${CMAKE_COMMAND}"
@@ -76,7 +77,7 @@ function ( twx_translation_target_setup twxR_TARGET )
       "-DTWX_INPUT_FILES=\"${_sources};${${twxR_TARGET}_UIS};${${twxR_TARGET}_TRANS_TS}\""
       "-DTWX_INCLUDE_PATH=\"${TYWX_DIR}/src\""
       "-DQt_LUPDATE_EXECUTABLE=\"${_lupdate_path}\""
-      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+      "${TWX_STATE_ARGUMENT}"
       -P "${TWX_DIR}CMake/Command/TwxTranslationCommand.cmake"
   )
   if ( NOT TARGET UpdateTranslations )

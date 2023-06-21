@@ -137,16 +137,14 @@ twx_manual_process () {}
 /*
 #]=======]
 function ( twx_manual_process )
+  twx_state_serialize ()
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_URL=${TWX_MANUAL_URL}"
       "-DTWX_ARCHIVE=${TWX_MANUAL_ARCHIVE}"
       "-DTWX_BASE=${TWX_MANUAL_BASE}"
       "-DTWX_SHA256=${TWX_MANUAL_SHA256}"
-      "-DTWX_DEV=${TWX_DEV}"
-      "-DTWX_TEST=${TWX_TEST}"
-      "-DTWX_VERBOSE=${TWX_VERBOSE}"
-      "-DTWX_MESSAGE_DEPTH=${TWX_MESSAGE_DEPTH}"
+      "${TWX_STATE_ARGUMENT}"
       -P "${TwxManualCommand.cmake}"
   )
 endfunction ()
