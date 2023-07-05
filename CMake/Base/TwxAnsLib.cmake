@@ -50,7 +50,7 @@ twx_ans_assert_key ( key ... ) {}
 # TODO: local arguments of the form <function name>.<identifier>
 function ( twx_ans_assert_key twx_ans_assert_key.KEY )
   set ( i 0 )
-  while ( true )
+  while ( TRUE )
     twx_assert_variable ( "${ARGV${i}}" )
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
@@ -70,7 +70,7 @@ twx_ans_add(...) {}
 #]=======]
 function ( twx_ans_add .kv )
   set ( i 0 )
-  while ( true )
+  while ( TRUE )
     twx_split ( "${ARGV${i}}" IN_KEY twx_ans_add.k IN_VALUE twx_ans_add.v )
     if ( "${twx_ans_add.k}" STREQUAL "" )
       twx_fatal ( "Unexpected argument: \"${ARGV${i}}\"")
@@ -99,7 +99,7 @@ twx_ans_remove(...) {}
 #]=======]
 function ( twx_ans_remove .k )
   set ( i 0 )
-  while ( true )
+  while ( TRUE )
     set ( k "${ARGV${i}}" )
     twx_ans_assert_key ( "${k}" )
     twx_tree_remove ( TWX_ANS "${k}" )
