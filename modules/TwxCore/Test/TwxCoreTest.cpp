@@ -58,7 +58,7 @@ QDebug operator<< (QDebug d, const AssetsTrack &model) {
     d << Qt::endl << model.fileInfo.filePath()
 		  << ":{" << model.version
 		  << "," << model.checksum.bytes
-		  << "," << model.hash.bytes 
+		  << "," << model.hash.bytes
 		  << "}" << model.hash.bytes;
     return d;
 }

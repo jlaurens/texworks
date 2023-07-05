@@ -39,7 +39,7 @@
 #include <QDebug>
 
 #if not defined(TWX_CONST)
-#define TWX_CONST const 
+#define TWX_CONST const
 #endif
 
 namespace Twx {
@@ -133,7 +133,7 @@ QString Locate::rootTeXLive;
 QString Locate::w32tex_bin;
 
 /** \brief Private
-	* 
+	*
 	* For testing purposes: bypass by defining `rootTeXLive`
 	*/
 void Locate::appendListPATH_TeXLive_Windows(QStringList & listPATH)
@@ -159,8 +159,8 @@ void Locate::appendListPATH_TeXLive_Windows(QStringList & listPATH)
 			list << NFileInfo{year, fileInfo};
 		}
 	}
-	auto compare = [](const NFileInfo & a, const NFileInfo & b) -> bool { 
-		return a.n > b.n; 
+	auto compare = [](const NFileInfo & a, const NFileInfo & b) -> bool {
+		return a.n > b.n;
 	};
 	std::sort(list.begin(), list.end(),	compare);
   for ( auto const & pair: list) {
@@ -171,7 +171,7 @@ void Locate::appendListPATH_TeXLive_Windows(QStringList & listPATH)
 	if (w32tex_bin.isEmpty()) {
 		w32tex_bin = QStringLiteral("c:/w32tex/bin");
 	}
-	listPATH << w32tex_bin;  
+	listPATH << w32tex_bin;
 }
 
 QStringList Locate::appendListPATH_TeXLive_Other_m;
@@ -219,8 +219,8 @@ void Locate::appendListPATH_TeXLive_Other(QStringList & listPATH)
 			list << NFileInfo{year, fileInfo};
 		}
 	}
-	auto compare = [](const NFileInfo & a, const NFileInfo & b) -> bool { 
-		return a.n > b.n; 
+	auto compare = [](const NFileInfo & a, const NFileInfo & b) -> bool {
+		return a.n > b.n;
 	};
 	std::sort(list.begin(), list.end(),	compare);
 	for ( auto const & pair: list) {
@@ -253,7 +253,7 @@ QString Locate::LOCALAPPDATA_Windows;
 QString Locate::SystemDrive_Windows;
 
 /** \brief Private
- 	* 
+ 	*
 	* For testing: set LOCALAPPDATA_Windows or SystemDrive_Windows
 	* beforehand.
 	*/
@@ -314,7 +314,7 @@ void Locate::appendListPATH_MiKTeX_Windows(
 }
 
 /** \brief Private
- 	* 
+ 	*
 	* Add "<home>/bin" and " /usr/local/bin".
 	*/
 void Locate::appendListPATH_MiKTeX_Other(QStringList & listPATH)
@@ -325,7 +325,7 @@ void Locate::appendListPATH_MiKTeX_Other(QStringList & listPATH)
 }
 
 /** \brief Private
- 	* 
+ 	*
 	* Append the TeXLive binary paths and then the MiKTeX binary paths.
 	* These are system dependents.
 	*/
@@ -551,7 +551,7 @@ const Locate::Resolved Locate::resolve(
 			return Resolved{true, fileInfo};
 		}
 		if (mustExist) {
-			return Resolved{false, 
+			return Resolved{false,
 #if defined(TwxCore_TEST)
 				fileInfoMustExist_TwxCore_TEST
 #else

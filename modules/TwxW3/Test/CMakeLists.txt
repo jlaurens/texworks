@@ -21,9 +21,9 @@ if ( TARGET test_TwxW3 )
 endif ()
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.13 )
+	cmake_minimum_required ( VERSION 3.25 )
 	include (
-		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/TwxBase.cmake"
+		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Base/TwxBase.cmake"
 		NO_POLICY_SCOPE
 	)
 endif ()
@@ -93,7 +93,7 @@ add_executable (
 twx_module_add ( W3 TO_TARGETS test_TwxW3Lib )
 twx_Qt_link_libraries ( TARGETS test_TwxW3Lib )
 
-target_compile_definitions ( 
+target_compile_definitions (
   test_TwxW3Lib
   PRIVATE TwxW3Lib_TEST
 )
@@ -138,7 +138,7 @@ twx_summary_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATC
 twx_summary_end ()
 
 twx_summary_log ( "Compiler optimization" ${CMAKE_BUILD_TYPE} )
-twx_summary_log ( "" )
+twx_summary_log ()
 
 twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
 twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )

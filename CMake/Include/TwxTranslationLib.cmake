@@ -2,7 +2,8 @@
 This is part of the TWX build and test system.
 See https://github.com/TeXworks/texworks
 (C)  JL 2023
-*//** @file
+*/
+/** @file
 @brief Translation helpers.
 
 Include this file with
@@ -16,7 +17,7 @@ This requires `TwxBase`
 *//*
 #]===============================================]
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxBase.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}../Base/TwxBase.cmake" )
 
 set ( CMAKE_AUTORCC ON )
 	
@@ -32,17 +33,17 @@ Usage
 ```
 
 @param target is the name of a target
-@param build_dir for key BUILD_DIR, is the location of built material
-@param ts_files for key TS_FILES, is a list of `.ts` files
-@param qm_files for key QM_FILES, is a list of `.qm` files
-@param ui_files for key UI_FILES, is a list of `.ui` files
+@param build_dir for key `BUILD_DIR`, is the location of built material
+@param ts_files for key `TS_FILES`, is a list of `.ts` files
+@param qm_files for key `QM_FILES`, is a list of `.qm` files
+@param ui_files for key `UI_FILES`, is a list of `.ui` files
 */
 twx_translation_target_setup ( target ) {}
 /*
 #]=======]
 function ( twx_translation_target_setup twxR_TARGET )
-  twx_parse_arguments ( "" "BUILD_DIR" "TS_FILES;QM_FILES;UI_FILES" ${ARGN} )
-  twx_assert_parsed ()
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "BUILD_DIR" "TS_FILES;QM_FILES;UI_FILES" )
+  twx_arg_assert_parsed ()
   twx_assert_non_void ( twxR_TARGET )
   twx_assert_non_void ( twxR_BUILD_DIR )
   twx_assert_non_void ( QtMAJOR )
@@ -77,7 +78,7 @@ function ( twx_translation_target_setup twxR_TARGET )
       "-DTWX_INPUT_FILES=\"${_sources};${${twxR_TARGET}_UIS};${${twxR_TARGET}_TRANS_TS}\""
       "-DTWX_INCLUDE_PATH=\"${TYWX_DIR}/src\""
       "-DQt_LUPDATE_EXECUTABLE=\"${_lupdate_path}\""
-      "${TWX_STATE_ARGUMENT}"
+      "${TWX-D_STATE}"
       -P "${TWX_DIR}CMake/Command/TwxTranslationCommand.cmake"
   )
   if ( NOT TARGET UpdateTranslations )
@@ -95,14 +96,14 @@ endfunction ( twx_translation_target_setup )
 @brief Create a `.qrc` file from `.qm` files
 
 @param path is the name of a target
-@param ... for key QM_FILES is the list of `.qm` files to embed.
+@param ... for key `QM_FILES` is the list of `.qm` files to embed.
 */
 twx_translation_make_qrc ( path QM_FILES ... ) {}
 /*
 #]=======]
 function ( twx_translation_make_qrc outfile )
-  twx_parse_arguments ( "" "" "QM_FILES" ${ARGN} )
-  twx_assert_parsed ()
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "" "QM_FILES" )
+  twx_arg_assert_parsed ()
   set ( _contents
     "<!DOCTYPE RCC>"
     "<RCC version=\"1.0\">"

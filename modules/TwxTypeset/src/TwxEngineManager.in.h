@@ -23,15 +23,15 @@
 
 /** \file TwxEngineManager.h
  	* \brief Engines management.
- 	* 
+ 	*
  	* The engine manager is responsible for storing and managing
  	* all the different engines needed for typesetting.
  	* Each engine is uniquely identified by its name, such that
  	* clients may store the engine name instead of the complete engine.
- 	* 
+ 	*
  	* All the methods are static, except for the `emitter` that emits
  	* signals.
- 	* 
+ 	*
  	*/
 
 #include "TwxEngine.h"
@@ -52,7 +52,7 @@ class EngineManager: public QObject
   Q_OBJECT
 public:
 /** \brief Signal emitter
-	* 
+	*
 	* Usage:
 	* ```cpp
 	* connect(

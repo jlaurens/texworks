@@ -52,7 +52,7 @@ private slots:
 	
 	void test_Engine_json();
   void test_Engine();
-  
+
 	void test_EngineManager_savedEngineList();
 	void test_EngineManager_engineList();
 	void test_EngineManager_setEngineList();

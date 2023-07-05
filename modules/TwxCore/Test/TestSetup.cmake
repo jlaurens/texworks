@@ -17,7 +17,7 @@ Input:
 /*
 #]===============================================]
 
-twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME )
+twx_assert_non_void ( VAR TWX_MODULE VAR TWX_MODULE_NAME )
 twx_assert_target ( test_${TWX_MODULE} )
 
 target_compile_definitions (
@@ -194,7 +194,7 @@ target_link_libraries (
 )
 twx_module_add ( Core TO_TARGETS test_${TWX_MODULE}Lib )
 
-target_compile_definitions ( 
+target_compile_definitions (
   test_${TWX_MODULE}Lib
   PRIVATE ${TWX_MODULE}Lib_TEST
 )
@@ -220,7 +220,7 @@ add_test (
 # )
 # twx_module_add ( Core TO_TARGETS test_${TWX_MODULE}Lib2 )
 
-# # target_compile_definitions ( 
+# # target_compile_definitions (
 # #   test_${TWX_MODULE}Lib2
 # #   PRIVATE ${TWX_MODULE}Lib2_TEST
 # # )
@@ -254,7 +254,7 @@ target_link_libraries (
 )
 twx_module_add ( Core TO_TARGETS test_${TWX_MODULE}Lib2 TEST )
 
-target_compile_definitions ( 
+target_compile_definitions (
   test_${TWX_MODULE}Lib2
   PRIVATE ${TWX_MODULE}Lib2_TEST
 )

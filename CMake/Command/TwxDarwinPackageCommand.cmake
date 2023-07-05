@@ -14,6 +14,7 @@ set(QT_LIBRARY_DIR @QT_LIBRARY_DIR@)
 # TeXworks HTML manual: version, matching hash, and derived variables.
 if ( NOT "${TWX_CFG_MANUAL_HTML_URL}" MATCHES "/(([^/]+)[.]zip)" )
   twx_fatal ( "Unexpected URL ${TWX_CFG_MANUAL_HTML_URL}" )
+  return ()
 endif ()
 set (
   manual_archive_
@@ -25,7 +26,7 @@ set (
 )
 # This `if` statement ensures that the following commands are executed only when
 # CPack is running---i.e. when a user executes `make package` but not `make install`
-if ( NOT "${CMAKE_INSTALL_PREFIX}" MATCHES .*/_CPack_Packages/.* )
+if ( NOT "${CMAKE_INSTALL_PREFIX}" MATCHES ".*/_CPack_Packages/.*" )
   return ()
 endif ()
 # Download and install TeXworks manual

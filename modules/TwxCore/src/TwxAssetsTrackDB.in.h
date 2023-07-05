@@ -20,7 +20,7 @@
 */
 /** \file
 	* \brief Database of assets tracks
-	* 
+	*
 	* Maintains a database of support file tracks.
 	* This is used by the assets manager to save some snapshot of
 	* the contents of a support directory and compare it to a
@@ -41,7 +41,7 @@ namespace Twx {
 namespace Core {
 @TWX_CFG_include_TwxNamespaceTestMain_private_h@
 /** \brief Support assets track data structure
-  * 
+  *
 	* md5 was used and then sha256.
 	* At some point in time, the checksum corresponds to the fileInfo,
 	* but in the meanwhile the user might have modified the file such
@@ -57,7 +57,7 @@ struct AssetsTrack {
 };
 
 /** \brief File support tracks database
-  * 
+  *
 	* Maintains a list of file support tracks.
 	* Mainly used by the `AssetsLookup`.
 	*	
@@ -71,7 +71,7 @@ class AssetsTrackDB
 public:
 	
 /** \brief support assets track database loaded from a directory
-	* 
+	*
 	* Parse the contents at the given location and create
 	* a list of support assets tracks.
 	* Will save its contents at the same place.
@@ -79,12 +79,12 @@ public:
 	* The file format is private.
 	* The file name is also private.
 	*
-	* \return a fresh support assets track database 
+	* \return a fresh support assets track database
 	*/
 	static AssetsTrackDB load(const QDir & dir);
 
 /** \brief Default constructor
-	* 
+	*
 	* \param dir is a `QDir` instance where the database
 	* will be loaded or saved
 	*/
@@ -92,7 +92,7 @@ public:
 	virtual ~AssetsTrackDB() = default;
 
 /** \brief Save the database
-	* 
+	*
 	* Save the receiver to location it was loaded with.
 	* The file format is private.
 	* The file name is also private.
@@ -101,11 +101,11 @@ public:
 	bool save() const;
 
 /** \brief Add a new support assets track
-	* 
+	*
 	* Add a new support assets track to the database,
 	* after removing the already existing tracks with the same
 	* `fileInfo`.
-	* 
+	*
 	* \param fileInfo is the file info of the track
 	* \param version is the version of the track
 	* \param checksum is the checksum of the track, it may not be related to the real checksum
@@ -119,7 +119,7 @@ public:
 	);
 
 /** \brief Whether the database contains some track
-	* 
+	*
 	* \param fileInfo is the file info of the request
 	* \return true if the receiver contains a track with such a fileInfo,
 	*   false otherwise;
@@ -127,15 +127,15 @@ public:
 	bool knows(const QFileInfo & fileInfo) const;
 
 /** \brief Some database support assets track
-	* 
+	*
 	* The result is undefined if `knows(fileInfo)` did not return true.
 	* \param fileInfo is the file info of the track
 	* \return the known support assets track with the given `fileInfo`;
 	*/
 	const AssetsTrack & get(const QFileInfo & file) const;
 
-/** \brief Adjust the associate directory 
-	* 
+/** \brief Adjust the associate directory
+	*
 	* Adjust the database associate directory
 	* to a given factory directory.
 	*

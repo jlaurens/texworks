@@ -16,14 +16,14 @@ Input state:
 - `TWX_SOURCE_DIR`
 - `TWX_TEMPORARY_DIR`
 - `TWX_DESTINATION_DIR`
-- `TWX_VERBOSE`
+- `CMAKE_MESSAGE_LOG_LEVEL`
 - `TWX_TEST`
 
 *//*
 #]===============================================]
 
 include (
-  "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 twx_state_deserialize ()
@@ -34,7 +34,6 @@ twx_assert_exists ( "${TWX_SOURCE_DIR}WorkingDirectory" )
 twx_assert_non_void ( TWX_TEMPORARY_DIR )
 twx_assert_non_void ( TWX_DESTINATION_DIR )
 
-twx_message_deeper ()
 file ( MAKE_DIRECTORY "${TWX_TEMPORARY_DIR}" )
 file (
   COPY "${TWX_SOURCE_DIR}WorkingDirectory"
@@ -44,7 +43,7 @@ twx_assert_exists ( "${TWX_TEMPORARY_DIR}WorkingDirectory" )
 file (
   REMOVE_RECURSE "${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory"
 )
-twx_message_verbose ( "TwxTestCommand DESTINATION: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory" )
+twx_message ( VERBOSE "TwxTestCommand DESTINATION: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory" )
 file (
   RENAME
     "${TWX_TEMPORARY_DIR}WorkingDirectory"
@@ -53,5 +52,5 @@ file (
 file (
   REMOVE_RECURSE "${TWX_TEMPORARY_DIR}WorkingDirectory"
 )
-twx_message_verbose ( "TwxTestCommand Setup: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory")
+twx_message ( VERBOSE "TwxTestCommand Setup: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory")
 #*/

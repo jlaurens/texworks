@@ -26,7 +26,7 @@ It is a minimal set of configuration settings and tools.
 The `TwxBase.cmake` should be included by any main `CMakeLists.txt` at the very top with for example:
 ```
 include(
-  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 ```
@@ -41,7 +41,7 @@ this global variable is set to false.
 Such `CMakeLists.txt` will start with
 ```
 include(
-  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 if (TWX_PROJECT_IS_ROOT)
@@ -86,7 +86,7 @@ It is a weak convention to prefix global variables by `TWX_`, macros and functio
 a leading or trailing `_` denotes local variables.
 
 The global commands defined here are prefixed with `twx_`,
-which clearly indicates that they are not standard commands. 
+which clearly indicates that they are not standard commands.
 Names follow modern cmake case relative standards,
 according to this quote from `CMake` maintener Brad King
   | Ancient CMake versions required upper-case commands.

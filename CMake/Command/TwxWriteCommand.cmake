@@ -17,12 +17,12 @@ Expected input state:
 #]===============================================]
 
 include (
-  "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 twx_assert_non_void ( TWX_OUTPUT )
 
-twx_message_verbose ( "TwxWriteCommand: -> ${TWX_OUTPUT}" )
+twx_message ( VERBOSE "TwxWriteCommand: -> ${TWX_OUTPUT}" )
 
 file (
   WRITE

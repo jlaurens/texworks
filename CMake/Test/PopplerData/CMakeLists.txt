@@ -9,10 +9,10 @@ Make a build folder and use cmake ... && cmake --build ...
 */
 /*#]===============================================]
 
-cmake_minimum_required ( VERSION 3.1 )
+cmake_minimum_required ( VERSION 3.25 )
 
 include (
-  "${CMAKE_CURRENT_LIST_DIR}/../../Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../../Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 

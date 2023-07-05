@@ -20,8 +20,8 @@
 */
 /** \file
  * \brief General purpose constants
- * 
- * 
+ *
+ *
 */
 #ifndef TwxCore_Tools_H
 #define TwxCore_Tools_H
@@ -32,7 +32,7 @@ namespace Twx {
 namespace Core {
 
 /** \brief A md5 checksum wrapper
- * 
+ *
  * `==` and `!=` operators are implemented.
  */
 struct Hash {
@@ -42,7 +42,7 @@ struct Hash {
 };
 
 /** \brief A sha 256 wrapper
- * 
+ *
  * `==` and `!=` operators are implemented.
  */
 struct Checksum {
@@ -52,35 +52,35 @@ struct Checksum {
 };
 
 /** \brief md5 checksum of a byte array
-  * 
+  *
   * \param bytes is a possibly void QByteArray instance.
   * \return an hexadecimal representation of the md5 checksum of `bytes`.
   */
 extern Hash md5Hash(const QByteArray & bytes);
 
 /** \brief md5 checksum of a text
-  * 
+  *
   * \param text is a possibly void QString instance.
   * \return an hexadecimal representation of the md5 checksum of `text`.
   */
 extern Hash md5Hash(const QString & text);
 
 /** \brief sha256 checksum of a byte array
-  * 
+  *
   * \param bytes is a possibly void QByteArray instance.
   * \return an hexadecimal representation of the sha256 checksum of `bytes`.
   */
 extern Hash md5Hash(const QByteArray & bytes);
 
 /** \brief sha256 checksum of a text
-  * 
+  *
   * \param text is a possibly void QString instance.
   * \return an hexadecimal representation of the sha256 checksum of `text`.
   */
 extern Checksum sha256Checksum(const QString & text);
 
 /** \brief md5 checksum of a file contents
-  * 
+  *
 	* The checksum of a file that do not exist is an empty `QByteArray`.
 	*
   * \param path is a full path of an existing file, or not.
@@ -90,7 +90,7 @@ extern Checksum sha256Checksum(const QString & text);
 extern Hash hashForFilePath(const QString path);
 
 /** \brief sha256 checksum of a file contents
-  * 
+  *
 	* The checksum of a file that do not exist is an empty `QByteArray`.
 	*
   * \param path is a full path of an existing file, or not.

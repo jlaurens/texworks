@@ -36,20 +36,20 @@ class Settings;
 @TWX_CFG_include_TwxNamespaceTestMain_private_h@
 
 /** \brief Assets manager and location lookup
- 	* 
-	* 
+ 	*
+	*
 	*/
 class Assets
 {
 public:
 /** \brief Setup the manager
- 	* 
+ 	*
 	* \param settings is a `QSettings` instance.
 	*/
 	static void setup(Settings & settings);
 
 /** \brief Setup the manager
- 	* 
+ 	*
 	* Retrieve the value of the environment variable
 	* `Env::TWX_ASSETS_LIBRARY_PATH`
 	* (or `Env::TW_LIBPATH` when the former is empty).
@@ -63,7 +63,7 @@ public:
 	static void setup(const QProcessEnvironment & PE);
 
 /** \brief The path to an assets folder
- 	* 
+ 	*
 	* \param category is one of "completion", "configuration",
 	* "scripts", "templates"...
 	* \param updateLocal tells whether the local asserts folder should
@@ -73,7 +73,7 @@ public:
 	static const QString path(const QString& category, const bool updateLocal = true);
 
 /** \brief The list of paths to dictionary folders
- 	* 
+ 	*
 	* For windows and macOS, This is the `Assets::path("dictionaries",updateLocal)` output.
 
 	* For raw unix OS, except in "-setup.ini" mode, the `TWX_DICTIONARY_PATH`

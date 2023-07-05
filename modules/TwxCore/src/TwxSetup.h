@@ -20,7 +20,7 @@
 */
 /** \file
   * \brief Setup support
-  * 
+  *
   * If there is a `texworks-setup.ini` near the application,
 	* is is parsed and the state is modified accordingly.
 	* The static method `initialize` takes care of that.
@@ -35,7 +35,7 @@ namespace Twx {
 namespace Core {
 
 /** \brief Setup manager
- 	* 
+ 	*
  	* Manage the `texworks-setup.ini` that is read very early.
 	* This initialization file does not depend on the operating system.
 	*/
@@ -43,8 +43,8 @@ class Setup
 {
 public:
 /** \brief Initialize the state with `texworks-setup.ini`
- 	* 
- 	*  
+ 	*
+ 	*
 	*/
 	static void initialize();
 };

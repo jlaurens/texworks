@@ -1,6 +1,28 @@
-# About TeXworks folder /CMake
+# CMake
 
 (Work in progress)
+
+## Version
+
+- New in version 3.2. CMake learned to support unicode characters encoded as UTF-8 on Windows. This was already supported on platforms whose system APIs accept UTF-8 encoded strings.
+- New in version 3.3. The if() command learned a new IN_LIST operator that evaluates to true if a given element is contained in a named list.
+- New in version 3.4. The SOURCE_DIR and BINARY_DIR target properties were introduced to allow project code to query where a target is defined.
+- New in version 3.5. The `cmake_parse_arguments()` command is now implemented natively.
+- New in version 3.7. The if() command gained new boolean comparison operations LESS_EQUAL, GREATER_EQUAL, STRLESS_EQUAL, STRGREATER_EQUAL, VERSION_LESS_EQUAL, and VERSION_GREATER_EQUAL.
+- New in version 3.7. The cmake_parse_arguments() command gained a new PARSE_ARGV mode to read arguments directly from ARGC and ARGV# variables inside a function() body.
+- New in version 3.9: All regular expression-related commands, including e.g. if(MATCHES), save subgroup matches in the variables CMAKE_MATCH_<n> for <n> 0..9.
+- New in version 3.10. The string() command learned a new PREPEND subcommand.
+- New in version 3.11: The source files can be omitted if they are added later using target_sources().
+- New in versions 3.16: CMAKE_MESSAGE_INDENT, The message() command joins the strings from this list and for log levels of NOTICE and below, it prepends the resultant string to each line of the message.
+- New in versions 3.17: CMAKE_MESSAGE_CONTEXT, When enabled by the cmake --log-context command line option or the CMAKE_MESSAGE_CONTEXT_SHOW variable, the message() command converts the CMAKE_MESSAGE_CONTEXT list into a dot-separated string surrounded by square brackets and prepends it to each line for messages of log levels NOTICE and below.
+- New in version 3.17: The target_link_libraries() command may now be called to modify targets created outside the current directory. See policy CMP0079.
+- New in version 3.18: The cmake_language() command was added for meta-operations on scripted or built-in commands, starting with a mode to CALL other commands, and EVAL CODE to inplace evaluate a CMake script.
+- New in version 3.19: The string() command gained a set of new JSON sub commands that provide JSON parsing capabilities.
+- New in version 3.23: Properties. The INITIALIZE_FROM_VARIABLE option specifies a variable from which the property should be initialized. The BRIEF_DOCS and FULL_DOCS options are optional.
+- New in version 3.25: The block() and endblock() commands were added to manage specific scopes (policy or variable) for a contained block of commands.
+- New in version 3.25: See the cmake_language() command for a way to query the current message logging level.
+
+## About TeXworks folder /CMake
 
 * `Command` contains various tools to be used directly by CMake with `-P` switch.
 * `Modules` contains custom package loaders. Each file inside is included
@@ -26,7 +48,7 @@ It is a minimal set of configuration settings and tools.
 The `TwxBase.cmake` should be included by any main `CMakeLists.txt` at the very top with for example:
 ```
 include(
-  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 ```
@@ -41,7 +63,7 @@ this global variable is set to false.
 Such `CMakeLists.txt` will start with
 ```
 include(
-  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 if (TWX_PROJECT_IS_ROOT)
@@ -86,7 +108,7 @@ It is a weak convention to prefix global variables by `TWX_`, macros and functio
 a leading or trailing `_` denotes local variables. Inside macros, a trailing `_twx` is used to avoid collisions with outside variables.
 
 The global commands defined here are prefixed with `twx_`,
-which clearly indicates that they are not standard commands. 
+which clearly indicates that they are not standard commands.
 Names follow modern cmake case relative standards,
 according to this quote from `CMake` maintener Brad King
   | Ancient CMake versions required upper-case commands.
@@ -105,3 +127,7 @@ Others indicate more general contents.
 
 * WIN32 AND MINGW
 * MSVC
+
+## CMake behaviour
+
+- properties are not persistent.

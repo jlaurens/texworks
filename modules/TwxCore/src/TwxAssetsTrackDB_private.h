@@ -20,7 +20,7 @@
 */
 /** \file
 	* \brief Database of assets tracks
-	* 
+	*
 	* Maintains a database of support file tracks.
 	* This is used by the assets manager to save some snapshot of
 	* the contents of a support directory and compare it to a

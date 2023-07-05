@@ -27,7 +27,7 @@ is a noop.
 #]===============================================]
 
 # Guard
-include ( TwxCfgLib )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCfgLib.cmake" )
 
 twx_cfg_return_if_exists ( "paths" )
 
@@ -54,8 +54,8 @@ twx_cfg_return_if_exists ( "paths" )
 # ANCHOR: twx__add_TeXLive_default_binary_paths
 function ( twx__add_TeXLive_default_binary_paths pathsVar )
 	string( TIMESTAMP yearCur "%Y" UTC )
-	math( EXPR yearMin "${yearCur} - 5" )
-	math( EXPR yearMax "${yearCur} + 5" )
+	math ( EXPR yearMin "${yearCur} - 5" )
+	math ( EXPR yearMax "${yearCur} + 5" )
 	if ( WIN32 )
 		set( _path "c:/w32tex/bin" )
 		foreach( year RANGE ${yearMin} ${yearMax} )
@@ -170,39 +170,44 @@ endfunction ( twx__add_system_default_binary_paths pathsVar )
 twx_cfg_write_begin ( ID "paths" )
 
 # only one local variable used
-set ( TWX_paths )
+set ( TwxCfgLib.paths )
 
-twx__add_TeXLive_default_binary_paths ( TWX_paths )
-twx__add_MiKTeX_default_binary_paths  ( TWX_paths )
-twx__add_system_default_binary_paths  ( TWX_paths )
-twx__add_TeX_binary_paths ( TWX_paths )
+twx__add_TeXLive_default_binary_paths ( TwxCfgLib.paths )
+twx__add_MiKTeX_default_binary_paths  ( TwxCfgLib.paths )
+twx__add_system_default_binary_paths  ( TwxCfgLib.paths )
+twx__add_TeX_binary_paths ( TwxCfgLib.paths )
 
-list ( REMOVE_DUPLICATES TWX_paths)
+list ( REMOVE_DUPLICATES TwxCfgLib.paths)
 
 if (NOT WIN32)
 	# Windows uses ";" as path separator, just as CMake does for lists
 	# *nix systems use ":", so we have to replace the separators
-	string(REPLACE ";" ":" TWX_paths "${TWX_paths}")
+	string(REPLACE ";" ":" TwxCfgLib.paths "${TwxCfgLib.paths}")
 endif ()
 
-twx_cfg_set ( FACTORY_PATH "${TWX_paths}" )
+twx_cfg_set ( FACTORY_PATH "${TwxCfgLib.paths}" )
 
 twx_cfg_write_end ( ID "paths" )
 
-twx_message_verbose ( "TwxCfgPaths: Paths updated" )
+twx_message ( VERBOSE "TwxCfgPaths: Paths updated" )
 
-if ( TWX_VERBOSE AND NOT "${TWX_paths}" STREQUAL "" )
+cmake_language(GET_MESSAGE_LOG_LEVEL TwxCfgLib.MESSAGE_LOG_LEVEL)
+twx_message_log_level_compare (
+	VERBOSE <= "${TwxCfgLib.MESSAGE_LOG_LEVEL}"
+	IN_VAR TwxCfgLib.VERBOSE
+)
+if ( TwxCfgLib.VERBOSE )
 	if ( WIN32 )
-		string(REPLACE ";" "', '" TWX_paths "${TWX_paths}")
+		string(REPLACE ";" "', '" TwxCfgLib.paths "${TwxCfgLib.paths}")
 	else ()
-		string(REPLACE ":" "', '" TWX_paths "${TWX_paths}")
+		string(REPLACE ":" "', '" TwxCfgLib.paths "${TwxCfgLib.paths}")
 	endif ()
   message (
-    STATUS
-    "Generated static PATH:\n   '${TWX_paths}'"
+    VERBOSE
+    "Generated static PATH:\n   '${TwxCfgLib.paths}'"
   )
 endif ()
 
-unset ( TWX_paths )
+unset ( TwxCfgLib.paths )
 
 #*/

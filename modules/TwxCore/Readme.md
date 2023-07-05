@@ -48,7 +48,7 @@ class Locate
 } // namespace Core
 } // namespace Twx
 ```
-While populating the `/TwxProduct/include/` folder, we use `configure_file` with no special variables defined, such that 
+While populating the `/TwxProduct/include/` folder, we use `configure_file` with no special variables defined, such that
 `/TwxProduct/include/TwxLocate.h` partly reads.
 ```
 namespace Twx {

@@ -16,7 +16,6 @@ cmake ... -P .../Command/TwxCfgFileCommand.cmake
 ```
 
 Expected input state:
-- `PROJECT_NAME`, `PROJECT_BINARY_DIR` and
 - `TWX_CFG_INI_DIR` for `TwxCfgLib`
 - `TWX_IN`, list of relative input paths denoted `<input_k>`
 - `TWX_IN_DIR`, location of the input files
@@ -54,28 +53,26 @@ otherwise they are left as is.
 #]===============================================]
 
 include (
-  "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 twx_state_deserialize ()
 
-twx_assert_non_void ( TWX_IN )
-twx_assert_non_void ( TWX_IN_DIR )
-twx_assert_non_void ( TWX_OUT_DIR )
+twx_assert_non_void ( TWX_IN TWX_IN_DIR TWX_OUT_DIR )
 
 if ( TWX_NO_PRIVATE )
   set ( NO_PRIVATE_args_ NO_PRIVATE )
-  twx_message_verbose ( "TwxCfgFileCommand (NO_PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
+  twx_message ( VERBOSE "TwxCfgFileCommand (NO_PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
 else ()
   set ( NO_PRIVATE_args_ )
-  twx_message_verbose ( "TwxCfgFileCommand (PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
+  twx_message ( VERBOSE "TwxCfgFileCommand (PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
 endif ()
 
 include ( TwxCfgLib )
 include ( TwxCfgFileLib )
 
 twx_cfg_read ( ${TWX_CFG_INI_IDS} ${NO_PRIVATE_args_} ONLY_CONFIGURE )
- 
+
 # TODO: verify the efficiency of ..._TIMESTAMP_... tech
 # Known timestamps:
 # TWX_TIMESTAMP_static_CFG
@@ -94,13 +91,13 @@ foreach ( file.in ${TWX_IN} )
   set ( output "${TWX_OUT_DIR}${file.out}" )
   twx_core_timestamp ( "${input}"  _ts_input  )
   twx_core_timestamp ( "${output}" _ts_output )
-  if (  _ts_output GREATER _ts_input
-    AND _ts_output GREATER TWX_TIMESTAMP_factory_CFG
-    AND _ts_output GREATER TWX_TIMESTAMP_git_CFG
+  if (  "${_ts_output}" GREATER "${_ts_input}"
+    AND "${_ts_output}" GREATER "${TWX_TIMESTAMP_factory_CFG}"
+    AND "${_ts_output}" GREATER "${TWX_TIMESTAMP_git_CFG}"
   )
     continue ()
   endif ()
-  twx_message_verbose ( "TwxCfgFileCommand: ${file.in} => ${file.out}" )
+  twx_message ( VERBOSE "TwxCfgFileCommand: ${file.in} => ${file.out}" )
   configure_file (
     "${input}"
     "${output}"
@@ -109,6 +106,6 @@ foreach ( file.in ${TWX_IN} )
   )
 endforeach ()
 
-twx_message_verbose ( "TwxCfgFileCommand... DONE" )
+twx_message ( VERBOSE "TwxCfgFileCommand... DONE" )
 
 #*/

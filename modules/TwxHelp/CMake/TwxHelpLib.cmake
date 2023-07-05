@@ -50,6 +50,7 @@ function ( twx_manual_setup )
   set ( TWX_MANUAL_URL "${TWX_CFG_MANUAL_HTML_URL}" )
   if ( NOT "${TWX_MANUAL_URL}" MATCHES "/(([^/]+)[.]zip)" )
     twx_fatal ( "Unexpected URL ${TWX_MANUAL_URL}" )
+    return ()
   endif ()
   set (
     TWX_MANUAL_ARCHIVE
@@ -79,8 +80,8 @@ twx_manual_prepare () {}
 /*
 #]=======]
 function ( twx_manual_prepare )
-  twx_parse_arguments ( "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" ${ARGN} )
-  twx_assert_parsed ()
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" )
+  twx_arg_assert_parsed ()
 
   if ( EXISTS "${twxR_ARCHIVE}" )
     file ( SHA256 "${twxR_ARCHIVE}" actual_sha256_ )
@@ -144,7 +145,7 @@ function ( twx_manual_process )
       "-DTWX_ARCHIVE=${TWX_MANUAL_ARCHIVE}"
       "-DTWX_BASE=${TWX_MANUAL_BASE}"
       "-DTWX_SHA256=${TWX_MANUAL_SHA256}"
-      "${TWX_STATE_ARGUMENT}"
+      "${TWX-D_STATE}"
       -P "${TwxManualCommand.cmake}"
   )
 endfunction ()

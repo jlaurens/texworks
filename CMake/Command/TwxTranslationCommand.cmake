@@ -33,19 +33,20 @@ message( STATUS "Updating ${TWX_TARGET}.pro" )
 @brief Create a `.pro` file for translation purposes
 
 @param path_var is the name of a variablel holding the project file path
-@param target for key TARGET is the name of a target
-@param include_path for key INCLUDE_PATH is the location to look for source files
-@param build_dir for key BUILD_DIR is the location of build products
-@param ... for key INPUT_FILES is the list of input files
+@param target for key `TARGET` is the name of a target
+@param include_path for key `INCLUDE_PATH` is the location to look for source files
+@param build_dir for key `BUILD_DIR` is the location of build products
+@param ... for key `INPUT_FILES` is the list of input files
 */
 twx_translation_create_pro_file ( path_var TARGET target ) {}
 /*
 #]=======]
 function( twx_translation_create_pro_file path_var_ )
-  twx_parse_arguments (
-    "" "TARGET;INCLUDE_PATH;BUILD_DIR" "INPUT_FILES" ${ARGN}
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx_R
+    "" "TARGET;INCLUDE_PATH;BUILD_DIR" "INPUT_FILES"
   )
-  twx_assert_parsed ()
+  twx_arg_assert_parsed ()
   twx_assert_non_void ( path_var_ )
   twx_assert_non_void ( twxR_TARGET )
   foreach ( label_ SOURCES HEADERS FORMS RESOURCES RC_FILE ICON TRANSLATIONS )
@@ -101,7 +102,7 @@ function( twx_translation_create_pro_file path_var_ )
 error(\"This file is not intended for building.\n\
 Please use CMake instead. See README.md for further instructions.\")"
   )
-  if ( NOT twxR_INCLUDE_PATH STR_EQUAL "" )
+  if ( NOT twxR_INCLUDE_PATH STREQUAL "" )
     list (
       APPEND pro_contents_twx
       # INCLUDEPATH must be set so lupdate finds headers, namespace declarations, etc
@@ -121,7 +122,7 @@ Please use CMake instead. See README.md for further instructions.\")"
       "${_file}"
     )
   endforeach ()
-  
+
   string ( REPLACE ";" "\n" pro_contents_twx "${pro_contents_twx}" )
   set ( ${path_var_} "${pro_DIR_twx}/${twxR_TARGET}.pro" )
   file ( WRITE "${${path_var_}}(busy)" "${pro_contents_twx}\n" )
@@ -143,7 +144,7 @@ twx_translation_create_pro_file (
 	INPUT_FILES "${TWX_INPUT_FILES}"
 )
 
-twx_message_verbose ( "TwxTranslationCommand: ${pro_path_}" DEEPER )
+twx_message ( VERBOSE "TwxTranslationCommand: ${pro_path_}" DEEPER )
 
 message ( STATUS "TwxTranslationCommand: Running lupdate ${TWX_TARGET}.pro" )
 execute_process (

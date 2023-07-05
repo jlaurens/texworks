@@ -142,7 +142,7 @@ This one starts with
 cmake_minimum_required ( ... )
 ...
 project( <ROOT-PROJECT-NAME> )
-``` 
+```
 At this point `PROJECT_NAME` and `CMAKE_PROJECT_NAME` both contain
 `<ROOT-PROJECT-NAME>`.
 The various `CMAKE_CURRENT_?_DIR`, `CMAKE_?_DIR`, `PROJECT_?_DIR`

@@ -20,7 +20,7 @@ Expected input state:
 - `TWX_OUTPUT`, one absolute output location
 - `TWX_CFG_INI_IDS`
 - `TWX_ESCAPE_QUOTES` (usual boolean like text)
-- `TWX_VERBOSE`
+- `CMAKE_MESSAGE_LOG_LEVEL`
 - required file: `TWX_INPUT`.
 
 Reads both `...cfg.ini` files of the `TwxBuildData` folder for
@@ -32,7 +32,7 @@ and store the result in the coresponding output.
 #]===============================================]
 
 include (
-  "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 twx_state_deserialize ()
@@ -40,7 +40,7 @@ twx_state_deserialize ()
 twx_assert_non_void ( TWX_INPUT )
 twx_assert_non_void ( TWX_OUTPUT )
 
-twx_message_verbose ( "TwxCfgOneFileCommand: ${TWX_INPUT} -> ${TWX_OUTPUT}" DEEPER )
+twx_message ( VERBOSE "TwxCfgOneFileCommand: ${TWX_INPUT} -> ${TWX_OUTPUT}" DEEPER )
 
 include ( TwxCfgLib )
 include ( TwxCfgFileLib )
@@ -52,7 +52,7 @@ else ()
 endif ()
 
 twx_cfg_read ( ${TWX_CFG_INI_IDS} ${NO_PRIVATE_args_} ONLY_CONFIGURE )
- 
+
 # TODO: verify the efficiency of ..._TIMESTAMP_... tech
 # Known timestamps:
 # TWX_TIMESTAMP_static_CFG
@@ -67,11 +67,11 @@ endif ()
 twx_assert_exists ( TWX_INPUT )
 twx_core_timestamp ( "${TWX_INPUT}"  _ts_input  )
 twx_core_timestamp ( "${outTWX_OUTPUTput}" _ts_output )
-if (  _ts_output GREATER _ts_input
-  AND _ts_output GREATER TWX_TIMESTAMP_static_CFG
-  AND _ts_output GREATER TWX_TIMESTAMP_git_CFG
+if (  "${_ts_output}" GREATER "${_ts_input}"
+  AND "${_ts_output}" GREATER "${TWX_TIMESTAMP_static_CFG}"
+  AND "${_ts_output}" GREATER "${TWX_TIMESTAMP_git_CFG}"
 )
-twx_message_verbose ( "TwxCfgFileCommand: ${TWX_INPUT} => ${TWX_OUTPUT}" )
+twx_message ( VERBOSE "TwxCfgFileCommand: ${TWX_INPUT} => ${TWX_OUTPUT}" )
 configure_file (
   "${TWX_INPUT}"
   "${TWX_OUTPUT}"
@@ -79,6 +79,6 @@ configure_file (
   @ONLY
 )
 
-twx_message_verbose ( "TwxCfgOneFileCommand... DONE" )
+twx_message ( VERBOSE "TwxCfgOneFileCommand... DONE" )
 
 #*/

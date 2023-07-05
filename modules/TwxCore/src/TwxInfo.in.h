@@ -19,9 +19,9 @@
 	see <http://www.tug.org/texworks/>.
 */
 /** \file
- 	* 
+ 	*
  	* \brief Various information
- 	* 
+ 	*
  	*/
 #ifndef Twx_Core_Info_h
 #define Twx_Core_Info_h
@@ -38,56 +38,56 @@ namespace Core {
 
 /**
  	* \brief Collects various information
- 	* 
+ 	*
  	* Only getters.
  	*/
 class Info
 {
 public:
 /** \brief The name of the program
-	* 
+	*
 	* Appears at different places (dialog and files).
 	*/
 	static const QString name;
-  
+
 /** \brief The domain of the application
-	* 
+	*
 	* Appears at different places (dialog and files).
 	*/
 	static const QString domain;
-  
+
 /** \brief The name of the organization
-	* 
+	*
 	* Appears at different places (dialog and files).
 	*/
 	static const QString organizationName;
-  
+
 /** \brief The short name of the organization
-	* 
+	*
 	* Appears at different places (dialog and files).
 	*/
 	static const QString organizationShortName;
-  
+
 /** \brief The domain of the organization
-	* 
+	*
 	* Appears at different places (dialog and files).
 	*/
 	static const QString organizationDomain;
-  
+
 /** \brief The list of authors
-	* 
+	*
 	* See \ref copyrightHolders.
 	*/
 	static const QString authors;
 
 /** \brief The copyright years
-	* 
+	*
 	* As a range like "2008-2023".
 	*/
 	static const QString copyrightYears;
 
 /** \brief The list of authors
-	* 
+	*
 	* Appears in various places.
 	* See \ref authors.
 	*/
@@ -103,13 +103,13 @@ public:
   static int versionPatch;
 
 /** \brief Deprecated
-	* 
+	*
 	* Synonym of `versionPatch`
 	*/
 	static int versionBugfix;
 
 /** \brief The T in M.m.P.T
-	* 
+	*
 	* Not yet used.
 	*/
   static int versionTweak;
@@ -124,7 +124,7 @@ public:
 	static const QString version;
 
 /** \brief The  M.m.P.T version
-	* 
+	*
 	* If there is no T, this is equivalent to `version`
 	*/
 	static const QString versionFull;
@@ -139,13 +139,13 @@ public:
 	static const QDateTime gitDate;
 
 /** \brief The git branch at build time
-	* 
+	*
 	* This is not always `main`.
 	*/
 	static const QString gitBranch;
 
 /** \brief Initialize the applications
-	* 
+	*
 	* Set the application name, organization name and domain.
 	* \note
 	* On windows and macOS these are also set while testing because
@@ -153,7 +153,7 @@ public:
 	* \param application
 	*/
 	static void initApplication(QCoreApplication * application);
-  
+
 #if defined(Q_OS_DARWIN)
 	static const QString macOSVersionString();
 #endif

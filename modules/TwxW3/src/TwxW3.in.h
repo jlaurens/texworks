@@ -31,7 +31,7 @@ class QUrl;
 namespace Twx {
 @TWX_CFG_include_TwxNamespaceTestMain_private_h@
 /** \brief Utility class
- 	* 
+ 	*
 	* All methods are static
 	*/
 class W3: QObject
@@ -40,7 +40,7 @@ class W3: QObject
 
 public:
 /** \brief Signal emitter
-	* 
+	*
 	* Usage:
 	* ```cpp
 	* connect(
@@ -53,7 +53,7 @@ public:
 	*/
 static W3 * emitter();
 /** \brief Open an Url.
- 	* 
+ 	*
 	* Open the given Url with the system application.
 	*
 	* \param url is a `QUrl` instance.
@@ -61,7 +61,7 @@ static W3 * emitter();
 	static bool openUrl(const QUrl & url);
 
 /** \brief Open the home page
- 	* 
+ 	*
 	* Open the home page with the system application.
 	*/
 	static bool openUrlHome();
@@ -71,7 +71,7 @@ static W3 * emitter();
 
 	/** \brief
 		* Various url for onlline information.
-		* 
+		*
 		*/
 	struct URL {
 		static const QUrl GPL;

@@ -31,9 +31,9 @@ namespace Typeset {
 @TWX_CFG_include_TwxNamespaceTestMain_private_h@
 /** \file TwxTypesetManager.h
  	*	\brief Typeset manager.
- 	* 
+ 	*
 	* Keeps track of all running typesetting processes and their owner.
-	* 
+	*
 	* This helps avoid running multiple processes on the same input file (which
 	* would wreak havoc in the auxiliary and output files) and provides information
 	* in which object (window) information about a currently running typesetting

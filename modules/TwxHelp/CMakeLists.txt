@@ -14,18 +14,19 @@ Output:
 
 if ( TARGET TwxHelp )
   twx_fatal ( "FAIL" )
+  return ()
 endif ()
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.13 )
+	cmake_minimum_required ( VERSION 3.25 )
 	include (
-		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Include/TwxBase.cmake"
+		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Base/TwxBase.cmake"
 		NO_POLICY_SCOPE
 	)
 endif ()
 
 include ( TwxModuleLib )
-twx_module_guess ( VAR_MODULE TWX_MODULE VAR_NAME TWX_MODULE_NAME )
+twx_module_guess ()
 twx_assert_non_void ( TWX_MODULE_NAME )
 set ( TWX_TEST OFF )
 
@@ -64,7 +65,7 @@ twx_summary_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATC
 twx_summary_end ()
 
 twx_summary_log ( "Compiler optimization" ${CMAKE_BUILD_TYPE} )
-twx_summary_log ( "" )
+twx_summary_log ()
 
 twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
 twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )

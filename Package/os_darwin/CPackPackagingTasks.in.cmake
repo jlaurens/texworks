@@ -5,13 +5,13 @@
 # variables that would otherwise be undefined when CPack is running.
 
 include (
-  "${CMAKE_CURRENT_LIST_DIR}/../../CMake/Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../../CMake/Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 twx_assert_non_void ( TWX_NAME )
 twx_assert_non_void ( TWX_COMMAND )
 
-SET(TWX_VERBOSE @TWX_VERBOSE@)
+SET(CMAKE_MESSAGE_LOG_LEVEL @CMAKE_MESSAGE_LOG_LEVEL@)
 SET(TWX_PACKAGE_DIR @TWX_PACKAGE_DIR@)
 SET(PROJECT_BINARY_DIR @PROJECT_BINARY_DIR@)
 SET(TeXworks_LIB_DIRS @TeXworks_LIB_DIRS@)
@@ -31,6 +31,7 @@ twx_assert_non_void ( TWX_CFG_MANUAL_HTML_URL )
 # TeXworks HTML manual: version, matching hash, and derived variables.
 if ( NOT "${TWX_CFG_MANUAL_HTML_URL}" MATCHES "/(([^/]+)[.]zip$)" )
   twx_fatal ( "Unexpected URL ${TWX_CFG_MANUAL_HTML_URL}" )
+  return ()
 endif ()
 set (
   manual_archive_
@@ -42,7 +43,7 @@ set (
 )
 # This `if` statement ensures that the following commands are executed only when
 # CPack is running---i.e. when a user executes `make package` but not `make install`
-if ( NOT "${CMAKE_INSTALL_PREFIX}" MATCHES .*/_CPack_Packages/.* )
+if ( NOT "${CMAKE_INSTALL_PREFIX}" MATCHES ".*/_CPack_Packages/.*" )
   return ()
 endif ()
 # Download and install TeXworks manual

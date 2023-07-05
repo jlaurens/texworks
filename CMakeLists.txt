@@ -63,10 +63,10 @@ This is the top level CMakeLists file
 # Setup and User Options
 # ======================
 
-cmake_minimum_required ( VERSION 3.13 )
+cmake_minimum_required ( VERSION 3.25 )
 
 include (
-  ${CMAKE_CURRENT_LIST_DIR}/CMake/Include/TwxBase.cmake
+  ${CMAKE_CURRENT_LIST_DIR}/CMake/Base/TwxBase.cmake
   NO_POLICY_SCOPE
 )
 # Set project name.
@@ -177,7 +177,7 @@ ENDIF()
 
 include ( TwxQtLib )
 
-if (QT_DEFAULT_MAJOR_VERSION EQUAL 6)
+if ( "${QT_DEFAULT_MAJOR_VERSION}" EQUAL "6" )
 	# Check for Qt6
 	find_package(Qt6 REQUIRED COMPONENTS Core Core5Compat Widgets Gui UiTools Concurrent Xml LinguistTools Qml)
 	set(QT_LIBRARIES Qt6::Core Qt6::Core5Compat Qt6::Widgets Qt6::Gui Qt6::UiTools Qt6::Concurrent Qt6::Xml Qt6::Qml)
@@ -390,7 +390,7 @@ if ( APPLE )
     COMMAND "${CMAKE_COMMAND}"
     "-DTWX_INPUT=${PROJECT_NAME}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}"
-    "${TWX_STATE_ARGUMENT}"
+    "${TWX-D_STATE}"
     -P "${TWX_DIR}CMake/Command/TwxCfgOneFileCommand.cmake"
     DEPENDS
       ${TWX_${PROJECT_NAME}_INI}
@@ -404,25 +404,25 @@ if ( APPLE )
       MACOSX_BUNDLE_INFO_PLIST "${OUTPUT}"
   )
   # twx_cfg_files (
-  #   ID 			PACKAGE_DARWIN
-  #   FILES 	${TWX_NAME}.in.plist
-  #   IN_DIR 	"${TWX_DIR}res/os_darwin"
-  #   OUT_DIR "${TWX_PROJECT_BUILD_DIR}res/os_darwin"
-  #   EXPORT  twx
+  #   ID 			    PACKAGE_DARWIN
+  #   FILES 	    ${TWX_NAME}.in.plist
+  #   IN_DIR 	    "${TWX_DIR}res/os_darwin"
+  #   OUT_DIR     "${TWX_PROJECT_BUILD_DIR}res/os_darwin"
+  #   VAR_PREFIX  twx
   # )
   # set_target_properties (
   #   TeXworks
   #   PROPERTIES
   #     MACOSX_BUNDLE_INFO_PLIST ${twx_PACKAGE_DARWIN}
   # )
-  # twx_assert_non_void ( twx_PACKAGE_DARWIN_target ) 
+  # twx_assert_non_void ( twx_PACKAGE_DARWIN_target )
   # add_dependencies(
   #   TeXworks
   #   ${twx_PACKAGE_DARWIN_target}
   # )
 endif ()
 
-target_compile_definitions ( 
+target_compile_definitions (
   TeXworks
   PRIVATE TW_BUILD_ID="${TW_BUILD_ID}"
 )
@@ -493,7 +493,7 @@ endif ()
 # Build Plugins
 # -------------
 
-# One package.sh needs the version 
+# One package.sh needs the version
 
 twx_state_serialize ()
 add_custom_command (
@@ -502,7 +502,7 @@ add_custom_command (
   COMMAND ${CMAKE_COMMAND}
     "-DTWX_CONTENTS=${TWX_CFG_VERSION}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}/TwxVersion.txt"
-    "${TWX_STATE_ARGUMENT}"
+    "${TWX-D_STATE}"
     -P "${TWX_DIR}CMake/Command/TwxWriteCommand.cmake"
 )
 
@@ -559,14 +559,14 @@ IF ( UNIX AND NOT APPLE )
     DESTINATION "${CMAKE_INSTALL_PREFIX}/${TeXworks_DOCS_DIR}"
   )
   set ( code_ "" )
-  
+ 
   install(
     CODE "
       set (
         TWX_CFG_INI_DIR
         \"${TWX_CFG_INI_DIR}\"
       )
-      include ( \"${TWX_DIR}CMake/Include/TwxBase.cmake\" )
+      include ( \"${TWX_DIR}CMake/Base/TwxBase.cmake\" )
       include ( \"${TWX_DIR}CMake/Include/TwxCfgLib.cmake\" )
       twx_cfg_read ( NO_PRIVATE ONLY_CONFIGURE )
       configure_file (

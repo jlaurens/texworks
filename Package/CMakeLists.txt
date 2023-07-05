@@ -6,7 +6,7 @@ See https://github.com/TeXworks/texworks
 @brief The packaging CMakeLists file
 
 This is not the top level CMakeLists file.
-This is called by the 
+This is called by the
 
 *//*
 #]===============================================]
@@ -15,9 +15,9 @@ This is called by the
 # ===============
 
 if ( NOT DEFINED TWX_IS_BASED )
-	cmake_minimum_required ( VERSION 3.13 )
+	cmake_minimum_required ( VERSION 3.25 )
   include (
-		"${CMAKE_CURRENT_LIST_DIR}/../CMake/Include/TwxBase.cmake"
+		"${CMAKE_CURRENT_LIST_DIR}/../CMake/Base/TwxBase.cmake"
 		NO_POLICY_SCOPE
 	)
 	project ( TwxPackageTest )

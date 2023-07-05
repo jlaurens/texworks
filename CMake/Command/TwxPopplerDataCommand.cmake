@@ -27,7 +27,7 @@ If these files are edited or deleted then the build system is not informed.
 /*#]===============================================]
 
 include (
-  "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
 twx_state_deserialize ()
@@ -40,6 +40,6 @@ twx_poppler_data_prepare (
   SHA256  "${TWX_SHA256}"
   DEV     "${TWX_DEV}"
   TEST    "${TWX_TEST}"
-  VERBOSE "${TWX_VERBOSE}"
+  CMAKE_MESSAGE_LOG_LEVEL "${CMAKE_MESSAGE_LOG_LEVEL}"
 )
 #*/

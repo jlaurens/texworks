@@ -42,7 +42,7 @@
 		const QProcessEnvironment & env
 	);
 /** \brief Consolidate the given list PATH
- 	*	 
+ 	*	
  	*	Remove directories that do not exit.
 	*/
 	static void consolidateListPATH(

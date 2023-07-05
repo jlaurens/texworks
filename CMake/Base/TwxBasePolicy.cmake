@@ -7,7 +7,7 @@ https://github.com/TeXworks/texworks
 
 Automatically loaded by the `TwxBase` module.
 
-Actual policy version: 3.13
+Actual policy version: 3.25
 
 - CMP0020: Silence warning about linking to qtmain.lib statically on Windows
 - CMP0042: Silence warning about using @@rpath on OS X.
@@ -22,18 +22,15 @@ Actual policy version: 3.13
 *//*
 #]===============================================]
 
-if ( NOT DEFINED TWX_IS_BASED )
-  message( FATAL_ERROR "Base not loaded" )
-endif ()
-
 # NB: This file MUST be included with NO_POLICY_COPE
 # Otherwise all the changes below won't live after the end
 
 # CMake 3.1 significantly improves support for imported targets, Qt5, c++11, etc.
-# 3.13 allows to alter an already defined target
-# New in version 3.13: The <target> doesn't have to be defined in the same directory as the target_link_libraries call.
+# 3.25 allows to alter an already defined target
+# New in version 3.17: The <target> doesn't have to be defined in the same directory as the target_link_libraries call.
 # New in version 3.11: The source files can be omitted if they are added later using target_sources().
-cmake_policy ( VERSION 3.13 )
+
+cmake_policy ( VERSION 3.25 )
 
 # Silence warning about linking to qtmain.lib statically on Windows
 if ( POLICY CMP0020 )

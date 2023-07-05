@@ -5,9 +5,9 @@ set ( TWX_unit-tests ON )
 
 if ( NOT DEFINED TWX_IS_BASED )
 
-	cmake_minimum_required ( VERSION 3.13 )
+	cmake_minimum_required ( VERSION 3.25 )
 	include (
-		"${CMAKE_CURRENT_LIST_DIR}/../Cmake/Include/TwxBase.cmake"
+		"${CMAKE_CURRENT_LIST_DIR}/../Cmake/Base/TwxBase.cmake"
 		NO_POLICY_SCOPE
 	)
 	project ( TwxAllTests )

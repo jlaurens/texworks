@@ -46,7 +46,7 @@ static bool setup(const QFileInfo & fileInfo)
 }
 
 /** \brief setup de settings state
- 	* 
+ 	*
  	*	This is where relative path are resolved
  	*	\param fileInfo is a `QFileInfo` instance, absolute or relative
   * \param dir is a `QDir` instance, ignored when not absolute

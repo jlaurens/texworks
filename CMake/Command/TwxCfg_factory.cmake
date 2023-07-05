@@ -15,7 +15,6 @@ Input:
   - `TWX_NAME`
   - `TWX_FACTORY_INI`
   - `TWX_CFG_INI_DIR`
-  - `TWX_MESSAGE_DEPTH`
 
 Output:
   - an updated factory Cfg data file
@@ -66,7 +65,7 @@ From these are built
 
 if ( NOT DEFINED TWX_IS_BASED )
   include (
-    "${CMAKE_CURRENT_LIST_DIR}/../Include/TwxBase.cmake"
+    "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
     NO_POLICY_SCOPE
   )
 endif ()
@@ -76,14 +75,14 @@ twx_assert_non_void ( TWX_NAME )
 
 include ( TwxCfgLib )
 
-twx_message_verbose (
-  "TwxCfg_factory: TWX_NAME        => ${TWX_NAME}"
-  "TwxCfg_factory: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
-  DEEPER
+twx_message ( VERBOSE "TwxCfg_factory:" DEEPER )
+twx_message ( VERBOSE
+  "TWX_NAME        => ${TWX_NAME}"
+  "TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
 )
 
 # Parse the ini contents
-twx_message_verbose ( "TwxCfg_factory: Parsing ${TWX_FACTORY_INI}" )
+twx_message ( VERBOSE "Parsing ${TWX_FACTORY_INI}" )
 twx_cfg_read ( "${TWX_FACTORY_INI}" )
 twx_cfg_write_begin ( ID "factory" )
 # verify the expectations
@@ -100,6 +99,7 @@ foreach (
     twx_cfg_set ( "${key_}" "${TWX_CFG_${key_}}" )
   else ()
     twx_fatal (
+    return ()
       "Missing value for key_ ${key_} in TWX_FACTORY_INI (${TWX_FACTORY_INI})"
     )
   endif ()

@@ -11,7 +11,7 @@ Make a build folder and use cmake ... && cmake --build ...
 
 if ( NOT DEFINED TWX_IS_BASED )
   include (
-    "${CMAKE_CURRENT_LIST_DIR}/TwxBase.cmake"
+    "${CMAKE_CURRENT_LIST_DIR}../Base/TwxBase.cmake"
     NO_POLICY_SCOPE
   )
 endif ()
@@ -50,6 +50,7 @@ function ( twx_poppler_data_setup )
   set ( TWX_POPPLER_DATA_URL "${TWX_CFG_POPPLER_DATA_URL}" )
   if ( NOT "${TWX_POPPLER_DATA_URL}" MATCHES "/(([^/]+)[.]tar[.]gz$)" )
     twx_fatal ( "Unexpected URL ${TWX_POPPLER_DATA_URL}" )
+    return ()
   endif ()
   set (
     TWX_POPPLER_DATA_ARCHIVE
@@ -61,10 +62,8 @@ function ( twx_poppler_data_setup )
   )
   set ( TWX_POPPLER_DATA_SHA256 "${TWX_CFG_POPPLER_DATA_SHA256}" )
   twx_export (
-    TWX_POPPLER_DATA_URL
-    TWX_POPPLER_DATA_SHA256
-    TWX_POPPLER_DATA_ARCHIVE
-    TWX_POPPLER_DATA_BASE
+    URL SHA256 ARCHIVE BASE
+    VAR_PREFIX TWX_POPPLER_DATA
   )
 endfunction ()
 
@@ -74,13 +73,14 @@ endfunction ()
 /** @brief Prepare the poppler_data material
   *
   * Central function to download and expand the poppler_data.
+  * @param dev for key `DEV`
   */
 twx_poppler_data_prepare () {}
 /*
 #]=======]
 function ( twx_poppler_data_prepare )
-  twx_parse_arguments ( "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" ${ARGN} )
-  twx_assert_parsed ()
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" )
+  twx_arg_assert_parsed ()
 
   if ( EXISTS "${twxR_ARCHIVE}" )
     file ( SHA256 "${twxR_ARCHIVE}" actual_sha256_ )
@@ -127,8 +127,12 @@ function ( twx_poppler_data_process )
       "-DTWX_ARCHIVE=${TWX_POPPLER_DATA_ARCHIVE}"
       "-DTWX_BASE=${TWX_POPPLER_DATA_BASE}"
       "-DTWX_SHA256=${TWX_POPPLER_DATA_SHA256}"
-      "${TWX_STATE_ARGUMENT}"
+      "${TWX-D_STATE}"
       -P "${TwxPopplerDataCommand.cmake}"
   )
 endfunction ()
+
+include ( TwxAssertLib )
+include ( TwxStateLib )
+
 #*/

@@ -6,18 +6,13 @@ https://github.com/TeXworks/texworks
 @brief Coloring log output of the summaries.
 
 This is not available on windows.
+Include this file on demand.
 
 Known formats:
   `BOLD`, `RED`, `GREEN`, `YELLOW`, `BLUE`, `MAGENTA`, `CYAN`, `WHITE`,
   `BOLD_RED`, `BOLD_GREEN`, `BOLD_YELLOW`, `BOLD_BLUE`, `BOLD_MAGENTA`, `BOLD_CYAN`, `BOLD_WHITE`
 */
-/**
-@brief Verbosity
-
-When set more information is displayed.
-*/
-TWX_VERBOSE;
-/**
+**
 @brief Coloring
 
 Turn this off to disable coloring, or switch to windows.
@@ -91,33 +86,30 @@ Enclose the input between appropriate formatting characters,
 put the result in the variable pointed to by output.
 
 @param format is one of the known formats
-@param output for key VAR is the variable name holding the result
-@param ... for key TEXT is the list of texts to format
+@param output for key `IN_VAR` is the variable name holding the result
+@param ... for key `TEXT` is the list of texts to format
 
 */
-twx_log_format( format VAR output TEXT ... ) {}
+twx_log_format( format IN_VAR output TEXT msg ) {}
 /*
 #]=======]
-function ( twx_log_format )
-  twx_parse_arguments ( "" "VAR" "TEXT" ${ARGN} )
-  if ( "${twxR_VAR}" STREQUAL ""
-    OR "${twxR_TEXT}" STREQUAL "" )
-    twx_fatal ( "Wrong parameters" )
-  endif ()
-  set ( format_ "${twxR_UNPARSED_ARGUMENTS}" )
+function ( twx_log_format format_ .IN_VAR var_ .TEXT msg_ )
+  twx_arg_assert_count ( ${ARVC} == 5 )
+  twx_arg_assert_keyword ( .IN_VAR .TEXT )
+  twx_assert_variable ( "${var_}" )
   if ( "${format_}" STREQUAL "" )
-    set( ${twxR_VAR} "${twxR_TEXT}" )
+    set( ${var_} "${msg_}" PARENT_SCOPE )
   else ()
     list ( FIND twx-format "${format_}" _i )
-    if    ( _i LESS 0 )
+    if ( "${_i}" LESS "0" )
       twx_fatal ( "Unknown format ${format_}")
+      return ()
     endif ()
     math ( EXPR _i "${_i}+1" )
     list ( GET twx-format "${_i}" _l )
     set ( _l "${TWX_TWENTY_SEVEN}[${_l}" )
-    set ( ${twxR_VAR} "${_l}${twxR_TEXT}${twx-format-reset}" )
+    set ( ${var_} "${_l}${msg_}${twx-format-reset}" PARENT_SCOPE )
   endif ()
-  twx_export ( ${twxR_VAR} )
 endfunction ()
 
 # ANCHOR: twx_log
@@ -155,9 +147,10 @@ endif ()
 # Private macro to parse the leading `<format>`
 # and the trailing `VERBOSE`.
 # Outputs twxR_VERBOSE, twxR_EOL
-macro ( __twx_summary_parse_arguments )
+function ( __twx_summary_parse_arguments )
 # nothing to show if the whole section is hidden
-  twx_parse_arguments ( "VERBOSE;EOL" "" "" ${ARGN} )
+
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "VERBOSE;EOL" "" "" )
   if ( twxR_VERBOSE  AND NOT TWX_VERBOSE )
     set ( twxR_HIDE ON )
   endif ()
@@ -165,38 +158,66 @@ macro ( __twx_summary_parse_arguments )
   if ( NOT "${twxR_ARGN}" STREQUAL "" )
     list ( GET twxR_ARGN 0 twxR_FORMAT )
     list ( FIND twx-format "${twxR_FORMAT}" i )
-    if ( i LESS 0 )
+    if ( "${_i}" LESS "0" )
       set ( twxR_FORMAT )
     else ()
       list ( REMOVE_AT twxR_ARGN 0 )
     endif ()
   endif ()
-endmacro ()
+endfunction ()
+
+# ANCHOR: __twx_summary_set_format
+# Private macro to set the format
+# __twx_summary_set_format ( format IN_VAR var )
+# On return <var> is defined if the format is acceptable
+# undefined otherwise.
+function ( __twx_summary_set_format twxR_FORMAT .IN_VAR twxR_IN_VAR )
+  twx_arg_assert_keyword ( .IN_VAR )
+  twx_assert_variable ( "${twxR_IN_VAR}" )
+  twx_assert_undefined ( ARGN )
+  list ( FIND twx-format "${twxR_FORMAT}" i )
+  if ( "${_i}" LESS "0" )
+    unset ( ${twxR_IN_VAR} PARENT_SCOPE )
+  else ()
+    set ( ${twxR_IN_VAR} "${twxR_FORMAT}" PARENT_SCOPE )
+  endif ()
+endfunction ( __twx_summary_set_format )
+
+LEVEL
 
 # ANCHOR: twx_log
 function ( twx_log )
-  __twx_summary_parse_arguments ( ${ARGN} )
+  if ( "${ARGC}" EQUAL "0" )
+    return ()
+  endif ()
+  __twx_summary_set_format ( "${ARG0}" IN_VAR twxR_FORMAT )
+  set ( i 0 )
+  if ( DEFINED twxR_FORMAT )
+    set ( i 1 )
+  endif ()
+  cmake_parse_arguments ( PARSE_ARGV ${i} twxR "VERBOSE;EOL" "" "" )
+  if ( twxR_VERBOSE  AND NOT TWX_VERBOSE )
+    set ( twxR_HIDE ON )
+  else ()
+    set ( twxR_HIDE OFF )
+  endif ()
   if ( twxR_HIDE )
     # nothing to print
     message ( "" )
     return ()
   endif ()
   # Find the level
-  twx_parse_arguments ( "" "LEVEL" "" ${twxR_ARGN} )
-  if ( "${twxR_LEVEL}" STREQUAL "" )
-    set ( twxR_LEVEL 0 )
-  endif ()
-  if ( NOT twxR_LEVEL GREATER TWX_LOG_LEVEL_MAX )
+  if ( NOT "${twxR_LEVEL}" GREATER "${TWX_LOG_LEVEL_MAX}" )
     set ( msg "[TWX]:${twxR_UNPARSED_ARGUMENTS}" )
-    if ( twxR_FORMAT )
-      twx_log_format ( "${twxR_FORMAT}" VAR msg TEXT "${msg}" )
+    if ( DEFINED twxR_FORMAT )
+      twx_log_format ( "${twxR_FORMAT}" IN_VAR msg TEXT "${twxR_UNPARSED_ARGUMENTS}" )
     endif ()
     message ( "${msg}" )
   endif ()
-endfunction ()
+endfunction ( twx_log )
 
-option ( TWX_VERBOSE "Display more informations about the configuration" )
-# NB: from the CLI use `cmake -DTWX_VERBOSE=ON ...`
+BROKEN
+TWX_VERBOSE
 
 # ANCHOR: twx_summary_log
 #[=======[ `twx_summary_log`
@@ -209,73 +230,86 @@ Other loggers depend on this one.
 @param value optional text displayed on the right,
   with line break management
 @param ... more optional values
-@param VERBOSE optional key that disables logging when given,
-  unless `TWX_VERBOSE` is set.
+@param `VERBOSE|DEBUG|TRACE` optional message log level.
 */
-twx_summary_log( [format] message value ... [VERBOSE] ) {}
+twx_summary_log( message value [format] [VERBOSE|DEBUG|TRACE] ) {}
 /*
 #]=======]
+BROKEN twx_summary_log
 function( twx_summary_log )
-  if ( TWX_SUMMARY_section_hidden_l )
+  if ( TWX_SUMMARY_section_hidden_l OR "${ARGC}" EQUAL "0" )
     return ()
   endif ()
-  __twx_summary_parse_arguments ( ${ARGN} )
-  if ( twxR_HIDE OR "${twxR_ARGN}" STREQUAL "" )
+  set ( message_ "${ARGV0}" )
+  set ( value_ "${ARGV1}" )
+  __twx_summary_set_format ( "${ARG2}" IN_VAR twxR_FORMAT )
+  if ( DEFINED twxR_FORMAT )
+    if ( "${ARGC}" EQUAL "4" )
+      set ( twxR_LEVEL "${ARGV3}" )
+    elseif ( "${ARGC}" GREATER "4" ) ()
+      twx_fatal ( "Wrong number of arguments" )
+      return ()
+    endif ()
+  elseif ( "${ARGC}" EQUAL "3" )
+    set ( twxR_LEVEL "${ARGV2}" )
+  elseif ( "${ARGC}" GREATER "3" OR "${ARGC}" LESS "2" ) ()
+    twx_fatal ( "Wrong number of arguments" )
+    return ()
+  endif ()
+  if ( twxR_HIDE )
     message( "" )
     return ()
   endif ()
-  list ( GET twxR_ARGN 0 what )
-  set ( what "${what}:" )
-  list ( REMOVE_AT twxR_ARGN 0 )
-  if    ( "${twxR_ARGN}" STREQUAL "" )
-    if ( twxR_FORMAT )
-      twx_log_format( ${twxR_FORMAT} VAR what TEXT "${what}" )
+  set ( message_ "${message_}:" )
+  if ( "${value_}" STREQUAL "" )
+    if ( DEFINED twxR_FORMAT )
+      twx_log_format( ${twxR_FORMAT} IN_VAR message_ TEXT "${message_}" )
     endif ()
-    message ( "${TWX_SUMMARY_indentation}${what}" )
+    message ( "${TWX_SUMMARY_indentation}${message_}" )
     return ()
   endif ()
-  # Hard wrap the remain material.
-  string ( LENGTH "${what}" length_what )
+  # Hard wrap the remaining material.
+  string ( LENGTH "${message_}" length_what_ )
   string ( LENGTH "${TWX_SUMMARY_indentation}" length_indent )
-  math ( EXPR left_char "30 - ${length_what} - ${length_indent}" )
-  set ( blanks )
+  math ( EXPR left_char "30 - ${length_what_} - ${length_indent}" )
+  set ( blanks_ )
   foreach ( _i RANGE 1 ${left_char} )
-    set ( blanks " ${blanks}" )
-    # string( APPEND blanks " " ) in modern cMake
+    set ( blanks_ " ${blanks_}" )
+    # string( APPEND blanks_ " " ) in modern cMake
   endforeach ()
   # wrap the value to just more than 80 characters
-  set ( _prefix "${TWX_SUMMARY_indentation}${what}${blanks}" )
+  set ( _prefix "${TWX_SUMMARY_indentation}${message_}${blanks_}" )
   # This is the prefix for the first line
   # for the next lines obtained by hard wrapping
   # this will be a blank string with the same length.
   string ( LENGTH "${_prefix}" _length )
-  if ( twxR_FORMAT )
-    twx_log_format( ${twxR_FORMAT} VAR _prefix TEXT "${_prefix}" )
+  if ( DEFINED twxR_FORMAT )
+    twx_log_format( ${twxR_FORMAT} IN_VAR _prefix TEXT "${_prefix}" )
   endif ()
-  set ( blanks )
+  set ( blanks_ )
   foreach ( _i RANGE 1 ${_length} )
-    set ( blanks " ${blanks}" )
-    # string( APPEND blanks " " ) in modern cMake
+    set ( blanks_ " ${blanks_}" )
+    # string( APPEND blanks_ " " ) in modern cMake
   endforeach()
   set ( _lines )
-  foreach    ( item IN LISTS twxR_ARGN )
+  foreach ( item ${value_} )
     set ( _line "${_line} ${item}" )
     string ( LENGTH "${_line}" _length )
-    if    ( _length GREATER 50 )
-      if ( twxR_FORMAT )
-        twx_log_format( ${twxR_FORMAT} VAR _line TEXT "${_line}" )
+    if    ( "${_length}" GREATER "50" )
+      if ( DEFINED twxR_FORMAT )
+        twx_log_format( ${twxR_FORMAT} IN_VAR _line TEXT "${_line}" )
       endif ()
       message ( "${_prefix}${_line}" )
-      set ( _prefix "${blanks}" )
-      # `what` and `_line` have been consumed, 
-      set ( what )
+      set ( _prefix "${blanks_}" )
+      # `message_` and `_line` have been consumed,
+      set ( message_ )
       set ( _line )
     endif ()
   endforeach ()
   # Everything consumed?
-  if    ( what OR _line )
-    if ( twxR_FORMAT AND _line )
-      twx_log_format( ${twxR_FORMAT} VAR _line TEXT "${_line}" )
+  if ( NOT "${_prefix}" STREQUAL "" OR NOT "${_line}" STREQUAL "" )
+    if ( DEFINED twxR_FORMAT AND NOT "${_line}" STREQUAL "" )
+      twx_log_format( "${twxR_FORMAT}" IN_VAR _line TEXT "${_line}" )
     endif ()
     message ( "${_prefix}${_line}" )
   endif ()
@@ -290,58 +324,68 @@ endfunction()
 @param key some label
 @param value is displayed as `yes` or `no` with `FLAG`,
   variable content with `VAR` and as is otherwise.
-@param VERBOSE mode, when unset nothing is displayed except if
+@param `VERBOSE` mode, when unset nothing is displayed except if
   `TWX_VERBOSE` is set.
 */
-twx_summary_log_kv ( [format] key [FLAG|VAR] value [VERBOSE] ) {}
+twx_summary_log_kv ( [format] key [FLAG|VAR] value [VERBOSE|DEBUG|TRACE] ) {}
 /*
 #]=======]
 function( twx_summary_log_kv )
-  if ( TWX_SUMMARY_section_hidden_l )
-    return ()
-  endif ()
-  __twx_summary_parse_arguments ( ${ARGN} )
-  twx_parse_arguments ( "" "FLAG;VAR" "" ${twxR_ARGN} )
-  set ( twxR_ARGN "${twxR_UNPARSED_ARGUMENTS}" )
-  if ( twxR_HIDE OR "${twxR_ARGN}" STREQUAL "" )
+  if ( twxR_HIDE )
     message( "" )
     return ()
   endif ()
-  list ( GET twxR_ARGN 0 key )
-  list ( REMOVE_AT twxR_ARGN 0 )
-  if ( NOT "${twxR_FLAG}" STREQUAL "" )
-    if    ( ${${twxR_FLAG}} )
+  if ( TWX_SUMMARY_section_hidden_l )
+    return ()
+  endif ()
+  if ( "${ARGC}" LESS "1" )
+    return ()
+  endif ()
+  __twx_summary_set_format ( "${ARG0}" IN_VAR twxR_FORMAT )
+  if ( DEFINED twxR_FORMAT )
+    set ( i 1 )
+  else ()
+    set ( i 0 )
+  endif ()
+  cmake_parse_arguments (
+    PARSE_ARG ${i} twxR
+    "VERBOSE;DEBUG;TRACE" "FLAG;VAR" ""
+  )
+  twx_arg_pass_option ( VERBOSE DEBUG TRACE )
+  if ( DEFINED twxR_UNPARSED_ARGUMENTS )
+    twx_assert_undefined ( twxR_FLAG twxR_VAR )
+    set ( value "${twxR_UNPARSED_ARGUMENTS}" )
+  elseif ( DEFINED twxR_FLAG )
+    twx_assert_undefined ( twxR_UNPARSED_ARGUMENTS twxR_VAR )
+    if ( ${${twxR_FLAG}} )
       set ( value "yes" )
     else  ()
       set ( value "no" )
     endif ()
-  elseif ( NOT "${twxR_VAR}" STREQUAL "" )
+  elseif ( DEFINED twxR_VAR )
+    twx_assert_undefined ( twxR_FLAG twxR_UNPARSED_ARGUMENTS )
     set ( value "${${twxR_VAR}}" )
   else ()
-    set ( value "${twxR_ARGN}" )
+    message( "" )
+    return ()
   endif ()
-  if ( twxR_VERBOSE )
-    set ( twxR_VERBOSE VERBOSE )
-  else ()
-    set ( twxR_VERBOSE )
-  endif ()
-  twx_summary_log( ${twxR_FORMAT} "${key}" "${value}" ${twxR_VERBOSE} )
-  endfunction()
-
+  twx_summary_log( "${key}" "${value}" ${twxR_FORMAT} ${twxR_VERBOSE}  ${twxR_DEBUG}  ${twxR_TRACE} )
+endfunction( twx_summary_log_kv )
+BROKEN twx_summary_log
 # ANCHOR: twx_summary_begin
 #[=======[
-*//**
-@brief begin a new config section
-
-Display the title and setup indentation.
-Must be balanced by a `twx_summary_end()`.
-
-.
-@param format optional known format
-@param title required
-@param VERBOSE optional. When `VERBOSE` is provided, the whole section is hidden
-unless `TWX_VERBOSE` is set.
 */
+/** @brief begin a new config section
+  * 
+  * Display the title and setup indentation.
+  * Must be balanced by a `twx_summary_end()`.
+  *
+  *
+  * @param format optional known format
+  * @param title required
+  * @param `VERBOSE` optional. When `VERBOSE` is provided, the whole section is hidden
+  * unless `TWX_VERBOSE` is set.
+  */
 twx_summary_begin(format title VERBOSE) {}
 /*
 Implementation detail:
@@ -356,6 +400,16 @@ Implementation detail:
 #]=======]
 set ( TWX_SUMMARY_stack )
 function ( twx_summary_begin )
+  twx_assert_compare ( 1 <= VAR ARGC <= 3 )
+  __twx_summary_set_format ( "${ARG0}" IN_VAR twxR_FORMAT )
+  if ( DEFINED twxR_FORMAT )
+    set ( twxR_TITLE "${ARGV1}" )
+    twx_set_if_defined ( twxR_LEVEL ARGV2 )
+  else ()
+    set ( twxR_TITLE "${ARGV0}" )
+    twx_set_if_defined ( twxR_LEVEL ARGV1 )
+  endif ()
+
   # Is this section hidden?
   __twx_summary_parse_arguments ( ${ARGN} )
   if ( twxR_HIDE )
@@ -376,7 +430,7 @@ function ( twx_summary_begin )
   if ( NOT TWX_SUMMARY_section_hidden_l )
     set ( msg "${TWX_SUMMARY_indentation}${twxR_ARGN}" )
     if ( twxR_FORMAT )
-      twx_log_format ( "${twxR_FORMAT}" VAR msg TEXT "${msg}" )
+      twx_log_format ( "${twxR_FORMAT}" IN_VAR msg TEXT "${msg}" )
     endif ()
     message ( "${msg}" )
   endif ()
@@ -384,7 +438,7 @@ function ( twx_summary_begin )
   set ( TWX_SUMMARY_indentation )
   foreach   ( _ IN LISTS TWX_SUMMARY_stack )
     set ( TWX_SUMMARY_indentation "  ${TWX_SUMMARY_indentation}" )
-  endforeach()
+  endforeach ()
   set ( TWX_SUMMARY_indentation "${TWX_SUMMARY_indentation}" PARENT_SCOPE )
   if ( twxR_EOL )
     message ( "" )
@@ -399,7 +453,7 @@ endfunction ()
 End a config section, setup indentation and associate variables.
 Must balance a previous `twx_summary_begin` in the same scope.
 
-@param NO_EOL optional key to remove an extra EOL
+@param `NO_EOL` optional key to remove an extra EOL
 */
 twx_summary_end( NO_EOL ) {}
 /*
@@ -424,7 +478,7 @@ macro ( twx_summary_end )
       endif ()
       foreach   ( TWX_l IN LISTS TWX_SUMMARY_stack )
         set ( TWX_SUMMARY_indentation "  ${TWX_SUMMARY_indentation}" )
-      endforeach()    
+      endforeach()
       unset ( TWX_l )
     else  ()
       set ( TWX_SUMMARY_section_hidden_l OFF )
@@ -440,12 +494,12 @@ endmacro ( twx_summary_end )
 
 # ANCHOR: __twx_summary_common_ancestor
 # problem if the arguments are not canonical paths
-# @param VAR_ANCESTOR to collect the common ancestor
+# @param `VAR_ANCESTOR` to collect the common ancestor
 function ( __twx_summary_common_ancestor )
-  twx_parse_arguments ( "" "VAR_ANCESTOR;VAR_RELATIVE" "" ${ARGN} )
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "VAR_ANCESTOR;VAR_RELATIVE" "" )
   set ( ${twxR_VAR_ANCESTOR} )
   set ( ${twxR_VAR_RELATIVE} "${twxR_UNPARSED_ARGUMENTS}" )
-  if ( NOT "${twxR_UNPARSED_ARGUMENTS}" MATCHES ";" )
+  if ( NOT NOT "${twxR_UNPARSED_ARGUMENTS}" STREQUAL "" )
     twx_export ( ${twxR_VAR_ANCESTOR} )
     twx_export ( ${twxR_VAR_RELATIVE} )
     return ()
@@ -459,17 +513,199 @@ function ( __twx_summary_common_ancestor )
       if ( "${x_}" MATCHES "^${common_}(.+)$" )
         list ( APPEND new_ "${CMAKE_MATCH_1}" )
       else ()
-        twx_export ( ${twxR_VAR_RELATIVE} ${twxR_VAR_ANCESTOR} )
+        twx_export (
+          ${twxR_VAR_RELATIVE}
+          ${twxR_VAR_ANCESTOR}
+        )
         return ()
-      endif ()  
+      endif ()
     endforeach ( x_ )
     set ( ${twxR_VAR_ANCESTOR} "${${twxR_VAR_ANCESTOR}}${common_}" )
     set ( ${twxR_VAR_RELATIVE} "${new_}" )
   endwhile ()
-  twx_export ( ${twxR_VAR_RELATIVE} ${twxR_VAR_ANCESTOR} )
+  twx_export (
+    ${twxR_VAR_RELATIVE}
+    ${twxR_VAR_ANCESTOR}
+  )
 endfunction ( __twx_summary_common_ancestor )
 
 # SECTION: sections
+# ANCHOR: twx_summary_section_compiler
+#[=======[
+*/
+/** @brief Log target compiler info
+  *
+  * @param ... are target names.
+  */
+twx_summary_section_compiler( target ) {}
+/*
+#]=======]
+function ( twx_summary_section_compiler )
+  twx_summary_begin ( BOLD_MAGENTA "Compiler" ${twxR_VERBOSE} )
+  twx_summary_log_kv ( "ID" ${CMAKE_CXX_COMPILER_ID})
+  twx_summary_log_kv ( "Version" ${CMAKE_CXX_COMPILER_VERSION})
+  if ( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "" )
+    twx_summary_log_kv ( "Optimization" ${CMAKE_BUILD_TYPE} )
+  endif ()
+  twx_summary_end ( EOL )
+endfunction ()
+
+# ANCHOR: twx_summary_section_build_settings
+#[=======[
+*/
+/** @brief Log target build settings info
+  *
+  * @param ... are target names.
+  */
+twx_summary_section_build_settings( target ) {}
+/*
+#]=======]
+function ( twx_summary_section_build_settings )
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "VERBOSE" "" "" )
+  twx_arg_pass_option ( VERBOSE )
+  foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
+    if ( NOT TARGET ${target_} )
+      string ( PREPEND target_ "Twx" )
+      if ( NOT TARGET ${target_} )
+        twx_fatal ( "Unknown target ${target_}" )
+        return ()
+      endif ()
+    endif ()
+    foreach ( t_ COMPILE_OPTIONS COMPILE_DEFINITIONS INCLUDE_DIRECTORIES )
+      get_target_property (
+        ${t_}_
+        ${target_}
+        ${t_}
+      )
+    endforeach ()
+    if ( "${COMPILE_OPTIONS_}" MATCHES "NOTFOUND"
+    AND "${COMPILE_DEFINITIONS_}" MATCHES "NOTFOUND"
+    AND "${INCLUDE_DIRECTORIES_}" MATCHES "NOTFOUND")
+      continue ()
+    endif ()
+    twx_summary_begin ( BOLD_BLUE "${target_} build settings" ${twxR_VERBOSE} )
+    if ( NOT "${COMPILE_OPTIONS_}" MATCHES "NOTFOUND" )
+      # TODO: include the test in twx_summary_log_kv
+      twx_summary_log_kv ( "Compile options" VAR COMPILE_OPTIONS_ )
+    endif ()
+    if ( NOT "${COMPILE_DEFINITIONS_}" MATCHES "NOTFOUND" )
+      list ( REMOVE_DUPLICATES COMPILE_DEFINITIONS_ )
+      twx_summary_log_kv ( "Compile definitions" VAR COMPILE_DEFINITIONS_ )
+    endif ()
+    if ( NOT "${INCLUDE_DIRECTORIES_}" MATCHES "NOTFOUND" )
+      include ( TwxModuleLib )
+      twx_module_expose ( ${target_} OPTIONAL )
+      if ( ${target_}_IS_MODULE )
+        twx_module_shorten (
+          VAR INCLUDE_DIRECTORIES_
+          MODULE ${target_} ${${target_}_MODULES}
+        )
+      else ()
+        __twx_summary_common_ancestor (
+          VAR_ANCESTOR dir_
+          VAR_RELATIVE rel_
+          ${INCLUDE_DIRECTORIES_}
+        )
+        if ( NOT "${dir_}" STREQUAL "" )
+          twx_summary_log_kv ( "Include from" VAR dir_ )
+        endif ()
+        if ( NOT "${rel_}" STREQUAL "" )
+          list ( REMOVE_DUPLICATES rel_ )
+          twx_summary_log_kv ( "Include directories" VAR rel_ )
+        endif ()
+      endif ()
+    endif ()
+    twx_summary_end ()
+  endforeach ()
+endfunction ( twx_summary_section_build_settings )
+
+# ANCHOR: twx_summary_section_libraries
+#[=======[
+*/
+/** @brief Log target libraries
+  *
+  * @param ... are target names.
+  */
+twx_summary_section_libraries( target ... ) {}
+/*
+#]=======]
+function ( twx_summary_section_libraries )
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "VERBOSE" "" "" )
+  twx_arg_pass_option ( VERBOSE )
+  foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
+    if ( NOT TARGET ${target_} )
+      string ( PREPEND target_ "Twx" )
+      if ( NOT TARGET ${target_} )
+        twx_fatal ( "Unknown target ${target_}" )
+        return ()
+      endif ()
+    endif ()
+    get_target_property (
+      libraries_
+      ${target_}
+      LINK_LIBRARIES
+    )
+    if ( "${libraries_}" MATCHES "NOTFOUND" )
+      continue ()
+    endif ()
+    set ( Qt_libraries_ )
+    set ( Twx_libraries_ )
+    set ( Other_libraries_ )
+    foreach ( l_ IN LISTS libraries_ )
+      if ( ${l_} MATCHES "^Twx" )
+        list ( APPEND Twx_libraries_ ${l_} )
+      elseif ( ${l_} MATCHES "^Qt" )
+        list ( APPEND Qt_libraries_ ${l_} )
+      else ()
+        list ( APPEND Other_libraries_ ${l_} )
+      endif ()
+    endforeach ()
+    twx_summary_begin ( BOLD_BLUE "${target_} libraries" ${twxR_VERBOSE} )
+      if ( NOT "${Qt_libraries_}" STREQUAL "" )
+        list ( REMOVE_DUPLICATES Qt_libraries_ )
+        twx_summary_log_kv ( "${QtMAJOR} libraries" VAR Qt_libraries_ )
+      endif ()
+      if ( NOT "${Twx_libraries_}" STREQUAL "" )
+        list ( REMOVE_DUPLICATES Twx_libraries_ )
+        string ( REPLACE "Twx" "Twx::" Twx_libraries_ "${Twx_libraries_}")
+        twx_summary_log_kv ( "Twx modules" VAR Twx_libraries_ )
+      endif ()
+      if ( NOT "${Other_libraries_}" STREQUAL "" )
+        list ( REMOVE_DUPLICATES Other_libraries_ )
+        twx_summary_log_kv ( "Other libraries" VAR Other_libraries_ )
+      endif ()
+    twx_summary_end ()
+  endforeach ()
+endfunction ( twx_summary_section_libraries )
+
+# ANCHOR: twx_summary_section_directories
+#[=======[
+*/
+/** @brief Log current project directories info
+  *
+  */
+twx_summary_section_directories() {}
+/*
+#]=======]
+function ( twx_summary_section_directories )
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "VERBOSE" "" "" )
+  twx_arg_pass_option ( VERBOSE )
+  foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
+    if ( NOT TARGET "${target_}" )
+      string ( PREPEND target_ "Twx" )
+      if ( NOT TARGET "${target_}" )
+        message ( WARNING "Unknown target: ${target_}" )
+        continue( )
+      endif ()
+    endif ()
+    twx_summary_begin ( BOLD_BLUE "${target_} directories" VERBOSE ${twxR_VERBOSE} )
+    twx_summary_log_kv ( "root"   VAR TWX_DIR )
+    twx_summary_log_kv ( "source" VAR CMAKE_SOURCE_DIR )
+    twx_summary_log_kv ( "binary" VAR CMAKE_BINARY_DIR )
+    twx_summary_end ( EOL )
+  endforeach ()
+endfunction ( twx_summary_section_directories )
+
 # ANCHOR: twx_summary_section_files
 #[=======[
 */
@@ -482,24 +718,28 @@ twx_summary_section_files( target ) {}
 /*
 #]=======]
 function ( twx_summary_section_files )
-  twx_parse_arguments ( "VERBOSE" "" "" ${ARGN} )
-  twx_pass_option ( VERBOSE )
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "VERBOSE" "" "" )
+  twx_arg_pass_option ( VERBOSE )
   foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
     if ( NOT TARGET "${target_}" )
-      set ( target_ "Twx${target_}")
+      string ( PREPEND target_ "Twx" )
       if ( NOT TARGET "${target_}" )
         message ( WARNING "Unknown target: ${target_}" )
         continue( )
       endif ()
     endif ()
-    get_target_property (
-      files_
-      ${target_}
-      SOURCES
-    )
+    twx_target_expose ( ${target_} PROPERTIES SOURCES )
     if ( files_ MATCHES "NOTFOUND$" )
-      twx_message_verbose ( "No SOURCES in target: ${target_}" )
+      twx_message ( VERBOSE "No SOURCES in target: ${target_}" )
       continue ()
+    endif ()
+    include ( TwxModuleLib )
+    twx_module_expose ( ${target_} OPTIONAL )
+    if ( ${target_}_IS_MODULE )
+      twx_module_shorten (
+        VAR files_
+        MODULE ${target_} ${${target_}_MODULES}
+      )
     endif ()
     # get_target_property (
     #   dirs_
@@ -565,142 +805,6 @@ function ( twx_summary_section_files )
   endforeach ()
 endfunction ( twx_summary_section_files )
 
-# ANCHOR: twx_summary_section_compiler
-#[=======[
-*/
-/** @brief Log target compiler info
-  *
-  * @param ... are target names.
-  */
-twx_summary_section_compiler( target ) {}
-/*
-#]=======]
-function ( twx_summary_section_compiler )
-  twx_summary_begin ( BOLD_MAGENTA "Compiler" ${twxR_VERBOSE} )
-  twx_summary_log_kv ( "ID" ${CMAKE_CXX_COMPILER_ID})
-  twx_summary_log_kv ( "Version" ${CMAKE_CXX_COMPILER_VERSION})
-  if ( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "" )
-    twx_summary_log_kv ( "Optimization" ${CMAKE_BUILD_TYPE} )
-  endif ()
-  twx_summary_end ( EOL )
-endfunction ()
-
-  # ANCHOR: twx_summary_section_build_settings
-  #[=======[
-  */
-  /** @brief Log target build settings info
-    *
-    * @param ... are target names.
-    */
-  twx_summary_section_build_settings( target ) {}
-  /*
-  #]=======]
-function ( twx_summary_section_build_settings )
-  twx_parse_arguments ( "VERBOSE" "" "" ${ARGN} )
-  twx_pass_option ( VERBOSE )
-  foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
-    if ( NOT TARGET ${target_} )
-      set ( target_ "Twx${target_}" )
-      if ( NOT TARGET ${target_} )
-        twx_fatal ( "Unknown target ${target_}" )
-      endif ()
-    endif ()
-    foreach ( t_ COMPILE_OPTIONS COMPILE_DEFINITIONS INCLUDE_DIRECTORIES )
-      get_target_property (
-        ${t_}_
-        ${target_}
-        ${t_}
-      )
-    endforeach ()
-    if ( "${COMPILE_OPTIONS_OPTIONS_}" MATCHES "NOTFOUND"
-    AND "${COMPILE_OPTIONS_DEFINITIONS_}" MATCHES "NOTFOUND"
-    AND "${INCLUDE_DIRECTORIES_}" MATCHES "NOTFOUND")
-      continue ()
-    endif ()
-    twx_summary_begin ( BOLD_BLUE "${target_} build settings" ${twxR_VERBOSE} )
-    if ( NOT "${COMPILE_OPTIONS_}" MATCHES "NOTFOUND" )
-      # TODO: include the test in twx_summary_log_kv
-      twx_summary_log_kv ( "Compile options" VAR COMPILE_OPTIONS_ )
-    endif ()
-    if ( NOT "${COMPILE_DEFINITIONS_}" MATCHES "NOTFOUND" )
-      list ( REMOVE_DUPLICATES COMPILE_DEFINITIONS_ )
-      twx_summary_log_kv ( "Compile definitions" VAR COMPILE_DEFINITIONS_ )
-    endif ()
-    if ( NOT "${INCLUDE_DIRECTORIES_}" MATCHES "NOTFOUND" )
-      __twx_summary_common_ancestor (
-        VAR_ANCESTOR dir_
-        VAR_RELATIVE rel_
-        ${INCLUDE_DIRECTORIES_}
-      )
-      if ( NOT "${dir_}" STREQUAL "" )
-        twx_summary_log_kv ( "Include from" VAR dir_ )
-      endif ()
-      if ( NOT "${rel_}" STREQUAL "" )
-        list ( REMOVE_DUPLICATES rel_ )
-        twx_summary_log_kv ( "Include directories" VAR rel_ )
-      endif ()
-    endif ()
-    twx_summary_end ()
-  endforeach ()
-endfunction ( twx_summary_section_build_settings )
-
-# ANCHOR: twx_summary_section_libraries
-#[=======[
-*/
-/** @brief Log target libraries
-  *
-  * @param ... are target names.
-  */
-twx_summary_section_libraries( target ... ) {}
-/*
-#]=======]
-function ( twx_summary_section_libraries )
-  twx_parse_arguments ( "VERBOSE" "" "" ${ARGN} )
-  twx_pass_option ( VERBOSE )
-  foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
-    if ( NOT TARGET ${target_} )
-      set ( target_ "Twx${target_}" )
-      if ( NOT TARGET ${target_} )
-        twx_fatal ( "Unknown target ${target_}" )
-      endif ()
-    endif ()
-    get_target_property (
-      libraries_
-      ${target_}
-      LINK_LIBRARIES
-    )
-    if ( "${libraries_}" MATCHES "NOTFOUND" )
-      continue ()
-    endif ()
-    set ( Qt_libraries_ )
-    set ( Twx_libraries_ )
-    set ( Other_libraries_ )
-    foreach ( l_ IN LISTS libraries_ )
-      if ( ${l_} MATCHES "^Twx" )
-        list ( APPEND Twx_libraries_ ${l_} )
-      elseif ( ${l_} MATCHES "^Qt" )
-        list ( APPEND Qt_libraries_ ${l_} )
-      else ()
-        list ( APPEND Other_libraries_ ${l_} )
-      endif ()
-    endforeach ()
-    twx_summary_begin ( BOLD_BLUE "${target_} libraries" ${twxR_VERBOSE} )
-      if ( NOT "${Qt_libraries_}" STREQUAL "" )
-        list ( REMOVE_DUPLICATES Qt_libraries_ )
-        twx_summary_log_kv ( "${QtMAJOR} libraries" VAR Qt_libraries_ )
-      endif ()
-      if ( NOT "${Twx_libraries_}" STREQUAL "" )
-        list ( REMOVE_DUPLICATES Twx_libraries_ )
-        twx_summary_log_kv ( "Twx modules" VAR Twx_libraries_ )
-      endif ()
-      if ( NOT "${Other_libraries_}" STREQUAL "" )
-        list ( REMOVE_DUPLICATES Other_libraries_ )
-        twx_summary_log_kv ( "Other libraries" VAR Other_libraries_ )
-      endif ()
-    twx_summary_end ()
-  endforeach ()
-endfunction ( twx_summary_section_libraries )
-
 # ANCHOR: twx_summary_section_git
 #[=======[
 */
@@ -709,7 +813,7 @@ twx_summary_section_git() {}
 /*
 #]=======]
 function ( twx_summary_section_git )
-  set ( TWX_VERBOSE OFF )
+  set ( CMAKE_MESSAGE_LOG_LEVEL NOTICE )
   include ( TwxCfgLib )
   twx_cfg_setup ()
   twx_cfg_update_git ()

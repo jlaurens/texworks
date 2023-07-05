@@ -40,7 +40,7 @@ class Settings: public QSettings
 public:
 
 /** \brief Setup the manager
-	* 
+	*
 	* When in "-setup.ini" mode.
 	* \param path is a absolute path to a potential settings file.
 	* \param mustExist defaults to false. In mustExist mode, when a full path
@@ -49,39 +49,39 @@ public:
 	static void setup(const QString & settings_ini_path, bool mustExist=false);
 
 /** \brief Setup the manager
-	* 
+	*
 	* When in "-setup.ini" mode.
 	* \param PE is a QProcessEnvironment instance.
 	*/
 	static void setup(const QProcessEnvironment & PE);
 
 /** \brief Whether the receiver can provide a `listPATH`.
-	* 
+	*
 	* Convenient method for `Locate`.
 	*/
 	bool hasListPATH();
 
 /** \brief Get the stored `listPATH`.
-	* 
+	*
 	* Convenient method for `Locate`.
 	*/
 	QStringList listPATH();
 
 /** \brief Store the `listPATH`.
-	* 
+	*
 	* Convenient method for `Locate`.
 	* \param listPATH is a list of strings.
 	*/
 	void setListPATH(QStringList listPATH);
 
 /** \brief Whether the receiver can provide the assets library path.
-	* 
+	*
 	* Convenient method for `Assets`.
 	*/
 	bool hasAssetsLibraryLocation();
 
 /** \brief Get the stored assets library path.
-	* 
+	*
 	* Convenient method for `Assets`.
 	*/
 	QString assetsLibraryLocation();
@@ -92,7 +92,7 @@ public:
 private:
 
 /** \brief Get the assets library path.
-	* 
+	*
 	* Convenient method for `Assets`.
 	* \param path is the actual location
 	*/

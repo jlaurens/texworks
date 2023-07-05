@@ -23,13 +23,13 @@
 
 /*! \file TwxLocate.h
  	*	\brief Some kind of `PATH` manager.
- 	*  
+ 	*
  	*	`TwxLocate` is a static object which main method
  	*	is `absoluteProgramPath()` to retrieve the full path of a program.
- 	* 
+ 	*
  	*	In addition, \ref `TwxPathFinder` instances also implement
  	*	`absoluteProgramPath()` but with a per instance approach.
- 	*  
+ 	*
  	*	Whereas `TwxLocate` will be used as general purpose path provider,
  	*	different documents may need there own customized `TwxPathFinder` instance
  	*	to suit their particular needs.
@@ -51,11 +51,11 @@ class Settings;
   * The main purpose of the location manager is `absoluteProgramPath()`.
   * This method gives the full path to an executable given its name,
   * if any.
-  * 
+  *
   * To achieve this, the manager maintains lists of binary paths,
   * similar to the `PATH` environment variable contents.
   * - in the raw binary paths list, components are allowed to
-  *   contain special placeholder like `${foo}` 
+  *   contain special placeholder like `${foo}`
   *   (`$foo` is supported only to some extent).
   *   These will be replaced before usage with environment values
   *   or state values.
@@ -69,13 +69,13 @@ class Locate
 public:
 
 /** \brief Setup the manager
-	* 
+	*
 	* \param settings is a `Settings` instance.
 	*/
 	static void setup(Settings & settings);
 
 /** \brief The directory of the application
-	* 
+	*
 	* On mac OS, this is the directory of the bundle application,
 	* not the application executable.
 	* \return absolute path as a `QDir` object
@@ -86,7 +86,7 @@ public:
 	*
 	* Used by engines to resolve programs like `pdfTeX`, `BibTeX`...
 	* Based on `listPATH()`.
-	* 
+	*
 	* \param program a case sensitive program name. On windows extension
 	*  	can be omitted.
 	* \param controller is a QObject instance.
@@ -105,7 +105,7 @@ public:
 	*
 	* Used by engines to resolve programs like `pdfTeX`, `BibTeX`...
 	* Based on `listPATH()`.
-	* 
+	*
 	*  \param program a case sensitive program name. On windows extension
 	*    can be omitted.
 	*  \param env is an optional `QProcessEnvironment` instance that
@@ -127,8 +127,8 @@ public:
 	*
 	* @note the controller might be a TeX project for which the
 	* TeX programs calls an external tool that is not shared or
-	* or not located in one of the standard locations. 
-	* 
+	* or not located in one of the standard locations.
+	*
 	* \param controller is a QObject instance.
 	* \param env is an optional `QProcessEnvironment` instance that
 	*   defaults to the system environment.
@@ -145,7 +145,7 @@ public:
 	* Get the list of the directories where programs are looked for.
 	* Take the raw binary paths and the environment's `PATH` ones,
 	* resolve the environment variables, remove duplicates.
-	* 
+	*
 	* \param env is an optional `QProcessEnvironment` instance that
 	*   defaults to the system environment.
 	* \return a list of absolute paths to directories of binaries
@@ -162,7 +162,7 @@ public:
 	*
 	* The extra directory is prepended to the list of path.
 	* In practice, this is the folder of the current document being typeset.
-	* 
+	*
 	* \param env is an `QProcessEnvironment` to amend.
 	* \param env is an extra directory that should appear in the list.
 	*/
@@ -173,7 +173,7 @@ public:
 	*
 	* \param paths is a list of paths, possibly including placeholders
 	*   like `${foo}` on unix like systems, and `%foo%` on windows.
-	* 
+	*
 	* \see `listPATHRaw()`
 	*/
 	static void setListPATH(
@@ -185,16 +185,16 @@ public:
 	* If the settings store a list of raw binary paths
 	* for key `Twx::Core::Key::PATH`, it is used.
 	* Otherwise, `resetListPATHRaw(env)` is used.
-	* 
+	*
 	* This list can be edited with the GUI by `PrefsDialog`,
 	* or by hand under key "PATH". The location and
 	* storage format of the settings is system dependent.
 	* See the `QSettings` documentation for
 	* [Qt5](https://doc.qt.io/qt-5/qsettings.html#platform-specific-notes) or
 	* [Qt6](https://doc.qt.io/qt-6/qsettings.html#platform-specific-notes).
-	* 
+	*
 	* \param env is an optional `QProcessEnvironment` instance that
-	*    defaults to the system environment. 
+	*    defaults to the system environment.
 	* \return a list of absolute paths to directories of binaries,
 	*   with no post process.
 	*/
@@ -205,7 +205,7 @@ public:
 
 /**
 	* \brief Reset the list of raw binary paths
-	* 
+	*
 	* The new list consists of, in order,
 	* <ul>
 	* <li> the directory of the current application (executable)
@@ -248,7 +248,7 @@ public:
 	*   - the current directory
 	*   - the home directory
 	*   - the directory of the application
-  * 
+  *
 	* \note
 	* * The type of the file system object is not considered,
 	*   whether a file or a directory does not come into play.

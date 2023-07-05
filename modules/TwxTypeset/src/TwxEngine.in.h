@@ -28,12 +28,12 @@
 
 /*! \file TwxEngine.h
  *  \brief Engine model.
- *  
+ *
  *  An engine collects the information to run the program
  *  that typesets or more generaly translates a file
  *  from one format to another. It is a frontend to `pdftex`,
  *  `luatex`, `bibtex`, `makeindex`...
- * 
+ *
  * 	The engine manager is responsible for storing and managing
  *  all the different engines needed for typesetting.
  */

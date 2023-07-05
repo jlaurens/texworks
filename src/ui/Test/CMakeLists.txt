@@ -39,9 +39,9 @@ NB: The transition to Twx is not complete
 
 if ( NOT DEFINED TWX_IS_BASED )
 	# This file is primary
-	cmake_minimum_required ( VERSION 3.13 )
+	cmake_minimum_required ( VERSION 3.25 )
 	include (
-		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Include/TwxBase.cmake"
+		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Base/TwxBase.cmake"
 		NO_POLICY_SCOPE
 	)
 endif ()
@@ -60,18 +60,11 @@ twx_Qt_fresh ( TEST REQUIRED Widgets )
 
 include ( SrcTwxUISetup )
 
-list (
-	APPEND TwxUI_SOURCES
-	"${CMAKE_CURRENT_LIST_DIR}/TwxUITest.cpp"
-)
-list (
-	APPEND TwxUI_HEADERS
-	"${CMAKE_CURRENT_LIST_DIR}/TwxUITest.h"
-)
-
 add_executable (
 	test_TwxUI
 	${TwxUI_SOURCES} ${TwxUI_HEADERS} ${TwxUI_UIS}
+	"${CMAKE_CURRENT_LIST_DIR}/TwxUITest.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/TwxUITest.h"
 )
 
 twx_target_include_src ( test_TwxUI )
@@ -136,10 +129,10 @@ if ( TwxUI_TEST_IS_ROOT )
 	twx_summary_end ()
 
 	twx_summary_log ( "Compiler optimization:" ${CMAKE_BUILD_TYPE} )
-	twx_summary_log ( "" )
+	twx_summary_log ()
 
 	twx_summary_begin ( BOLD_BLUE "Libraries" VERBOSE )
-	twx_summary_log_kv ( "Qt${QT_VERSION_MAJOR}" VAR QT_LIBRARIES )
+	twx_summary_log_kv ( "${QtMAJOR}" VAR QT_LIBRARIES )
 	twx_summary_end ()
 
 	twx_summary_begin ( BOLD_BLUE "Build settings" VERBOSE )

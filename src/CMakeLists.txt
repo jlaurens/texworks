@@ -165,11 +165,11 @@ IF ( WIN32 )
   twx_cfg_write_end ()
   include ( TwxCfgFileLib)
   twx_cfg_files (
-    TYPE		PACKAGE_WINDOWS
-    FILES 	${TWX_NAME}.in.rc ${TWX_NAME}.in.exe.manifest
-    IN_DIR 	"${TWX_DIR}res/os_windows/"
-    OUT_DIR "${TWX_PROJECT_BUILD_DIR}res/os_windows/"
-    EXPORT twx
+    TYPE		    PACKAGE_WINDOWS
+    FILES 	    ${TWX_NAME}.in.rc ${TWX_NAME}.in.exe.manifest
+    IN_DIR 	    "${TWX_DIR}res/os_windows/"
+    OUT_DIR     "${TWX_PROJECT_BUILD_DIR}res/os_windows/"
+    VAR_PREFIX  twx
   )
   list(
     APPEND TeXworks_SOURCES
