@@ -90,7 +90,7 @@ function ( twx_tree_init )
   else ()
     set ( tree_ "${ARGV0}" )
   endif ()
-  twx_regex_assert_variable ( "${tree_}" )
+  twx_assert_variable ( "${tree_}" )
   twx_export ( ${tree_} VALUE "${TWX_TREE_HEADER}" )
   twx_export ( TWX_IS_TREE_${tree_} VALUE ON )
 endfunction ()
@@ -159,19 +159,18 @@ function ( twx_tree_get )
   else ()
     set ( v "${twxR_IN_VAR}" )
   endif ()
-  twx_regex_assert_variable ( v )
+  twx_assert_variable ( v )
   twx_message ( DEBUG "${twxR_TREE}[${twxR_KEY}] => ${v}")
   set ( tree_ "${${twxR_TREE}}" )
   if ( NOT tree_ MATCHES "^${TWX_TREE_HEADER}" )
     # Not a tree
-    twx_export ( ${v} TWX_IS_TREE_${v} UNSET )
+    twx_export ( "${v}" "TWX_IS_TREE_${v}" UNSET )
     return ()
   endif ()
   
-  export key=value
   if ( tree_ MATCHES "${TWX_TREE_GROUP_SEP}${twxR_KEY}${TWX_TREE_RECORD_SEP}([^${TWX_TREE_GROUP_SEP}]*)" )
-    twx_export ( VAR ${tree.key} VALUE "${CMAKE_MATCH_1}" )
-    twx_export ( VAR TWX_IS_TREE_${tree.key} UNSET )
+    twx_export ( "${tree.key}=${CMAKE_MATCH_1}" )
+    twx_export ( "TWX_IS_TREE_${tree.key}" UNSET )
     return ()
   endif ()
   twx_regex_escape ( "${twxR_KEY}" IN_VAR scpd_ )
@@ -180,7 +179,7 @@ function ( twx_tree_get )
     if ( "${twxR_IN_VAR}" STREQUAL "" )
       string ( APPEND tree.key / )
     endif ()
-    twx_export ( VAR TWX_IS_TREE_${tree.key} VALUE ON )
+    twx_export ( TWX_IS_TREE_${tree.key}=ON )
     set ( value_ "${TWX_TREE_HEADER}")
     while ( TRUE )
       set ( tree_ "${CMAKE_MATCH_1}${CMAKE_MATCH_4}" )
@@ -191,13 +190,12 @@ function ( twx_tree_get )
         break ()
       endif ()
     endwhile ()
-    twx_export ( VAR ${tree.key} VALUE "${value_}" )
+    twx_export ( "${tree.key}=${value_}" )
     message ( DEBUG "TREE RETURN: " )
     return ()
   endif ()
   message ( DEBUG "VOID RETURN" )
-  twx_export ( VAR ${tree.key} UNSET )
-  twx_export ( VAR TWX_IS_TREE_${tree.key} UNSET )
+  twx_export ( "${tree.key}" "TWX_IS_TREE_${tree.key}" UNSET )
 endfunction ()
 
 # ANCHOR: twx_tree_set
@@ -266,8 +264,10 @@ function ( twx_tree_set )
     endwhile ()
     message ( "DEBUG: key_ => ${key_}")
   endforeach ()
-  twx_export ( VAR ${twxR_TREE} VALUE "${tree_}" )
-  twx_export ( VAR TWX_IS_TREE_${twxR_TREE} VALUE ON )
+  twx_export (
+    "${twxR_TREE}=${tree_}"
+    "TWX_IS_TREE_${twxR_TREE}=ON"
+  )
 endfunction ()
 
 # ANCHOR: twx_tree_remove
@@ -320,8 +320,10 @@ function ( twx_tree_remove )
       return ()
     endif ()
   endforeach ()
-  twx_export ( VAR ${twxR_TREE} VALUE "${tree_}" )
-  twx_export ( VAR TWX_IS_TREE_${twxR_TREE} VALUE ON )
+  twx_export (
+    "${twxR_TREE}=${tree_}"
+    "TWX_IS_TREE_${twxR_TREE}=ON"
+  )
 endfunction ()
 
 # ANCHOR: twx_tree_expose
@@ -359,8 +361,10 @@ function ( twx_tree_expose )
   # simple values
   while ( tree_ MATCHES "^(.*)${TWX_TREE_GROUP_SEP}([^/${TWX_TREE_RECORD_SEP}]+)${TWX_TREE_RECORD_SEP}([^${TWX_TREE_GROUP_SEP}]*)(.*)$" )
     set ( tree_ "${CMAKE_MATCH_1}${CMAKE_MATCH_4}" )
-    twx_export ( VAR ${p_}${CMAKE_MATCH_2} VALUE "${CMAKE_MATCH_3}" )
-    twx_export ( VAR TWX_IS_TREE_${p_}${CMAKE_MATCH_2} UNSET )
+    twx_export (
+      "${p_}${CMAKE_MATCH_2}=${CMAKE_MATCH_3}"
+      "TWX_IS_TREE_${p_}${CMAKE_MATCH_2}" UNSET
+    )
   endwhile ()
   # Tree values
   while ( tree_ MATCHES "^(.*)${TWX_TREE_GROUP_SEP}([^${TWX_TREE_RECORD_SEP}]+)/([^${TWX_TREE_GROUP_SEP}]*)(.*)$" )
@@ -469,8 +473,12 @@ twx_regex_escape
 twx_arg_assert_keyword
 #]=======]
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFalalLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMessageLib.cmake" )
+
+message ( VERBOSE "Loaded: TwxTreeLib" )
+
 #*/
