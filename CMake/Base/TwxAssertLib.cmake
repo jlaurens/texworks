@@ -174,7 +174,7 @@ function ( twx_assert_0 v )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )
-    message ( TRACE "v => \"${v}\"" )
+    # message ( TR@CE "v => \"${v}\"" )
     if ( NOT "${v}" EQUAL "0" )
       twx_fatal ( "Unexpected \"${v}\" instead of 0")
     endif ()
@@ -278,7 +278,7 @@ function ( twx_assert_target target_ )
   endwhile ( )
 endfunction ( twx_assert_target )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
 
 message ( VERBOSE "TwxAssertLib loaded." )
 #*/

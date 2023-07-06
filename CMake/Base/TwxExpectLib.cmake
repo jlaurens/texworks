@@ -231,7 +231,7 @@ function ( twx_expect_unmatches actual_ expected_ )
   endif ()
 endfunction ( twx_expect_unmatches )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
 
 message ( DEBUG "TwxExpectLib loaded" )
 

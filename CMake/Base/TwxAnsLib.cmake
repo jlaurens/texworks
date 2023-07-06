@@ -108,8 +108,6 @@ function ( twx_ans_remove .k )
   twx_ans_export ()
 endfunction ()
 
-# TODO: twx_assert_variable should use `$|` as much as possible Really? and what about name conflicts?
-
 # ANCHOR: twx_ans_export
 #[=======[
 */

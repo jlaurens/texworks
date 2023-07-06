@@ -18,7 +18,7 @@ set ( //CMake/Include/Test/TwxAssertTest.cmake ON )
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxAssertLib.cmake" )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalTest.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.cmake" )
 
 message ( STATUS "TwxAssertLib test...")
 

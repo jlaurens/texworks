@@ -19,7 +19,7 @@ message ( STATUS "TwxArgLib test...")
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxArgLib.cmake")
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalTest.cmake")
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.cmake")
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxIncrementTest.cmake")
 
 block ()
@@ -189,3 +189,5 @@ endblock ()
 endblock ()
 
 message ( STATUS "TwxArgLib test... DONE")
+
+#*/

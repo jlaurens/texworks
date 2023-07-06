@@ -20,7 +20,7 @@ message ( STATUS "TwxTestLib test...")
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxStateLib.cmake" )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalTest.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectTest.cmake" )
 

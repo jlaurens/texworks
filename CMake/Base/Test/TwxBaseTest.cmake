@@ -9,13 +9,13 @@ https://github.com/TeXworks/texworks
   *//*
 #]===============================================]
 
-message ( "TwxBaseLib testing")
-
 if ( DEFINED //CMake/Include/Test/TwxBaseTest.cmake )
   return ()
 endif ()
 
 set ( //CMake/Include/Test/TwxBaseTest.cmake ON )
+
+message ( "TwxBaseLib test...")
 
 block ()
 
@@ -31,3 +31,7 @@ unset ( actual )
 endblock ()
 
 endblock ()
+
+message ( STATUS "TwxBseLib test...")
+
+#/*

@@ -19,7 +19,7 @@ message ( STATUS "TwxSplitLib test...")
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxSplitLib.cmake" )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalTest.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgTest.cmake" )
@@ -123,3 +123,7 @@ twx_test_fatal_assert_passed ()
 endblock ()
 
 endblock ()
+
+message ( STATUS "TwxSplitLib test... DONE")
+
+#*/

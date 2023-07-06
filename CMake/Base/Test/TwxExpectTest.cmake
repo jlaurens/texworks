@@ -16,11 +16,11 @@ endif ()
 
 set ( //CMake/Include/Test/TwxExpectTest.cmake ON )
 
-message ( STATUS "TwxExpectLib testing")
+message ( STATUS "TwxExpectLib test...")
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxExpectLib.cmake" )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalTest.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.cmake" )
 
 block ()
 
@@ -195,5 +195,7 @@ twx_test_fatal_assert_passed ()
 endblock ()
 
 endblock ()
+
+message ( STATUS "TwxExpectLib test...")
 
 #*/

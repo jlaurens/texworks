@@ -13,13 +13,13 @@ if ( DEFINED //CMake/Include/Test/TwxTreeTest.cmake )
   return ()
 endif ()
 
-set ( //CMake/Include/Test/TwxTreeTest.cmake )
+set ( //CMake/Include/Test/TwxTreeTest.cmake ON )
 
 message ( STATUS "TwxTreeLib test...")
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxTreeLib.cmake" )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalTest.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectTest.cmake" )
 
@@ -310,5 +310,7 @@ endblock()
 endblock ()
 
 endblock ()
+
+message ( STATUS "TwxTreeLib test...")
 
 #*/

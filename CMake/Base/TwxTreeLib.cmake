@@ -90,7 +90,7 @@ function ( twx_tree_init )
   else ()
     set ( tree_ "${ARGV0}" )
   endif ()
-  twx_assert_variable ( "${tree_}" )
+  twx_regex_assert_variable ( "${tree_}" )
   twx_export ( ${tree_} VALUE "${TWX_TREE_HEADER}" )
   twx_export ( TWX_IS_TREE_${tree_} VALUE ON )
 endfunction ()
@@ -113,7 +113,7 @@ function ( twx_tree_assert_key key_ )
   set ( i 0 )
   while ( TRUE )
     set ( k "${ARGV${i}}" )
-    if ( NOT k MATCHES "${TWX_VARIABLE_RE}" )
+    if ( NOT k MATCHES "${TWX_CORE_VARIABLE_RE}" )
       twx_fatal ( "Forbidden key: ${k}" )
       return ()
     endif ()
@@ -159,7 +159,7 @@ function ( twx_tree_get )
   else ()
     set ( v "${twxR_IN_VAR}" )
   endif ()
-  twx_assert_variable ( v )
+  twx_regex_assert_variable ( v )
   twx_message ( DEBUG "${twxR_TREE}[${twxR_KEY}] => ${v}")
   set ( tree_ "${${twxR_TREE}}" )
   if ( NOT tree_ MATCHES "^${TWX_TREE_HEADER}" )
@@ -463,9 +463,14 @@ endfunction ()
 Used
 twx_arg_assert_parsed
 twx_fatal
+TWX_CORE_VARIABLE_RE
 twx_export
 twx_regex_escape
 twx_arg_assert_keyword
-TWX_VARIABLE_RE
 #]=======]
+
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFalalLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
 #*/

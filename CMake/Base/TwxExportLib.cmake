@@ -69,71 +69,101 @@ macro ( twx_export twx_export.kv )
     ""
     ${ARGN}
   )
+  # message ( TR@CE "twx_export_EMPTY => \"${twx_export_EMPTY}\"")
+  # message ( TR@CE "twx_export_UNSET => \"${twx_export_UNSET}\"")
+  # message ( TR@CE "twx_export_VAR_PREFIX => \"${twx_export_VAR_PREFIX}\"")
   if ( NOT "${twx_export_VAR_PREFIX}" STREQUAL "" )
     string ( APPEND twx_export_VAR_PREFIX "_" )
   endif ()
   set ( twx_export.i 0 )
   set ( twx_export.DONE OFF )
   while ( TRUE )
+    # message ( TR@CE "twx_export.kv => \"${twx_export.kv}\"")
     twx_split (
       "${twx_export.kv}"
       IN_KEY twx_export.IN_KEY
       IN_VALUE twx_export.IN_VALUE
     )
+    # message ( TR@CE "twx_export.IN_KEY => \"${twx_export.IN_KEY}\"")
     if ( DEFINED twx_export.IN_VALUE )
+      # message ( TR@CE "twx_export.IN_VALUE => \"${twx_export.IN_VALUE}\"")
+    else ()
+      # message ( TR@CE "twx_export.IN_VALUE => UNSET ")
+    endif ()
+    string ( PREPEND twx_export.IN_KEY "${twx_export_VAR_PREFIX}" )
+    if ( DEFINED twx_export.IN_VALUE )
+      # message ( TR@CE "twx_export: \"${twx_export.IN_KEY}\" => \"${twx_export.IN_VALUE}\"" )
       set (
-        "${twx_export.VAR_PREFIX}${twx_export.IN_KEY}"
+        "${twx_export.IN_KEY}"
         "${twx_export.IN_VALUE}"
         PARENT_SCOPE
       )
     elseif ( twx_export_EMPTY )
+      # message ( TR@CE "twx_export: \"${twx_export.IN_KEY}\" => empty string" )
       set (
-        "${twx_export_VAR_PREFIX}${twx_export.IN_KEY}"
+        "${twx_export.IN_KEY}"
         ""
         PARENT_SCOPE
       )
     elseif ( twx_export_UNSET )
+      # message ( TR@CE "twx_export: \"${twx_export.IN_KEY}\" => UNSET" )
       unset (
-        "${twx_export_VAR_PREFIX}${twx_export.IN_KEY}"
+        "${twx_export.IN_KEY}"
+        PARENT_SCOPE
+      )
+      unset (
+        "${twx_export.IN_KEY}"
+      )
+      # message ( TR@CE "${twx_export.IN_KEY} => \"${${twx_export.IN_KEY}}\"" )
+    elseif ( DEFINED "${twx_export.IN_KEY}" )
+      # message ( TR@CE "twx_export(2): \"${twx_export.IN_KEY}\" => \"${${twx_export.IN_KEY}}\"" )
+      set (
+        "${twx_export.IN_KEY}"
+        "${${twx_export.IN_KEY}}"
         PARENT_SCOPE
       )
     else ()
-      set (
-        "${twx_export_VAR_PREFIX}${twx_export.IN_KEY}"
-        "${${twx_export_VAR_PREFIX}${twx_export.IN_KEY}}"
+      # message ( TR@CE "twx_export: \"${twx_export.IN_KEY}\" => UNSET(2)" )
+      unset (
+        "${twx_export.IN_KEY}"
         PARENT_SCOPE
       )
     endif ()
     twx_increment_and_break_if ( VAR twx_export.i >= ${ARGC} )
     set ( twx_export.kv "${ARGV${twx_export.i}}" )
     if ( twx_export.kv STREQUAL "VAR_PREFIX" )
+      set ( twx_export.DONE ON )
       twx_increment ( VAR twx_export.i )
       twx_arg_assert_count ( ${ARGC} > "${twx_export.i}" )
-    endif ()
-    while ( TRUE )
-      twx_increment_and_break_if ( VAR twx_export.i >= ${ARGC} )
       set ( twx_export.kv "${ARGV${twx_export.i}}" )
-      if ( NOT twx_export.kv MATCHES "EMPTY|UNSET" )
-        twx_fatal ( "Unexpected argument: ${twx_export.kv}")
-        return ()
-      endif ()
-    endwhile ()
-    break ()
+    endif ()
+    if ( twx_export.kv MATCHES "EMPTY|UNSET" OR twx_export.DONE )
+      while ( TRUE )
+        twx_increment_and_break_if ( VAR twx_export.i >= ${ARGC} )
+        set ( twx_export.kv "${ARGV${twx_export.i}}" )
+        if ( NOT twx_export.kv MATCHES "EMPTY|UNSET" )
+          twx_fatal ( "Unexpected argument: ${twx_export.kv}")
+          return ()
+        endif ()
+      endwhile ()
+      break ()
+    endif ()
   endwhile ()
   unset ( twx_export.i )
   unset ( twx_export.kv )
   unset ( twx_export.IN_KEY )
   unset ( twx_export.IN_VALUE )
+  unset ( twx_export.DONE )
   unset ( twx_export_EMPTY )
   unset ( twx_export_VAR_PREFIX )
   unset ( twx_export_UNPARSED_ARGUMENTS )
 endmacro ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxIncrementLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxSplitLib.cmake" )
 
-message ( VERBOSE "TwxExportLib" )
+message ( VERBOSE "TwxExportLib loaded" )
 
 #*/

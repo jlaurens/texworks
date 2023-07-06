@@ -94,7 +94,7 @@ function ( twx_state_deserialize )
   endforeach ()
 endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
 
 message ( DEBUG "TwxStateLib loaded" )

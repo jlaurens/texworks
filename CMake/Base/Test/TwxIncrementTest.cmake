@@ -17,7 +17,7 @@ set ( //CMake/Include/Test/TwxIncrementTest.cmake ON )
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxIncrementLib.cmake" )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalTest.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgTest.cmake" )
 
@@ -113,3 +113,4 @@ endblock ()
 
 message ( STATUS "TwxIncrementLib test... DONE")
 
+#/*
