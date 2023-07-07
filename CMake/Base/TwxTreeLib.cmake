@@ -17,16 +17,16 @@ https://github.com/TeXworks/texworks
   * We can also return values from functions in a more friendly way.
   *
   * Functions:
-  * - `twx_global_assert()`
-  * - `twx_global_assert_key()`
-  * - `twx_global_init()`
-  * - `twx_global_clear()`
-  * - `twx_global_get()`
-  * - `twx_global_set()`
-  * - `twx_global_remove()`
-  * - `twx_global_expose()`
-  * - `twx_global_log()`
-  * - `twx_global_prettify()`
+  * - `twx_tree_assert()`
+  * - `twx_tree_assert_key()`
+  * - `twx_tree_init()`
+  * - `twx_tree_clear()`
+  * - `twx_tree_get()`
+  * - `twx_tree_set()`
+  * - `twx_tree_remove()`
+  * - `twx_tree_expose()`
+  * - `twx_tree_log()`
+  * - `twx_tree_prettify()`
   *
   * Limitations:
   *
@@ -36,28 +36,29 @@ https://github.com/TeXworks/texworks
   *//*
 #]===============================================]
 
-if ( COMMAND twx_global_init )
+if ( COMMAND twx_tree_init )
   return ()
 endif ()
 
-string(ASCII 28 TWX_TREE_FILE_SEP  )
-string(ASCII 29 TWX_TREE_GROUP_SEP  )
-string(ASCII 30 TWX_TREE_RECORD_SEP  )
-string(ASCII 31 TWX_TREE_UNIT_SEP  )
+string(ASCII 27 TWX_TREE_ESC          )
+string(ASCII 28 TWX_TREE_FILE_SEP     )
+string(ASCII 29 TWX_TREE_GROUP_SEP    )
+string(ASCII 30 TWX_TREE_RECORD_SEP   )
+string(ASCII 31 TWX_TREE_UNIT_SEP     )
 
 set ( TWX_TREE_HEADER "${TWX_CHAR_SOH}TwxTree${TWX_CHAR_STX}" )
 
-# ANCHOR: twx_global_assert
+# ANCHOR: twx_tree_assert
 #[=======[
 */
 /** @brief Raises when the argument is not a tree
   *
   * @param tree is a required tree name.
   */
-twx_global_assert(tree) {}
+twx_tree_assert(tree) {}
 /*
 #]=======]
-function ( twx_global_assert )
+function ( twx_tree_assert )
   if ( ARGC EQUAL 0 )
     set ( tree_ TWX_TREE )
   else ()
@@ -70,7 +71,7 @@ function ( twx_global_assert )
   endif ()
 endfunction ()
 
-# ANCHOR: twx_global_init
+# ANCHOR: twx_tree_init
 #[=======[
 */
 /** @brief Initialize a tree
@@ -80,10 +81,10 @@ endfunction ()
   *
   * @param tree for key TREE, an optional tree name. Defaults to `TWX_TREE`.
   */
-twx_global_init( tree ) {}
+twx_tree_init( tree ) {}
 /*
 #]=======]
-function ( twx_global_init )
+function ( twx_tree_init )
   if ( ARGC STREQUAL 0 )
     set ( tree_ TWX_TREE )
   elseif ( "${ARGC}" GREATER "1" )
@@ -99,10 +100,10 @@ function ( twx_global_init )
   )
 endfunction ()
 
-twx_global_init ()
-twx_global_assert ()
+twx_tree_init ()
+twx_tree_assert ()
 
-# ANCHOR: twx_global_assert_key
+# ANCHOR: twx_tree_assert_key
 #[=======[
 */
 /** @brief Raise if one argument is not a suitable key name
@@ -111,10 +112,10 @@ twx_global_assert ()
   * @param ... non empty list of candidates.
   * Support `$|` syntax.
   */
-twx_global_assert_key(key ...) {}
+twx_tree_assert_key(key ...) {}
 /*
 #]=======]
-function ( twx_global_assert_key key_ )
+function ( twx_tree_assert_key key_ )
   set ( i 0 )
   while ( TRUE )
     set ( k "${ARGV${i}}" )
@@ -126,7 +127,7 @@ function ( twx_global_assert_key key_ )
   endwhile ()
 endfunction ()
 
-# ANCHOR: twx_global_get
+# ANCHOR: twx_tree_get
 #[=======[
 */
 /** @brief Get a value
@@ -142,19 +143,19 @@ endfunction ()
   * @param tree for key TREE, optional name of a tree. Defaults to `TWX_TREE`.
   *   When not a tree, the result value is not defined.
   */
-twx_global_get([TREE tree] KEY key [IN_VAR var]) {}
+twx_tree_get([TREE tree] KEY key [IN_VAR var]) {}
 /*
 #]=======]
-function ( twx_global_get .KEY .key )
+function ( twx_tree_get .KEY .key )
 # TODO: More list ( APPEND CMAKE_MESSAGE_CONTEXT ... )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_global_get )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_get )
   cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "TREE;KEY;IN_VAR" "" )
   twx_arg_assert_parsed ()
   if ( NOT DEFINED "${twxR_TREE}" )
     set ( twxR_TREE TWX_TREE )
   endif ()
   twx_assert_non_void ( twxR_TREE )
-  twx_global_assert_key ( "${twxR_KEY}" )
+  twx_tree_assert_key ( "${twxR_KEY}" )
   if ( "${twxR_IN_VAR}" STREQUAL "" )
     set ( v "${twxR_TREE}" )
     while ( v MATCHES "^(.*)/$" )
@@ -202,7 +203,7 @@ function ( twx_global_get .KEY .key )
   twx_export ( "${v}" "TWX_IS_TREE_${v}" UNSET )
 endfunction ()
 
-# ANCHOR: twx_global_set
+# ANCHOR: twx_tree_set
 #[=======[
 */
 /** @brief Set a value
@@ -215,11 +216,11 @@ endfunction ()
   *   A key path takes the form `<key_1>[/<key_i>]*`
   *   Enclose these arguments into quotes if they should contain spaces.
   */
-twx_global_set(tree ... ) {}
+twx_tree_set(tree ... ) {}
 /*
 #]=======]
-function ( twx_global_set )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_global_set )
+function ( twx_tree_set )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_set )
   cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "TREE" "" )
   if ( "${twxR_TREE}" STREQUAL "" )
     set ( twxR_TREE TWX_TREE )
@@ -239,10 +240,10 @@ function ( twx_global_set )
       return ()
     endif ()
     block ()
-      twx_global_prettify ( "${value_}" IN_VAR value_ )
+      twx_tree_prettify ( "${value_}" IN_VAR value_ )
       # message ( TR@CE "${twxR_TREE}[${key_}] <= ${value_}")
     endblock ()
-    twx_global_remove ( TREE tree_ KEYS "${key_}" )
+    twx_tree_remove ( TREE tree_ KEYS "${key_}" )
     if ( value_ MATCHES "^${TWX_TREE_HEADER}" )
       while ( value_ MATCHES "^(.*)${TWX_TREE_GROUP_SEP}([^${TWX_TREE_RECORD_SEP}]+)${TWX_TREE_RECORD_SEP}([^${TWX_TREE_GROUP_SEP}]*)(.*)$" )
         set ( value_ "${CMAKE_MATCH_1}${CMAKE_MATCH_4}" )
@@ -250,11 +251,11 @@ function ( twx_global_set )
       endwhile ()
     elseif ( value_ MATCHES "[${TWX_TREE_GROUP_SEP}${TWX_CHAR_STX}${TWX_TREE_RECORD_SEP}]" )
       if ( NOT value_ MATCHES "^${TWX_TREE_HEADER}" )
-        twx_global_prettify ( "${value_}" IN_VAR value_ )
+        twx_tree_prettify ( "${value_}" IN_VAR value_ )
         twx_fatal ( "WTH: ${value_}" )
         return ()
       endif ()
-      twx_global_prettify ( "${value_}" IN_VAR value_ )
+      twx_tree_prettify ( "${value_}" IN_VAR value_ )
       twx_fatal ( "Unexpected value: ${value_}" )
       return ()
     else ()
@@ -271,7 +272,7 @@ function ( twx_global_set )
   )
 endfunction ()
 
-# ANCHOR: twx_global_remove
+# ANCHOR: twx_tree_remove
 #[=======[
 */
 /** @brief Remove values for given keys
@@ -283,11 +284,11 @@ endfunction ()
   *   The variable must be defined.
   * @param ... for key KEYS non empty list of keys.
   */
-twx_global_remove(tree ... ) {}
+twx_tree_remove(tree ... ) {}
 /*
 #]=======]
-function ( twx_global_remove )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_global_remove )
+function ( twx_tree_remove )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_remove )
   cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "TREE" "KEYS" )
   twx_arg_assert_parsed ()
   if ( "${twxR_TREE}" STREQUAL "" )
@@ -328,7 +329,7 @@ function ( twx_global_remove )
   )
 endfunction ()
 
-# ANCHOR: twx_global_expose
+# ANCHOR: twx_tree_expose
 #[=======[
 */
 /** @brief Expose a tree
@@ -336,17 +337,15 @@ endfunction ()
   * For each top level key value pair,
   * define the variable named key to have value.
   *
-  * It is highly recommanded to expose the tree within a local scope.
-  *
   * @param tree for key TREE, the optional name of a tree. Defaults to `TWX_TREE`.
   *   The variable must be defined.
   * @param prefix for key `VAR_PREFIX` optional output value prefix.
   */
-twx_global_expose(TREE tree [VAR_PREFIX prefix]) {}
+twx_tree_expose(TREE tree [VAR_PREFIX prefix]) {}
 /*
 #]=======]
-function ( twx_global_expose )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_global_expose )
+function ( twx_tree_expose )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_expose )
   cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "TREE;VAR_PREFIX" "" )
   twx_arg_assert_parsed ()
   if ( "${twxR_TREE}" STREQUAL "" )
@@ -384,7 +383,7 @@ function ( twx_global_expose )
   endwhile ()
 endfunction ()
 
-# ANCHOR: twx_global_log
+# ANCHOR: twx_tree_log
 #[=======[
 */
 /** @brief Log a tree
@@ -393,10 +392,10 @@ endfunction ()
   *   Defaults toe `TWX_TREE`. The variable must be defined.
   * @param `NO_BANNER`, optional flag to suppress the banner.
   */
-twx_global_log(tree) {}
+twx_tree_log(tree) {}
 /*
 #]=======]
-function ( twx_global_log )
+function ( twx_tree_log )
   cmake_parse_arguments ( PARSE_ARGV 0 twxR "NO_BANNER" "TREE" "" )
   twx_arg_assert_parsed ()
   if ( "${twxR_TREE}" STREQUAL "" )
@@ -426,11 +425,11 @@ function ( twx_global_log )
       string ( APPEND value_ "${TWX_TREE_GROUP_SEP}${CMAKE_MATCH_2}" )
     endwhile ()
     message ( "${key_}:" )
-    twx_global_log ( TREE value_ NO_BANNER )
+    twx_tree_log ( TREE value_ NO_BANNER )
   endwhile ()
 endfunction ()
 
-# ANCHOR: twx_global_prettify
+# ANCHOR: twx_tree_prettify
 #[=======[
 */
 /** @brief Turn a tree content into human readable
@@ -440,10 +439,10 @@ endfunction ()
   *   No defaults. The variable must be defined.
   * @param var for key `IN_VAR` holds the human readable string on return.
   */
-twx_global_prettify(... IN_VAR var [TREE tree]) {}
+twx_tree_prettify(... IN_VAR var [TREE tree]) {}
 /*
 #]=======]
-function ( twx_global_prettify )
+function ( twx_tree_prettify )
   cmake_parse_arguments ( twxR "" "TREE;IN_VAR" "" ${ARGN} )
   if ( "${twxR_IN_VAR}" MATCHES " " )
     message ( FATAL_ERROR "Forbidden variable: ${twxR_IN_VAR}" )
