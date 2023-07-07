@@ -141,12 +141,12 @@ function ( twx_expect twx_expect.ACTUAL twx_expect.EXPECTED )
   endif ()
   if ( twxR_NUMBER )
     if ( NOT "${${twx_expect.ACTUAL}}" EQUAL "${twx_expect.EXPECTED}" )
-      twx_fatal ( "Unexpected value \"${${twx_expect.ACTUAL}}\" of \"${twx_expect_equal_string.EXPECTED}\"")
+      twx_fatal ( "Unexpected value \"${${twx_expect.ACTUAL}}\" of \"${twx_expect.ACTUAL}\" instead of \"${twx_expect.EXPECTED}\"")
       return ()
     endif ()
   else ()
     if ( NOT "${${twx_expect.ACTUAL}}" STREQUAL "${twx_expect.EXPECTED}" )
-      twx_fatal ( "Unexpected value \"${${twx_expect.ACTUAL}}\" of \"${twx_expect_equal_string.EXPECTED}\"")
+      twx_fatal ( "Unexpected value \"${${twx_expect.ACTUAL}}\" of \"${twx_expect.ACTUAL}\" instead of \"${twx_expect.EXPECTED}\"")
       return ()
     endif ()
   endif ()
@@ -195,20 +195,22 @@ endfunction ()
 #[=======[*/
 /** @brief Raise when no match occurs
   *
+  * The `CMAKE_MATCH_#` variables are available if the regular expression
+  * has capture groups.
+  *
   * @param actual is the actual string value
   * @param expected is the expected regular expression.
   */
 twx_expect_matches( actual expected ) {}
 /*#]=======]
-function ( twx_expect_matches actual_ expected_ )
+macro ( twx_expect_matches twx_expect_matches.actual twx_expect_matches.expected )
   if ( NOT ${ARGC} EQUAL 2 )
     message ( FATAL_ERROR "Wrong arguments: ARGV => ${ARGV}" )
   endif ()
-  if ( NOT "${actual_}" MATCHES "${expected_}" )
-    twx_fatal ( "Failure: ${actual_} should match ${expected_}" )
-    return ()
+  if ( NOT "${twx_expect_matches.actual}" MATCHES "${twx_expect_matches.expected}" )
+    twx_fatal ( "Failure: ${twx_expect_matches.actual} should match ${twx_expect_matches.expected}" )
   endif ()
-endfunction ( twx_expect_matches )
+endmacro ( twx_expect_matches )
 
 # ANCHOR: twx_expect_unmatches
 #[=======[*/

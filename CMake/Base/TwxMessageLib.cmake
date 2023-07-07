@@ -117,6 +117,80 @@ function ( twx_message_log_level_compare twxR_LHS twxR_OP twxR_RHS .IN_VAR twxR_
   endif ()
 endfunction ( twx_message_log_level_compare )
 
+add_custom_target (
+  TwxMessageLib.cmake
+)
+
+define_property (
+  TARGET PROPERTY TWX_MESSAGE_PRETTIFIERS
+)
+
+# ANCHOR: twx_message_register_prettifier
+#[=======[*/
+/** @brief Register a prettyfier
+  *
+  * Global domain.
+  *
+  * @param ... is a non void list of <id>s,
+  *   where each <id>_prettify must be a known command.
+  */
+twx_message_register_prettifier( id ... ) {}
+/*#]=======]
+function ( twx_message_register_prettifier .id )
+  get_target_property(
+    prettifiers_
+    TwxMessageLib.cmake
+    TWX_MESSAGE_PRETTIFIERS
+  )
+  if ( "${prettifiers_}" MATCHES "-NOTFOUND" )
+    set ( prettifiers_ )
+  endif ()
+  set ( i 0 )
+  while ( TRUE )
+    set ( c "${ARGV${i}}_prettify" )
+    twx_assert_command ( "${c}" )
+    list ( REMOVE_ITEM prettifiers_ "${c}" )
+    list ( APPEND prettifiers_ "${c}" )
+    twx_increment_and_break_if ( VAR i >= ${ARGC} )
+  endwhile ()
+  set_target_properties (
+    TwxMessageLib.cmake
+    PROPERTIES
+      TWX_MESSAGE_PRETTIFIERS "${prettifiers_}"
+  )
+endfunction ()
+
+# ANCHOR: twx_message_unregister_prettifier
+#[=======[*/
+/** @brief Unregister a prettyfier
+  *
+  * @param ... is a non void list of <id>s,
+  *   where each <id>_prettify must be a known command.
+  */
+twx_message_unregister_prettifier( id ... ) {}
+/*#]=======]
+function ( twx_message_unregister_prettifier .id )
+  get_target_property(
+    prettifiers_
+    TwxMessageLib.cmake
+    TWX_MESSAGE_PRETTIFIERS
+  )
+  if ( "${prettifiers_}" MATCHES "-NOTFOUND" )
+    set ( prettifiers_ )
+  endif ()
+  set ( i 0 )
+  while ( TRUE )
+    set ( c "${ARGV${i}}_prettify" )
+    list ( REMOVE_ITEM prettifiers_ "${c}" )
+    twx_increment_and_break_if ( VAR i >= ${ARGC} )
+  endwhile ()
+  set_target_properties (
+    TwxMessageLib.cmake
+    PROPERTIES
+      TWX_MESSAGE_PRETTIFIERS "${prettifiers_}"
+  )
+endfunction ()
+
 # ANCHOR: twx_message_prettify
 #[=======[*/
 /** @brief Prettify the messages
@@ -127,32 +201,42 @@ endfunction ( twx_message_log_level_compare )
   */
 twx_message_prettify( ... IN_VAR var [NO_SHORT] ) {}
 /*#]=======]
-function ( twx_message_prettify text_ IN_VAR_ var_ )
+function ( twx_message_prettify .text .IN_VAR .var )
   cmake_parse_arguments ( PARSE_ARGV 1 twxR "NO_SHORT" "IN_VAR" "" )
   twx_assert_variable ( "${twxR_IN_VAR}" )
   set ( m )
   set ( i 0 )
   while ( TRUE )
-    if ( ARGV${i} STREQUAL "IN_VAR" )
-      twx_increment ( i )
+    if ( "${ARGV${i}}" STREQUAL "IN_VAR" )
+      twx_increment ( VAR i STEP 2 )
       twx_arg_assert_count ( ${ARGC} == ${i} )
       break ()
     endif ()
-    if ( ARGV${i} MATCHES "(^|[^\\])(\\\\)*\\$" )
+    if ( "${ARGV${i}}" MATCHES "(^|[^\\])(\\\\)*\\$" )
       list ( APPEND m "${ARGV${i}}\\" )
     else ()
       list ( APPEND m "${ARGV${i}}" )
     endif ()
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
-  if ( NOT twxR_NO_SHORT )
-    string ( REPLACE "${CMAKE_SOURCE_DIR}" "<source dir>" m "${m}" )
-    string ( REPLACE "${CMAKE_BINARY_DIR}" "<binary dir>" m "${m}" )
-    string ( REPLACE "${TWX_DIR}" "<root dir>/" m "${m}" )
+  # if ( NOT twxR_NO_SHORT )
+  #   string ( REPLACE "${CMAKE_SOURCE_DIR}" "<source dir>" m "${m}" )
+  #   string ( REPLACE "${CMAKE_BINARY_DIR}" "<binary dir>" m "${m}" )
+  #   string ( REPLACE "${TWX_DIR}" "<root dir>/" m "${m}" )
+  # endif ()
+  get_target_property(
+    prettifiers_
+    TwxMessageLib.cmake
+    TWX_MESSAGE_PRETTIFIERS
+  )
+  if ( "${prettifiers_}" MATCHES "-NOTFOUND" )
+    set ( prettifiers_ )
   endif ()
-  if ( COMMAND twx_tree_prettify )
-    twx_tree_prettify ( "${m}" IN_VAR m )
-  endif ()
+  foreach ( prettifier ${prettifiers_} )
+    # message ( TR@CE "Prettifier: \"${prettifier}\"")
+    cmake_language ( CALL "${prettifier}" "${m}" IN_VAR m )
+  endforeach ()
+  # message ( TR@CE "\"${m}\" => ${twxR_IN_VAR}")
   set ( ${twxR_IN_VAR} "${m}" PARENT_SCOPE )
 endfunction ()
 
@@ -187,28 +271,28 @@ function ( twx_message )
   set ( twxR_NO_SHORT OFF )
   unset ( ARGV${ARGC} )
   while ( TRUE )
-    if ( NOT DEFINED ARGV${i} )
+    if ( "${i}" GREATER_EQUAL "${ARGC}" )
       break()
     endif ()
-    if ( ARGV${i} STREQUAL "IN_VAR" )
+    if ( "${ARGV${i}}" STREQUAL "IN_VAR" )
       twx_increment ( VAR i )
       set ( twxR_IN_VAR "${ARGV${i}}" )
       twx_assert_variable ( "${twxR_IN_VAR}" )
       twx_increment ( VAR i )
-      if ( NOT DEFINED ARGV${i} )
+      if ( "${i}" GREATER_EQUAL "${ARGC}" )
         break ()
       endif ()
     endif ()
-    if ( ARGV${i} STREQUAL "DEEPER" )
+    if ( "${ARGV${i}}" STREQUAL "DEEPER" )
       set ( twxR_DEEPER ON )
       twx_increment_and_break_if ( VAR i >= ${ARGC} )
     endif ()
-    if ( ARGV${i} STREQUAL "NO_SHORT" )
+    if ( "${ARGV${i}}" STREQUAL "NO_SHORT" )
       twx_increment_and_assert ( VAR i == ${ARGC} )
       set ( twxR_NO_SHORT ON )
       break ()
     endif ()
-    if ( ARGV${i} MATCHES "(^|[^\\])(\\\\)*\\$" )
+    if ( "${ARGV${i}}" MATCHES "(^|[^\\])(\\\\)*\\$" )
       list ( APPEND m "${ARGV${i}}\\" )
     else ()
       list ( APPEND m "${ARGV${i}}" )
@@ -219,7 +303,7 @@ function ( twx_message )
   twx_message_prettify ( "${m}" IN_VAR m ${twxR_NO_SHORT} )
   if ( DEFINED twxR_IN_VAR )
     twx_assert_variable ( "${twxR_IN_VAR}" )
-    list ( APPEND ${twxR_IN_VAR} "${msg_}" )
+    list ( APPEND ${twxR_IN_VAR} "${m}" )
     twx_export ( "${twxR_IN_VAR}" )
   else ()
     foreach ( msg_ ${m} )
@@ -232,6 +316,7 @@ function ( twx_message )
 endfunction ()
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMathLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
 
 message ( VERBOSE "TwxMessageLib loaded" )

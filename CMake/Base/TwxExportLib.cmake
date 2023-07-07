@@ -61,14 +61,15 @@ string(ASCII 27 TWX_EXPORT_UNDEFINE ) # ESCape
 twx_export(... [VAR_PREFIX prefix] [EMPTY] [UNSET]){}
 /*
 #]=======]
-macro ( twx_export twx_export.kv )
+macro ( twx_export twx_export.kv_ )
   cmake_parse_arguments (
     twx_export
     "EMPTY;UNSET"
     "VAR_PREFIX"
     ""
-    ${ARGN}
+    ${ARGV}
   )
+  set ( twx_export.ARGV "${ARGV}" )
   # message ( TR@CE "twx_export_EMPTY => \"${twx_export_EMPTY}\"")
   # message ( TR@CE "twx_export_UNSET => \"${twx_export_UNSET}\"")
   # message ( TR@CE "twx_export_VAR_PREFIX => \"${twx_export_VAR_PREFIX}\"")
@@ -76,37 +77,40 @@ macro ( twx_export twx_export.kv )
     string ( APPEND twx_export_VAR_PREFIX "_" )
   endif ()
   set ( twx_export.i 0 )
+  # set ( twx_export.kv "${ARGV${twx_export.i}}" )
+  list ( GET twx_export.ARGV "${twx_export.i}" twx_export.kv )
   set ( twx_export.DONE OFF )
   while ( TRUE )
-    # message ( TR@CE "twx_export.kv => \"${twx_export.kv}\"")
+    # message ( TR@CE "0) twx_export.i => \"${twx_export.i}\"")
+    # message ( TR@CE "0) twx_export.kv => \"${twx_export.kv}\"")
     twx_split (
       "${twx_export.kv}"
       IN_KEY twx_export.IN_KEY
       IN_VALUE twx_export.IN_VALUE
     )
-    # message ( TR@CE "twx_export.IN_KEY => \"${twx_export.IN_KEY}\"")
+    # message ( TR@CE "1) twx_export.IN_KEY => \"${twx_export.IN_KEY}\"")
     if ( DEFINED twx_export.IN_VALUE )
-      # message ( TR@CE "twx_export.IN_VALUE => \"${twx_export.IN_VALUE}\"")
+      # message ( TR@CE "2) twx_export.IN_VALUE => \"${twx_export.IN_VALUE}\"")
     else ()
-      # message ( TR@CE "twx_export.IN_VALUE => UNSET ")
+      # message ( TR@CE "3) twx_export.IN_VALUE => UNSET ")
     endif ()
     string ( PREPEND twx_export.IN_KEY "${twx_export_VAR_PREFIX}" )
     if ( DEFINED twx_export.IN_VALUE )
-      # message ( TR@CE "twx_export: \"${twx_export.IN_KEY}\" => \"${twx_export.IN_VALUE}\"" )
+      # message ( TR@CE "4) twx_export: \"${twx_export.IN_KEY}\" => \"${twx_export.IN_VALUE}\"" )
       set (
         "${twx_export.IN_KEY}"
         "${twx_export.IN_VALUE}"
         PARENT_SCOPE
       )
     elseif ( twx_export_EMPTY )
-      # message ( TR@CE "twx_export: \"${twx_export.IN_KEY}\" => empty string" )
+      # message ( TR@CE "5) twx_export: \"${twx_export.IN_KEY}\" => empty string" )
       set (
         "${twx_export.IN_KEY}"
         ""
         PARENT_SCOPE
       )
     elseif ( twx_export_UNSET )
-      # message ( TR@CE "twx_export: \"${twx_export.IN_KEY}\" => UNSET" )
+      # message ( TR@CE "6) twx_export: \"${twx_export.IN_KEY}\" => UNSET" )
       unset (
         "${twx_export.IN_KEY}"
         PARENT_SCOPE
@@ -114,28 +118,33 @@ macro ( twx_export twx_export.kv )
       unset (
         "${twx_export.IN_KEY}"
       )
-      # message ( TR@CE "${twx_export.IN_KEY} => \"${${twx_export.IN_KEY}}\"" )
+      # message ( TR@CE "7) ${twx_export.IN_KEY} => \"${${twx_export.IN_KEY}}\"" )
     elseif ( DEFINED "${twx_export.IN_KEY}" )
-      # message ( TR@CE "twx_export(2): \"${twx_export.IN_KEY}\" => \"${${twx_export.IN_KEY}}\"" )
+      # message ( TR@CE "8) twx_export(2): \"${twx_export.IN_KEY}\" => \"${${twx_export.IN_KEY}}\"" )
       set (
         "${twx_export.IN_KEY}"
         "${${twx_export.IN_KEY}}"
         PARENT_SCOPE
       )
     else ()
-      # message ( TR@CE "twx_export: \"${twx_export.IN_KEY}\" => UNSET(2)" )
+      # message ( TR@CE "9) twx_export: \"${twx_export.IN_KEY}\" => UNSET(2)" )
       unset (
         "${twx_export.IN_KEY}"
         PARENT_SCOPE
       )
     endif ()
+    # message ( TR@CE "10) ${twx_export.i} < ${ARGC}" )
     twx_increment_and_break_if ( VAR twx_export.i >= ${ARGC} )
-    set ( twx_export.kv "${ARGV${twx_export.i}}" )
+    # message ( TR@CE "11) ${twx_export.i} < ${ARGC}" )
+    # set ( twx_export.kv "${ARGV${twx_export.i}}" )
+    list ( GET twx_export.ARGV "${twx_export.i}" twx_export.kv )
+    # message ( TR@CE "12) twx_export.kv => ${twx_export.kv}" )
     if ( twx_export.kv STREQUAL "VAR_PREFIX" )
       set ( twx_export.DONE ON )
       twx_increment ( VAR twx_export.i )
       twx_arg_assert_count ( ${ARGC} > "${twx_export.i}" )
-      set ( twx_export.kv "${ARGV${twx_export.i}}" )
+      # set ( twx_export.kv "${ARGV${twx_export.i}}" )
+      list ( GET twx_export.ARGV "${twx_export.i}" twx_export.kv )
     endif ()
     if ( twx_export.kv MATCHES "EMPTY|UNSET" OR twx_export.DONE )
       while ( TRUE )
@@ -150,6 +159,7 @@ macro ( twx_export twx_export.kv )
     endif ()
   endwhile ()
   unset ( twx_export.i )
+  unset ( twx_export.ARGV )
   unset ( twx_export.kv )
   unset ( twx_export.IN_KEY )
   unset ( twx_export.IN_VALUE )

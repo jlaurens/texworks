@@ -2840,13 +2840,13 @@ PDFToCInfoWidget::PDFToCInfoWidget(QWidget * parent) :
   QVBoxLayout * layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
 
-  _tree = new QTreeWidget(this);
-  _tree->setAlternatingRowColors(true);
-  _tree->setHeaderHidden(true);
-  _tree->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-  connect(_tree, &QTreeWidget::itemSelectionChanged, this, &PDFToCInfoWidget::itemSelectionChanged);
+  _global = new QTreeWidget(this);
+  _global->setAlternatingRowColors(true);
+  _global->setHeaderHidden(true);
+  _global->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+  connect(_global, &QTreeWidget::itemSelectionChanged, this, &PDFToCInfoWidget::itemSelectionChanged);
 
-  layout->addWidget(_tree);
+  layout->addWidget(_global);
   setLayout(layout);
 }
 
@@ -2862,7 +2862,7 @@ PDFToCInfoWidget::~PDFToCInfoWidget()
 
 void PDFToCInfoWidget::initFromDocument(const QWeakPointer<Backend::Document> newDoc)
 {
-  Q_ASSERT(_tree != nullptr);
+  Q_ASSERT(_global != nullptr);
 
   PDFDocumentInfoWidget::initFromDocument(newDoc);
 
@@ -2870,27 +2870,27 @@ void PDFToCInfoWidget::initFromDocument(const QWeakPointer<Backend::Document> ne
   QSharedPointer<Backend::Document> doc(newDoc.toStrongRef());
   if (doc) {
     const Backend::PDFToC tocData = doc->toc();
-    recursiveAddTreeItems(tocData, _tree->invisibleRootItem());
+    recursiveAddTreeItems(tocData, _global->invisibleRootItem());
   }
 }
 
 void PDFToCInfoWidget::clear()
 {
-  Q_ASSERT(_tree != nullptr);
+  Q_ASSERT(_global != nullptr);
   // make sure that no item is (and can be) selected while we clear the tree
   // (otherwise clearing it could trigger (numerous) itemSelectionChanged signals)
-  _tree->setSelectionMode(QAbstractItemView::NoSelection);
-  recursiveClearTreeItems(_tree->invisibleRootItem());
-  _tree->setSelectionMode(QAbstractItemView::SingleSelection);
+  _global->setSelectionMode(QAbstractItemView::NoSelection);
+  recursiveClearTreeItems(_global->invisibleRootItem());
+  _global->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 void PDFToCInfoWidget::itemSelectionChanged()
 {
-  Q_ASSERT(_tree != nullptr);
+  Q_ASSERT(_global != nullptr);
   // Since the ToC QTreeWidget is in single selection mode, we can only get zero
   // or one selected item(s)
 
-  QList<QTreeWidgetItem *> selectedItems = _tree->selectedItems();
+  QList<QTreeWidgetItem *> selectedItems = _global->selectedItems();
   if (selectedItems.count() == 0)
     return;
   QTreeWidgetItem * item = selectedItems.first();

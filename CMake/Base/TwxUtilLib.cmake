@@ -2,17 +2,18 @@
 This is part of the TWX build and test system.
 See https://github.com/TeXworks/texworks
 (C)  JL 2023
-*//** @file
-@brief  Collection of core utilities
-
-  include (
-    "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxCoreLib.cmake"
-  )
-
-Output state:
-- `TWX_DIR`
-
 */
+/** @file
+  * @brief  Utilities
+  *
+  *   include (
+  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxUtilLib.cmake"
+  *   )
+  *
+  * Output state:
+  * - `TWX_DIR`
+  *
+  */
 /*#]===============================================]
 
 # Full include only once
@@ -32,16 +33,17 @@ endif ()
   */
 twx_complete_dir_var(...) {}
 /*#]=======]
-function ( twx_complete_dir_var var_ )
+function ( twx_complete_dir_var .var )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_complete_dir_var )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )
-    message ( TRACE "v => \"${v}\"")
+    # message ( TR@stloefflerCE "v => \"${v}\"")
     twx_assert_variable ( "${v}" )
+    twx_assert_defined ( "${v}" )
     set ( w "${${v}}" )
-    if ( NOT w STREQUAL "" AND NOT w MATCHES "/$" )
-      set ( ${v} "${w}/" PARENT_SCOPE)
+    if ( NOT "${w}" STREQUAL "" AND NOT "${w}" MATCHES "/$" )
+      twx_export ( "${v}=${w}/" )
     endif ()
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
@@ -73,6 +75,70 @@ list (
   "${TWX_DIR}CMake/Modules"
 )
 list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
+
+# ANCHOR: Utility `twx_util_timestamp`
+#[=======[
+Usage:
+```
+twx_util_timestamp ( <filepath_> <variable> )
+```
+Records the file timestamp.
+The precision is 1s.
+Correct up to 2036-02-27.
+#]=======]
+function ( twx_util_timestamp filepath_ .IN_VAR twxR_IN_VAR )
+  twx_arg_assert_count ( ${ARGC} == 3 )
+  twx_arg_assert_keyword ( .IN_VAR )
+  twx_assert_variable ( "${twxR_IN_VAR}" )
+  file (
+    TIMESTAMP "${filepath_}" ts "%S:%M:%H:%j:%Y" UTC
+  )
+  if ( ts MATCHES "^([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)$" )
+    math (
+      EXPR
+      ts "
+      ${CMAKE_MATCH_1} + 60 * (
+        ${CMAKE_MATCH_2} + 60 * (
+          ${CMAKE_MATCH_3} + 24 * (
+            ${CMAKE_MATCH_4} + 365 * (
+              ${CMAKE_MATCH_5}-2023
+            )
+          )
+        )
+      )"
+    )
+    if ( "${CMAKE_MATCH_5}" GREATER "2024" )
+      math (
+        EXPR
+        ts
+        "${ts} + 86400"
+      )
+    elseif ( "${CMAKE_MATCH_5}" GREATER "2028" )
+      math (
+        EXPR
+        ts
+        "${ts} + 172800"
+      )
+    elseif ( "${CMAKE_MATCH_5}" GREATER "2032" )
+      math (
+        EXPR
+        ts
+        "${ts} + 259200"
+      )
+    elseif ( "${CMAKE_MATCH_5}" GREATER "2036" )
+      math (
+        EXPR
+        ts
+        "${ts} + 345600"
+      )
+    endif ()
+  else ()
+    set ( ts 0 )
+  endif ()
+  twx_export ( "${twxR_IN_VAR}=${ts}" )
+endfunction ()
+
+# TODO: MOVE THIS TO THE INCLUDE FOLDER
 
 # ANCHOR: TWX_DEV
 #[=======[*/
@@ -136,109 +202,11 @@ if ( "${TWX_COMMAND}" STREQUAL "" )
   string ( TOLOWER "${TWX_NAME}" TWX_COMMAND)
 endif ()
 
-# ANCHOR: Utility `twx_core_timestamp`
-#[=======[
-Usage:
-```
-twx_core_timestamp ( <filepath_> <variable> )
-```
-Records the file timestamp.
-The precision is 1s.
-Correct up to 2036-02-27.
-#]=======]
-function ( twx_core_timestamp filepath_ ans )
-  file (
-    TIMESTAMP "${filepath_}" ts "%S:%M:%H:%j:%Y" UTC
-  )
-  if ( ts MATCHES "^([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)$" )
-    math (
-      EXPR
-      ts "
-      ${CMAKE_MATCH_1} + 60 * (
-        ${CMAKE_MATCH_2} + 60 * (
-          ${CMAKE_MATCH_3} + 24 * (
-            ${CMAKE_MATCH_4} + 365 * (
-              ${CMAKE_MATCH_5}-2023
-            )
-          )
-        )
-      )"
-    )
-    if ( "${CMAKE_MATCH_5}" GREATER "2024" )
-      math (
-        EXPR
-        ts
-        "${ts} + 86400"
-      )
-    elseif ( "${CMAKE_MATCH_5}" GREATER "2028" )
-      math (
-        EXPR
-        ts
-        "${ts} + 172800"
-      )
-    elseif ( "${CMAKE_MATCH_5}" GREATER "2032" )
-      math (
-        EXPR
-        ts
-        "${ts} + 259200"
-      )
-    elseif ( "${CMAKE_MATCH_5}" GREATER "2036" )
-      math (
-        EXPR
-        ts
-        "${ts} + 345600"
-      )
-    endif ()
-  else ()
-    set ( ts 0 )
-  endif ()
-  set ( ${ans} "${ts}" PARENT_SCOPE )
-endfunction ()
-
-function ( twx_regex_escape text_ IN_VAR_ var_ )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_regex_escape )
-  cmake_parse_arguments ( PARSE_ARGV 1 twxR "" "IN_VAR" "" )
-  if ( NOT DEFINED twxR_IN_VAR )
-    twx_fatal ( "Missing IN_VAR argument.")
-    return ()
-  endif ()
-  twx_assert_variable ( twxR_IN_VAR )
-  set ( i 0 )
-  unset ( ARGV${ARGC} )
-  while ( TRUE )
-    if ( ARGV${i} STREQUAL "IN_VAR" )
-      twx_increment ( VAR i STEP 2 )
-      if ( DEFINED ARGV${i} )
-        twx_fatal ( "Unexpected argument: ${ARGV${i}}")
-        return ()
-      endif ()
-      break ()
-    endif ()
-    string (
-      REGEX REPLACE "([]()|?+*[\\\\.$^-])" "\\\\\\1"
-      out_
-      "${twxR_UNPARSED_ARGUMENTS}"
-    )
-    if ( out_ MATCHES "(^|[^\\])(\\\\)*\\$" )
-      list ( APPEND m "${out_}\\" )
-    else ()
-      list ( APPEND m "${out_}" )
-    endif ()
-    twx_increment_and_break_if ( VAR i >= ${ARGC} )
-  endwhile ()
-  set ( ${twxR_IN_VAR} "${m}" PARENT_SCOPE )
-endfunction ()
-
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMessageLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxStateLib.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxIncrementLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExportLib.cmake" )
 
 twx_complete_dir_var ( TWX_DIR )
 
-message ( DEB
-UG "TwxCoreLib loaded ${TWX_DIR}" )
+message ( DEBUG "TwxUtilLib loaded ${TWX_DIR}" )
 
 #*/

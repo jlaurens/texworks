@@ -575,7 +575,7 @@ function ( twx_cfg_read )
       endif ()
     endforeach ( l )
     if ( twxR_ONLY_CONFIGURE )
-      twx_core_timestamp (
+      twx_util_timestamp (
         "${name_}"
         ${name_}_TWX_TIMESTAMP_CFG
       )

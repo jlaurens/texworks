@@ -21,6 +21,7 @@
 - New in version 3.23: Properties. The INITIALIZE_FROM_VARIABLE option specifies a variable from which the property should be initialized. The BRIEF_DOCS and FULL_DOCS options are optional.
 - New in version 3.25: The block() and endblock() commands were added to manage specific scopes (policy or variable) for a contained block of commands.
 - New in version 3.25: See the cmake_language() command for a way to query the current message logging level.
+- New in version 3.25: The return() command gained a PROPAGATE option to propagate variables to the scope to which control returns. See policy CMP0140.
 
 ## About TeXworks folder /CMake
 

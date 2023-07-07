@@ -75,34 +75,43 @@ endfunction ( twx_increment )
   */
 twx_break_if(left op right) {}
 /*#]=======]
-macro ( twx_break_if left_ op_ right_ )
+macro (
+  twx_break_if
+  twx_break_if.left
+  twx_break_if.op
+  twx_break_if.right
+)
   if ( NOT ${ARGC} EQUAL 3 )
     twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
     return ()
   endif ()
-  # message ( TR@CE "twx_break_if: ${left_} ${op_} ${right_}")
-  if ( "${op_}" STREQUAL "<" )
-    if ( "${left_}" LESS "${right_}" )
+  # message ( TR@CE "twx_break_if: ${twx_break_if.left} ${twx_break_if.op} ${twx_break_if.right}")
+  if ( "${twx_break_if.op}" STREQUAL "<" )
+    if ( "${twx_break_if.left}" LESS "${twx_break_if.right}" )
       break ()
     endif ()
-  elseif ( "${op_}" STREQUAL "<=" )
-    if ( "${left_}" LESS_EQUAL "${right_}" )
+  elseif ( "${twx_break_if.op}" STREQUAL "<=" )
+    if ( "${twx_break_if.left}" LESS_EQUAL "${twx_break_if.right}" )
       break ()
     endif ()
-  elseif ( "${op_}" STREQUAL "==" OR "${op_}" STREQUAL "=" )
-    if ( "${left_}" EQUAL "${right_}" )
+  elseif ( "${twx_break_if.op}" STREQUAL "==" OR "${twx_break_if.op}" STREQUAL "=" )
+    if ( "${twx_break_if.left}" EQUAL "${twx_break_if.right}" )
       break ()
     endif ()
-  elseif ( "${op_}" STREQUAL ">=" )
-    if ( "${left_}" GREATER_EQUAL "${right_}" )
+  elseif ( "${twx_break_if.op}" STREQUAL "!=" OR "${twx_break_if.op}" STREQUAL "<>" )
+    if ( NOT "${twx_break_if.left}" EQUAL "${twx_break_if.right}" )
       break ()
     endif ()
-  elseif ( "${op_}" STREQUAL ">" )
-    if ( "${left_}" GREATER "${right_}" )
+  elseif ( "${twx_break_if.op}" STREQUAL ">=" )
+    if ( "${twx_break_if.left}" GREATER_EQUAL "${twx_break_if.right}" )
+      break ()
+    endif ()
+  elseif ( "${twx_break_if.op}" STREQUAL ">" )
+    if ( "${twx_break_if.left}" GREATER "${twx_break_if.right}" )
       break ()
     endif ()
   else ()
-    twx_fatal ( "Missing comparison binary operator (3), got \"${op_}\" instead" )
+    twx_fatal ( "Missing comparison binary operator (3), got \"${twx_break_if.op}\" instead" )
     return ()
   endif ()
 endmacro ()
@@ -132,13 +141,26 @@ or not.
   */
 twx_increment_and_break_if(VAR counter op right) {}
 /*#]=======]
-macro ( twx_increment_and_break_if VAR_ counter_ op_ right_)
+macro (
+  twx_increment_and_break_if
+  twx_increment_and_break_if.VAR
+  twx_increment_and_break_if.counter
+  twx_increment_and_break_if.op
+  twx_increment_and_break_if.right
+)
   if ( NOT ${ARGC} EQUAL 4 )
     twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
     return ()
   endif ()
-  twx_increment ( "${VAR_}" "${counter_}" )
-  twx_break_if ( "${${counter_}}" "${op_}" "${right_}" )
+  twx_increment (
+    "${twx_increment_and_break_if.VAR}"
+    "${twx_increment_and_break_if.counter}"
+  )
+  twx_break_if (
+    "${${twx_increment_and_break_if.counter}}"
+    "${twx_increment_and_break_if.op}"
+    "${twx_increment_and_break_if.right}"
+  )
 endmacro ( twx_increment_and_break_if )
 
 # ANCHOR: twx_increment_and_assert ()
@@ -155,39 +177,53 @@ endmacro ( twx_increment_and_break_if )
   */
 twx_increment_and_assert(VAR counter op right) {}
 /*#]=======]
-macro ( twx_increment_and_assert VAR_ counter_ op_ right_)
-  if ( NOT ${ARGC} EQUAL 4 )
+macro (
+  twx_increment_and_assert
+  twx_increment_and_assert.VAR
+  twx_increment_and_assert.counter
+  twx_increment_and_assert.op
+  twx_increment_and_assert.right
+)
+  if ( NOT "${ARGC}" EQUAL 4 )
     twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
     return ()
   endif ()
-  twx_increment ( "${VAR_}" "${counter_}" )
-  if ( "${op_}" STREQUAL "<" )
-    if ( NOT "${left_}" LESS "${right_}" )
-      twx_fatal ( "Missed ${left_} {op_} ${right_}" )
+  twx_increment (
+    "${twx_increment_and_assert.VAR}"
+    "${twx_increment_and_assert.counter}"
+  )
+  if ( "${twx_increment_and_assert.op}" STREQUAL "<" )
+    if ( NOT "${twx_increment_and_assert.counter}" LESS "${twx_increment_and_assert.right_}" )
+      twx_fatal ("Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
       return ()
     endif ()
-  elseif ( "${op_}" STREQUAL "<=" )
-    if ( NOT "${left_}" LESS_EQUAL "${right_}" )
-      twx_fatal ( "Missed ${left_} {op_} ${right_}" )
+  elseif ( "${twx_increment_and_assert.op}" STREQUAL "<=" )
+    if ( NOT "${twx_increment_and_assert.counter}" LESS_EQUAL "${twx_increment_and_assert.right_}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
       return ()
     endif ()
-  elseif ( "${op_}" STREQUAL "==" OR "${op_}" STREQUAL "=" )
-    if ( NOT "${left_}" EQUAL "${right_}" )
-      twx_fatal ( "Missed ${left_} {op_} ${right_}" )
+  elseif ( "${twx_increment_and_assert.op}" STREQUAL "==" OR "${twx_increment_and_assert.op}" STREQUAL "=" )
+    if ( NOT "${twx_increment_and_assert.counter}" EQUAL "${twx_increment_and_assert.right_}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
       return ()
     endif ()
-  elseif ( "${op_}" STREQUAL ">=" )
-    if ( NOT "${left_}" GREATER_EQUAL "${right_}" )
-      twx_fatal ( "Missed ${left_} {op_} ${right_}" )
+  elseif ( "${twx_increment_and_assert.op}" STREQUAL "!=" OR "${twx_increment_and_assert.op}" STREQUAL "<>" )
+    if ( "${twx_increment_and_assert.counter}" EQUAL "${twx_increment_and_assert.right_}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
       return ()
     endif ()
-  elseif ( "${op_}" STREQUAL ">" )
-    if ( NOT "${left_}" GREATER "${right_}" )
-      twx_fatal ( "Missed ${left_} {op_} ${right_}" )
+  elseif ( "${twx_increment_and_assert.op}" STREQUAL ">=" )
+    if ( NOT "${twx_increment_and_assert.counter}" GREATER_EQUAL "${twx_increment_and_assert.right_}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
+      return ()
+    endif ()
+  elseif ( "${twx_increment_and_assert.op}" STREQUAL ">" )
+    if ( NOT "${twx_increment_and_assert.counter}" GREATER "${twx_increment_and_assert.right_}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
       return ()
     endif ()
   else ()
-    twx_fatal ( "Missing comparison binary operator (3), got \"${op_}\" instead" )
+    twx_fatal ( "Missing comparison binary operator (3), got \"${twx_increment_and_assert.op}\" instead" )
     return ()
   endif ()
 endmacro ( twx_increment_and_assert )

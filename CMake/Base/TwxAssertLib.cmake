@@ -264,7 +264,7 @@ endfunction ( twx_assert_exists )
   */
 twx_assert_target(...) {}
 /*#]=======]
-function ( twx_assert_target target_ )
+function ( twx_assert_target .t )
   set ( i 0 )
   while ( TRUE )
     set ( t "${ARGV${i}}" )
@@ -277,6 +277,28 @@ function ( twx_assert_target target_ )
     endif ()
   endwhile ( )
 endfunction ( twx_assert_target )
+
+# ANCHOR: twx_assert_command
+#[=======[*/
+/** @brief Raise when a command does not exist.
+  *
+  * @param ... is a non empty list of candidate command names.
+  */
+twx_assert_command(...) {}
+/*#]=======]
+function ( twx_assert_command .c )
+  set ( i 0 )
+  while ( TRUE )
+    set ( c "${ARGV${i}}" )
+    if ( NOT COMMAND "${c}" )
+      twx_fatal ( "Unknown command ${c}" )
+    endif ()
+    math ( EXPR i "${i}+1" )
+    if ( "${i}" EQUAL "${ARGC}" )
+      break ()
+    endif ()
+  endwhile ( )
+endfunction ( twx_assert_command )
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
 

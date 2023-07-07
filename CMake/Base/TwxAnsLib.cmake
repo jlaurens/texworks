@@ -28,7 +28,7 @@ twx_ans_clear () {}
 /*
 #]=======]
 function ( twx_ans_clear )
-  twx_tree_clear ( TWX_ANS )
+  twx_global_clear ( TWX_ANS )
   twx_ans_export ()
 endfunction ()
 
@@ -80,7 +80,7 @@ function ( twx_ans_add .kv )
     if ( NOT DEFINED twx_ans_add.v )
       set ( twx_ans_add.v "${${twx_ans_add.k}}" )
     endif ()
-    twx_tree_set ( TWX_ANS ""${twx_ans_add.k=$|twx_ans_add.v"}" )
+    twx_global_set ( TWX_ANS ""${twx_ans_add.k=$|twx_ans_add.v"}" )
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
   twx_ans_export ()
@@ -102,7 +102,7 @@ function ( twx_ans_remove .k )
   while ( TRUE )
     set ( k "${ARGV${i}}" )
     twx_ans_assert_key ( "${k}" )
-    twx_tree_remove ( TWX_ANS "${k}" )
+    twx_global_remove ( TWX_ANS "${k}" )
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
   twx_ans_export ()
@@ -135,7 +135,7 @@ twx_ans_expose () {}
 Beware of regular expression syntax.
 #]=======]
 macro ( twx_ans_expose )
-  twx_tree_expose ( TWX_ANS )
+  twx_global_expose ( TWX_ANS )
 endmacro ()
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxTreeLib.cmake" )

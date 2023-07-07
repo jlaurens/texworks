@@ -65,8 +65,8 @@ else ()
 endif ()
 
 twx_assert_exists ( TWX_INPUT )
-twx_core_timestamp ( "${TWX_INPUT}"  _ts_input  )
-twx_core_timestamp ( "${outTWX_OUTPUTput}" _ts_output )
+twx_util_timestamp ( "${TWX_INPUT}"  _ts_input  )
+twx_util_timestamp ( "${outTWX_OUTPUTput}" _ts_output )
 if (  "${_ts_output}" GREATER "${_ts_input}"
   AND "${_ts_output}" GREATER "${TWX_TIMESTAMP_static_CFG}"
   AND "${_ts_output}" GREATER "${TWX_TIMESTAMP_git_CFG}"

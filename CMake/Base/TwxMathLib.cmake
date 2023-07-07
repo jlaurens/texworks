@@ -2,13 +2,16 @@
 This is part of the TWX build and test system.
 See https://github.com/TeXworks/texworks
 (C)  JL 2023
-*//** @file
-@brief  Extension to the math command
-
-  include (
-    "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxMathLib.cmake"
-  )
 */
+/** @file
+  * @brief  Extension to the math command
+  *
+  *   include (
+  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxMathLib.cmake"
+  *   )
+  *
+  * NB: only integral results.
+  */
 /*#]===============================================]
 
 # Full include only once
@@ -30,7 +33,7 @@ endif ()
   */
 twx_math_compare( expression IN_VAR var ) {}
 /*#]=======]
-function ( twx_math_compare expression_ .IN_VAR ans_ )
+function ( twx_math_compare expression_ .IN_VAR twxR_IN_VAR )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_math_compare )
   if ( "${ARGC}" GREATER "3" )
     message ( FATAL_ERROR "Too many arguments." )
@@ -38,6 +41,8 @@ function ( twx_math_compare expression_ .IN_VAR ans_ )
   if ( NOT .IN_VAR STREQUAL "IN_VAR" )
     message ( FATAL_ERROR "Unexpected argument key \"${.IN_VAR}\"" )
   endif ()
+  twx_assert_variable ( "${twxR_IN_VAR}" )
+  # message ( TR@CE "1) ${expression_} => ${twxR_IN_VAR}" )
   set ( n )
   set ( l )
   set ( o )
@@ -80,20 +85,106 @@ elseif ( expression_ MATCHES "^(.*)<=(.*)$" )
     set ( l "${expression_}" )
     unset ( o )
   endif ()
-  # message ( TR&CE "${expression_} -> ${n} ${l} ${o} ${r}" )
-
+  # message ( TR@CE "2) ${expression_} -> ${n} ${l} ${o} ${r}" )
   math ( EXPR l "${l}" )
   if ( DEFINED o )
     math ( EXPR r "${r}" )
     # message ( TR@CE "${l} ${o} ${r}" )
-    if ( ${n} l ${o} r )
+    if ( ${n} l ${o} r ) 
       set ( l 1 )
     else ()
       set ( l 0 )
     endif ()
   endif ()
-  set ( "${ans_}" "${l}" PARENT_SCOPE )
+  set ( "${twxR_IN_VAR}" "${l}" PARENT_SCOPE )
 endfunction ( twx_math_compare )
+
+# ANCHOR: twx_math_not
+#[=======[*/
+/** @brief To add `!` support to `math()`.
+  *
+  * Negates a signed number, after truncation.
+  * `!<non zero>` gives 0, `!<zero>` gives 1.
+  *
+  * @param expression, extended mathematical expression.
+  * @param IN_VAR literally
+  * @param ans for the result
+  */
+twx_math_not(expression IN_VAR var) {}
+/*#]=======]
+function ( twx_math_not expression_ .IN_VAR twxR_IN_VAR )
+  if ( "${ARGC}" GREATER "3" )
+    message ( FATAL_ERROR "Too many arguments: ARGV => \"${ARGV}\"." )
+  endif ()
+  if ( NOT .IN_VAR STREQUAL "IN_VAR" )
+    message ( FATAL_ERROR "Unexpected argument key \"${.IN_VAR}\"" )
+  endif ()
+  twx_assert_variable ( "${twxR_IN_VAR}" )
+  while ( TRUE )
+    if ( expression_ MATCHES "^(.*)(!+)[+-]?(0x[0-9a-fA-F]+)(.*)$" )
+      # Hexadecimal integer
+      set ( before  "${CMAKE_MATCH_1}" )
+      set ( marks   "${CMAKE_MATCH_2}" )
+      set ( group   "${CMAKE_MATCH_3}" )
+      set ( after   "${CMAKE_MATCH_4}" )
+    elseif ( expression_ MATCHES "^(.*)(!+)[+-]?([0-9a-fA-F]+)(\\.[0-9]*)?(.*)$" )
+      # decimal float 
+      set ( before  "${CMAKE_MATCH_1}" )
+      set ( marks   "${CMAKE_MATCH_2}" )
+      set ( group   "${CMAKE_MATCH_3}" )
+      set ( after   "${CMAKE_MATCH_5}" )
+    elseif ( expression_ MATCHES "^(.*)(!+)[+-]?(\\.[0-9]+)(.*)$" )
+      # decimal integer with optional dot
+      set ( before  "${CMAKE_MATCH_1}" )
+      set ( marks   "${CMAKE_MATCH_2}" )
+      set ( group   "0${CMAKE_MATCH_3}" )
+      set ( after   "${CMAKE_MATCH_4}" )
+    else ()
+      break ()
+    endif ()
+    # message ( TR@CE "group => \"${group}\"" )
+    math ( EXPR group "${group}" )
+    if ( "${marks}" MATCHES "^(!!)*!$" )
+      if ( "${group}" EQUAL 0 )
+        set ( group 1 )
+      else ()
+        set ( group 0 )
+      endif ()
+    elseif ( "${marks}" MATCHES "^(!!)+$" )
+      if ( NOT "${group}" EQUAL 0 )
+        set ( group 1 )
+      endif ()
+    endif ()
+    set ( expression_ "${before}${group}${after}" )
+    # message ( TR@CE "${expression_}" )
+  endwhile ()
+  set ( ${twxR_IN_VAR} "${expression_}" PARENT_SCOPE )
+endfunction ( twx_math_not )
+
+# ANCHOR: twx_math
+#[=======[*/
+/** @brief Add comparison support to `math()`.
+  *
+  * Evaluates an expression with no parenthesis.
+  *
+  * @param expression, extended mathematical expression.
+  * @param IN_VAR literally
+  * @param ans for the result
+  */
+twx_math_evaluate(expression IN_VAR var) {}
+/*#]=======]
+function ( twx_math_evaluate expression .IN_VAR twxR_IN_VAR )
+  if ( "${ARGC}" GREATER "3" )
+    message ( FATAL_ERROR "Too many arguments: ARGV => \"${ARGV}\"." )
+  endif ()
+  if ( NOT .IN_VAR STREQUAL "IN_VAR" )
+    message ( FATAL_ERROR "Unexpected argument key \"${.IN_VAR}\"" )
+  endif ()
+  twx_assert_variable ( "${twxR_IN_VAR}" )
+  twx_math_not ( "${expression}" IN_VAR expression )
+  twx_math_compare ( "${expression}" IN_VAR expression )
+  set ( "${twxR_IN_VAR}" "${expression}" PARENT_SCOPE )
+endfunction ( twx_math_evaluate )
 
 # ANCHOR: twx_math
 #[=======[*/
@@ -109,62 +200,49 @@ endfunction ( twx_math_compare )
   */
 twx_math(EXPR ans expression [OUTPUT_FORMAT format]) {}
 /*#]=======]
-function ( twx_math .EXPR ans_ expression_ )
+function ( twx_math .EXPR twxR_IN_VAR expression_ )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_math )
-  # message ( TR@CE "expression_ => ${expression_}" )
-  while ( expression_ MATCHES "^(.*)(!!)*!([+-]?(0x)?[0-9a-fA-F.]+)(.*)$" )
+  twx_assert_variable ( "${twxR_IN_VAR}" )
+  while ( expression_ MATCHES "^(.*[^!-]|)(!*)(-)?\\(([^)]+)\\)(.*)$" )
     set ( before  "${CMAKE_MATCH_1}" )
-    set ( group   "${CMAKE_MATCH_3}" )
-    set ( after   "${CMAKE_MATCH_5}" )
-    math ( EXPR group "${group}" )
-    if ( "${CMAKE_MATCH_2}" STREQUAL "" )
-      set ( unnegate OFF )
-    else ()
-      set ( unnegate ON )
-    endif ()
-    if ( "${group}" EQUAL 0 )
-      set ( group 1 )
-    else ()
-      set ( group 0 )
-    endif ()
-    set ( expression_ "${before}${group}${after}" )
-  endwhile ()
-  while ( expression_ MATCHES "^(.*)(!!)*(!?)\\(([^)]+)\\)(.*)$" )
-    set ( before  "${CMAKE_MATCH_1}" )
-    if ( "${CMAKE_MATCH_2}" STREQUAL "" )
-      set ( unnegate OFF )
-    else ()
-      set ( unnegate ON )
-    endif ()
-    if ( "${CMAKE_MATCH_3}" STREQUAL "" )
-      set ( negate OFF )
-    else ()
-      set ( negate ON )
-    endif ()
+    set ( marks   "${CMAKE_MATCH_2}" )
+    set ( minus   "${CMAKE_MATCH_3}" )
     set ( group   "${CMAKE_MATCH_4}" )
     set ( after   "${CMAKE_MATCH_5}" )
-    # message ( TR@CE "${expression_} => ${before} [ ${group} ] ${after}" )
-    twx_math_compare ( "${group}" IN_VAR group )
-    if ( negate )
+    # message ( TR@CE "3) ${expression_} => ${before} ${marks}[ ${group} ] ${after}" )
+    twx_math_evaluate ( "${group}" IN_VAR group )
+    if ( NOT "${minus}" STREQUAL "" )
+    endif ()
+    math ( EXPR group "-(${group})")
+    # message ( TR@CE "4) group => ${group}" )
+    if ( "${marks}" MATCHES "^(!!)*!$" )
+      # message ( TR@CE "4) NEGATE" )
       if ( "${group}" EQUAL 0 )
         set ( group 1 )
       else ()
         set ( group 0 )
       endif ()
-    endif ()
-    if ( unnegate )
+    elseif ( "${marks}" MATCHES "^(!!)+$" )
+      # message ( TR@CE "4) DOUBLE NEGATE" )
       if ( NOT "${group}" EQUAL 0 )
         set ( group 1 )
       endif ()
+    else ()
+      # message ( TR@CE "4) NO CHANGE" )
     endif ()
+    # message ( TR@CE "4) group => ${group}" )
     set ( expression_ "${before}${group}${after}" )
-    # message ( TR@CE "${expression_}" )
+    # message ( TR@CE "5) ${expression_}" )
   endwhile ()
-  twx_math_compare ( "${expression_}" IN_VAR expression_ )
-  math ( EXPR expression_ "${expression_}" ${ARGN} )
-  # message ( TR@CE "${ans_} => ${expression_}" )
-  set ( "${ans_}" "${expression_}" PARENT_SCOPE )
+  twx_math_evaluate ( "${expression_}" IN_VAR expression_ )
+  math ( "${.EXPR}" expression_ "${expression_}" ${ARGN} )
+  # message ( TR@CE "${twxR_IN_VAR} => ${expression_}" )
+  set ( "${twxR_IN_VAR}" "${expression_}" PARENT_SCOPE )
 endfunction ( twx_math )
+
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
 
 message ( DEBUG "TwxMathLib loaded" )
 

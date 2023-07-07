@@ -160,45 +160,45 @@ extern "C" {
 
     enum {
         /* input */
-        synctex_tree_sibling_idx        =  0,
-        synctex_tree_s_input_max        =  1,
+        synctex_global_sibling_idx        =  0,
+        synctex_global_s_input_max        =  1,
         /* All */
-        synctex_tree_s_parent_idx       =  1,
-        synctex_tree_sp_child_idx       =  2,
-        synctex_tree_spc_friend_idx     =  3,
-        synctex_tree_spcf_last_idx      =  4,
-        synctex_tree_spcfl_vbox_max     =  5,
+        synctex_global_s_parent_idx       =  1,
+        synctex_global_sp_child_idx       =  2,
+        synctex_global_spc_friend_idx     =  3,
+        synctex_global_spcf_last_idx      =  4,
+        synctex_global_spcfl_vbox_max     =  5,
         /* hbox supplement */
-        synctex_tree_spcfl_next_hbox_idx  =  5,
-        synctex_tree_spcfln_hbox_max      =  6,
+        synctex_global_spcfl_next_hbox_idx  =  5,
+        synctex_global_spcfln_hbox_max      =  6,
         /* hbox proxy supplement */
-        synctex_tree_spcfln_target_idx        =  6,
-        synctex_tree_spcflnt_proxy_hbox_max   =  7,
+        synctex_global_spcfln_target_idx        =  6,
+        synctex_global_spcflnt_proxy_hbox_max   =  7,
         /* vbox proxy supplement */
-        synctex_tree_spcfl_target_idx         =  5,
-        synctex_tree_spcflt_proxy_vbox_max    =  6,
+        synctex_global_spcfl_target_idx         =  5,
+        synctex_global_spcflt_proxy_vbox_max    =  6,
         /*  spf supplement*/
-        synctex_tree_sp_friend_idx  =  2,
-        synctex_tree_spf_max        =  3,
+        synctex_global_sp_friend_idx  =  2,
+        synctex_global_spf_max        =  3,
         /*  box boundary supplement */
-        synctex_tree_spf_arg_sibling_idx   =  3,
-        synctex_tree_spfa_max              =  4,
+        synctex_global_spf_arg_sibling_idx   =  3,
+        synctex_global_spfa_max              =  4,
         /*  proxy supplement */
-        synctex_tree_spf_target_idx    =  3,
-        synctex_tree_spft_proxy_max    =  4,
+        synctex_global_spf_target_idx    =  3,
+        synctex_global_spft_proxy_max    =  4,
         /*  last proxy supplement */
-        synctex_tree_spfa_target_idx      =  4,
-        synctex_tree_spfat_proxy_last_max =  5,
+        synctex_global_spfa_target_idx      =  4,
+        synctex_global_spfat_proxy_last_max =  5,
         /* sheet supplement */
-        synctex_tree_s_child_idx        =  1,
-        synctex_tree_sc_next_hbox_idx   =  2,
-        synctex_tree_scn_sheet_max      =  3,
+        synctex_global_s_child_idx        =  1,
+        synctex_global_sc_next_hbox_idx   =  2,
+        synctex_global_scn_sheet_max      =  3,
         /* form supplement */
-        synctex_tree_sc_target_idx      =  2,
-        synctex_tree_sct_form_max       =  3,
+        synctex_global_sc_target_idx      =  2,
+        synctex_global_sct_form_max       =  3,
         /* spct */
-        synctex_tree_spc_target_idx     =  3,
-        synctex_tree_spct_handle_max    =  4,
+        synctex_global_spc_target_idx     =  3,
+        synctex_global_spct_handle_max    =  4,
     };
     
     enum {
@@ -536,7 +536,7 @@ _Pragma("clang diagnostic ignored \"-Wformat-extra-args\"")
     
     int synctex_test_input(synctex_scanner_p scanner);
     int synctex_test_proxy(synctex_scanner_p scanner);
-    int synctex_test_tree(synctex_scanner_p scanner);
+    int synctex_test_global(synctex_scanner_p scanner);
     int synctex_test_page(synctex_scanner_p scanner);
     int synctex_test_handle(synctex_scanner_p scanner);
     int synctex_test_display_query(synctex_scanner_p scanner);

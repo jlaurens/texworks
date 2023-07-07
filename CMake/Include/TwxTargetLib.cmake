@@ -33,7 +33,7 @@ See https://github.com/TeXworks/texworks
 * that `twx_target_synchronize` will ignore them.
 *
 * All custom properties `TWX_<property>` defined for targets are not meant
-* to be used directly by `target_set_property()` except in `twx_target_synchronize()`.
+* to be used directly by `set_target_properties()` except in `twx_target_synchronize()`.
 */
 /*#]===============================================]
 

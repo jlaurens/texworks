@@ -492,7 +492,7 @@ void Document::reload()
   }
 
   // NOTE: This can also fail.
-  pdf_load_page_tree(_mupdf_data);
+  pdf_load_page_global(_mupdf_data);
   _numPages = pdf_count_pages(_mupdf_data);
   loadMetaData();
 }

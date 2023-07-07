@@ -304,7 +304,7 @@ private slots:
 private:
   static void recursiveAddTreeItems(const QList<Backend::PDFToCItem> & tocItems, QTreeWidgetItem * parentTreeItem);
   static void recursiveClearTreeItems(QTreeWidgetItem * parent);
-  QTreeWidget * _tree;
+  QTreeWidget * _global;
 };
 
 class PDFMetaDataInfoWidget : public PDFDocumentInfoWidget

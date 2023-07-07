@@ -29,63 +29,69 @@ set ( CMAKE_MESSAGE_CONTEXT_SHOW ON )
 message ( STATUS "twx_regex_escape" )
 block ()
 list ( APPEND CMAKE_MESSAGE_CONTEXT test_regex_escape )
-unset ( actual )
-twx_regex_escape ( "" IN_VAR actual )
-if ( NOT "${actual}" STREQUAL "" )
-  message ( FATAL_ERROR "FAILED: ")
-endif ()
-twx_regex_escape ( "^" IN_VAR actual )
-# message ( "DEBUG: twx_regex_escape: actual => ${actual}" )
-foreach ( c_ "^" "$"
-"." 
-"\\"
-"["
-"]"
-"-"
-"*"
-"+"
-"?"
-"|"
-"(" ")"
-)
-  # message ( "DEBUG: c_ => \"${c_}\"")
-  twx_regex_escape ( "${c_}" IN_VAR actual )
-  # message ( "DEBUG: actual => \"${actual}\"")
-  if ( NOT "${actual}" STREQUAL "\\${c_}" )
-    message ( FATAL_ERROR "FAILED (\"${actual}\" instead of \"\\${c_}\")")
+if ( TRUE )
+  unset ( actual )
+  twx_regex_escape ( "" IN_VAR actual )
+  if ( NOT "${actual}" STREQUAL "" )
+    message ( FATAL_ERROR "FAILED: ")
   endif ()
-endforeach ()
+  twx_regex_escape ( "^" IN_VAR actual )
+  # message ( "DEBUG: twx_regex_escape: actual => ${actual}" )
+  foreach ( c_ "^" "$"
+  "." 
+  "\\"
+  "["
+  "]"
+  "-"
+  "*"
+  "+"
+  "?"
+  "|"
+  "(" ")"
+  )
+    # message ( "DEBUG: c_ => \"${c_}\"")
+    twx_regex_escape ( "${c_}" IN_VAR actual )
+    # message ( "DEBUG: actual => \"${actual}\"")
+    if ( NOT "${actual}" STREQUAL "\\${c_}" )
+      message ( FATAL_ERROR "FAILED (\"${actual}\" instead of \"\\${c_}\")")
+    endif ()
+  endforeach ()
+endif ()
 endblock ()
 
 message ( STATUS "assert_variable" )
 block ()
 list ( APPEND CMAKE_MESSAGE_CONTEXT assert_variable )
-set ( TWX_FATAL_CATCH ON )
-twx_fatal_clear ()
-twx_assert_variable ( "Ç" )
-twx_fatal_catched ( IN_VAR v )
-if ( v STREQUAL "" )
-  message ( FATAL_ERROR "FAILURE" )
+if ( TRUE )
+  set ( TWX_FATAL_CATCH ON )
+  twx_fatal_clear ()
+  twx_assert_variable ( "Ç" )
+  twx_fatal_catched ( IN_VAR v )
+  if ( v STREQUAL "" )
+    message ( FATAL_ERROR "FAILURE" )
+  endif ()
+  twx_assert_variable ( "a_1" )
+  twx_fatal_clear ()
 endif ()
-twx_fatal_clear ()
-twx_assert_variable ( "a_1" )
 endblock ()
 
 message ( STATUS "fatal_catch" )
 block ()
 list ( APPEND CMAKE_MESSAGE_CONTEXT fatal_catch )
-set ( TWX_FATAL_CATCH ON )
-twx_fatal ( "ABCDE" )
-return ()
-twx_fatal_catched ( IN_VAR v )
-if ( NOT v STREQUAL "ABCDE" )
-  message ( FATAL_ERROR "FAILURE" )
+if ( TRUE )
+  set ( TWX_FATAL_CATCH ON )
+  twx_fatal ( "ABCDE" )
+  twx_fatal_catched ( IN_VAR v )
+  if ( NOT v STREQUAL "ABCDE" )
+    message ( FATAL_ERROR "FAILURE" )
+  endif ()
+  twx_fatal_clear ()
+  twx_fatal_catched ( IN_VAR v )
+  if ( NOT v STREQUAL "" )
+    message ( FATAL_ERROR "FAILURE" )
+  endif ()
 endif ()
 twx_fatal_clear ()
-twx_fatal_catched ( IN_VAR v )
-if ( NOT v STREQUAL "" )
-  message ( FATAL_ERROR "FAILURE" )
-endif ()
 endblock ()
 
 endblock ()

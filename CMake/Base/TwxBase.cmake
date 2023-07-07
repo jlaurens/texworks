@@ -97,16 +97,15 @@ function ( twx_base_prettify )
   set ( v )
   unset ( twxR_IN_VAR )
   while ( TRUE )
-    if ( "${ARGV${i}}" STREQUAL IN_VAR )
-      twx_increment ( VAR i <= "${ARGC}" )
-      twx_assert_defined ( i )
+    set ( v "${ARGV${i}}" )
+    if ( "${v}" STREQUAL IN_VAR )
+      twx_increment ( VAR i )
       set ( twxR_IN_VAR "${ARGV${i}}" )
       twx_assert_variable ( "${twxR_IN_VAR}" )
       twx_increment ( VAR i )
       twx_arg_assert_count ( "${ARGC}" == "${i}" )
       break ()
     endif ()
-    set ( v "${ARGV${i}}" )
     string ( REPLACE "${TWX_CHAR_SOH}"  "<SOH/>"  v "${v}" )
     string ( REPLACE "${TWX_CHAR_STX}"  "<STX/>"  v "${v}" )
     string ( REPLACE "${TWX_CHAR_ETX}"  "<ETX/>"  v "${v}" )
@@ -117,11 +116,13 @@ function ( twx_base_prettify )
     string ( REPLACE "${TWX_CHAR_RS}"   "<RS/>"   v "${v}" )
     string ( REPLACE "${TWX_CHAR_US}"   "<US/>"   v "${v}" )
     string ( APPEND value_ "${v}" )
-    twx_increment_and_break_if ( VAR i >= ${ARGC} )
+    twx_increment_and_raise_if ( VAR i >= ${ARGC} )
   endwhile ()
-  twx_arg_assert ( IN_VAR )
-  set ( "${twxR_IN_VAR}" "${value_}" PARENT_SCOPE )
+  twx_assert_variable ( "${twxR_IN_VAR}" )
+  twx_export ( "${twxR_IN_VAR}=${value_}" )
 endfunction ()
+
+twx_message_register_prettifier ( twx_base )
 
 # ANCHOR: TWX_PATH_LIST_SEPARATOR
 #[=======[
@@ -167,12 +168,8 @@ endif ()
 twx_base_after_project() {}
 /*#]=======]
 macro ( twx_base_after_project )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Too many arguments (0): ARGV => \"${ARGV}\"" )
-  endif ()
-  if ( "${PROJECT_NAME}" STREQUAL "" )
-    message ( FATAL_ERROR "Missing project(...)" )
-  endif ()
+  twx_arg_assert_count ( "${ARC}" == 0 )
+  twx_assert_non_void ( PROJECT_NAME )
   # This has already been included
   message ( DEBUG "twx_base_after_project: PROJECT_NAME => ${PROJECT_NAME}" )
 
@@ -355,53 +352,76 @@ set ( TWX_PROJECT_IS_ROOT ON )
   * All the locations end with exactly one `/` character.
   *
   * @param binary for key `BINARY_DIR`, must end with exactly one `/`.
-  * @param prefix for key `VAR_PREFIX` optional
+  * @param prefix for key `VAR_PREFIX`
   * @param PARENT_SCOPE optional flag to indicate wether affectations occur
   * in the parent scope instead of the current scope.
   */
-twx_base_set_build_dirs( ... ) {}
+twx_base_set_build_dirs( BINARY_DIR dir VAR_PREFIX prefix [PARENT_SCOPE]) {}
 /*#]=======]
-macro ( twx_base_set_build_dirs twx_base_set_build_dirs.BINARY_DIR twx_base_set_build_dirs.BINARY_DIR )
-  if ( NOT "${twx_base_set_build_dirs.BINARY_DIR}" STREQUAL "BINARY_DIR" )
-    message ( FATAL_ERROR "Unexpected ${twx_base_set_build_dirs.BINARY_DIR} instead of BINARY_DIR" )
-  endif ()
-  if ( "${twx_base_set_build_dirs.BINARY_DIR}" STREQUAL "" )
-    message ( FATAL_ERROR "Missing argument" )
-  endif ()
-  unset ( twx_base_set_build_dirs.VAR_PREFIX )
+macro (
+  twx_base_set_build_dirs
+  .BINARY_DIR
+  twxR_BINARY_DIR
+  .VAR_PREFIX
+  twxR_VAR_PREFIX
+)
+  twx_assert_equal_string ( "${.BINARY_DIR}" "BINARY_DIR" )
+  twx_assert_equal_string ( "${.VAR_PREFIX}" "VAR_PREFIX" )
+  twx_expect_unequal_string ( "${twxR_BINARY_DIR}" "" )
+  twx_assert_variable ( "${twxR_VAR_PREFIX}" )
   set ( twx_base_set_build_dirs.PARENT_SCOPE )
-  if ( "${ARGC}" GREATER "2" )
-    if ( "${ARGV2}" STREQUAL "VAR_PREFIX" )
-      if ( "${ARGC}" LESS "4" )
-        message ( FATAL_ERROR "Wrong number of arguments." )
-      else ()
-        set ( twx_base_set_build_dirs.VAR_PREFIX "${ARGV3}" )
-        if ( "${ARGV4}" STREQUAL PARENT_SCOPE )
-          set ( twx_base_set_build_dirs.PARENT_SCOPE PARENT_SCOPE )
-          if ( "${ARGC}" GREATER "5" )
-            message ( FATAL_ERROR "Too many arguments (extra ${ARGV5})." )
-          endif ()
-        endif ()
-      endif ()
-    elseif ( "${ARGV2}" STREQUAL PARENT_SCOPE )
+  if ( "${ARGC}" GREATER "4" )
+    if ( "${ARGV4}" STREQUAL PARENT_SCOPE )
       set ( twx_base_set_build_dirs.PARENT_SCOPE PARENT_SCOPE )
-      if ( "${ARGC}" GREATER "3" )
-        message ( FATAL_ERROR "Too many arguments (extra ${ARGV3})." )
-      endif ()
+      twx_arg_assert_count ( "${ARGC}" == 5 )
+    else ()
+      twx_arg_assert_count ( "${ARGC}" == 4 )
     endif ()
   endif ()
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_BUILD_DIR       "${twx_base_set_build_dirs.BINARY_DIR}TwxBuild/"         ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_BUILD_DATA_DIR  "${twx_base_set_build_dirs.BINARY_DIR}TwxBuildData/"     ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_DOXYDOC_DIR     "${twx_base_set_build_dirs.BINARY_DIR}TwxDoxydoc/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_CFG_INI_DIR     "${twx_base_set_build_dirs.BINARY_DIR}TwxBuildData/"     ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_PRODUCT_DIR     "${twx_base_set_build_dirs.BINARY_DIR}TwxProduct/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_DOC_DIR         "${twx_base_set_build_dirs.BINARY_DIR}TwxDocumentation/" ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_DOWNLOAD_DIR    "${twx_base_set_build_dirs.BINARY_DIR}TwxDownload/"      ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_PACKAGE_DIR     "${twx_base_set_build_dirs.BINARY_DIR}TwxPackage/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twx_base_set_build_dirs.VAR_PREFIX}_EXTERNAL_DIR    "${twx_base_set_build_dirs.BINARY_DIR}TwxExternal/"      ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_BUILD_DIR       "${twxR_BINARY_DIR}TwxBuild/"         ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_BUILD_DATA_DIR  "${twxR_BINARY_DIR}TwxBuildData/"     ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_DOXYDOC_DIR     "${twxR_BINARY_DIR}TwxDoxydoc/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_CFG_INI_DIR     "${twxR_BINARY_DIR}TwxBuildData/"     ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_PRODUCT_DIR     "${twxR_BINARY_DIR}TwxProduct/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_DOC_DIR         "${twxR_BINARY_DIR}TwxDocumentation/" ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_DOWNLOAD_DIR    "${twxR_BINARY_DIR}TwxDownload/"      ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_PACKAGE_DIR     "${twxR_BINARY_DIR}TwxPackage/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( ${twxR_VAR_PREFIX}_EXTERNAL_DIR    "${twxR_BINARY_DIR}TwxExternal/"      ${twx_base_set_build_dirs.PARENT_SCOPE} )
+  set ( twx_base_set_build_dirs.PARENT_SCOPE )
 endmacro ()
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMathLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxIncrementLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxSplitLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExportLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMessageLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxTreeLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxUtilLib.cmake" )
+#[=======[
+TwxCoreLib.cmake
+TwxAssertLib.cmake
+TwxExpectLib.cmake
+TwxMathLib.cmake
+TwxIncrementLib.cmake
+TwxArgLib.cmake
+TwxSplitLib.cmake
+TwxExportLib.cmake
+TwxMessageLib.cmake
+TwxTreeLib.cmake
+TwxUtilLib.cmake
+
+TwxBase.cmake
+
+TwxAnsLib.cmake
+TwxBasePolicy.cmake
+TwxCfgLib.cmake
+TwxTestLib.cmake
+#]=======]
+
 twx_assert_non_void ( TWX_IS_BASED )
 
 twx_base_set_build_dirs (
