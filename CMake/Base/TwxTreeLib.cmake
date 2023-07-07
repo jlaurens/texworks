@@ -53,9 +53,9 @@ set ( TWX_TREE_HEADER "${TWX_CHAR_SOH}TwxTree${TWX_CHAR_STX}" )
 */
 /** @brief Raises when the argument is not a tree
   *
-  * @param tree is a required tree name.
+  * @param tree is an optional tree name that defaults to `TWX_TREE`.
   */
-twx_tree_assert(tree) {}
+twx_tree_assert([tree]) {}
 /*
 #]=======]
 function ( twx_tree_assert )
@@ -289,7 +289,7 @@ twx_tree_remove(tree ... ) {}
 #]=======]
 function ( twx_tree_remove )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_remove )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "TREE" "KEYS" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "REMEMBER" "TREE" "KEYS" )
   twx_arg_assert_parsed ()
   if ( "${twxR_TREE}" STREQUAL "" )
     set ( twxR_TREE TWX_TREE )
@@ -339,14 +339,14 @@ endfunction ()
   *
   * @param tree for key TREE, the optional name of a tree. Defaults to `TWX_TREE`.
   *   The variable must be defined.
-  * @param prefix for key `VAR_PREFIX` optional output value prefix.
+  * @param prefix for key `PREFIX` optional output value prefix.
   */
-twx_tree_expose(TREE tree [VAR_PREFIX prefix]) {}
+twx_tree_expose(TREE tree [PREFIX prefix]) {}
 /*
 #]=======]
 function ( twx_tree_expose )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_expose )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "TREE;VAR_PREFIX" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "TREE;PREFIX" "" )
   twx_arg_assert_parsed ()
   if ( "${twxR_TREE}" STREQUAL "" )
     set ( twxR_TREE TWX_TREE )
@@ -356,10 +356,10 @@ function ( twx_tree_expose )
     return ( )
   endif ()
   twx_arg_assert_parsed ()
-  if ( "${twxR_VAR_PREFIX}" STREQUAL ""  )
+  if ( "${twxR_PREFIX}" STREQUAL ""  )
     set ( p_ )
   else ()
-    set ( p_ "${twxR_VAR_PREFIX}_" )
+    set ( p_ "${twxR_PREFIX}_" )
   endif ()
   # simple values
   while ( tree_ MATCHES "^(.*)${TWX_TREE_GROUP_SEP}([^/${TWX_TREE_RECORD_SEP}]+)${TWX_TREE_RECORD_SEP}([^${TWX_TREE_GROUP_SEP}]*)(.*)$" )
@@ -434,35 +434,22 @@ endfunction ()
 */
 /** @brief Turn a tree content into human readable
   *
-  * @param ... a list of strings to manipulate.
-  * @param tree for key `TREE`, the optional name of a tree.
-  *   No defaults. The variable must be defined.
+  * @param message, string to manipulate.
   * @param var for key `IN_VAR` holds the human readable string on return.
   */
-twx_tree_prettify(... IN_VAR var [TREE tree]) {}
+twx_tree_prettify(message IN_VAR var) {}
 /*
 #]=======]
-function ( twx_tree_prettify )
-  cmake_parse_arguments ( twxR "" "TREE;IN_VAR" "" ${ARGN} )
-  if ( "${twxR_IN_VAR}" MATCHES " " )
-    message ( FATAL_ERROR "Forbidden variable: ${twxR_IN_VAR}" )
-  endif ()
-  if ( "${twxR_TREE}" STREQUAL "" )
-    set ( value_ "${twxR_UNPARSED_ARGUMENTS}" )
-  else ()
-    twx_arg_assert_parsed ()
-    set ( value_ "${${twxR_TREE}}" )
-  endif ()
-  string ( REPLACE "${TWX_CHAR_SOH}"        "<SOH/>"  value_ "${value_}" )
-  string ( REPLACE "${TWX_CHAR_STX}"        "<STX/>"  value_ "${value_}" )
-  string ( REPLACE "${TWX_CHAR_ETX}"        "<ETX/>"  value_ "${value_}" )
-  string ( REPLACE "${TWX_CHAR_EM}"         "<EM/>"   value_ "${value_}" )
-  string ( REPLACE "${TWX_CHAR_SUB}"        "<SUB/>"  value_ "${value_}" )
-  string ( REPLACE "${TWX_TREE_FILE_SEP}"   "<FS/>"   value_ "${value_}" )
-  string ( REPLACE "${TWX_TREE_GROUP_SEP}"  "<GS/>"   value_ "${value_}" )
-  string ( REPLACE "${TWX_TREE_RECORD_SEP}" "<RS/>"   value_ "${value_}" )
-  string ( REPLACE "${TWX_TREE_UNIT_SEP}"   "<US/>"   value_ "${value_}" )
-  set ( ${twxR_IN_VAR} "${value_}" PARENT_SCOPE )
+function ( twx_tree_prettify twxR_MSG .IN_VAR twxR_IN_VAR )
+  twx_arg_assert_count ( "${ARGC}" == 3 )
+  twx_arg_assert_keyword ( .IN_VAR )
+  twx_assert_variable ( "${twxR_IN_VAR}" )
+  string ( REPLACE "${TWX_TREE_ESC}"        "<ESC>"   twxR_MSG "${twxR_MSG}" )
+  string ( REPLACE "${TWX_TREE_FILE_SEP}"   "<FS/>"   twxR_MSG "${twxR_MSG}" )
+  string ( REPLACE "${TWX_TREE_GROUP_SEP}"  "<GS/>"   twxR_MSG "${twxR_MSG}" )
+  string ( REPLACE "${TWX_TREE_RECORD_SEP}" "<RS/>"   twxR_MSG "${twxR_MSG}" )
+  string ( REPLACE "${TWX_TREE_UNIT_SEP}"   "<US/>"   twxR_MSG "${twxR_MSG}" )
+  set ( ${twxR_IN_VAR} "${twxR_MSG}" PARENT_SCOPE )
 endfunction ()
 
 # TODO: at the end of each library, list the twx functions and constants used

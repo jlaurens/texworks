@@ -158,7 +158,9 @@ function ( twx_arg_expect_keyword twx_arg_expect_keyword.ACTUAL twx_arg_expect_k
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_arg_expect_keyword )
   twx_arg_assert_count ( ${ARGC} == 2 )
   if ( NOT "${${twx_arg_expect_keyword.ACTUAL}}" STREQUAL "${twx_arg_expect_keyword.EXPECTED}" )
-    twx_fatal ( "Missing keyword: ${${twx_arg_expect_keyword.ACTUAL}} should be ${twx_arg_expect_keyword.EXPECTED}" )
+    twx_fatal ( "Missing keyword: ${${twx_arg_expect_keyword.ACTUAL}} \
+should be ${twx_arg_expect_keyword.EXPECTED} \
+instead of \"${${twx_arg_expect_keyword.ACTUAL}}\"" )
     return ()
   endif ()
 endfunction ( twx_arg_expect_keyword )

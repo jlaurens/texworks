@@ -77,6 +77,8 @@ include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExportTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMessageTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxTreeTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxUtilTest.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxGlobalTest.cmake" )
+message ( FATAL_ERROR "**********" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxBaseTest.cmake" )
 message ( FATAL_ERROR "**********" )
 
