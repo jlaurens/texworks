@@ -7,26 +7,21 @@ See https://github.com/TeXworks/texworks
   * @brief  Collection of core utilities
   *
   * include (
-  *   "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxCoreLib.cmake"
+  *   "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxCoreLib.cmake"
   * )
   *
   * Utilities:
   *
   * - `twx_fatal()`
-  * - `twx_assert_variable()`
+  * - `twx_assert_variable_name()`
   * - `twx_regex_escape()`
   *
   * Testing utilities:
-  * - `twx_fatal_clear()`
   * - `twx_fatal_catched()`
   */
 /*#]===============================================]
 
-# Full include only once
-if ( COMMAND twx_fatal )
-  return ()
-endif ()
-# This has already been included
+include_guard ( GLOBAL )
 
 # ANCHOR: twx_regex_escape ()
 #[=======[
@@ -42,18 +37,18 @@ set ( twx_regex_escape_RE [=[[]()|?+*[\\.$^-]]=] )
 
 function ( twx_regex_escape .text .IN_VAR .var )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_regex_escape )
-  cmake_parse_arguments ( PARSE_ARGV 1 twxR "" "IN_VAR" "" )
-  if ( NOT DEFINED twxR_IN_VAR )
+  cmake_parse_arguments ( PARSE_ARGV 1 twx.R "" "IN_VAR" "" )
+  if ( NOT DEFINED twx.R_IN_VAR )
     twx_fatal ( "Missing IN_VAR argument.")
     return ()
   endif ()
-  twx_assert_variable ( twxR_IN_VAR )
+  twx_assert_variable_name ( twx.R_IN_VAR )
   set ( m )
   set ( i 0 )
   while ( TRUE )
     if ( "${ARGV${i}}" STREQUAL "IN_VAR" )
       math ( EXPR i "${i}+2" )
-      if ( "${i}" LESS "${ARGC}" )
+      if ( "${i}" LESS ${ARGC} )
         twx_fatal ( "Unexpected argument: ${ARGV${i}}")
         return ()
       endif ()
@@ -68,11 +63,11 @@ function ( twx_regex_escape .text .IN_VAR .var )
     # message ( TR@CE "OUT => \"${out_}\"" )
     list ( APPEND m "${out_}" )
     math ( EXPR i "${i}+1" )
-    if ( "${i}" GREATER_EQUAL "${ARGC}" )
+    if ( "${i}" GREATER_EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ()
-  set ( "${twxR_IN_VAR}" "${m}" PARENT_SCOPE )
+  set ( "${twx.R_IN_VAR}" "${m}" PARENT_SCOPE )
 endfunction ()
 
 # ANCHOR: TWX_CORE_VARIABLE_RE
@@ -94,20 +89,20 @@ TWX_CORE_VARIABLE_RE;
 /*#]=======]
 set (
   TWX_CORE_VARIABLE_RE
-  "^([a-zA-Z/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)([a-zA-Z0-9/_.+-]|\\[^a-zA-Z0-9;]|\\[trn]|\\;)*$"
+  "^([a-zA-Z/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)([a-zA-Z0-9/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)*$"
 )
 
-# ANCHOR: twx_assert_variable
+# ANCHOR: twx_assert_variable_name
 #[=======[*/
 /** @brief Raise when not a literal variable name.
   *
   * @param ..., non empty list of variables names to test.
   * Support `$|` syntax (`$|<name>` is a shortcut to the more readable `"${<name>}"`)
   */
-twx_assert_variable(...) {}
+twx_assert_variable_name(...) {}
 /*#]=======]
-function ( twx_assert_variable name_ )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_assert_variable )
+function ( twx_assert_variable_name .name )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_assert_variable_name )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )
@@ -121,63 +116,16 @@ function ( twx_assert_variable name_ )
       break ()
     endif ()
   endwhile ()
-endfunction ( twx_assert_variable )
+endfunction ( twx_assert_variable_name )
 
-# ANCHOR: TWX_CORE_VARIABLE_RE
-#[=======[*/
-/** @brief Regular expression for variables
-  *
-  * Quoted CMake documentation:
-  *   > Literal variable references may consist of
-  *   > alphanumeric characters,
-  *   > the characters /_.+-,
-  *   > and Escape Sequences.
-  * where "An escape sequence is a \ followed by one character:"
-  *   > escape_sequence  ::=  escape_identity | escape_encoded | escape_semicolon
-  *   > escape_identity  ::=  '\' <match '[^A-Za-z0-9;]'>
-  *   > escape_encoded   ::=  '\t' | '\r' | '\n'
-  *   > escape_semicolon ::=  '\;'
-  */
-TWX_CORE_VARIABLE_RE;
-/*#]=======]
-set (
-  TWX_CORE_VARIABLE_RE
-  "^([a-zA-Z/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)([a-zA-Z0-9/_.+-]|\\[^a-zA-Z0-9;]|\\[trn]|\\;)*$"
-)
-
-# ANCHOR: twx_assert_variable
-#[=======[*/
-/** @brief Raise when not a literal variable name.
-  *
-  * @param ..., non empty list of variables names to test.
-  * Support `$|` syntax (`$|<name>` is a shortcut to the more readable `"${<name>}"`)
-  */
-twx_assert_variable(...) {}
-/*#]=======]
-function ( twx_assert_variable name_ )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_assert_variable )
-  set ( i 0 )
-  while ( TRUE )
-    set ( v "${ARGV${i}}" )
-    # message ( TR@CE "v => \"${v}\"" )
-    if ( NOT v MATCHES "${TWX_CORE_VARIABLE_RE}" )
-      twx_fatal ( "Not a variable name: \"${v}\"" )
-      return ()
-    endif ()
-    math ( EXPR i "${i}+1" )
-    if ( i GREATER_EQUAL ARGC )
-      break ()
-    endif ()
-  endwhile ()
-endfunction ( twx_assert_variable )
-
-add_custom_target (
-  TwxCoreLib.cmake
-)
-
-define_property (
-  TARGET PROPERTY TWX_FATAL_MESSAGE
-)
+if ( NOT CMAKE_SCRIPT_MODE_FILE )
+  add_custom_target (
+    TwxCoreLib.cmake
+  )
+  define_property (
+    TARGET PROPERTY TWX_FATAL_MESSAGE
+  )
+endif ()
 
 # ANCHOR: twx_fatal
 #[=======[
@@ -200,7 +148,7 @@ function ( twx_fatal )
     endif ()
     math ( EXPR i "${i}+1" )
   endwhile ()
-  if ( TWX_FATAL_CATCH )
+  if ( TWX_FATAL_CATCH AND NOT CMAKE_SCRIPT_MODE_FILE )
     get_target_property(
       fatal_
       TwxCoreLib.cmake
@@ -220,64 +168,6 @@ function ( twx_fatal )
   endif ()
 endfunction ()
 
-# ANCHOR: twx_fatal_catched
-#[=======[
-*/
-/** @brief Catch fatal messages.
-  *
-  * For testing purposes only.
-  * If the `twx_fatal()` call has no really bad consequences,
-  * we can catch the message.
-  *
-  * @param var for key `IN_VAR`, contains the list of messages on return.
-  */
-twx_fatal_catched (IN_VAR var){}
-/*
-#]=======]
-function ( twx_fatal_catched .IN_VAR twxR_VAR )
-  if ( NOT ${ARGC} EQUAL 2 )
-    message ( FATAL_ERROR "Wrong number of arguments: ${ARGC} instead of 2." )
-  endif ()
-  if ( NOT .IN_VAR STREQUAL "IN_VAR" )
-    message ( FATAL_ERROR "Missing IN_VAR key: got \"${.IN_VAR}\" instead." )
-  endif ()
-  twx_assert_variable ( "${twxR_VAR}" )
-  
-  get_target_property(
-    ${twxR_VAR}
-    TwxCoreLib.cmake
-    TWX_FATAL_MESSAGE
-  )
-  if ( ${twxR_VAR} STREQUAL "fatal_-NOTFOUND")
-    set ( ${twxR_VAR} "" )
-  endif ()
-  set ( ${twxR_VAR} "${${twxR_VAR}}" PARENT_SCOPE )
-endfunction ()
-
-# ANCHOR: twx_fatal_clear
-#[=======[
-*/
-/** @brief Clear catched fatal messages.
-  *
-  * For testing purposes only.
-  *
-  */
-twx_fatal_clear (){}
-/*
-#]=======]
-function ( twx_fatal_clear )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Too many arguments: ${ARGC} instead of 0." )
-  endif ()
-  set_target_properties (
-    TwxCoreLib.cmake
-    PROPERTIES
-      TWX_FATAL_MESSAGE ""
-  )
-endfunction ()
-
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
-
-message ( DEBUG "TwxCoreLib loaded ${TWX_DIR}" )
+message ( DEBUG "TwxCoreLib loaded (TWX_DIR => \"${TWX_DIR}\")" )
 
 #*/

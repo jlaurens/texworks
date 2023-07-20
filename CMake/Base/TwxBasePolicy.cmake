@@ -22,6 +22,8 @@ Actual policy version: 3.25
 *//*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 # NB: This file MUST be included with NO_POLICY_COPE
 # Otherwise all the changes below won't live after the end
 

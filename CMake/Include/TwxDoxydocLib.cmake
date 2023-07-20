@@ -21,12 +21,10 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( NOT DEFINED TWX_IS_BASED )
   message ( FATAL_ERROR "Missing `TwxBase`" )
-  return ()
-endif ()
-
-if ( COMMAND twx_doxydoc )
   return ()
 endif ()
 

@@ -26,6 +26,8 @@ If these files are edited or deleted then the build system is not informed.
 */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
+
 include (
   "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
   NO_POLICY_SCOPE

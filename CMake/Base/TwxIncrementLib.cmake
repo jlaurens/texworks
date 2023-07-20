@@ -6,7 +6,7 @@ See https://github.com/TeXworks/texworks
 @brief  Collection of core utilities
 
   include (
-    "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxCoreLib.cmake"
+    "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxCoreLib.cmake"
   )
 
 Output state:
@@ -14,6 +14,8 @@ Output state:
 
 */
 /*#]===============================================]
+
+include_guard ( GLOBAL )
 
 # Full include only once
 if ( COMMAND twx_increment )
@@ -35,33 +37,33 @@ endif ()
 twx_increment(VAR counter) {}
 /*#]=======]
 function ( twx_increment )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "VAR;STEP" "" )
-  if ( NOT "${twxR_UNPARSED_ARGUMENTS}" STREQUAL "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "VAR;STEP" "" )
+  if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
     twx_fatal ( "Unexpected arguments: ARGV => \"${ARGV}\"" )
     return ()
   endif ()
   twx_arg_assert_parsed ()
-  if ( NOT DEFINED twxR_VAR )
+  if ( NOT DEFINED twx.R_VAR )
     twx_fatal ( "Missing argument: VAR in \"${ARGV}\"")
     return ()
   endif ()
-  if ( NOT DEFINED twxR_STEP )
+  if ( NOT DEFINED twx.R_STEP )
     if ( NOT ${ARGC} EQUAL 2 )
     twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
     return ()
     endif ()
-    set ( twxR_STEP 1 )
+    set ( twx.R_STEP 1 )
   else ()
     if ( NOT ${ARGC} EQUAL 4 )
     twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
     return ()
     endif ()
   endif ()
-  # No twx_assert_variable
-  twx_assert_variable ( "${twxR_VAR}" )
-  set ( .value "${${twxR_VAR}}" )
-  math ( EXPR .value "${.value}+(${twxR_STEP})" )
-  set ( ${twxR_VAR} "${.value}" PARENT_SCOPE )
+  # No twx_assert_variable_name
+  twx_assert_variable_name ( "${twx.R_VAR}" )
+  set ( .value "${${twx.R_VAR}}" )
+  math ( EXPR .value "${.value}+(${twx.R_STEP})" )
+  set ( ${twx.R_VAR} "${.value}" PARENT_SCOPE )
 endfunction ( twx_increment )
 
 # ANCHOR: twx_break_if ()
@@ -83,10 +85,8 @@ macro (
 )
   if ( NOT ${ARGC} EQUAL 3 )
     twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
-    return ()
-  endif ()
-  # message ( TR@CE "twx_break_if: ${twx_break_if.left} ${twx_break_if.op} ${twx_break_if.right}")
-  if ( "${twx_break_if.op}" STREQUAL "<" )
+    break ()
+  elseif ( "${twx_break_if.op}" STREQUAL "<" )
     if ( "${twx_break_if.left}" LESS "${twx_break_if.right}" )
       break ()
     endif ()
@@ -112,7 +112,7 @@ macro (
     endif ()
   else ()
     twx_fatal ( "Missing comparison binary operator (3), got \"${twx_break_if.op}\" instead" )
-    return ()
+    break ()
   endif ()
 endmacro ()
 
@@ -184,7 +184,7 @@ macro (
   twx_increment_and_assert.op
   twx_increment_and_assert.right
 )
-  if ( NOT "${ARGC}" EQUAL 4 )
+  if ( NOT ${ARGC} EQUAL 4 )
     twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
     return ()
   endif ()
@@ -193,33 +193,33 @@ macro (
     "${twx_increment_and_assert.counter}"
   )
   if ( "${twx_increment_and_assert.op}" STREQUAL "<" )
-    if ( NOT "${twx_increment_and_assert.counter}" LESS "${twx_increment_and_assert.right_}" )
-      twx_fatal ("Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
+    if ( NOT "${${twx_increment_and_assert.counter}}" LESS "${twx_increment_and_assert.right}" )
+      twx_fatal ("Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL "<=" )
-    if ( NOT "${twx_increment_and_assert.counter}" LESS_EQUAL "${twx_increment_and_assert.right_}" )
-      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
+    if ( NOT "${${twx_increment_and_assert.counter}}" LESS_EQUAL "${twx_increment_and_assert.right}" )
+    twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL "==" OR "${twx_increment_and_assert.op}" STREQUAL "=" )
-    if ( NOT "${twx_increment_and_assert.counter}" EQUAL "${twx_increment_and_assert.right_}" )
-      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
+    if ( NOT "${${twx_increment_and_assert.counter}}" EQUAL "${twx_increment_and_assert.right}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL "!=" OR "${twx_increment_and_assert.op}" STREQUAL "<>" )
-    if ( "${twx_increment_and_assert.counter}" EQUAL "${twx_increment_and_assert.right_}" )
-      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
+    if ( "${${twx_increment_and_assert.counter}}" EQUAL "${twx_increment_and_assert.right}" )
+    twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL ">=" )
-    if ( NOT "${twx_increment_and_assert.counter}" GREATER_EQUAL "${twx_increment_and_assert.right_}" )
-      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
+    if ( NOT "${${twx_increment_and_assert.counter}}" GREATER_EQUAL "${twx_increment_and_assert.right}" )
+    twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL ">" )
-    if ( NOT "${twx_increment_and_assert.counter}" GREATER "${twx_increment_and_assert.right_}" )
-      twx_fatal ( "Missed ${twx_increment_and_assert.counter} {twx_increment_and_assert.op} ${twx_increment_and_assert.right_}" )
+    if ( NOT "${${twx_increment_and_assert.counter}}" GREATER "${twx_increment_and_assert.right}" )
+    twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   else ()

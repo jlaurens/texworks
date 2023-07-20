@@ -12,6 +12,8 @@ Output:
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( TARGET TwxHelp )
   twx_fatal ( "FAIL" )
   return ()
@@ -32,7 +34,7 @@ set ( TWX_TEST OFF )
 
 project ( ${TWX_MODULE} )
 twx_base_after_project ()
-twx_assert_non_void ( TWX_BUILD_DATA_DIR )
+twx_assert_exists ( "${TWX_BUILD_DATA_DIR}" )
 
 include ( TwxQTLib )
 twx_Qt_fresh ()

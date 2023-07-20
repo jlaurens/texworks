@@ -9,6 +9,8 @@ Make a build folder and use cmake ... && cmake --build ...
 */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( NOT DEFINED TWX_IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}/TwxBase.cmake"
@@ -18,9 +20,9 @@ endif ()
 
 set (
   TwxManualCommand.cmake
-  "${CMAKE_CURRENT_LIST_DIR}/../Command/TwxManualCommand.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../Script/TwxManualCommand.cmake"
 )
-twx_assert_exists ( TwxManualCommand.cmake )
+twx_assert_exists ( "${TwxManualCommand}".cmake )
 
 # ANCHOR: Utility `twx_manual_setup`
 #[=======[
@@ -80,51 +82,51 @@ twx_manual_prepare () {}
 /*
 #]=======]
 function ( twx_manual_prepare )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" )
   twx_arg_assert_parsed ()
 
-  if ( EXISTS "${twxR_ARCHIVE}" )
-    file ( SHA256 "${twxR_ARCHIVE}" actual_sha256_ )
-    if ( NOT actual_sha256_ STREQUAL twxR_SHA256 )
-      file ( REMOVE "${twxR_ARCHIVE}" )
-      file ( REMOVE_RECURSE "${twxR_BASE}" )
+  if ( EXISTS "${twx.R_ARCHIVE}" )
+    file ( SHA256 "${twx.R_ARCHIVE}" actual_sha256_ )
+    if ( NOT actual_sha256_ STREQUAL twx.R_SHA256 )
+      file ( REMOVE "${twx.R_ARCHIVE}" )
+      file ( REMOVE_RECURSE "${twx.R_BASE}" )
     endif ()
   endif ()
 
-  if ( NOT EXISTS "${twxR_ARCHIVE}" )
+  if ( NOT EXISTS "${twx.R_ARCHIVE}" )
     message (
       STATUS
-      "Downloading TeXworks HTML manual from ${twxR_URL}"
+      "Downloading TeXworks HTML manual from ${twx.R_URL}"
     )
     file (
-      DOWNLOAD "${twxR_URL}"
-      "${twxR_ARCHIVE}"
-      EXPECTED_HASH SHA256=${twxR_SHA256}
+      DOWNLOAD "${twx.R_URL}"
+      "${twx.R_ARCHIVE}"
+      EXPECTED_HASH SHA256=${twx.R_SHA256}
       SHOW_PROGRESS
     )
   else ( )
     message (
-      STATUS "Using archive in '${twxR_ARCHIVE}'"
+      STATUS "Using archive in '${twx.R_ARCHIVE}'"
     )
   endif ()
 
-  if ( NOT EXISTS "${twxR_BASE}" )
+  if ( NOT EXISTS "${twx.R_BASE}" )
     message (
-      STATUS "Creating '${twxR_BASE}'"
+      STATUS "Creating '${twx.R_BASE}'"
     )
     file (
-      MAKE_DIRECTORY "${twxR_BASE}"
+      MAKE_DIRECTORY "${twx.R_BASE}"
     )
     execute_process (
-      COMMAND unzip "${twxR_ARCHIVE}"
-      WORKING_DIRECTORY "${twxR_BASE}"
+      COMMAND unzip "${twx.R_ARCHIVE}"
+      WORKING_DIRECTORY "${twx.R_BASE}"
     )
   else ()
     message (
-      STATUS "Using '${twxR_BASE}'"
+      STATUS "Using '${twx.R_BASE}'"
     )
   endif ()
-  twx_assert_exists ( twxR_BASE )
+  twx_assert_exists ( "${twx.R_BASE}" )
 endfunction ()
 
 # ANCHOR: Utility `twx_manual_process`
@@ -145,7 +147,7 @@ function ( twx_manual_process )
       "-DTWX_ARCHIVE=${TWX_MANUAL_ARCHIVE}"
       "-DTWX_BASE=${TWX_MANUAL_BASE}"
       "-DTWX_SHA256=${TWX_MANUAL_SHA256}"
-      "${TWX-D_STATE}"
+      "${-DTWX_STATE}"
       -P "${TwxManualCommand.cmake}"
   )
 endfunction ()

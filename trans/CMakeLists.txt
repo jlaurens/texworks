@@ -9,6 +9,8 @@ This file must be added by a primary `CMakeLists.txt`
 *//*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( NOT TARGET TeXworks )
   message ( FATAL_ERROR "Not for direct use" )
 endif ()

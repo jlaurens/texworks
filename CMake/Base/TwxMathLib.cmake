@@ -7,12 +7,14 @@ See https://github.com/TeXworks/texworks
   * @brief  Extension to the math command
   *
   *   include (
-  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxMathLib.cmake"
+  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxMathLib.cmake"
   *   )
   *
   * NB: only integral results.
   */
 /*#]===============================================]
+
+include_guard ( GLOBAL )
 
 # Full include only once
 if ( COMMAND twx_math )
@@ -33,16 +35,16 @@ endif ()
   */
 twx_math_compare( expression IN_VAR var ) {}
 /*#]=======]
-function ( twx_math_compare expression_ .IN_VAR twxR_IN_VAR )
+function ( twx_math_compare expression_ .IN_VAR twx.R_IN_VAR )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_math_compare )
-  if ( "${ARGC}" GREATER "3" )
+  if ( ${ARGC} GREATER "3" )
     message ( FATAL_ERROR "Too many arguments." )
   endif ()
   if ( NOT .IN_VAR STREQUAL "IN_VAR" )
     message ( FATAL_ERROR "Unexpected argument key \"${.IN_VAR}\"" )
   endif ()
-  twx_assert_variable ( "${twxR_IN_VAR}" )
-  # message ( TR@CE "1) ${expression_} => ${twxR_IN_VAR}" )
+  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  # message ( TR@CE "1) ${expression_} => ${twx.R_IN_VAR}" )
   set ( n )
   set ( l )
   set ( o )
@@ -96,7 +98,7 @@ elseif ( expression_ MATCHES "^(.*)<=(.*)$" )
       set ( l 0 )
     endif ()
   endif ()
-  set ( "${twxR_IN_VAR}" "${l}" PARENT_SCOPE )
+  set ( "${twx.R_IN_VAR}" "${l}" PARENT_SCOPE )
 endfunction ( twx_math_compare )
 
 # ANCHOR: twx_math_not
@@ -112,14 +114,14 @@ endfunction ( twx_math_compare )
   */
 twx_math_not(expression IN_VAR var) {}
 /*#]=======]
-function ( twx_math_not expression_ .IN_VAR twxR_IN_VAR )
-  if ( "${ARGC}" GREATER "3" )
+function ( twx_math_not expression_ .IN_VAR twx.R_IN_VAR )
+  if ( ${ARGC} GREATER "3" )
     message ( FATAL_ERROR "Too many arguments: ARGV => \"${ARGV}\"." )
   endif ()
   if ( NOT .IN_VAR STREQUAL "IN_VAR" )
     message ( FATAL_ERROR "Unexpected argument key \"${.IN_VAR}\"" )
   endif ()
-  twx_assert_variable ( "${twxR_IN_VAR}" )
+  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
   while ( TRUE )
     if ( expression_ MATCHES "^(.*)(!+)[+-]?(0x[0-9a-fA-F]+)(.*)$" )
       # Hexadecimal integer
@@ -158,7 +160,7 @@ function ( twx_math_not expression_ .IN_VAR twxR_IN_VAR )
     set ( expression_ "${before}${group}${after}" )
     # message ( TR@CE "${expression_}" )
   endwhile ()
-  set ( ${twxR_IN_VAR} "${expression_}" PARENT_SCOPE )
+  set ( ${twx.R_IN_VAR} "${expression_}" PARENT_SCOPE )
 endfunction ( twx_math_not )
 
 # ANCHOR: twx_math
@@ -173,17 +175,17 @@ endfunction ( twx_math_not )
   */
 twx_math_evaluate(expression IN_VAR var) {}
 /*#]=======]
-function ( twx_math_evaluate expression .IN_VAR twxR_IN_VAR )
-  if ( "${ARGC}" GREATER "3" )
+function ( twx_math_evaluate expression .IN_VAR twx.R_IN_VAR )
+  if ( ${ARGC} GREATER "3" )
     message ( FATAL_ERROR "Too many arguments: ARGV => \"${ARGV}\"." )
   endif ()
   if ( NOT .IN_VAR STREQUAL "IN_VAR" )
     message ( FATAL_ERROR "Unexpected argument key \"${.IN_VAR}\"" )
   endif ()
-  twx_assert_variable ( "${twxR_IN_VAR}" )
+  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
   twx_math_not ( "${expression}" IN_VAR expression )
   twx_math_compare ( "${expression}" IN_VAR expression )
-  set ( "${twxR_IN_VAR}" "${expression}" PARENT_SCOPE )
+  set ( "${twx.R_IN_VAR}" "${expression}" PARENT_SCOPE )
 endfunction ( twx_math_evaluate )
 
 # ANCHOR: twx_math
@@ -200,9 +202,9 @@ endfunction ( twx_math_evaluate )
   */
 twx_math(EXPR ans expression [OUTPUT_FORMAT format]) {}
 /*#]=======]
-function ( twx_math .EXPR twxR_IN_VAR expression_ )
+function ( twx_math .EXPR twx.R_IN_VAR expression_ )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_math )
-  twx_assert_variable ( "${twxR_IN_VAR}" )
+  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
   while ( expression_ MATCHES "^(.*[^!-]|)(!*)(-)?\\(([^)]+)\\)(.*)$" )
     set ( before  "${CMAKE_MATCH_1}" )
     set ( marks   "${CMAKE_MATCH_2}" )
@@ -236,8 +238,8 @@ function ( twx_math .EXPR twxR_IN_VAR expression_ )
   endwhile ()
   twx_math_evaluate ( "${expression_}" IN_VAR expression_ )
   math ( "${.EXPR}" expression_ "${expression_}" ${ARGN} )
-  # message ( TR@CE "${twxR_IN_VAR} => ${expression_}" )
-  set ( "${twxR_IN_VAR}" "${expression_}" PARENT_SCOPE )
+  # message ( TR@CE "${twx.R_IN_VAR} => ${expression_}" )
+  set ( "${twx.R_IN_VAR}" "${expression_}" PARENT_SCOPE )
 endfunction ( twx_math )
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )

@@ -36,7 +36,7 @@ add_executable (
 	"${TWX_DIR}src/BibTeXFile.h"
 )
 
-include ( TwxWarning )
+include ( TwxWarningLib )
 twx_warning_target ( test_BibTeXFile )
 target_link_libraries (
 	test_BibTeXFile

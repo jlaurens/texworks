@@ -12,6 +12,7 @@
 - New in version 3.7. The cmake_parse_arguments() command gained a new PARSE_ARGV mode to read arguments directly from ARGC and ARGV# variables inside a function() body.
 - New in version 3.9: All regular expression-related commands, including e.g. if(MATCHES), save subgroup matches in the variables CMAKE_MATCH_<n> for <n> 0..9.
 - New in version 3.10. The string() command learned a new PREPEND subcommand.
+- New in version 3.10. The include_guard() command was introduced to allow guarding CMake scripts from being included more than once. The command supports DIRECTORY and GLOBAL options to adjust the corresponding include guard scope. If no options given, include guard is similar to basic variable-based check.
 - New in version 3.11: The source files can be omitted if they are added later using target_sources().
 - New in versions 3.16: CMAKE_MESSAGE_INDENT, The message() command joins the strings from this list and for log levels of NOTICE and below, it prepends the resultant string to each line of the message.
 - New in versions 3.17: CMAKE_MESSAGE_CONTEXT, When enabled by the cmake --log-context command line option or the CMAKE_MESSAGE_CONTEXT_SHOW variable, the message() command converts the CMAKE_MESSAGE_CONTEXT list into a dot-separated string surrounded by square brackets and prepends it to each line for messages of log levels NOTICE and below.

@@ -9,6 +9,8 @@ Includes Test as a subdirectory.
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( TARGET TwxW3 )
   twx_fatal ( "FAIL" )
   return ()

@@ -9,6 +9,8 @@ This is the top level CMakeLists file
 *//*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 
 # Top-level build file for [TeXworks][tw], a simple editor for TeX and friends.
 #
@@ -64,6 +66,8 @@ This is the top level CMakeLists file
 # ======================
 
 cmake_minimum_required ( VERSION 3.25 )
+
+include_guard ( GLOBAL )
 
 include (
   ${CMAKE_CURRENT_LIST_DIR}/CMake/Base/TwxBase.cmake
@@ -390,8 +394,8 @@ if ( APPLE )
     COMMAND "${CMAKE_COMMAND}"
     "-DTWX_INPUT=${PROJECT_NAME}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}"
-    "${TWX-D_STATE}"
-    -P "${TWX_DIR}CMake/Command/TwxCfgOneFileCommand.cmake"
+    "${-DTWX_STATE}"
+    -P "${TWX_DIR}CMake/Script/TwxCfgOneFileCommand.cmake"
     DEPENDS
       ${TWX_${PROJECT_NAME}_INI}
     COMMENT
@@ -502,8 +506,8 @@ add_custom_command (
   COMMAND ${CMAKE_COMMAND}
     "-DTWX_CONTENTS=${TWX_CFG_VERSION}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}/TwxVersion.txt"
-    "${TWX-D_STATE}"
-    -P "${TWX_DIR}CMake/Command/TwxWriteCommand.cmake"
+    "${-DTWX_STATE}"
+    -P "${TWX_DIR}CMake/Script/TwxWriteCommand.cmake"
 )
 
 # Build scripting language plugins if the required libraries are available.

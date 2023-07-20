@@ -26,6 +26,8 @@ is a noop.
 **//*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 # Guard
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCfgLib.cmake" )
 

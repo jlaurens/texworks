@@ -14,6 +14,8 @@ Input:
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( TARGET test_TwxHelp )
   return ()
 endif ()

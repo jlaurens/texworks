@@ -12,6 +12,8 @@ include ( SrcTwxUISetup )
 *//*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 include ( "${TWX_DIR}src/ui/Setup.cmake" )
 
 #*/

@@ -25,6 +25,8 @@ QT_DEFAULT_MAJOR_VERSION;
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( NOT DEFINED TWX_IS_BASED )
   message ( FATAL_ERROR "TwxBase not included" )
 endif ()
@@ -213,7 +215,7 @@ macro ( twx_Qt_fresh )
 	if ( "${twx_Qt_fresh_IN_VAR}" STREQUAL "" )
 	  set ( twx_Qt_fresh_IN_VAR QT_LIBRARIES )
 	endif ()
-	set ( twx_Qt_fresh_UNPARSED_ARGUMENTS "${twxR_UNPARSED_ARGUMENTS}" )
+	set ( twx_Qt_fresh_UNPARSED_ARGUMENTS "${twx.R_UNPARSED_ARGUMENTS}" )
 	set ( ${twx_Qt_fresh_IN_VAR} )
 	twx_Qt_find ( REQUIRED Core IN_VAR ${twx_Qt_fresh_IN_VAR} )
 	if ( "${QT_VERSION_MAJOR}" EQUAL "6" )
@@ -248,23 +250,23 @@ twx_Qt_link_libraries ( target ... [PUBLIC|INTERFACE|PRIVATE] ) {}
 #]=======]
 function ( twx_Qt_link_libraries target_ )
 	cmake_parse_arguments (
-		PARSE_ARGV 1 twxR
+		PARSE_ARGV 1 twx.R
 		"PUBLIC;PRIVATE;INTERFACE" "" ""
 	)
-	if ( twxR_PUBLIC )
-		twx_assert_false ( twxR_PRIVATE )
-		twx_assert_false ( twxR_INTERFACE )
+	if ( twx.R_PUBLIC )
+		twx_assert_false ( twx.R_PRIVATE )
+		twx_assert_false ( twx.R_INTERFACE )
 		set ( TYPE_ PUBLIC)
-	elseif ( twxR_PRIVATE )
-		twx_assert_false ( twxR_INTERFACE )
-		twx_assert_false ( twxR_PUBLIC )
+	elseif ( twx.R_PRIVATE )
+		twx_assert_false ( twx.R_INTERFACE )
+		twx_assert_false ( twx.R_PUBLIC )
 		set ( TYPE_ PRIVATE )
-	elseif ( twxR_INTERFACE )
-		twx_assert_false ( twxR_PUBLIC )
-		twx_assert_false ( twxR_PRIVATE )
+	elseif ( twx.R_INTERFACE )
+		twx_assert_false ( twx.R_PUBLIC )
+		twx_assert_false ( twx.R_PRIVATE )
 		set ( TYPE_ INTEFACE )
 	endif ()
-  foreach ( target_ ${twxR_UNPARSED_ARGUMENTS} )
+  foreach ( target_ ${twx.R_UNPARSED_ARGUMENTS} )
 	  twx_assert_target ( "${target_}" )
 		target_link_libraries (
 			"${target_}"
@@ -281,7 +283,7 @@ set ( QT_VERSION_PATCH "${${QtMAJOR}_VERSION_PATCH}" )
 if ( NOT "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_LESS "5.6.0" )
 	# Old Qt versions were heavily using 0 instead of nullptr, giving lots
 	# of false positives
-	include ( TwxWarning )
+	include ( TwxWarningLib )
 	twx_warning_add (
 		-Wzero-as-null-pointer-constant
 	)

@@ -27,7 +27,7 @@ See https://github.com/TeXworks/texworks
   * Output:
   * - `TWX_DIR`
   * - `twx_base_after_project()`
-  * - `twx_base_set_build_dirs()`
+  * - `twx_dir_configure()`
   *
   * Implementation details:
   * This script may be called in various situations.
@@ -41,11 +41,9 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-# Full include only once
-if ( DEFINED TWX_IS_BASED )
-  return ()
-endif ()
+include_guard ( GLOBAL )
 
+# Full include only once
 string(ASCII 01 TWX_CHAR_SOH )
 string(ASCII 02 TWX_CHAR_STX )
 string(ASCII 03 TWX_CHAR_ETX )
@@ -70,8 +68,8 @@ twx_set_if_defined( var from_var ) {}
 function ( twx_set_if_defined var_ from_ )
   set ( var_name_ ${var_} )
   set ( from_name_ ${from_} )
-  twx_assert_variable ( ${var_name_} )
-  twx_assert_variable ( ${from_name_} )
+  twx_assert_variable_name ( ${var_name_} )
+  twx_assert_variable_name ( ${from_name_} )
   if ( DEFINED ${from_name_} )
     set ( ${var_} "${${from_name_}}" PARENT_SCOPE )
   else ()
@@ -95,15 +93,14 @@ function ( twx_base_prettify )
   twx_arg_assert_count ( ${ARGC} > 2 )
   set ( i 0 )
   set ( v )
-  unset ( twxR_IN_VAR )
+  unset ( twx.R_IN_VAR )
   while ( TRUE )
     set ( v "${ARGV${i}}" )
     if ( "${v}" STREQUAL IN_VAR )
       twx_increment ( VAR i )
-      set ( twxR_IN_VAR "${ARGV${i}}" )
-      twx_assert_variable ( "${twxR_IN_VAR}" )
-      twx_increment ( VAR i )
-      twx_arg_assert_count ( "${ARGC}" == "${i}" )
+      set ( twx.R_IN_VAR "${ARGV${i}}" )
+      twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+      twx_increment_and_assert ( VAR i == ${ARGC} )
       break ()
     endif ()
     string ( REPLACE "${TWX_CHAR_SOH}"  "<SOH/>"  v "${v}" )
@@ -116,13 +113,11 @@ function ( twx_base_prettify )
     string ( REPLACE "${TWX_CHAR_RS}"   "<RS/>"   v "${v}" )
     string ( REPLACE "${TWX_CHAR_US}"   "<US/>"   v "${v}" )
     string ( APPEND value_ "${v}" )
-    twx_increment_and_raise_if ( VAR i >= ${ARGC} )
+    twx_increment_and_assert ( VAR i < ${ARGC} )
   endwhile ()
-  twx_assert_variable ( "${twxR_IN_VAR}" )
-  twx_export ( "${twxR_IN_VAR}=${value_}" )
+  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_export ( "${twx.R_IN_VAR}=${value_}" )
 endfunction ()
-
-twx_message_register_prettifier ( twx_base )
 
 # ANCHOR: TWX_PATH_LIST_SEPARATOR
 #[=======[
@@ -168,7 +163,7 @@ endif ()
 twx_base_after_project() {}
 /*#]=======]
 macro ( twx_base_after_project )
-  twx_arg_assert_count ( "${ARC}" == 0 )
+  twx_arg_assert_count ( ${ARGC} == 0 )
   twx_assert_non_void ( PROJECT_NAME )
   # This has already been included
   message ( DEBUG "twx_base_after_project: PROJECT_NAME => ${PROJECT_NAME}" )
@@ -188,147 +183,13 @@ macro ( twx_base_after_project )
 
   set ( CMAKE_COLOR_MAKEFILE ON )
 
-# ANCHOR: TWX_BUILD_DIR
-#[=======[*/
-/** @brief Main build directory: .../TwxBuild
-  *
-  * Contains a copy of the sources, after an eventual configuration step.
-  *
-  * Set by the very first `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_BUILD_DIR;
-# ANCHOR: TWX_BUILD_DATA_DIR
-/** @brief Main build directory: .../TwxBuildData
-  *
-  * Contains auxiliary data needed in the build process.
-  * In particular, it contains shared `...cfg.ini` files that are used
-  * in the `configure_file()` instructions steps.
-  *
-  * Set by the very first `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_BUILD_DATA_DIR;
-# ANCHOR: TWX_CFG_INI_DIR
-/** @brief Main build directory: .../TwxBuildData */
-TWX_CFG_INI_DIR;
-# ANCHOR: TWX_PRODUCT_DIR
-/** @brief Main build directory: .../TwxProduct/
-  *
-  * Contains the main built products, executables, tests and bundles.
-  *
-  * Set by the very first `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_PRODUCT_DIR;
-# ANCHOR: TWX_DOC_DIR
-/** @brief Main documentation directory: .../TwxDoc
-  *
-  * Contains the main documentation.
-  *
-  * Set by the very first `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_DOC_DIR;
-# ANCHOR: TWX_PACKAGE_DIR
-/** @brief Main dowload directory: .../TwxPackage
-  *
-  * Contains the downloaded material.
-  *
-  * Set by the very first `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_PACKAGE_DIR;
-# ANCHOR: TWX_EXTERNAL_DIR
-/** @brief Main external directory: .../TwxExternal
-  *
-  * Contains the material related to the manual and popppler data.
-  *
-  * Set by the very first `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_EXTERNAL_DIR;
-/*#]=======]
-  if ( "${TWX_BUILD_DIR}" STREQUAL "" )
-    twx_base_set_build_dirs (
-      BINARY_DIR "${PROJECT_BINARY_DIR}/"
-      VAR_PREFIX TWX
-    )
-  endif ()
-
-# ANCHOR: TWX_PROJECT_BUILD_DIR
-#[=======[*/
-/** @brief Project build directory: .../TwxBuild
-  *
-  * Contains a copy of the sources, after an eventual configuration step.
-  *
-  * Set by the `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_PROJECT_BUILD_DIR;
-# ANCHOR: TWX_PROJECT_BUILD_DATA_DIR
-/** @brief Project build directory: .../TwxBuildData
-  *
-  * Contains auxiliary data needed in the build process.
-  * In particular, it contains `...cfg.ini` files that are used
-  * in the `configure_file()` instructions steps.
-  *
-  * Set by the `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_PROJECT_BUILD_DATA_DIR;
-# ANCHOR: TWX_PROJECT_DOXYDOC_DIR
-/** @brief Project build directory: .../TwxDoxydoc/
-  *
-  * Contains the documentation built by doxydoc.
-  */
-TWX_PROJECT_DOXYDOC_DIR;
-# ANCHOR: TWX_PROJECT_PRODUCT_DIR
-/** @brief Project build directory: .../TwxProduct/
-  *
-  * Contains the built products, executables, tests and bundles.
-  *
-  * Set by the `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_PROJECT_PRODUCT_DIR;
-# ANCHOR: TWX_PROJECT_DOC_DIR
-/** @brief Project documentation directory: .../TwxDoc
-  *
-  * Contains the project documentation.
-  *
-  * Set by the `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_PROJECT_DOC_DIR;
-# ANCHOR: TWX_PROJECT_PACKAGE_DIR
-/** @brief Project documentation directory: .../TwxPackage
-  *
-  * Contains the project documentation.
-  *
-  * Set by the `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_PROJECT_PACKAGE_DIR;
-# ANCHOR: TWX_PROJECT_EXTERNAL_DIR
-/** @brief Project documentation directory: .../TwxExternal
-  *
-  * Contains the project documentation and poppler data.
-  *
-  * Set by the `include ( TwxBase )`
-  * that follows a `project()` declaration.
-  */
-TWX_PROJECT_EXTERNAL_DIR;
-/*#]=======]
-  twx_base_set_build_dirs (
-    BINARY_DIR "${PROJECT_BINARY_DIR}/"
-    VAR_PREFIX TWX_PROJECT
-  )
-
 # Minor changes
   if ( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}" )
     set ( TWX_PROJECT_IS_ROOT OFF )
   endif ()
+  foreach ( f ${TWX_BASE_AFTER_PROJECT} )
+    cmake_language ( CALL "${f}" )
+  endforeach ()
 endmacro ( twx_base_after_project )
 
 set ( TWX_IS_BASED ON )
@@ -345,62 +206,6 @@ include (
 
 set ( TWX_PROJECT_IS_ROOT ON )
 
-# ANCHOR: twx_base_set_build_dirs ()
-#[=======[
-/** @brief Set various build location variables
-  *
-  * All the locations end with exactly one `/` character.
-  *
-  * @param binary for key `BINARY_DIR`, must end with exactly one `/`.
-  * @param prefix for key `VAR_PREFIX`
-  * @param PARENT_SCOPE optional flag to indicate wether affectations occur
-  * in the parent scope instead of the current scope.
-  */
-twx_base_set_build_dirs( BINARY_DIR dir VAR_PREFIX prefix [PARENT_SCOPE]) {}
-/*#]=======]
-macro (
-  twx_base_set_build_dirs
-  .BINARY_DIR
-  twxR_BINARY_DIR
-  .VAR_PREFIX
-  twxR_VAR_PREFIX
-)
-  twx_assert_equal_string ( "${.BINARY_DIR}" "BINARY_DIR" )
-  twx_assert_equal_string ( "${.VAR_PREFIX}" "VAR_PREFIX" )
-  twx_expect_unequal_string ( "${twxR_BINARY_DIR}" "" )
-  twx_assert_variable ( "${twxR_VAR_PREFIX}" )
-  set ( twx_base_set_build_dirs.PARENT_SCOPE )
-  if ( "${ARGC}" GREATER "4" )
-    if ( "${ARGV4}" STREQUAL PARENT_SCOPE )
-      set ( twx_base_set_build_dirs.PARENT_SCOPE PARENT_SCOPE )
-      twx_arg_assert_count ( "${ARGC}" == 5 )
-    else ()
-      twx_arg_assert_count ( "${ARGC}" == 4 )
-    endif ()
-  endif ()
-  set ( ${twxR_VAR_PREFIX}_BUILD_DIR       "${twxR_BINARY_DIR}TwxBuild/"         ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twxR_VAR_PREFIX}_BUILD_DATA_DIR  "${twxR_BINARY_DIR}TwxBuildData/"     ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twxR_VAR_PREFIX}_DOXYDOC_DIR     "${twxR_BINARY_DIR}TwxDoxydoc/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twxR_VAR_PREFIX}_CFG_INI_DIR     "${twxR_BINARY_DIR}TwxBuildData/"     ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twxR_VAR_PREFIX}_PRODUCT_DIR     "${twxR_BINARY_DIR}TwxProduct/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twxR_VAR_PREFIX}_DOC_DIR         "${twxR_BINARY_DIR}TwxDocumentation/" ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twxR_VAR_PREFIX}_DOWNLOAD_DIR    "${twxR_BINARY_DIR}TwxDownload/"      ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twxR_VAR_PREFIX}_PACKAGE_DIR     "${twxR_BINARY_DIR}TwxPackage/"       ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( ${twxR_VAR_PREFIX}_EXTERNAL_DIR    "${twxR_BINARY_DIR}TwxExternal/"      ${twx_base_set_build_dirs.PARENT_SCOPE} )
-  set ( twx_base_set_build_dirs.PARENT_SCOPE )
-endmacro ()
-
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMathLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxIncrementLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxSplitLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExportLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMessageLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxTreeLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxUtilLib.cmake" )
 #[=======[
 TwxCoreLib.cmake
 TwxAssertLib.cmake
@@ -422,16 +227,36 @@ TwxCfgLib.cmake
 TwxTestLib.cmake
 #]=======]
 
-twx_assert_non_void ( TWX_IS_BASED )
+foreach (
+  twx.lib
+    "Core"
+    "Assert"
+    "Expect"
+    "Dir"
+    "Math"
+    "Increment"
+    "Arg"
+    "Split"
+    "Export"
+    "Message"
+    "Tree"
+    "Test"
+    "Hook"
+    "Util"
+    "Global"
+    "Ans"
+    "State"
+    "Cfg"
+)
+  include ( "${CMAKE_CURRENT_LIST_DIR}/Twx${twx.lib}Lib.cmake" )
+endforeach ()
+set ( twx.lib )
 
-twx_base_set_build_dirs (
-  BINARY_DIR "${CMAKE_BINARY_DIR}/"
-  VAR_PREFIX TWX
-)
-twx_base_set_build_dirs (
-  BINARY_DIR "${CMAKE_BINARY_DIR}/"
-  VAR_PREFIX TWX_PROJECT
-)
+twx_assert_true ( TWX_IS_BASED )
+
+if ( COMMAND twx_message_register_prettifier )
+  twx_message_register_prettifier ( twx_base )
+endif ()
 
 twx_message ( VERBOSE
   "ROOT   DIR => ${TWX_DIR}"

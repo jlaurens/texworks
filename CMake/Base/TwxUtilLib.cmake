@@ -7,7 +7,7 @@ See https://github.com/TeXworks/texworks
   * @brief  Utilities
   *
   *   include (
-  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxUtilLib.cmake"
+  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxUtilLib.cmake"
   *   )
   *
   * Output state:
@@ -15,6 +15,8 @@ See https://github.com/TeXworks/texworks
   *
   */
 /*#]===============================================]
+
+include_guard ( GLOBAL )
 
 # Full include only once
 if ( DEFINED TWX_DIR )
@@ -30,22 +32,27 @@ endif ()
   * The resulting path may not exists though.
   *
   * @param ..., non empty list of string variables containing locations of directories.
+  *
   */
 twx_complete_dir_var(...) {}
-/*#]=======]
-function ( twx_complete_dir_var .var )
+/*
+Implementation details:
+The argument are IO variable names, such that we must name local variables with great care,
+otherwise there might be a conflict.
+#]=======]
+function ( twx_complete_dir_var twx_complete_dir_var.var )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_complete_dir_var )
-  set ( i 0 )
+  set ( twx_complete_dir_var.i 0 )
   while ( TRUE )
-    set ( v "${ARGV${i}}" )
-    # message ( TR@stloefflerCE "v => \"${v}\"")
-    twx_assert_variable ( "${v}" )
-    twx_assert_defined ( "${v}" )
-    set ( w "${${v}}" )
-    if ( NOT "${w}" STREQUAL "" AND NOT "${w}" MATCHES "/$" )
-      twx_export ( "${v}=${w}/" )
+    set ( twx_complete_dir_var.v "${ARGV${twx_complete_dir_var.i}}" )
+    # message ( TR@CE "v => \"${twx_complete_dir_var.v}\"")
+    twx_assert_variable_name ( "${twx_complete_dir_var.v}" )
+    twx_assert_defined ( "${twx_complete_dir_var.v}" )
+    set ( twx_complete_dir_var.w "${${twx_complete_dir_var.v}}" )
+    if ( NOT "${twx_complete_dir_var.w}" STREQUAL "" AND NOT "${twx_complete_dir_var.w}" MATCHES "/$" )
+      twx_export ( "${twx_complete_dir_var.v}=${twx_complete_dir_var.w}/" )
     endif ()
-    twx_increment_and_break_if ( VAR i >= ${ARGC} )
+    twx_increment_and_break_if ( VAR twx_complete_dir_var.i >= ${ARGC} )
   endwhile ()
 endfunction ( twx_complete_dir_var )
 
@@ -63,19 +70,6 @@ get_filename_component (
   REALPATH
 )
 
-#[=======[ setup `CMAKE_MODULE_PATH`
-Make the contents of `CMake/Include` and `CMake/Modules` available.
-The former contains tools and utilities whereas
-the latter only contains modules at a higher level.
-]=======]
-list (
-  INSERT CMAKE_MODULE_PATH 0
-  "${TWX_DIR}CMake/Base"
-  "${TWX_DIR}CMake/Include"
-  "${TWX_DIR}CMake/Modules"
-)
-list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
-
 # ANCHOR: Utility `twx_util_timestamp`
 #[=======[
 Usage:
@@ -86,10 +80,10 @@ Records the file timestamp.
 The precision is 1s.
 Correct up to 2036-02-27.
 #]=======]
-function ( twx_util_timestamp filepath_ .IN_VAR twxR_IN_VAR )
+function ( twx_util_timestamp filepath_ .IN_VAR twx.R_IN_VAR )
   twx_arg_assert_count ( ${ARGC} == 3 )
   twx_arg_assert_keyword ( .IN_VAR )
-  twx_assert_variable ( "${twxR_IN_VAR}" )
+  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
   file (
     TIMESTAMP "${filepath_}" ts "%S:%M:%H:%j:%Y" UTC
   )
@@ -135,7 +129,7 @@ function ( twx_util_timestamp filepath_ .IN_VAR twxR_IN_VAR )
   else ()
     set ( ts 0 )
   endif ()
-  twx_export ( "${twxR_IN_VAR}=${ts}" )
+  twx_export ( "${twx.R_IN_VAR}=${ts}" )
 endfunction ()
 
 # TODO: MOVE THIS TO THE INCLUDE FOLDER
@@ -198,14 +192,27 @@ if ( "${TWX_NAME}" STREQUAL "" )
   endif ()
 endif ()
 
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExportLib.cmake" )
+
 if ( "${TWX_COMMAND}" STREQUAL "" )
   string ( TOLOWER "${TWX_NAME}" TWX_COMMAND)
 endif ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExportLib.cmake" )
-
 twx_complete_dir_var ( TWX_DIR )
+
+#[=======[ setup `CMAKE_MODULE_PATH`
+Make the contents of `CMake/Base` and `CMake/Modules` available.
+The former contains tools and utilities whereas
+the latter only contains modules at a higher level.
+]=======]
+list (
+  INSERT CMAKE_MODULE_PATH 0
+  "${TWX_DIR}CMake/Base"
+  "${TWX_DIR}CMake/Include"
+  "${TWX_DIR}CMake/Modules"
+)
+list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
 
 message ( DEBUG "TwxUtilLib loaded ${TWX_DIR}" )
 

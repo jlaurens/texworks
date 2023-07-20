@@ -11,6 +11,9 @@ Make a build folder and use cmake ... && cmake --build ...
 
 cmake_minimum_required ( VERSION 3.25 )
 
+include_guard ( GLOBAL )
+
+
 include (
   "${CMAKE_CURRENT_LIST_DIR}/../../Base/TwxBase.cmake"
   NO_POLICY_SCOPE

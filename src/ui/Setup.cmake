@@ -14,9 +14,11 @@ Output:
 
 #]===============================================]
 
-set ( TwxUI_SOURCES )
-set ( TwxUI_HEADERS )
-set ( TwxUI_UIS )
+include_guard ( GLOBAL )
+
+unset ( TwxUI_SOURCES )
+unset ( TwxUI_HEADERS )
+unset ( TwxUI_UIS )
 
 list (
 	APPEND TwxUI_SOURCES

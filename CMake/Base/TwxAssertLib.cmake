@@ -11,24 +11,22 @@ See https://github.com/TeXworks/texworks
   * Usage:
   *
   *   include (
-  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxAssertLib.cmake"
+  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxAssertLib.cmake"
   *     NO_POLICY_SCOPE
   *   )
   * or `include ( TwxAssertLib )` when `Base` is already available.
   */
 /*#]===============================================]
 
-# Full include only once
-if ( COMMAND twx_assert_undefined )
-  return ()
-endif ()
+include_guard ( GLOBAL )
 
+# Full include only once
 # ANCHOR: twx_assert_undefined
 #[=======[
 */
 /** @brief Expect an undefined variable
   *
-  * Raises when `name` is the name of a defined variable.
+  * Raises when one of the arguments is the name of a defined variable.
   *
   * @param ... is a non empty list of variable names.
   * support the `$|` syntax
@@ -84,52 +82,63 @@ endfunction ()
   * Usages:
   * - `twx_assert_compare ( left op1 right1 [op2 right2]...)`
   *
+  * @param NUMBER, optional flag for number comparison. The default.
+  * @param STR, optional flag for string comparison.
   * @param left, number value.
-  * Support `$|` syntax.
   * @param op, comparison binary operator.
   * @param right, number value.
-  * Support `$|` syntax.
   */
-twx_assert_compare( left op right ) {}
+twx_assert_compare( [NUMBER|STR] left op right ) {}
 /*#]=======]
-function ( twx_assert_compare left_ op_ right_ )
-  set ( left_ "${ARGV0}" )
-  set ( i 1 )
+function ( twx_assert_compare .left .op .right )
+  set ( left_ "${ARGV1}" )
+  set ( i 2 )
+  set ( prefix_ "" )
+  if ( "${ARGV0}" STREQUAL "STR" )
+    set ( prefix STR )
+  elseif ( NOT "${ARGV0}" STREQUAL "NUMBER" )
+    set ( left_ "${ARGV0}" )
+    set ( i 1 )
+  endif ()
   while ( TRUE )
     set ( op_ "${ARGV${i}}" )
-    math ( EXPR i "${i}+1" ) 
+    math ( EXPR i "${i}+1" )
     if ( ${ARGC} EQUAL i )
-      message ( FATAL_ERROR "Missing VAR argument" )
+      message ( FATAL_ERROR "Missing rhs" )
     endif ()
     set ( right_ "${ARGV${i}}" )
     if ( op_ STREQUAL "<" )
-      if ( NOT "${left_}" LESS "${right_}" )
-        twx_fatal ( "Unexpected ${left_} >= ${right_}" )
+      if ( NOT "${left_}" ${prefix_}LESS "${right_}" )
+        twx_fatal ( "Unsatisfied ${left_} ${op_} ${right_}" )
       endif ()
     elseif ( op_ STREQUAL "<=" )
-      if ( NOT "${left_}" LESS_EQUAL "${right_}" )
-        twx_fatal ( "Unexpected ${left_} > ${right_}" )
+      if ( NOT "${left_}" ${prefix_}LESS_EQUAL "${right_}" )
+        twx_fatal ( "Unsatisfied ${left_} ${op_} ${right_}" )
       endif ()
     elseif ( op_ STREQUAL "==" OR op_ STREQUAL "=" )
-      if ( NOT "${left_}" EQUAL "${right_}" )
-        twx_fatal ( "Unexpected ${left_} != ${right_}" )
+      if ( NOT "${left_}" ${prefix_}EQUAL "${right_}" )
+        twx_fatal ( "Unsatisfied ${left_} ${op_} ${right_}" )
       endif ()
     elseif ( op_ STREQUAL ">=" )
-      if ( NOT "${left_}" GREATER_EQUAL "${right_}" )
-        twx_fatal ( "Unexpected ${left_} < ${right_}" )
+      if ( NOT "${left_}" ${prefix_}GREATER_EQUAL "${right_}" )
+        twx_fatal ( "Unsatisfied ${left_} ${op_} ${right_}" )
       endif ()
     elseif ( op_ STREQUAL ">" )
-      if ( NOT "${left_}" GREATER "${right_}" )
-        twx_fatal ( "Unexpected ${left_} <= ${right_}" )
+      if ( NOT "${left_}" ${prefix_}GREATER "${right_}" )
+        twx_fatal ( "Unsatisfied ${left_} ${op_} ${right_}" )
+      endif ()
+    elseif ( op_ STREQUAL "!=" OR op_ STREQUAL "<>" )
+      if ( "${left_}" ${prefix_}EQUAL "${right_}" )
+        twx_fatal ( "Unsatisfied ${left_} ${op_} ${right_}" )
       endif ()
     else ()
       twx_fatal ( "Missing comparison binary operator (2), got \"${op_}\" instead" )
     endif ()
-    set ( left_ "${right_}" )
     math ( EXPR i "${i}+1" ) 
     if ( ${ARGC} EQUAL i )
       break ()
     endif ()
+    set ( left_ "${right_}" )
   endwhile ()
 endfunction ( twx_assert_compare )
 
@@ -153,7 +162,7 @@ function ( twx_assert_non_void var_ )
       twx_fatal ( "Missing ${twx_assert_non_void.v}" )
     endif ()
     math ( EXPR twx_assert_non_void.i "${twx_assert_non_void.i}+1" )
-    if ( "${twx_assert_non_void.i}" EQUAL "${ARGC}" )
+    if ( "${twx_assert_non_void.i}" EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ( )
@@ -179,7 +188,7 @@ function ( twx_assert_0 v )
       twx_fatal ( "Unexpected \"${v}\" instead of 0")
     endif ()
     math ( EXPR i "${i}+1" )
-    if ( "${i}" EQUAL "${ARGC}" )
+    if ( "${i}" EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ()
@@ -202,7 +211,7 @@ function ( twx_assert_true value_ )
       twx_fatal ( "Unexpected falsy ${v}")
     endif ()
     math ( EXPR i "${i}+1" )
-    if ( "${i}" EQUAL "${ARGC}" )
+    if ( "${i}" EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ( )
@@ -221,11 +230,11 @@ function ( twx_assert_false value_ )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )
-    if ( NOT ( NOT ${v} ) )
+    if ( ${v} )
       twx_fatal ( "Unexpected truthy ${v}")
     endif ()
     math ( EXPR i "${i}+1" )
-    if ( "${i}" EQUAL "${ARGC}" )
+    if ( "${i}" EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ( )
@@ -242,7 +251,7 @@ endfunction ()
   */
 twx_assert_exists(actual) {}
 /*#]=======]
-function ( twx_assert_exists path_ )
+function ( twx_assert_exists .p )
   set ( i 0 )
   while ( TRUE )
     set ( p "${ARGV${i}}" )
@@ -250,7 +259,7 @@ function ( twx_assert_exists path_ )
       twx_fatal ( "Missing file/directory at ${p}")
     endif ()
     math ( EXPR i "${i}+1" )
-    if ( "${i}" EQUAL "${ARGC}" )
+    if ( "${i}" EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ( )
@@ -272,7 +281,7 @@ function ( twx_assert_target .t )
       twx_fatal ( "Unknown target ${t}" )
     endif ()
     math ( EXPR i "${i}+1" )
-    if ( "${i}" EQUAL "${ARGC}" )
+    if ( "${i}" EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ( )
@@ -294,7 +303,7 @@ function ( twx_assert_command .c )
       twx_fatal ( "Unknown command ${c}" )
     endif ()
     math ( EXPR i "${i}+1" )
-    if ( "${i}" EQUAL "${ARGC}" )
+    if ( "${i}" EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ( )

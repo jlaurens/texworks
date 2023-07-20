@@ -37,11 +37,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-# Guard
-if ( COMMAND twx_module_load )
-# This has already been included
-  return ()
-endif ()
+include_guard ( GLOBAL )
 
 # ANCHOR: twx_module_guess
 #[=======[*/
@@ -65,7 +61,7 @@ endif ()
 twx_module_guess ( [VAR_PREFIX prefix] [IN_VAR_MODULE var_module] ) {}
 /*#]=======]
 function ( twx_module_guess )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "VAR_PREFIX;IN_VAR_MODULE" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "VAR_PREFIX;IN_VAR_MODULE" "" )
   twx_arg_assert_parsed ()
   twx_assert_non_void ( TWX_DIR )
   if ( "${CMAKE_CURRENT_LIST_DIR}" MATCHES "${TWX_DIR}modules/Twx([^/]+)(/.*)?$" )
@@ -75,25 +71,25 @@ function ( twx_module_guess )
     twx_fatal ( "Bad usage: ${CMAKE_CURRENT_LIST_DIR}" )
     return ()
   endif ()
-  if ( NOT "${twxR_VAR_PREFIX}" STREQUAL "" )
-    twx_assert_variable ( "${twxR_VAR_PREFIX}" )
-    set ( ${twxR_VAR_PREFIX}_MODULE "${module_}" PARENT_SCOPE )
-    set ( ${twxR_VAR_PREFIX}_MODULE_NAME "${module_name_}" PARENT_SCOPE )
+  if ( NOT "${twx.R_VAR_PREFIX}" STREQUAL "" )
+    twx_assert_variable_name ( "${twx.R_VAR_PREFIX}" )
+    set ( ${twx.R_VAR_PREFIX}_MODULE "${module_}" PARENT_SCOPE )
+    set ( ${twx.R_VAR_PREFIX}_MODULE_NAME "${module_name_}" PARENT_SCOPE )
   endif ()
-  if ( "${twxR_IN_VAR_MODULE}" STREQUAL "" )
-    if ( "${twxR_VAR_PREFIX}" STREQUAL "" )
+  if ( "${twx.R_IN_VAR_MODULE}" STREQUAL "" )
+    if ( "${twx.R_VAR_PREFIX}" STREQUAL "" )
       set ( TWX_MODULE      "${module_}"      PARENT_SCOPE )
       set ( TWX_MODULE_NAME "${module_name_}" PARENT_SCOPE )
     else ()
-      set ( ${twxR_VAR_PREFIX}_MODULE       "${module_}"      PARENT_SCOPE )
-      set ( ${twxR_VAR_PREFIX}_MODULE_NAME  "${module_name_}" PARENT_SCOPE )
+      set ( ${twx.R_VAR_PREFIX}_MODULE       "${module_}"      PARENT_SCOPE )
+      set ( ${twx.R_VAR_PREFIX}_MODULE_NAME  "${module_name_}" PARENT_SCOPE )
     endif ()
   else ()
-    twx_assert_variable ( "${twxR_IN_VAR_MODULE}" )
-    set ( ${twxR_IN_VAR_MODULE} "${module_}" PARENT_SCOPE )
-    if ( "${twxR_VAR_PREFIX}" STREQUAL "" )
-      set ( twxR_MODULE       "${module_}"      PARENT_SCOPE )
-      set ( twxR_MODULE_NAME  "${module_name_}" PARENT_SCOPE )
+    twx_assert_variable_name ( "${twx.R_IN_VAR_MODULE}" )
+    set ( ${twx.R_IN_VAR_MODULE} "${module_}" PARENT_SCOPE )
+    if ( "${twx.R_VAR_PREFIX}" STREQUAL "" )
+      set ( twx.R_MODULE       "${module_}"      PARENT_SCOPE )
+      set ( twx.R_MODULE_NAME  "${module_name_}" PARENT_SCOPE )
     endif ()
   endif ()
 endfunction ()
@@ -119,28 +115,28 @@ twx_module_dir( [MODULE module] IN_VAR ans [REQUIRED] [OPTIONAL] ) {}
 /*#]=======]
 function ( twx_module_dir )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twxR
+    PARSE_ARGV 0 twx.R
     "REQUIRED;OPTIONAL" "IN_VAR;MODULE" ""
   )
   twx_arg_assert_parsed ()
-  twx_assert_variable ( "${twxR_IN_VAR}" )
-  if ( "${twxR_MODULE}" STREQUAL "" )
-    twx_module_guess ( IN_VAR_MODULE twxR_MODULE )
+  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  if ( "${twx.R_MODULE}" STREQUAL "" )
+    twx_module_guess ( IN_VAR_MODULE twx.R_MODULE )
   endif ()
-  twx_assert_non_void ( twxR_MODULE )
-  if ( NOT twxR_MODULE MATCHES "^Twx" )
-    set ( twxR_MODULE Twx${twxR_MODULE} )
+  twx_assert_non_void ( twx.R_MODULE )
+  if ( NOT twx.R_MODULE MATCHES "^Twx" )
+    set ( twx.R_MODULE Twx${twx.R_MODULE} )
   endif ()
-  set ( ${twxR_IN_VAR} "${TWX_DIR}modules/${twxR_MODULE}" )
-  if ( NOT EXISTS "${${twxR_IN_VAR}}" )
-    if ( twxR_REQUIRED AND NOT twxR_OPTIONAL )
-      twx_fatal ( "No module named ${twxR_MODULE} (${ARGV})" )
+  set ( ${twx.R_IN_VAR} "${TWX_DIR}modules/${twx.R_MODULE}" )
+  if ( NOT EXISTS "${${twx.R_IN_VAR}}" )
+    if ( twx.R_REQUIRED AND NOT twx.R_OPTIONAL )
+      twx_fatal ( "No module named ${twx.R_MODULE} (${ARGV})" )
       return ()
     else ()
-      set ( ${twxR_IN_VAR} )  
+      set ( ${twx.R_IN_VAR} )  
     endif ()
   endif ()
-  twx_export ( ${twxR_IN_VAR} )
+  twx_export ( ${twx.R_IN_VAR} )
 endfunction ()
 
 # ANCHOR: twx_module_src_in_dir
@@ -160,9 +156,9 @@ endfunction ()
 twx_module_src_in_dir( [MODULE module] IN_VAR ans [REQUIRED] [OPTIONAL] ) {}
 /*#]=======]
 function ( twx_module_src_in_dir )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "IN_VAR" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "IN_VAR" "" )
   twx_module_dir ( ${ARGV} )
-  set ( ${twxR_IN_VAR} "${${twxR_IN_VAR}}/src/" PARENT_SCOPE )
+  set ( ${twx.R_IN_VAR} "${${twx.R_IN_VAR}}/src/" PARENT_SCOPE )
 endfunction ()
 
 # ANCHOR: twx_module_ui_dir
@@ -182,9 +178,9 @@ endfunction ()
 twx_module_ui_dir( [MODULE module] IN_VAR ans [REQUIRED] [OPTIONAL] ) {}
 /*#]=======]
 function ( twx_module_ui_dir )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "IN_VAR" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "IN_VAR" "" )
   twx_module_dir ( ${ARGV} )
-  set ( ${twxR_IN_VAR} "${${twxR_IN_VAR}}/ui/" PARENT_SCOPE )
+  set ( ${twx.R_IN_VAR} "${${twx.R_IN_VAR}}/ui/" PARENT_SCOPE )
 endfunction ()
 
 # ANCHOR: twx_module_Test_dir
@@ -204,9 +200,9 @@ endfunction ()
 twx_module_test_dir( [MODULE module] IN_VAR ans [REQUIRED] [OPTIONAL] ) {}
 /*#]=======]
 function ( twx_module_Test_dir )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "IN_VAR" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "IN_VAR" "" )
   twx_module_dir ( ${ARGV} )
-  set ( ${twxR_IN_VAR} "${${twxR_IN_VAR}}/Test/" PARENT_SCOPE )
+  set ( ${twx.R_IN_VAR} "${${twx.R_IN_VAR}}/Test/" PARENT_SCOPE )
 endfunction ()
 
 # ANCHOR: twx_module_CMake_dir
@@ -226,9 +222,9 @@ endfunction ()
 twx_module_test_dir( [MODULE module] IN_VAR ans [REQUIRED] [OPTIONAL] ) {}
 /*#]=======]
 function ( twx_module_CMake_dir )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "IN_VAR" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "IN_VAR" "" )
   twx_module_dir ( ${ARGV} )
-  set ( ${twxR_IN_VAR} "${${twxR_IN_VAR}}/CMake/" PARENT_SCOPE )
+  set ( ${twx.R_IN_VAR} "${${twx.R_IN_VAR}}/CMake/" PARENT_SCOPE )
 endfunction ()
 
 # !SECTION
@@ -320,24 +316,24 @@ endfunction ( twx_module_after_project )
 twx_module_setup( ... [TARGET target]) {}
 /*#]=======]
 function ( twx_module_setup )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "TARGET" "" )
-  if ( "${twxR_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    twx_module_guess ( IN_VAR_MODULE twxR_UNPARSED_ARGUMENTS )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TARGET" "" )
+  if ( "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
+    twx_module_guess ( IN_VAR_MODULE twx.R_UNPARSED_ARGUMENTS )
   endif ()
-  if ( TARGET "${twxR_TARGET}" )
-    twx_target_expose ( "${twxR_TARGET}" )
+  if ( TARGET "${twx.R_TARGET}" )
+    twx_target_expose ( "${twx.R_TARGET}" )
     set (
-      TWX_PROJECT_BUILD_DIR "${${twxR_TARGET}_BUILD_DIR}"
+      TWX_PROJECT_BUILD_DIR "${${twx.R_TARGET}_BUILD_DIR}"
     )
     set (
-      TWX_PROJECT_BUILD_DATA_DIR "${${twxR_TARGET}_BUILD_DATA_DIR}"
+      TWX_PROJECT_BUILD_DATA_DIR "${${twx.R_TARGET}_BUILD_DATA_DIR}"
     )
-    if ( NOT "${${twxR_TARGET}_BINARY_DIR}" STREQUAL "" )
+    if ( NOT "${${twx.R_TARGET}_BINARY_DIR}" STREQUAL "" )
       set (
-        TWX_PROJECT_BUILD_DIR "${${twxR_TARGET}_BINARY_DIR}TwxBuild/"
+        TWX_PROJECT_BUILD_DIR "${${twx.R_TARGET}_BINARY_DIR}TwxBuild/"
       )
       set (
-        TWX_PROJECT_BUILD_DATA_DIR "${${twxR_TARGET}_BINARY_DIR}TwxBuildData/"
+        TWX_PROJECT_BUILD_DATA_DIR "${${twx.R_TARGET}_BINARY_DIR}TwxBuildData/"
       )
     endif ()
   endif ()
@@ -347,7 +343,7 @@ function ( twx_module_setup )
     TWX_PROJECT_BUILD_DATA_DIR
   )
   twx_cfg_setup ()
-  foreach ( TWX_MODULE ${twxR_UNPARSED_ARGUMENTS} )
+  foreach ( TWX_MODULE ${twx.R_UNPARSED_ARGUMENTS} )
     twx_module_complete ( "${TWX_MODULE}" )
     twx_message ( VERBOSE "twx_module_setup: ${TWX_MODULE_NAME}" "-----------------")
     foreach ( p_ ${TWX_TARGET_PROPERTIES} )
@@ -373,18 +369,18 @@ function ( twx_module_setup )
     set ( ${TWX_MODULE}_SRC_OUT_DIR "${TWX_PROJECT_BUILD_DIR}src/" )
     twx_cfg_files (
       MODULE 	${TWX_MODULE}
-      TARGET  ${twxR_TARGET}
+      TARGET  ${twx.R_TARGET}
       TYPE		SOURCES
       ESCAPE_QUOTES
     )
     if ( NOT "${${TWX_MODULE}_IN_SOURCES}" STREQUAL "" )
       message ( DEBUG "MODULE 	${TWX_MODULE}
-      TARGET  ${twxR_TARGET}")
+      TARGET  ${twx.R_TARGET}")
       twx_assert_non_void ( ${TWX_MODULE}_OUT_SOURCES )
     endif ()
     twx_cfg_files (
       MODULE 	${TWX_MODULE}
-      TARGET  ${twxR_TARGET}
+      TARGET  ${twx.R_TARGET}
       TYPE		HEADERS
     )
     if ( NOT "${${TWX_MODULE}_IN_HEADERS}" STREQUAL "" )
@@ -461,14 +457,14 @@ twx_module_declare( SOURCES sources ... ) {}
 /*#]=======]
 function ( twx_module_declare )
   twx_module_guess ()
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "" "SOURCES;HEADERS;UIS;OTHER_LIBRARIES;MODULES;QT_COMPONENTS;INCLUDE_DIRS" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "" "SOURCES;HEADERS;UIS;OTHER_LIBRARIES;MODULES;QT_COMPONENTS;INCLUDE_DIRS" )
   twx_arg_assert_parsed ()
   foreach ( t_ SOURCES HEADERS UIS )
-    list ( APPEND "${TWX_MODULE}_IN_${t_}" "${twxR_${t_}}" )
+    list ( APPEND "${TWX_MODULE}_IN_${t_}" "${twx.R_${t_}}" )
     twx_export ( "${TWX_MODULE}_IN_${t_}" )
   endforeach ()
   foreach ( t_ OTHER_LIBRARIES MODULES QT_COMPONENTS INCLUDE_DIRS )
-    list ( APPEND "${TWX_MODULE}_${t_}" "${twxR_${t_}}" )
+    list ( APPEND "${TWX_MODULE}_${t_}" "${twx.R_${t_}}" )
     twx_export ( "${TWX_MODULE}_${t_}" )
   endforeach ()
   twx_assert_non_void ( TWX_DIR )
@@ -593,7 +589,7 @@ function ( twx_module_configure )
     FILES 	${${TWX_MODULE}_IN_HEADERS}
     OUT_DIR	"${${TWX_MODULE}_INCLUDE_FOR_TESTING_DIR}"
   )
-  include ( TwxWarning )
+  include ( TwxWarningLib )
   twx_warning_target ( ${TWX_MODULE} )
 
   if ( NOT TARGET Twx::${TWX_MODULE_NAME} )
@@ -641,18 +637,18 @@ endfunction ()
   */
 twx_module_complete ( module [VAR_PREFIX var_] ) {}
 /*#]=======]
-function ( twx_module_complete twxR_MODULE )
-  cmake_parse_arguments ( PARSE_ARGV 1 twxR "" "VAR_PREFIX" "" )
+function ( twx_module_complete twx.R_MODULE )
+  cmake_parse_arguments ( PARSE_ARGV 1 twx.R "" "VAR_PREFIX" "" )
   twx_arg_assert_parsed ()
-  if ( "${twxR_VAR_PREFIX}" STREQUAL "" )
-    set ( twxR_VAR_PREFIX TWX )
+  if ( "${twx.R_VAR_PREFIX}" STREQUAL "" )
+    set ( twx.R_VAR_PREFIX TWX )
   endif ()
-  if ( "${twxR_MODULE}" MATCHES "^Twx(.+)$" )
-    set ( "${twxR_VAR_PREFIX}_MODULE" "${twxR_MODULE}" PARENT_SCOPE )
-    set ( "${twxR_VAR_PREFIX}_MODULE_NAME" "${CMAKE_MATCH_1}" PARENT_SCOPE )
-  elseif ( NOT "${twxR_MODULE}" STREQUAL "" )
-    set ( "${twxR_VAR_PREFIX}_MODULE" "Twx${twxR_MODULE}" PARENT_SCOPE )
-    set ( "${twxR_VAR_PREFIX}_MODULE_NAME" "${twxR_MODULE}" PARENT_SCOPE )
+  if ( "${twx.R_MODULE}" MATCHES "^Twx(.+)$" )
+    set ( "${twx.R_VAR_PREFIX}_MODULE" "${twx.R_MODULE}" PARENT_SCOPE )
+    set ( "${twx.R_VAR_PREFIX}_MODULE_NAME" "${CMAKE_MATCH_1}" PARENT_SCOPE )
+  elseif ( NOT "${twx.R_MODULE}" STREQUAL "" )
+    set ( "${twx.R_VAR_PREFIX}_MODULE" "Twx${twx.R_MODULE}" PARENT_SCOPE )
+    set ( "${twx.R_VAR_PREFIX}_MODULE_NAME" "${twx.R_MODULE}" PARENT_SCOPE )
   endif ()
 endfunction ( twx_module_complete )
 
@@ -672,24 +668,24 @@ endfunction ( twx_module_complete )
 twx_module_expose( module [PROPERTIES ...] OPTIONAL ) {}
 /*#]=======]
 function ( twx_module_expose )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "OPTIONAL" "VAR_PREFIX" "PROPERTIES" )
-  set ( twxR_MODULE "${twxR_UNPARSED_ARGUMENTS}" )
-  if ( "${twxR_MODULE}" STREQUAL "" )
-    twx_module_guess ( VAR_PREFIX twxR )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "OPTIONAL" "VAR_PREFIX" "PROPERTIES" )
+  set ( twx.R_MODULE "${twx.R_UNPARSED_ARGUMENTS}" )
+  if ( "${twx.R_MODULE}" STREQUAL "" )
+    twx_module_guess ( VAR_PREFIX twx.R )
   endif ()
-  twx_module_complete ( ${twxR_MODULE} VAR_PREFIX twxR )
+  twx_module_complete ( ${twx.R_MODULE} VAR_PREFIX twx.R )
   twx_arg_pass_option ( OPTIONAL )
-  twx_module_load ( ${twxR_MODULE} ${twxR_OPTIONAL} )
-  if ( TARGET ${twxR_MODULE} )
-    if ( "${twxR_PROPERTIES}" STREQUAL "" )
-      set ( twxR_PROPERTIES "${TWX_TARGET_PROPERTIES}" )
+  twx_module_load ( ${twx.R_MODULE} ${twx.R_OPTIONAL} )
+  if ( TARGET ${twx.R_MODULE} )
+    if ( "${twx.R_PROPERTIES}" STREQUAL "" )
+      set ( twx.R_PROPERTIES "${TWX_TARGET_PROPERTIES}" )
     endif ()
-    twx_target_expose ( ${twxR_MODULE} PROPERTIES ${twxR_PROPERTIES} )
-    twx_export ( ${twxR_PROPERTIES} VAR_PREFIX "${twxR_MODULE}" )
-    set ( ${twxR_MODULE}_IS_MODULE "ON" PARENT_SCOPE )
-    if ( NOT "${twxR_VAR_PREFIX}" STREQUAL "" )
-      set ( ${twxR_VAR_PREFIX}_MODULE      "${twxR_MODULE}"      PARENT_SCOPE )
-      set ( ${twxR_VAR_PREFIX}_MODULE_NAME "${twxR_MODULE_NAME}" PARENT_SCOPE )
+    twx_target_expose ( ${twx.R_MODULE} PROPERTIES ${twx.R_PROPERTIES} )
+    twx_export ( ${twx.R_PROPERTIES} VAR_PREFIX "${twx.R_MODULE}" )
+    set ( ${twx.R_MODULE}_IS_MODULE "ON" PARENT_SCOPE )
+    if ( NOT "${twx.R_VAR_PREFIX}" STREQUAL "" )
+      set ( ${twx.R_VAR_PREFIX}_MODULE      "${twx.R_MODULE}"      PARENT_SCOPE )
+      set ( ${twx.R_VAR_PREFIX}_MODULE_NAME "${twx.R_MODULE_NAME}" PARENT_SCOPE )
     endif ()
   endif ()
 endfunction ( twx_module_expose )
@@ -732,11 +728,11 @@ endfunction ( twx_module_expose )
   */
 twx_module_load( modules ... ) {}
 /*#]=======]
-function ( twx_module_load twxR_name )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "REQUIRED;OPTIONAL" "" "" )
+function ( twx_module_load twx.R_name )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "REQUIRED;OPTIONAL" "" "" )
   twx_arg_pass_option ( REQUIRED OPTIONAL )
   set ( already_ )
-  foreach ( m_ ${twxR_UNPARSED_ARGUMENTS} )
+  foreach ( m_ ${twx.R_UNPARSED_ARGUMENTS} )
     twx_module_complete ( ${m_} )
     if ( TARGET ${TWX_MODULE} )
       set ( ${TWX_MODULE}_IS_MODULE "ON" PARENT_SCOPE )
@@ -778,26 +774,26 @@ endfunction ( twx_module_load )
 twx_module_include_dir( [MODULE module] IN_VAR dir [TEST]) {}
 /*#]=======]
 function ( twx_module_include_dir )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "TEST" "IN_VAR;MODULE" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "TEST" "IN_VAR;MODULE" "" )
   twx_arg_assert_parsed ()
-  twx_assert_variable ( "${twxR_IN_VAR}")
-  if ( "${twxR_MODULE}" STREQUAL "" )
-    twx_module_guess ( IN_VAR_MODULE twxR_MODULE )
+  twx_assert_variable_name ( "${twx.R_IN_VAR}")
+  if ( "${twx.R_MODULE}" STREQUAL "" )
+    twx_module_guess ( IN_VAR_MODULE twx.R_MODULE )
   endif ()
-  twx_assert_non_void ( twxR_MODULE )
-  twx_module_complete ( ${twxR_MODULE} VAR_PREFIX twxR )
-  twx_module_load ( ${twxR_MODULE} )
-  twx_module_expose ( ${twxR_MODULE} )
-  if ( twxR_TEST )
+  twx_assert_non_void ( twx.R_MODULE )
+  twx_module_complete ( ${twx.R_MODULE} VAR_PREFIX twx.R )
+  twx_module_load ( ${twx.R_MODULE} )
+  twx_module_expose ( ${twx.R_MODULE} )
+  if ( twx.R_TEST )
     set ( p_ INCLUDE_FOR_TESTING_DIR )
   else ()
     set ( p_ INCLUDE_DIR )
   endif ()
   set (
-    ${twxR_VAR}
-    ${${twxR_MODULE}_${p_}}
+    ${twx.R_VAR}
+    ${${twx.R_MODULE}_${p_}}
   )
-  twx_export ( ${twxR_IN_VAR} )
+  twx_export ( ${twx.R_IN_VAR} )
 endfunction ()
 
 # ANCHOR: twx_module_add
@@ -822,14 +818,14 @@ endfunction ()
 twx_module_add ( modules ... TO_TARGETS targets ... [TEST] ) {}
 /*#]=======]
 function ( twx_module_add )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "TEST" "" "TO_TARGETS" )
-  if ( "${twxR_UNPARSED_ARGUMENTS}" STREQUAL "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "TEST" "" "TO_TARGETS" )
+  if ( "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
     return ()
   endif ()
   twx_arg_pass_option ( TEST )
   set ( modules_to_add_ )
   # change short module names to long ones
-  foreach ( m_ ${twxR_UNPARSED_ARGUMENTS} )
+  foreach ( m_ ${twx.R_UNPARSED_ARGUMENTS} )
     if ( NOT m_ MATCHES "^Twx" )
       set ( m_ Twx${m_} )
     endif ()
@@ -838,14 +834,14 @@ function ( twx_module_add )
   # load all the modules
   twx_module_load ( ${modules_to_add_} )
   # Add the modules to the targets
-  foreach ( target_ ${twxR_TO_TARGETS} )
+  foreach ( target_ ${twx.R_TO_TARGETS} )
     twx_assert_target ( "${target_}" )
     if ( ${target_}_IS_MODULE )
       set ( mode_ )
       set ( test_ )
     else ()
       set ( mode_ PRIVATE )
-      set ( test_ ${twxR_TEST} )
+      set ( test_ ${twx.R_TEST} )
     endif ()
     foreach ( m_ ${modules_to_add_} )
       target_link_libraries (
@@ -892,10 +888,10 @@ endfunction ( twx_module_add )
 twx_module_includes(modules ... IN_TARGETS targets ... ) {}
 /*#]=======]
 function ( twx_module_includes )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "" "IN_TARGETS" )
-  foreach ( target_ ${twxR_IN_TARGETS} )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "" "IN_TARGETS" )
+  foreach ( target_ ${twx.R_IN_TARGETS} )
     twx_assert_target ( "${target_}" )
-    foreach ( module_ ${twxR_UNPARSED_ARGUMENTS} )
+    foreach ( module_ ${twx.R_UNPARSED_ARGUMENTS} )
       if ( NOT module_ MATCHES "^Twx" )
         set ( module_ Twx${module_} )
       endif ()
@@ -1008,7 +1004,7 @@ macro ( twx_module_configure_test )
     ${QT_LIBRARIES}
     ${${TWX_MODULE}_LIBRARIES}
   )
-  include ( TwxWarning )
+  include ( TwxWarningLib )
   twx_warning_target ( test_${TWX_MODULE} )
   add_test (
     NAME test_${TWX_MODULE}
@@ -1042,7 +1038,7 @@ twx_module_summary( [NO_EOL] ) {}
 /*#]=======]
 function ( twx_module_summary )
   twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "NO_EOL" "" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "NO_EOL" "" "" )
   twx_arg_assert_parsed ()
   if ( "${${TWX_MODULE}_TEST_SUITE}" STREQUAL "" )
     set ( b_ "library" )
@@ -1084,7 +1080,7 @@ function ( twx_module_summary )
     twx_summary_section_libraries ( ${TWX_MODULE_NAME} )
   endif ()
   twx_arg_pass_option ( NO_EOL )
-  twx_summary_end ( ${twxR_NO_EOL} )
+  twx_summary_end ( ${twx.R_NO_EOL} )
 endfunction ( twx_module_summary )
 
 # ANCHOR: twx_module_debug
@@ -1126,11 +1122,11 @@ endfunction ( twx_module_debug )
 twx_module_shorten( VAR ... MODULE ... ) {}
 /*#]=======]
 function ( twx_module_shorten )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "" "VAR;MODULE" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "" "VAR;MODULE" )
   twx_arg_assert_parsed ()
-  twx_assert_non_void ( twxR_VAR )
-  foreach ( v_ ${twxR_VAR} )
-    foreach ( m_ ${twxR_MODULE} )
+  twx_assert_non_void ( twx.R_VAR )
+  foreach ( v_ ${twx.R_VAR} )
+    foreach ( m_ ${twx.R_MODULE} )
       twx_module_expose ( "${m_}" )
       string (
         REPLACE

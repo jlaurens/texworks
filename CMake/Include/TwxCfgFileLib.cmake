@@ -46,6 +46,8 @@ Implementation detail:
 
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 # ANCHOR: twx_cfg_file_begin
 #[=======[
 *//**
@@ -76,16 +78,16 @@ twx_cfg_file_begin ( ID id ) {}
 /*
 #]=======]
 function ( twx_cfg_file_begin )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "ID" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "" )
   twx_arg_assert_parsed ()
-  twx_assert_non_void ( PROJECT_NAME twxR_ID )
-  set ( busy_ ${PROJECT_NAME}_${twxR_ID}_CFG_BUSY )
+  twx_assert_non_void ( PROJECT_NAME twx.R_ID )
+  set ( busy_ ${PROJECT_NAME}_${twx.R_ID}_CFG_BUSY )
   if ( ${busy_} )
-    twx_fatal ( "Missing twx_cfg_file_end ( ID ${twxR_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_end ( ID ${twx.R_ID} )" )
     return ()
   endif ()
   set ( ${busy_} ON PARENT_SCOPE )
-  set ( TWX_CFG__FILE_ID_CURRENT "${twxR_ID}" PARENT_SCOPE )
+  set ( TWX_CFG__FILE_ID_CURRENT "${twx.R_ID}" PARENT_SCOPE )
 endfunction ()
 
 # ANCHOR: twx_cfg_file_add
@@ -104,20 +106,20 @@ twx_cfg_file_add ( [ID id] FILES file ... ) {}
 /*
 #]=======]
 function ( twx_cfg_file_add )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "ID" "FILES" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "FILES" )
   twx_arg_assert_parsed ()
-  if ( NOT twxR_ID )
+  if ( NOT twx.R_ID )
     twx_assert_non_void ( TWX_CFG__FILE_ID_CURRENT )
-    set ( twxR_ID "${TWX_CFG__FILE_ID_CURRENT}" )
+    set ( twx.R_ID "${TWX_CFG__FILE_ID_CURRENT}" )
   endif ()
-  twx_assert_non_void ( twxR_ID )
-  set ( busy_ ${PROJECT_NAME}_${twxR_ID}_CFG_BUSY )
+  twx_assert_non_void ( twx.R_ID )
+  set ( busy_ ${PROJECT_NAME}_${twx.R_ID}_CFG_BUSY )
   if ( NOT ${busy_} )
-    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${twxR_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${twx.R_ID} )" )
     return ()
   endif ()
-  set ( files_ ${PROJECT_NAME}_${twxR_ID}_CFG_FILES )
-  list ( APPEND ${files_} ${twxR_FILES} )
+  set ( files_ ${PROJECT_NAME}_${twx.R_ID}_CFG_FILES )
+  list ( APPEND ${files_} ${twx.R_FILES} )
   twx_export( ${files_} )
 endfunction ()
 
@@ -209,31 +211,31 @@ twx_cfg_file_end ( [ID id] ) {}
 function ( twx_cfg_file_end )
   twx_assert_non_void ( PROJECT_NAME )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx_R
+    PARSE_ARGV 0 twx.R
     "ESCAPE_QUOTES;NO_PRIVATE"
     "MODULE;ID;TYPE;VAR_PREFIX;TARGET;IN_DIR;OUT_DIR"
     "CFG_INI_IDS"
   )
   twx_arg_assert_parsed ()
-  twx_assert_non_void ( twxR_IN_DIR twxR_OUT_DIR )
-  if ( "${twxR_ID}" STREQUAL "" )
+  twx_assert_non_void ( twx.R_IN_DIR twx.R_OUT_DIR )
+  if ( "${twx.R_ID}" STREQUAL "" )
     twx_assert_non_void ( TWX_CFG__FILE_ID_CURRENT )
-    set ( twxR_ID "${TWX_CFG__FILE_ID_CURRENT}" )
+    set ( twx.R_ID "${TWX_CFG__FILE_ID_CURRENT}" )
   endif ()
-  twx_assert_non_void ( twxR_ID )
+  twx_assert_non_void ( twx.R_ID )
   twx_message ( DEBUG
-    "twx_cfg_file_end: PROJECT/ID => ${PROJECT_NAME}/${twxR_ID}"
+    "twx_cfg_file_end: PROJECT/ID => ${PROJECT_NAME}/${twx.R_ID}"
   )
-  set ( busy_ ${PROJECT_NAME}_${twxR_ID}_CFG_BUSY )
+  set ( busy_ ${PROJECT_NAME}_${twx.R_ID}_CFG_BUSY )
   if ( NOT ${busy_} )
-    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${twxR_ID} )" )
+    twx_fatal ( "Missing twx_cfg_file_begin ( ID ${twx.R_ID} )" )
     return ()
   endif ()
-  set ( files_ ${PROJECT_NAME}_${twxR_ID}_CFG_FILES )
+  set ( files_ ${PROJECT_NAME}_${twx.R_ID}_CFG_FILES )
   set ( in_ )
   set ( out_ )
   foreach ( file.in ${${files_}} )
-    if ( twxR_NO_PRIVATE AND "${file.in}" MATCHES "private" )
+    if ( twx.R_NO_PRIVATE AND "${file.in}" MATCHES "private" )
       continue ()
     endif ()
     twx_cfg_file_name_out ( file.out IN "${file.in}" )
@@ -241,111 +243,111 @@ function ( twx_cfg_file_end )
     list ( APPEND out_ "${file.out}" )
   endforeach ()
   twx_arg_pass_option ( NO_PRIVATE ESCAPE_QUOTES )
-  twx_module_complete ( "${twxR_MODULE}" VAR_PREFIX twxR )
+  twx_module_complete ( "${twx.R_MODULE}" VAR_PREFIX twx.R )
   set ( target_ )
-  if ( TARGET "${twxR_MODULE}" )
-    twx_expect ( twxR_TARGET "" )
-    twx_module_expose ( ${twxR_MODULE} )
-    if ( "${twxR_IN_DIR}" STREQUAL "" )
-      set ( twxR_IN_DIR "${${twxR_MODULE}_SRC_IN_DIR}" )
+  if ( TARGET "${twx.R_MODULE}" )
+    twx_expect ( twx.R_TARGET "" )
+    twx_module_expose ( ${twx.R_MODULE} )
+    if ( "${twx.R_IN_DIR}" STREQUAL "" )
+      set ( twx.R_IN_DIR "${${twx.R_MODULE}_SRC_IN_DIR}" )
     else ()
-      twx_complete_dir_var ( twxR_IN_DIR )
+      twx_complete_dir_var ( twx.R_IN_DIR )
     endif ()
-    twx_assert_non_void ( twxR_OUT_DIR )
-    twx_complete_dir_var ( twxR_OUT_DIR )
-    if ( IS_ABSOLUTE "${twxR_OUT_DIR}" )
-      set ( output_directory_ "${twxR_OUT_DIR}" )
+    twx_assert_non_void ( twx.R_OUT_DIR )
+    twx_complete_dir_var ( twx.R_OUT_DIR )
+    if ( IS_ABSOLUTE "${twx.R_OUT_DIR}" )
+      set ( output_directory_ "${twx.R_OUT_DIR}" )
     else ()
-      set ( output_directory_ "${${twxR_MODULE}_ARCHIVE_OUTPUT_DIRECTORY}" )
+      set ( output_directory_ "${${twx.R_MODULE}_ARCHIVE_OUTPUT_DIRECTORY}" )
       if ( "${output_directory_}" MATCHES "NOTFOUND" )
-        twx_fatal ( "Module ${twxR_MODULE_NAME} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
+        twx_fatal ( "Module ${twx.R_MODULE_NAME} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
         return ()
       endif ()
-      set ( output_directory_ "${output_directory_}${twxR_OUT_DIR}" )
+      set ( output_directory_ "${output_directory_}${twx.R_OUT_DIR}" )
     endif ()
-    set ( cfg_ini_dir_ ${${twxR_MODULE}_CFG_INI_DIR} )
+    set ( cfg_ini_dir_ ${${twx.R_MODULE}_CFG_INI_DIR} )
     twx_state_serialize ()
     add_custom_command (
-      TARGET "${twxR_MODULE}"
+      TARGET "${twx.R_MODULE}"
       POST_BUILD
       COMMAND
         "${CMAKE_COMMAND}"
-          "-DTWX_CFG_INI_DIR=\"${${twxR_MODULE}_CFG_INI_DIR}\""
-          "-DTWX_IN_DIR=\"${twxR_IN_DIR}\""
+          "-DTWX_CFG_INI_DIR=\"${${twx.R_MODULE}_CFG_INI_DIR}\""
+          "-DTWX_IN_DIR=\"${twx.R_IN_DIR}\""
           "-DTWX_OUT_DIR=\"${output_directory_}\""
           "-DTWX_IN=${in_}"
-          "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
+          "-DTWX_CFG_INI_IDS=${twx.R_CFG_INI_IDS}"
           "${TWX-D_ESCAPE_QUOTES}"
           "${TWX-D_NO_PRIVATE}"
-          "${TWX-D_STATE}"
-          -P "${TWX_DIR}CMake/Command/TwxCfgFileCommand.cmake"
+          "${-DTWX_STATE}"
+          -P "${TWX_DIR}CMake/Script/TwxCfgFileCommand.cmake"
       COMMENT
-        "Configure ${PROJECT_NAME}'s ${twxR_MODULE_NAME} include directory ${output_directory_}"
+        "Configure ${PROJECT_NAME}'s ${twx.R_MODULE_NAME} include directory ${output_directory_}"
       VERBATIM
     )
-  elseif ( TARGET "${twxR_TARGET}" )
-    twx_expect ( twxR_MODULE "" )
-    twx_target_expose ( ${twxR_TARGET} )
-    if ( "${twxR_IN_DIR}" STREQUAL "" )
-      set ( twxR_IN_DIR "${${twxR_TARGET}_SRC_IN_DIR}" )
+  elseif ( TARGET "${twx.R_TARGET}" )
+    twx_expect ( twx.R_MODULE "" )
+    twx_target_expose ( ${twx.R_TARGET} )
+    if ( "${twx.R_IN_DIR}" STREQUAL "" )
+      set ( twx.R_IN_DIR "${${twx.R_TARGET}_SRC_IN_DIR}" )
     else ()
-      twx_complete_dir_var ( twxR_IN_DIR )
+      twx_complete_dir_var ( twx.R_IN_DIR )
     endif ()
-    twx_assert_non_void ( twxR_OUT_DIR )
-    twx_complete_dir_var ( twxR_OUT_DIR )
-    if ( IS_ABSOLUTE "${twxR_OUT_DIR}" )
-      set ( output_directory_ "${twxR_OUT_DIR}" )
+    twx_assert_non_void ( twx.R_OUT_DIR )
+    twx_complete_dir_var ( twx.R_OUT_DIR )
+    if ( IS_ABSOLUTE "${twx.R_OUT_DIR}" )
+      set ( output_directory_ "${twx.R_OUT_DIR}" )
     else ()
-      set ( output_directory_ "${${twxR_TARGET}_ARCHIVE_OUTPUT_DIRECTORY}" )
+      set ( output_directory_ "${${twx.R_TARGET}_ARCHIVE_OUTPUT_DIRECTORY}" )
       if ( "${output_directory_}" MATCHES "NOTFOUND" )
-        twx_fatal ( "Target ${twxR_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
+        twx_fatal ( "Target ${twx.R_TARGET} has no ARCHIVE_OUTPUT_DIRECTORY: ${output_directory_}" )
         return ()
       endif ()
-      set ( output_directory_ "${output_directory_}${twxR_OUT_DIR}" )
+      set ( output_directory_ "${output_directory_}${twx.R_OUT_DIR}" )
     endif ()
-    set ( cfg_ini_dir_ ${${twxR_TARGET}_CFG_INI_DIR} )
+    set ( cfg_ini_dir_ ${${twx.R_TARGET}_CFG_INI_DIR} )
     if ( NOT EXISTS "${cfg_ini_dir_}" )
       set ( cfg_ini_dir_ ${TWX_CFG_INI_DIR} )
     endif ()
     twx_state_serialize ()
     add_custom_command (
-      TARGET "${twxR_TARGET}"
+      TARGET "${twx.R_TARGET}"
       POST_BUILD
       COMMAND
         "${CMAKE_COMMAND}"
           "-DTWX_CFG_INI_DIR=\"${TWX_CFG_INI_DIR}\""
-          "-DTWX_IN_DIR=\"${twxR_IN_DIR}\""
+          "-DTWX_IN_DIR=\"${twx.R_IN_DIR}\""
           "-DTWX_OUT_DIR=\"${output_directory_}\""
           "-DTWX_IN=${in_}"
-          "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
+          "-DTWX_CFG_INI_IDS=${twx.R_CFG_INI_IDS}"
           "${TWX-D_ESCAPE_QUOTES}"
           "${TWX-D_NO_PRIVATE}"
-          "${TWX-D_STATE}"
-          -P "${TWX_DIR}CMake/Command/TwxCfgFileCommand.cmake"
+          "${-DTWX_STATE}"
+          -P "${TWX_DIR}CMake/Script/TwxCfgFileCommand.cmake"
       COMMENT
-        "Configure ${PROJECT_NAME}'s ${twxR_TARGET} include directory ${output_directory_}"
+        "Configure ${PROJECT_NAME}'s ${twx.R_TARGET} include directory ${output_directory_}"
       VERBATIM
     )
   else ()
-    twx_cfg_path ( stamped_ ID "${PROJECT_NAME}_${twxR_ID}_file" STAMPED )
-    if ( "${twxR_TARGET}" STREQUAL "" )
-      if ( "${twxR_MODULE}" STREQUAL "" )
+    twx_cfg_path ( stamped_ ID "${PROJECT_NAME}_${twx.R_ID}_file" STAMPED )
+    if ( "${twx.R_TARGET}" STREQUAL "" )
+      if ( "${twx.R_MODULE}" STREQUAL "" )
         set ( target_ ${PROJECT_NAME} )
         set ( cfg_ini_dir_ ${TWX_CFG_INI_DIR} )
       else ()
-        set ( target_ ${twxR_MODULE} )
+        set ( target_ ${twx.R_MODULE} )
         set ( cfg_ini_dir_ ${${target_}_CFG_INI_DIR} )
       endif ()
     else ()
-      twx_expect ( twxR_MODULE "" )
-      set ( target_ ${twxR_TARGET} )
+      twx_expect ( twx.R_MODULE "" )
+      set ( target_ ${twx.R_TARGET} )
       set ( cfg_ini_dir_ ${${target_}_CFG_INI_DIR} )
     endif ()
     if ( NOT EXISTS "${cfg_ini_dir_}" )
       set ( cfg_ini_dir_ ${TWX_CFG_INI_DIR} )
-      twx_assert_exists ( cfg_ini_dir_ )
+      twx_assert_exists ( "${cfg_ini_dir_}" )
     endif ()
-    set ( target_ "TwxCfgFile_${target_}_${twxR_ID}" )
+    set ( target_ "TwxCfgFile_${target_}_${twx.R_ID}" )
     if ( NOT TARGET ${target_} )
       add_custom_target (
         ${target_}
@@ -353,17 +355,17 @@ function ( twx_cfg_file_end )
         DEPENDS
           ${stamped_}
         COMMENT
-          "Configure ${PROJECT_NAME} files for ${twxR_ID}"
+          "Configure ${PROJECT_NAME} files for ${twx.R_ID}"
       )
     endif ()
     # For the custom command below:
     set ( depends_ )
     set ( output_ )
     foreach ( file_ ${in_} )
-      list ( APPEND depends_ "${twxR_IN_DIR}${file_}" )
+      list ( APPEND depends_ "${twx.R_IN_DIR}${file_}" )
     endforeach ()
     foreach ( file_ ${out_} )
-      list ( APPEND output_ "${twxR_OUT_DIR}${file_}" )
+      list ( APPEND output_ "${twx.R_OUT_DIR}${file_}" )
     endforeach ()
     twx_state_serialize ()
     add_custom_command (
@@ -373,60 +375,60 @@ function ( twx_cfg_file_end )
       COMMAND
         "${CMAKE_COMMAND}"
           "-DTWX_CFG_INI_DIR=\"${cfg_ini_dir_}\""
-          "-DTWX_IN_DIR=\"${twxR_IN_DIR}\""
-          "-DTWX_OUT_DIR=\"${twxR_OUT_DIR}\""
+          "-DTWX_IN_DIR=\"${twx.R_IN_DIR}\""
+          "-DTWX_OUT_DIR=\"${twx.R_OUT_DIR}\""
           "-DTWX_IN=${in_}"
-          "-DTWX_CFG_INI_IDS=${twxR_CFG_INI_IDS}"
+          "-DTWX_CFG_INI_IDS=${twx.R_CFG_INI_IDS}"
           "${TWX-D_ESCAPE_QUOTES}"
           "${TWX-D_NO_PRIVATE}"
-          "${TWX-D_STATE}"
-          -P "${TWX_DIR}CMake/Command/TwxCfgFileCommand.cmake"
+          "${-DTWX_STATE}"
+          -P "${TWX_DIR}CMake/Script/TwxCfgFileCommand.cmake"
       COMMAND
         "${CMAKE_COMMAND}"
           -E touch "${stamped_}"
       DEPENDS
         ${depends_}
       COMMENT
-        "Configure ${PROJECT_NAME} files for ${twxR_ID}"
+        "Configure ${PROJECT_NAME} files for ${twx.R_ID}"
       VERBATIM
     )
   endif ()
-  if ( NOT "${twxR_MODULE}" STREQUAL "" )
-    twx_expect ( twxR_VAR_PREFIX "" )
-    twx_assert_non_void ( twxR_TYPE )
+  if ( NOT "${twx.R_MODULE}" STREQUAL "" )
+    twx_expect ( twx.R_VAR_PREFIX "" )
+    twx_assert_non_void ( twx.R_TYPE )
     set ( export_ )
     foreach ( file_ ${out_} )
-      list ( APPEND export_ "${twxR_OUT_DIR}${file_}")
+      list ( APPEND export_ "${twx.R_OUT_DIR}${file_}")
     endforeach ()
     list ( SORT export_ )
     twx_ans_add (
-      "{twxR_MODULE}_OUT_${twxR_TYPE}=${export_}"
+      "{twx.R_MODULE}_OUT_${twx.R_TYPE}=${export_}"
     )
-  elseif ( NOT "${twxR_VAR_PREFIX}" STREQUAL "" )
+  elseif ( NOT "${twx.R_VAR_PREFIX}" STREQUAL "" )
     set ( export_ )
     foreach ( file_ ${out_} )
-      list ( APPEND export_ "${twxR_OUT_DIR}${file_}")
+      list ( APPEND export_ "${twx.R_OUT_DIR}${file_}")
     endforeach ()
     list ( SORT export_ )
     twx_ans_add (
-      "${twxR_VAR_PREFIX}_OUT_${twxR_TYPE}=${export_}"
+      "${twx.R_VAR_PREFIX}_OUT_${twx.R_TYPE}=${export_}"
     )
     if ( TARGET ${target_} )
       twx_ans_add (
-        "${twxR_VAR_PREFIX}_${twxR_ID}_TARGET=${target_}"
+        "${twx.R_VAR_PREFIX}_${twx.R_ID}_TARGET=${target_}"
       )
     else ()
-      unset ( ${twxR_VAR_PREFIX}_${twxR_ID}_TARGET PARENT_SCOPE )
+      unset ( ${twx.R_VAR_PREFIX}_${twx.R_ID}_TARGET PARENT_SCOPE )
     endif ()
   endif ()
   twx_ans_export ()
 
-  if ( NOT "${twxR_MODULE}" STREQUAL "" )
-    twx_export ( ${twxR_ID} ${twxR_ID}_TARGET )
-  elseif ( NOT "${twxR_VAR_PREFIX}" STREQUAL "" )
+  if ( NOT "${twx.R_MODULE}" STREQUAL "" )
+    twx_export ( ${twx.R_ID} ${twx.R_ID}_TARGET )
+  elseif ( NOT "${twx.R_VAR_PREFIX}" STREQUAL "" )
     twx_export (
-      ${twxR_VAR_PREFIX}_${twxR_TYPE}
-      ${twxR_VAR_PREFIX}_${twxR_TYPE}_TARGET
+      ${twx.R_VAR_PREFIX}_${twx.R_TYPE}
+      ${twx.R_VAR_PREFIX}_${twx.R_TYPE}_TARGET
     )
   endif ()
 
@@ -490,65 +492,65 @@ twx_cfg_files ( [TYPE type] ... ) {}
 #]=======]
 function ( twx_cfg_files )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx_R
+    PARSE_ARGV 0 twx.R
       "ESCAPE_QUOTES;NO_PRIVATE"
       "MODULE;TYPE;ID;VAR_PREFIX;TARGET;IN_DIR;OUT_DIR"
       "CFG_INI_IDS;FILES"
   )
   twx_arg_assert_parsed ()
-  twx_assert_non_void ( twxR_TYPE )
-  if ( NOT DEFINED twxR_IN_DIR )
-    twx_assert_non_void ( twxR_MODULE )
-    set ( twxR_IN_DIR "${${twxR_MODULE}_SRC_IN_DIR}" )
+  twx_assert_non_void ( twx.R_TYPE )
+  if ( NOT DEFINED twx.R_IN_DIR )
+    twx_assert_non_void ( twx.R_MODULE )
+    set ( twx.R_IN_DIR "${${twx.R_MODULE}_SRC_IN_DIR}" )
   endif ()
-  if ( NOT DEFINED twxR_OUT_DIR )
-    twx_assert_non_void ( twxR_MODULE )
-    set ( twxR_OUT_DIR "${${twxR_MODULE}_SRC_OUT_DIR}" )
+  if ( NOT DEFINED twx.R_OUT_DIR )
+    twx_assert_non_void ( twx.R_MODULE )
+    set ( twx.R_OUT_DIR "${${twx.R_MODULE}_SRC_OUT_DIR}" )
   endif ()
-  if ( NOT DEFINED twxR_FILES )
-    twx_assert_non_void ( twxR_MODULE )
-    set ( twxR_FILES "${${twxR_MODULE}_IN_${twxR_TYPE}}" )
+  if ( NOT DEFINED twx.R_FILES )
+    twx_assert_non_void ( twx.R_MODULE )
+    set ( twx.R_FILES "${${twx.R_MODULE}_IN_${twx.R_TYPE}}" )
   endif ()
-  twx_assert_non_void ( twxR_IN_DIR )
-  twx_assert_non_void ( twxR_OUT_DIR )
-  if ( DEFINED twxR_ID )
-    twx_assert_non_void ( twxR_ID )
-  elseif ( DEFINED twxR_MODULE )
-    twx_assert_non_void ( twxR_MODULE )
-    set ( twxR_ID "${twxR_MODULE}_${twxR_TYPE}" )
+  twx_assert_non_void ( twx.R_IN_DIR )
+  twx_assert_non_void ( twx.R_OUT_DIR )
+  if ( DEFINED twx.R_ID )
+    twx_assert_non_void ( twx.R_ID )
+  elseif ( DEFINED twx.R_MODULE )
+    twx_assert_non_void ( twx.R_MODULE )
+    set ( twx.R_ID "${twx.R_MODULE}_${twx.R_TYPE}" )
   else ()
-    set ( twxR_ID "${twxR_TYPE}" )
+    set ( twx.R_ID "${twx.R_TYPE}" )
   endif ()
-  twx_cfg_file_begin ( ID "${twxR_ID}" )
+  twx_cfg_file_begin ( ID "${twx.R_ID}" )
   twx_message ( DEBUG
     "twx_cfg_files: ${TWX_CFG__FILE_ID_CURRENT}"
     DEEPER
   )
   twx_message ( DEBUG
-    "twx_cfg_files: twxR_FILES =>"
-    ${twxR_FILES}
+    "twx_cfg_files: twx.R_FILES =>"
+    ${twx.R_FILES}
   )
   twx_cfg_file_add (
-    ID    "${twxR_ID}"
-    FILES ${twxR_FILES}
+    ID    "${twx.R_ID}"
+    FILES ${twx.R_FILES}
   )
   twx_arg_pass_option ( ESCAPE_QUOTES NO_PRIVATE )
   twx_cfg_file_end (
-    ID          "${twxR_ID}"
-    TYPE        "${twxR_TYPE}"
-    IN_DIR      "${twxR_IN_DIR}"
-    OUT_DIR     "${twxR_OUT_DIR}"
-    CFG_INI_IDS "${twxR_CFG_INI_IDS}"
-    MODULE      ${twxR_MODULE}
-    TARGET      ${twxR_TARGET}
-    VAR_PREFIX  ${twxR_VAR_PREFIX}
-    ${twxR_ESCAPE_QUOTES}
-    ${twxR_NO_PRIVATE}
+    ID          "${twx.R_ID}"
+    TYPE        "${twx.R_TYPE}"
+    IN_DIR      "${twx.R_IN_DIR}"
+    OUT_DIR     "${twx.R_OUT_DIR}"
+    CFG_INI_IDS "${twx.R_CFG_INI_IDS}"
+    MODULE      ${twx.R_MODULE}
+    TARGET      ${twx.R_TARGET}
+    VAR_PREFIX  ${twx.R_VAR_PREFIX}
+    ${twx.R_ESCAPE_QUOTES}
+    ${twx.R_NO_PRIVATE}
   )
   # TODO: use a return state to forward.
   twx_ans_add ( TWX_CFG_INI_DIR )
   twx_ans_export ()
 endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxArgLib.cmake")
+include ( "${CMAKE_CURRENT_LIST_DIR}/../../Base/TwxArgLib.cmake")
 #*/

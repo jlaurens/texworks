@@ -11,6 +11,8 @@ Custom setup.
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 # A fake typesetting engine
 twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME TWX_MODULE_TEST )
 twx_assert_target ( test_${TWX_MODULE} )

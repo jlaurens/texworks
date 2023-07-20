@@ -18,6 +18,8 @@ Output:
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 twx_module_declare (
 	SOURCES
     TwxHelpManager.cpp

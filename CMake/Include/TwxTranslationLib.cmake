@@ -17,6 +17,8 @@ This requires `TwxBase`
 *//*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 include ( "${CMAKE_CURRENT_LIST_DIR}../Base/TwxBase.cmake" )
 
 set ( CMAKE_AUTORCC ON )
@@ -41,52 +43,52 @@ Usage
 twx_translation_target_setup ( target ) {}
 /*
 #]=======]
-function ( twx_translation_target_setup twxR_TARGET )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "BUILD_DIR" "TS_FILES;QM_FILES;UI_FILES" )
+function ( twx_translation_target_setup twx.R_TARGET )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "BUILD_DIR" "TS_FILES;QM_FILES;UI_FILES" )
   twx_arg_assert_parsed ()
-  twx_assert_non_void ( twxR_TARGET )
-  twx_assert_non_void ( twxR_BUILD_DIR )
+  twx_assert_non_void ( twx.R_TARGET )
+  twx_assert_non_void ( twx.R_BUILD_DIR )
   twx_assert_non_void ( QtMAJOR )
 
-  list ( SORT twxR_TS_FILES )
-  qt_add_translation ( my_generated_qm ${twxR_TS_FILES} )
+  list ( SORT twx.R_TS_FILES )
+  qt_add_translation ( my_generated_qm ${twx.R_TS_FILES} )
   set (
     my_qrc_path
-    "${twxR_BUILD_DIR}/trans/${twxR_TARGET}.qrc"
+    "${twx.R_BUILD_DIR}/trans/${twx.R_TARGET}.qrc"
   )
   twx_translation_make_qrc (
     ${my_qrc_path}
-    QM_FILES "${my_generated_qm}" ${twxR_QM_FILES}
+    QM_FILES "${my_generated_qm}" ${twx.R_QM_FILES}
   )
-  target_sources ( ${twxR_TARGET} PRIVATE ${my_qrc_path} )
+  target_sources ( ${twx.R_TARGET} PRIVATE ${my_qrc_path} )
   # Explicitly set the generated .qm files as dependencies for the autogen
   # target to ensure they are built before AUTORCC is run
   set_target_properties (
-    ${twxR_TARGET}
+    ${twx.R_TARGET}
     PROPERTIES
       AUTOGEN_TARGET_DEPENDS "${my_qrc_path}"
   )
 
   get_target_property ( _lupdate_path ${QtMAJOR}::lupdate LOCATION )
-  get_target_property ( _sources ${twxR_TARGET} SOURCES )
+  get_target_property ( _sources ${twx.R_TARGET} SOURCES )
   twx_state_serialize ()
   add_custom_target (
-    ${twxR_TARGET}_translation
+    ${twx.R_TARGET}_translation
     COMMAND "${CMAKE_COMMAND}"
-      "-DTWX_BUILD_DIR=\"${twxR_BUILD_DIR}\""
-      "-DTWX_TARGET=\"${twxR_TARGET}\""
-      "-DTWX_INPUT_FILES=\"${_sources};${${twxR_TARGET}_UIS};${${twxR_TARGET}_TRANS_TS}\""
+      "-DTWX_BUILD_DIR=\"${twx.R_BUILD_DIR}\""
+      "-DTWX_TARGET=\"${twx.R_TARGET}\""
+      "-DTWX_INPUT_FILES=\"${_sources};${${twx.R_TARGET}_UIS};${${twx.R_TARGET}_TRANS_TS}\""
       "-DTWX_INCLUDE_PATH=\"${TYWX_DIR}/src\""
       "-DQt_LUPDATE_EXECUTABLE=\"${_lupdate_path}\""
-      "${TWX-D_STATE}"
-      -P "${TWX_DIR}CMake/Command/TwxTranslationCommand.cmake"
+      "${-DTWX_STATE}"
+      -P "${TWX_DIR}CMake/Script/TwxTranslationCommand.cmake"
   )
   if ( NOT TARGET UpdateTranslations )
     add_custom_target( UpdateTranslations )
   endif ()
   add_dependencies (
     UpdateTranslations
-    ${twxR_TARGET}_translation
+    ${twx.R_TARGET}_translation
   )
 endfunction ( twx_translation_target_setup )
 
@@ -102,14 +104,14 @@ twx_translation_make_qrc ( path QM_FILES ... ) {}
 /*
 #]=======]
 function ( twx_translation_make_qrc outfile )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "" "QM_FILES" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "" "QM_FILES" )
   twx_arg_assert_parsed ()
   set ( _contents
     "<!DOCTYPE RCC>"
     "<RCC version=\"1.0\">"
     "<qresource>"
   )
-  foreach ( _file ${twxR_QM_FILES} )
+  foreach ( _file ${twx.R_QM_FILES} )
     get_filename_component ( _filename "${_file}" NAME )
     list ( APPEND _contents
       "<file alias=\"resfiles/translations/${_filename}\">${_file}</file>"

@@ -19,6 +19,8 @@ Output state:
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( NOT DEFINED TWX_IS_BASED )
 	cmake_minimum_required ( VERSION 3.25 )
 	include (

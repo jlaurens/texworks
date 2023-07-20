@@ -11,6 +11,8 @@ This is called by the
 *//*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 # Packaging Tasks
 # ===============
 

@@ -17,6 +17,8 @@ Input:
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 twx_assert_non_void ( VAR TWX_MODULE VAR TWX_MODULE_NAME )
 twx_assert_target ( test_${TWX_MODULE} )
 
@@ -39,7 +41,7 @@ list (
 )
 add_dependencies ( test_${TWX_MODULE}_macOS test_${TWX_MODULE} )
 twx_module_includes ( ${TWX_MODULE} IN_TARGETS test_${TWX_MODULE}_macOS )
-include ( TwxWarning )
+include ( TwxWarningLib )
 twx_warning_target ( test_${TWX_MODULE}_macOS )
 target_compile_definitions (
 	test_${TWX_MODULE}_macOS

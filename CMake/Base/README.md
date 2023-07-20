@@ -1,8 +1,6 @@
 # Small notes about the TWX build and test system
 
-This is a work in progress.
-
-There are many various scripts here, each one is dedicated to a rather simple situation.
+Very low level technoloogies.
 
 ## Facts from CMake documentation, or not
 

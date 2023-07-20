@@ -37,6 +37,8 @@ Output:
 NB: The transition to Twx is not complete
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( NOT DEFINED TWX_IS_BASED )
 	# This file is primary
 	cmake_minimum_required ( VERSION 3.25 )
@@ -79,7 +81,7 @@ target_link_libraries (
 	${QT_LIBRARIES}
 )
 
-include ( TwxWarning )
+include ( TwxWarningLib )
 twx_warning_target ( test_TwxUI )
 
 include ( TwxTestLib )

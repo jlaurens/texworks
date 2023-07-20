@@ -37,6 +37,8 @@ Output:
 NB: The transition to Twx is not complete
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( NOT DEFINED TWX_IS_BASED )
 
 	# This file is primary

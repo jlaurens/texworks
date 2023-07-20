@@ -9,6 +9,8 @@ Make a build folder and use cmake ... && cmake --build ...
 */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( NOT DEFINED TWX_IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}../Base/TwxBase.cmake"
@@ -18,9 +20,9 @@ endif ()
 
 set (
   TwxPopplerDataCommand.cmake
-  "${CMAKE_CURRENT_LIST_DIR}/../Command/TwxPopplerDataCommand.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/../Script/TwxPopplerDataCommand.cmake"
 )
-twx_assert_exists ( TwxPopplerDataCommand.cmake )
+twx_assert_exists ( "${TwxPopplerDataCommand}".cmake )
 
 # ANCHOR: Utility `twx_poppler_data_setup`
 #[=======[
@@ -79,34 +81,34 @@ twx_poppler_data_prepare () {}
 /*
 #]=======]
 function ( twx_poppler_data_prepare )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "DEV;TEST;VERBOSE;URL;ARCHIVE;BASE;SHA256" "" )
   twx_arg_assert_parsed ()
 
-  if ( EXISTS "${twxR_ARCHIVE}" )
-    file ( SHA256 "${twxR_ARCHIVE}" actual_sha256_ )
-    if ( NOT actual_sha256_ STREQUAL twxR_SHA256 )
-      file ( REMOVE "${twxR_ARCHIVE}" )
-      file ( REMOVE_RECURSE "${twxR_BASE}" )
+  if ( EXISTS "${twx.R_ARCHIVE}" )
+    file ( SHA256 "${twx.R_ARCHIVE}" actual_sha256_ )
+    if ( NOT actual_sha256_ STREQUAL twx.R_SHA256 )
+      file ( REMOVE "${twx.R_ARCHIVE}" )
+      file ( REMOVE_RECURSE "${twx.R_BASE}" )
     endif ()
   endif ()
 
-  if ( NOT EXISTS "${twxR_ARCHIVE}" )
+  if ( NOT EXISTS "${twx.R_ARCHIVE}" )
     message (
       STATUS
-      "Downloading Poppler data from ${twxR_URL}"
+      "Downloading Poppler data from ${twx.R_URL}"
     )
     file (
-      DOWNLOAD "${twxR_URL}"
-      "${twxR_ARCHIVE}"
-      EXPECTED_HASH SHA256=${twxR_SHA256}
+      DOWNLOAD "${twx.R_URL}"
+      "${twx.R_ARCHIVE}"
+      EXPECTED_HASH SHA256=${twx.R_SHA256}
       SHOW_PROGRESS
     )
   else ( )
     message (
-      STATUS "Using archive in '${twxR_ARCHIVE}'"
+      STATUS "Using archive in '${twx.R_ARCHIVE}'"
     )
   endif ()
-  twx_assert_exists ( twxR_ARCHIVE )
+  twx_assert_exists ( "${twx.R_ARCHIVE}" )
 endfunction ()
 
 # ANCHOR: Utility `twx_poppler_data_process`
@@ -127,7 +129,7 @@ function ( twx_poppler_data_process )
       "-DTWX_ARCHIVE=${TWX_POPPLER_DATA_ARCHIVE}"
       "-DTWX_BASE=${TWX_POPPLER_DATA_BASE}"
       "-DTWX_SHA256=${TWX_POPPLER_DATA_SHA256}"
-      "${TWX-D_STATE}"
+      "${-DTWX_STATE}"
       -P "${TwxPopplerDataCommand.cmake}"
   )
 endfunction ()

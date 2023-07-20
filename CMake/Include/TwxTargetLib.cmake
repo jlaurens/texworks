@@ -37,6 +37,8 @@ See https://github.com/TeXworks/texworks
 */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
+
 # Full include only once
 if ( COMMAND twx_target_expose )
 # This has already been included
@@ -491,12 +493,12 @@ set (
   */
 twx_target_synchronize( target [PROPERTIES ...] ) {}
 /*#]=======]
-function ( twx_target_synchronize twxR_target )
-  twx_assert_target ( "${twxR_target}" )
-  cmake_parse_arguments ( PARSE_ARGV 1 twxR "" "" "PROPERTIES" )
+function ( twx_target_synchronize twx.R_target )
+  twx_assert_target ( "${twx.R_target}" )
+  cmake_parse_arguments ( PARSE_ARGV 1 twx.R "" "" "PROPERTIES" )
   twx_arg_assert_parsed ()
   set ( properties_ )
-  foreach ( p_ ${twxR_PROPERTIES} )
+  foreach ( p_ ${twx.R_PROPERTIES} )
     if ( p_ ${TWX_TARGET_CUSTOM_PROPERTIES} )
       list ( APPEND properties_ "${p_}" )
     else ()
@@ -511,11 +513,11 @@ function ( twx_target_synchronize twxR_target )
     )
   endif ()
   foreach ( p_ ${properties_} )
-    set ( v_ "${${twxR_target}_${p_}}" )
+    set ( v_ "${${twx.R_target}_${p_}}" )
     if ( p_ MATCHES "DIR$" OR p_ MATCHES "DIRECTORY$" )
       twx_complete_dir_var ( "${v_}" )
     endif ()
-    set_target_properties ( ${twxR_target} PROPERTIES TWX_${p_} "${v_}" )
+    set_target_properties ( ${twx.R_target} PROPERTIES TWX_${p_} "${v_}" )
   endforeach ()
 endfunction ( twx_target_synchronize )
 
@@ -557,32 +559,32 @@ endfunction ( twx_target_synchronize )
   */
 twx_target_expose( ... ) {}
 /*#]=======]
-function ( twx_target_expose twxR_target )
-  twx_assert_target ( "${twxR_target}" )
-  cmake_parse_arguments ( PARSE_ARGV 1 twxR "" "" "PROPERTIES" )
+function ( twx_target_expose twx.R_target )
+  twx_assert_target ( "${twx.R_target}" )
+  cmake_parse_arguments ( PARSE_ARGV 1 twx.R "" "" "PROPERTIES" )
   twx_arg_assert_parsed ()
-  if ( "${twxR_PROPERTIES}" STREQUAL "" )
+  if ( "${twx.R_PROPERTIES}" STREQUAL "" )
     set (
-      twxR_PROPERTIES
+      twx.R_PROPERTIES
       ${TWX_TARGET_PROPERTIES}
     )
   endif ()
   set ( exposed_ )
-  foreach ( p_ ${twxR_PROPERTIES} )
+  foreach ( p_ ${twx.R_PROPERTIES} )
     if ( p_ IN_LIST TWX_TARGET_EXPOSED_PROPERTIES )
       list ( APPEND exposed_ "${p_}" )
       continue ()
     endif ()
     if ( p_ IN_LIST TWX_TARGET_CUSTOM_PROPERTIES )
-      get_target_property ( v_ ${twxR_target} TWX_${p_} )
+      get_target_property ( v_ ${twx.R_target} TWX_${p_} )
     else ()
-      get_target_property ( v_ ${twxR_target} ${p_} )
+      get_target_property ( v_ ${twx.R_target} ${p_} )
     endif ()
     if ( v_ MATCHES "NOTFOUND$" )
-      twx_fatal ( "UNKNOWN PROPERTY ${twxR_target}: ${p_}")
+      twx_fatal ( "UNKNOWN PROPERTY ${twx.R_target}: ${p_}")
       return ()
     endif ()
-    twx_message ( DEBUG "twx_target_expose: ${twxR_target}_${p_} => ${v_}")
+    twx_message ( DEBUG "twx_target_expose: ${twx.R_target}_${p_} => ${v_}")
     if ( p_ MATCHES "DIR$" OR p_ MATCHES "DIRECTORY$" )
       twx_complete_dir_var ( "${v_}" )
     elseif ( p_ MATCHES "DIRECTORIES$" OR p_ MATCHES "DIRS$" )
@@ -593,22 +595,22 @@ function ( twx_target_expose twxR_target )
       endforeach ()
       set (v_ "${v__}" )
     endif ()
-    set ( ${twxR_target}_${p_} "${v_}" PARENT_SCOPE )
+    set ( ${twx.R_target}_${p_} "${v_}" PARENT_SCOPE )
   endforeach ()
-  if ( BINARY_DIR IN_LIST twxR_PROPERTIES )
-    twx_base_set_build_dirs (
-      BINARY_DIR "${${twxR_target}_BINARY_DIR}"
-      VAR_PREFIX ${twxR_target}
+  if ( BINARY_DIR IN_LIST twx.R_PROPERTIES )
+    twx_dir_configure (
+      BINARY_DIR "${${twx.R_target}_BINARY_DIR}"
+      VAR_PREFIX ${twx.R_target}
       PARENT_SCOPE
     )
   elseif ( NOT "${exposed_}" STREQUAL "" )
-    get_target_property ( BINARY_DIR_ ${twxR_target} BINARY_DIR )
-    twx_base_set_build_dirs (
+    get_target_property ( BINARY_DIR_ ${twx.R_target} BINARY_DIR )
+    twx_dir_configure (
       BINARY_DIR "${BINARY_DIR_}"
       VAR_PREFIX twx
     )
     foreach ( p_ ${exposed_} )
-      set ( ${twxR_target}_${p_} "${twx_${p_}}" PARENT_SCOPE )
+      set ( ${twx.R_target}_${p_} "${twx_${p_}}" PARENT_SCOPE )
     endforeach ()
   endif ()
 endfunction ( twx_target_expose )
@@ -624,30 +626,30 @@ endfunction ( twx_target_expose )
   */
 twx_target_summary( target[NO_EOL] ) {}
 /*#]=======]
-function ( twx_target_summary twxR_target )
-  twx_target_expose ( "${twxR_target}" )
-  cmake_parse_arguments ( PARSE_ARGV 1 twxR "NO_EOL" "" "" )
+function ( twx_target_summary twx.R_target )
+  twx_target_expose ( "${twx.R_target}" )
+  cmake_parse_arguments ( PARSE_ARGV 1 twx.R "NO_EOL" "" "" )
   twx_arg_assert_parsed ()
   message ( "" )
   include ( TwxSummaryLib )
   twx_summary_begin (
     BOLD_GREEN
-"${twxR_target} has been configured \
+"${twx.R_target} has been configured \
 (CMake ${CMAKE_VERSION}):\n"
   )
   twx_summary_section_compiler ()
   twx_summary_section_git ()
   twx_summary_begin ( BOLD_MAGENTA "Version info" )
-  if ( NOT "${${twxR_target}_VERSION_MAJOR}" STREQUAL "" )
-    twx_summary_log ( "${twxR_target}" ${${twxR_target}_VERSION_MAJOR}.${${twxR_target}_VERSION_MINOR}.${${twxR_target}_VERSION_PATCH} )
+  if ( NOT "${${twx.R_target}_VERSION_MAJOR}" STREQUAL "" )
+    twx_summary_log ( "${twx.R_target}" ${${twx.R_target}_VERSION_MAJOR}.${${twx.R_target}_VERSION_MINOR}.${${twx.R_target}_VERSION_PATCH} )
   endif ()
   twx_summary_log ( "Qt" ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} )
   twx_summary_end ()
-  twx_summary_section_files ( ${twxR_target} )
-  twx_summary_section_build_settings ( ${twxR_target} )
-  twx_summary_section_libraries ( ${twxR_target} )
+  twx_summary_section_files ( ${twx.R_target} )
+  twx_summary_section_build_settings ( ${twx.R_target} )
+  twx_summary_section_libraries ( ${twx.R_target} )
   twx_arg_pass_option ( NO_EOL )
-  twx_summary_end ( ${twxR_NO_EOL} )
+  twx_summary_end ( ${twx.R_NO_EOL} )
 endfunction ( twx_target_summary )
 
 # ANCHOR: twx_target_debug
@@ -660,10 +662,10 @@ endfunction ( twx_target_summary )
   */
 twx_target_debug( target ) {}
 /*#]=======]
-function ( twx_target_debug twxR_target )
+function ( twx_target_debug twx.R_target )
   twx_arg_assert_count ( ${ARGC} == 1 )
-  twx_expose_target ( ${twxR_target} )
-  message ( "Target: ${twxR_target}" )
+  twx_expose_target ( ${twx.R_target} )
+  message ( "Target: ${twx.R_target}" )
   foreach ( p_ ${TWX_TARGET_PROPERTIES} )
     message ( "  ${p_} => ${${m_}_${p_}}" )
   endforeach ()
@@ -724,12 +726,12 @@ endfunction ( twx_target_include_src )
   */
 twx_target_shorten( target VAR ... ) {}
 /*#]=======]
-function ( twx_target_shorten twxR_target )
-  cmake_parse_arguments ( PARSE_ARGV 1 twxR "" "" "VAR" )
+function ( twx_target_shorten twx.R_target )
+  cmake_parse_arguments ( PARSE_ARGV 1 twx.R "" "" "VAR" )
   twx_arg_assert_parsed ()
   twx_assert_non_void ( VAR )
   twx_target_expose (
-    ${twxR_target}
+    ${twx.R_target}
     VARS
       BUILD_DIR
       SRC_DIR
@@ -737,7 +739,7 @@ function ( twx_target_shorten twxR_target )
       BINARY_DIR
       DIR
   )
-  foreach ( v ${twxR_VAR} )
+  foreach ( v ${twx.R_VAR} )
     foreach (
       what_
       BUILD_DIR SRC_DIR SOURCE_DIR BINARY_DIR DIR
@@ -766,21 +768,21 @@ endfunction ( twx_target_shorten )
 twx_summary_section_files( target ) {}
 /*
 #]=======]
-function ( twx_target_summary_section_files twxR_target )
-  cmake_parse_arguments ( PARSE_ARGV 0 twxR "VERBOSE;EOL" "" "" )
+function ( twx_target_summary_section_files twx.R_target )
+  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "VERBOSE;EOL" "" "" )
   twx_arg_pass_option ( VERBOSE EOL )
-  if ( NOT TARGET "${twxR_target}" )
-    string ( PREPEND twxR_target "Twx" )
-    if ( NOT TARGET "${twxR_target}" )
-      message ( WARNING "Unknown target: ${twxR_target}" )
+  if ( NOT TARGET "${twx.R_target}" )
+    string ( PREPEND twx.R_target "Twx" )
+    if ( NOT TARGET "${twx.R_target}" )
+      message ( WARNING "Unknown target: ${twx.R_target}" )
       continue( )
     endif ()
   endif ()
-  twx_target_expose ( ${twxR_target} PROPERTIES SOURCES )
-  twx_target_shorten ( ${twxR_target} VAR ${twxR_target}_SOURCES )
+  twx_target_expose ( ${twx.R_target} PROPERTIES SOURCES )
+  twx_target_shorten ( ${twx.R_target} VAR ${twx.R_target}_SOURCES )
   set ( built_ )
   set ( raw_ )
-  foreach ( f_ ${${twxR_target}_SOURCES} )
+  foreach ( f_ ${${twx.R_target}_SOURCES} )
     if ( "${f_}" MATCHES "/TwxBuild/" )
       list ( APPEND built_ "${f_}" )
     else ()
@@ -809,13 +811,13 @@ function ( twx_target_summary_section_files twxR_target )
     AND "${Other_}"   STREQUAL "" )
     continue ()
   endif ()
-  twx_summary_begin ( BOLD_BLUE "${twxR_target} files" )
+  twx_summary_begin ( BOLD_BLUE "${twx.R_target} files" )
   foreach ( t_ SOURCES HEADERS Other Private )
     if ( NOT "${${t_}_}" STREQUAL "" )
       twx_summary_log_kv ( "${t_}" VAR ${t_}_ )
     endif ()
   endforeach ()
-  twx_summary_end ( ${twxR_EOL} )
+  twx_summary_end ( ${twx.R_EOL} )
 endfunction ( twx_target_summary_section_files )
 
 #*/

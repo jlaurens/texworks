@@ -6,7 +6,7 @@ See https://github.com/TeXworks/texworks
 @brief  Collection of core utilities
 
   include (
-    "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Include/TwxCoreLib.cmake"
+    "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxCoreLib.cmake"
   )
 
 Output state:
@@ -14,6 +14,8 @@ Output state:
 
 */
 /*#]===============================================]
+
+include_guard ( GLOBAL )
 
 # Full include only once
 if ( COMMAND twx_arg_assert )
@@ -25,7 +27,7 @@ endif ()
 #[=======[*/
 /** @brief Raises when an argument is not provided.
   *
-  * @param ... non empty list of argument names. (Without `twxR_` prefix)
+  * @param ... non empty list of argument names. (Without `twx.R_` prefix)
   */
 twx_arg_assert(name ... ) {}
 /*#]=======]
@@ -35,8 +37,8 @@ function ( twx_arg_assert name_ )
     PARSE_ARGV 0 twx_arg_assert_parsed
     "" "PREFIX" ""
   )
-  if ( NOT DEFINED twxR_PREFIX )
-    set ( twxR_PREFIX twxR )
+  if ( NOT DEFINED twx.R_PREFIX )
+    set ( twx.R_PREFIX twx.R )
   endif ()
   set ( i 0 )
   while ( TRUE )
@@ -48,7 +50,7 @@ function ( twx_arg_assert name_ )
         return ()
       endif ()
     endif ()
-    if ( "${${twxR_PREFIX}_${v}}" STREQUAL "" )
+    if ( "${${twx.R_PREFIX}_${v}}" STREQUAL "" )
       twx_fatal ( "Missing argument of key ${v}" )
       return ()
     endif ()
@@ -69,10 +71,10 @@ twx_arg_assert_count(argc op right) {}
 function ( twx_arg_assert_count argc_ op_ right_ )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_arg_assert_count )
   # message ( TR@CE "${argc_} ${op_} ${right_}" )
-  if ( ARGC GREATER "3" )
+  if ( ARGC GREATER 3 )
     twx_fatal ( "Too many arguments(${ARGC}>3): ARGV => \"${ARGV}\"" )
     return ()
-  elseif ( "${ARGC}" LESS "3" )
+  elseif ( ARGC LESS 3 )
     twx_fatal ( "Too few arguments" ) # Unreachable code, CMake breaks before
     return ()
   endif ()
@@ -118,14 +120,14 @@ endfunction ( twx_arg_assert_count )
   *
   * Used in conjunction with `cmake_parse_arguments()`.
   * When an option FOO is parsed, we retrieve either `TRUE` or `FALSE`
-  * in `twxR_FOO`. `twx_arg_pass_option` transforms this contents in `FOO` or an empty string
-  * to allow the usage of `twxR_FOO` as argument of a command that accepts
+  * in `twx.R_FOO`. `twx_arg_pass_option` transforms this contents in `FOO` or an empty string
+  * to allow the usage of `twx.R_FOO` as argument of a command that accepts
   * the same FOO flag.
   * Moreover, the `TWX-D_FOO` is defined to be used where
   * a `-D...` argument is required.
   *
   * @param ... is a non empty list of flag names
-  * @param prefix for key `PREFIX`, optional variable name prefix defaults to `twxR`.
+  * @param prefix for key `PREFIX`, optional variable name prefix defaults to `twx.R`.
   */
 twx_arg_pass_option( ... [PREFIX prefix]) {}
 /*#]=======]
@@ -134,11 +136,11 @@ function ( twx_arg_pass_option option_ )
   set ( i 0 )
   while ( TRUE )
     set ( o "${ARGV${i}}" )
-    if ( twxR_${o} )
-      set ( twxR_${o} ${o} PARENT_SCOPE )
+    if ( twx.R_${o} )
+      set ( twx.R_${o} ${o} PARENT_SCOPE )
       set ( TWX-D_${o} "-DTWX_${o}=${o}" PARENT_SCOPE )
     else ()
-      set ( twxR_${o} PARENT_SCOPE )
+      set ( twx.R_${o} PARENT_SCOPE )
       set ( TWX-D_${o} PARENT_SCOPE )
     endif ()
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
@@ -190,7 +192,7 @@ endfunction ( twx_arg_assert_keyword )
 #[=======[*/
 /** @brief Raise if there are unparsed arguments.
   *
-  * @param prefix for key `PREFIX`, optional variable name prefix defaults to `twxR`.
+  * @param prefix for key `PREFIX`, optional variable name prefix defaults to `twx.R`.
   */
 twx_arg_assert_parsed([PREFIX prefix]) {}
 /*#]=======]
@@ -205,7 +207,7 @@ function ( twx_arg_assert_parsed )
     twx_assert_non_void ( twx_arg_assert_parsed_PREFIX )
   else ()
     twx_arg_assert_count ( ${ARGC} == 0 )
-    set ( twx_arg_assert_parsed_VAR_PREFIX twxR )
+    set ( twx_arg_assert_parsed_VAR_PREFIX twx.R )
   endif ()
   # NB remember that arguments in functions and macros are not the same
   if ( NOT "${${twx_arg_assert_parsed_VAR_PREFIX}_UNPARSED_ARGUMENTS}" STREQUAL "" )

@@ -16,6 +16,8 @@ Input:
 /*
 #]===============================================]
 
+include_guard ( GLOBAL )
+
 if ( TARGET test_TwxW3 )
   return ()
 endif ()
@@ -62,7 +64,7 @@ target_link_libraries (
 	${QT_LIBRARIES}
 )
 
-include ( TwxWarning )
+include ( TwxWarningLib )
 twx_warning_target ( test_TwxW3 )
 
 target_sources (
