@@ -284,6 +284,7 @@ TWX_FACTORY_INI;
 #]=======]
 function ( twx_cfg_setup )
   twx_assert_non_void ( PROJECT_NAME TWX_PROJECT_BUILD_DATA_DIR )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_setup" )
   set ( TWX_CFG_INI_DIR "${TWX_PROJECT_BUILD_DATA_DIR}" )
   if ( "${TWX_FACTORY_INI}" STREQUAL "" )
     set (
@@ -372,7 +373,7 @@ twx_cfg_write_end ( ID foo )
 ```
 
 @param id is a unique identifier. In practice, one of
-  "static", "git", "paths"... Is is stored in
+  "static", "git", "paths"... It is stored in
   `TWX_CFG_ID_CURRENT` to be used by forthcoming `twx_cfg_set`
   and `twx_cfg_end`.
 
@@ -391,13 +392,16 @@ function ( twx_cfg_write_begin .ID twx.R_ID )
   twx_arg_assert_count ( ${ARGC} == 2 )
   twx_arg_assert_keyword ( .ID )
   twx_assert_variable_name ( "${twx.R_ID}" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_write_begin" )
   if ( DEFINED TwxCfg_kv.${twx.R_ID} )
     twx_fatal ( "Missing `twx_cfg_write_end( ID ${twx.R_ID} )`" )
     return ()
   endif ()
+
   twx_export (
-    TwxCfg_kv.${twx.R_ID}=ON
+    TwxCfg_kv.${twx.R_ID}
     "TWX_CFG_ID_CURRENT=${twx.R_ID}"
+    UNSET
   )
 endfunction ()
 
@@ -420,7 +424,8 @@ set (
   "${TWX_CHAR_STX}semicolon${TWX_CHAR_ETX}"
 )
 function ( twx_cfg_set ID_ )
-  if ( "${ID}" STREQUAL "ID")
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_set" )
+  if ( "${ID_}" STREQUAL "ID")
     twx_arg_assert_count ( ${ARGC} > 2 )
     set ( id_ "${ARGV1}" )
     set ( i 2 )
@@ -449,6 +454,7 @@ twx_cfg_write_end ( [ID id] ) {}
 /*
 #]=======]
 function ( twx_cfg_write_end )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_write_end" )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "" )
   twx_arg_assert_parsed ()
   if ( "${twx.R_ID}" STREQUAL "" )
@@ -476,6 +482,7 @@ function ( twx_cfg_write_end )
   # and find the largest key for pretty printing
   set ( length_ 0 )
   set ( keys_ )
+  message ( TRACE "TwxCfg_kv.${twx.R_ID} => \"${TwxCfg_kv.${twx.R_ID}}\"" )
   foreach ( kv ${TwxCfg_kv.${twx.R_ID}} )
     string ( REPLACE "${TWX_CFG_SEMICOLON_PLACEHOLDER}" ";" kv "${kv}" )
     twx_split_kv ( "${kv}" IN_KEY k IN_VALUE v )
@@ -484,7 +491,7 @@ function ( twx_cfg_write_end )
     if ( "${l}" GREATER "${length_}" )
       set ( length_ "${l}" )
     endif ()
-    list ( APPEND keys "${k}" )
+    list ( APPEND keys_ "${k}" )
     set ( "${k}_value" "${v}" )
   endforeach ()
   # Set the contents
@@ -558,6 +565,7 @@ function ( twx_cfg_read )
     PARSE_ARGV 0 twx.R
     "QUIET;ONLY_CONFIGURE;NO_PRIVATE" "" ""
   )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_read" )
   # core ids or absolute paths: mixed
   set ( cfg_ini_mixed_ "${twx.R_UNPARSED_ARGUMENTS}" )
   if ( "${cfg_ini_mixed_}" STREQUAL "" )
@@ -626,7 +634,7 @@ function ( twx_cfg_read )
     foreach ( l ${lines} )
       if ( l MATCHES "^[ ]*([^ =]+)[ ]*=(.*)$" )
         string ( STRIP "${CMAKE_MATCH_2}" CMAKE_MATCH_2 )
-        twx_message ( DEBUG "TWX_CFG_${CMAKE_MATCH_1} => ${CMAKE_MATCH_2}" )
+        twx_message ( DEBUG "TWX_CFG_${CMAKE_MATCH_1} => \"${CMAKE_MATCH_2}\"" )
         set (
           TWX_CFG_${CMAKE_MATCH_1}
           "${CMAKE_MATCH_2}"
@@ -645,7 +653,7 @@ function ( twx_cfg_read )
     if ( twx.R_ONLY_CONFIGURE )
       twx_util_timestamp (
         "${name_}"
-        ${name_}_TWX_TIMESTAMP_CFG
+        IN_VAR ${name_}_TWX_TIMESTAMP_CFG
       )
     endif ()
     twx_message ( DEBUG "Read: ${count_} records in ${name_}" )
@@ -681,6 +689,7 @@ twx_cfg_target_dependent ( ... ) {}
 /*
 #]=======]
 function (twx_cfg_target_dependent )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_target_dependent" )
   set ( targets_ )
   set ( ids_ )
   set ( i 0 )

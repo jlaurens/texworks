@@ -20,13 +20,23 @@ include_guard ( GLOBAL )
 
 # ANCHOR: Utility `twx_util_timestamp`
 #[=======[
-Usage:
-```
-twx_util_timestamp ( <filepath_> <variable> )
-```
-Records the file timestamp.
-The precision is 1s.
-Correct up to 2036-02-27.
+*/
+/** @brief Retrieve the timestamp of a given file.
+  *
+  * Usage:
+  *
+  *   twx_util_timestamp ( <filepath_> IN_VAR <variable> )
+  *
+  * Records the file timestamp.
+  * The precision is 1s.
+  * Correct up to 2036-02-27.
+  *
+  * @param path,
+  * @param var for key `IN_VAR` will hold the result on return.
+  *
+  */
+twx_util_timestamp ( path IN_VAR var ) {}
+/*
 #]=======]
 function ( twx_util_timestamp filepath_ .IN_VAR twx.R_IN_VAR )
   twx_arg_assert_count ( ${ARGC} == 3 )
