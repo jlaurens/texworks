@@ -8,7 +8,7 @@ See https://github.com/TeXworks/texworks
 Usage:
 from a process or custom command
 ```
-cmake ... -P .../CMake/Script/TwxCfg_factory.cmake
+cmake ... -P .../CMake/Script/TwxCfgFactoryScript.cmake
 ```
 
 Input:
@@ -70,28 +70,21 @@ include (
   NO_POLICY_SCOPE
 )
 
-message ( STATUS "CMAKE_MODULE_PATH => \"${CMAKE_MODULE_PATH}\"" )
-
 twx_state_deserialize ()
 
-message ( STATUS "TWX_TEST => \"${TWX_TEST}\"" )
-message ( STATUS "TWX_TEST_SUITE_LIST => \"${TWX_TEST_SUITE_LIST}\"" )
+include ( TwxTestLib )
+include ( TwxCfgLib )
 
 twx_test_during ( ID Cfg IN_VAR during_Cfg_ )
-
-if ( NOT during_Cfg_ )
+if ( during_Cfg_ )
+  message ( DEBUG "Testing mode" )
+else ()
   include ( TwxInclude )
 endif ()
 
-include ( TwxCfgLib )
-
-message ( STATUS "TwxCfg_factory.cmake..." )
-
-message ( TRACE "TWX_DIR => \"${TWX_DIR}\"" )
-twx_assert_non_void ( TWX_NAME )
 
 
-twx_message ( VERBOSE "TwxCfg_factory:" DEEPER )
+twx_message ( VERBOSE "TwxCfgFactoryScript.cmake..." DEEPER )
 twx_message ( VERBOSE
   "TWX_NAME        => ${TWX_NAME}"
   "TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
@@ -122,6 +115,6 @@ endforeach ()
 
 twx_cfg_write_end ( ID "factory" )
 
-message ( STATUS "TwxCfg_factory.cmake... DONE")
+message ( STATUS "TwxCfgFactoryScript.cmake... DONE")
 
 #*/

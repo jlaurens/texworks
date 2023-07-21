@@ -34,6 +34,7 @@ twx_expect_equal_string(actual expected) {}
 function ( twx_expect_equal_string actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
     twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    return ()
   endif ()
   if ( NOT "${actual_}" STREQUAL "${expected_}" )
     twx_fatal ( "Unexpected \"${actual_}\" instead of \"${expected_}\"")
@@ -57,6 +58,7 @@ twx_expect_equal_string(actual expected) {}
 function ( twx_expect_unequal_string actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
     twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    return ()
   endif ()
   if ( "${actual_}" STREQUAL "${expected_}" )
     twx_fatal ( "Unexpected \"${actual_}\"" )
@@ -80,6 +82,7 @@ twx_expect_equal_number(actual expected) {}
 function ( twx_expect_equal_number actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
     twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    return ()
   endif ()
   if ( NOT "${actual_}" EQUAL "${expected_}" )
     twx_fatal ( "Unexpected \"${actual_}\" instead of \"${expected_}\"" )
@@ -103,6 +106,7 @@ twx_expect_unequal_number(actual expected) {}
 function ( twx_expect_unequal_number actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
     twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    return ()
   endif ()
   if ( "${actual_}" EQUAL "${expected_}" )
     twx_fatal ( "Unexpected \"${actual_}\"" )
@@ -132,6 +136,7 @@ function ( twx_expect twx_expect.ACTUAL twx_expect.EXPECTED )
   )
   if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
     twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    return ()
   endif ()
   if ( NOT DEFINED "${twx_expect.ACTUAL}" )
     twx_fatal ( "Unexpected undefined \"${twx_expect.ACTUAL}\"")
@@ -244,9 +249,77 @@ function ( twx_expect_list actual_ )
   list ( SORT "${actual_}" )
   list ( SORT "ARGN" )
   twx_expect ( "${actual_}" "${ARGN}" )
-endfunction ( twx_expect_list )
+endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
+# ANCHOR: twx_expect_in_list
+#[=======[*/
+/** @brief Raise when not in list
+  *
+  * @param actual is the actual list item
+  * @param ... are the expected list items.
+  */
+twx_expect_in_list( actual expected ) {}
+/*#]=======]
+function ( twx_expect_in_list actual_ expected_ )
+  if ( NOT ARGC EQUAL 2 )
+    twx_fatal ( "Bad usage (ARGN => \"${ARGN}\")" )
+    return ()
+  endif ()
+  if ( NOT "${actual_}" IN_LIST "${expected_}" )
+    twx_fatal ( "${actual_} is not one of ${expected_}" )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_expect_not_in_list
+#[=======[*/
+/** @brief Raise when not in list
+  *
+  * @param actual is the actual list item
+  * @param ... are the expected list items.
+  */
+twx_expect_not_in_list( actual expected ) {}
+/*#]=======]
+function ( twx_expect_not_in_list actual_ expected_ )
+  if ( NOT ARGC EQUAL 2 )
+    twx_fatal ( "Bad usage (ARGN => \"${ARGN}\")" )
+    return ()
+  endif ()
+  if ( "${actual_}" IN_LIST "${expected_}" )
+    twx_fatal ( "${actual_} is one of ${expected_}" )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_expect_in
+#[=======[*/
+/** @brief Raise when not one of the given arguments
+  *
+  * @param actual is the actual list item
+  * @param ... are the expected list items.
+  */
+twx_expect_in( actual ... ) {}
+/*#]=======]
+function ( twx_expect_in actual_ )
+  if ( NOT "${actual_}" IN_LIST ARGN )
+    twx_fatal ( "${actual_} is not one of ${ARGN}" )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_expect_not_in
+#[=======[*/
+/** @brief Raise when one of the items
+  *
+  * @param actual is the actual list item
+  * @param ... are the unexpected list items.
+  */
+twx_expect_in( actual ... ) {}
+/*#]=======]
+function ( twx_expect_in actual_ )
+  if ( "${actual_}" IN_LIST ARGN )
+    twx_fatal ( "${actual_} is one of ${ARGN}" )
+  endif ()
+endfunction ()
+
+twx_lib_require ( "Fatal" )
 
 message ( DEBUG "TwxExpectLib loaded" )
 

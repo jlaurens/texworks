@@ -81,7 +81,7 @@ function ( twx_translation_target_setup twx.R_TARGET )
       "-DTWX_INCLUDE_PATH=\"${TYWX_DIR}/src\""
       "-DQt_LUPDATE_EXECUTABLE=\"${_lupdate_path}\""
       "${-DTWX_STATE}"
-      -P "${TWX_DIR}CMake/Script/TwxTranslationCommand.cmake"
+      -P "${TWX_DIR}CMake/Script/TwxTranslationScript.cmake"
   )
   if ( NOT TARGET UpdateTranslations )
     add_custom_target( UpdateTranslations )

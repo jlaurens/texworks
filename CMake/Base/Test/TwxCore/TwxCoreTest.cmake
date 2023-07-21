@@ -12,14 +12,8 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-message ( STATUS "TwxCoreLib test...")
-
-include ( "${CMAKE_CURRENT_LIST_DIR}/../../TwxTestLib.cmake" )
-
-include ( "${CMAKE_CURRENT_LIST_DIR}/../../TwxCoreLib.cmake")
-
-block ()
 twx_test_suite_will_begin ()
+block ()
 
 message ( STATUS "twx_regex_escape" )
 block ()
@@ -70,28 +64,7 @@ if ( TRUE )
 endif ()
 endblock ()
 
-message ( STATUS "fatal_catch" )
-block ()
-list ( APPEND CMAKE_MESSAGE_CONTEXT fatal_catch )
-if ( TRUE )
-  set ( TWX_FATAL_CATCH ON )
-  twx_fatal ( "ABCDE" )
-  twx_fatal_catched ( IN_VAR v )
-  if ( NOT v STREQUAL "ABCDE" )
-    message ( FATAL_ERROR "FAILURE" )
-  endif ()
-  twx_fatal_clear ()
-  twx_fatal_catched ( IN_VAR v )
-  if ( NOT v STREQUAL "" )
-    message ( FATAL_ERROR "FAILURE" )
-  endif ()
-endif ()
-twx_fatal_clear ()
 endblock ()
-
 twx_test_suite_did_end ()
-endblock ()
-
-message ( STATUS "TwxCoreLib test... DONE")
 
 #*/

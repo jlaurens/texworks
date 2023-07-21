@@ -309,7 +309,7 @@ function ( twx_assert_command .c )
   endwhile ( )
 endfunction ( twx_assert_command )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
+twx_lib_require ( "Fatal" )
 
 message ( VERBOSE "TwxAssertLib loaded." )
 #*/

@@ -19,10 +19,10 @@ if ( NOT DEFINED TWX_IS_BASED )
 endif ()
 
 set (
-  TwxPopplerDataCommand.cmake
-  "${CMAKE_CURRENT_LIST_DIR}/../Script/TwxPopplerDataCommand.cmake"
+  TwxPopplerDataScript.cmake
+  "${CMAKE_CURRENT_LIST_DIR}/../Script/TwxPopplerDataScript.cmake"
 )
-twx_assert_exists ( "${TwxPopplerDataCommand}".cmake )
+twx_assert_exists ( "${TwxPopplerDataScript}".cmake )
 
 # ANCHOR: Utility `twx_poppler_data_setup`
 #[=======[
@@ -116,7 +116,7 @@ endfunction ()
 */
 /** @brief Alternate method to prepare the poppler_data material
   *
-  * Calls `twx_poppler_data_prepare()` through `TwxPopplerDataCommand.cmake`.
+  * Calls `twx_poppler_data_prepare()` through `TwxPopplerDataScript.cmake`.
   */
 twx_poppler_data_process () {}
 /*
@@ -130,7 +130,7 @@ function ( twx_poppler_data_process )
       "-DTWX_BASE=${TWX_POPPLER_DATA_BASE}"
       "-DTWX_SHA256=${TWX_POPPLER_DATA_SHA256}"
       "${-DTWX_STATE}"
-      -P "${TwxPopplerDataCommand.cmake}"
+      -P "${TwxPopplerDataScript.cmake}"
   )
 endfunction ()
 

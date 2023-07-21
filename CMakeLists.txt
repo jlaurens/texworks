@@ -395,7 +395,7 @@ if ( APPLE )
     "-DTWX_INPUT=${PROJECT_NAME}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}"
     "${-DTWX_STATE}"
-    -P "${TWX_DIR}CMake/Script/TwxCfgOneFileCommand.cmake"
+    -P "${TWX_DIR}CMake/Script/TwxCfgOneFileScript.cmake"
     DEPENDS
       ${TWX_${PROJECT_NAME}_INI}
     COMMENT
@@ -507,7 +507,7 @@ add_custom_command (
     "-DTWX_CONTENTS=${TWX_CFG_VERSION}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}/TwxVersion.txt"
     "${-DTWX_STATE}"
-    -P "${TWX_DIR}CMake/Script/TwxWriteCommand.cmake"
+    -P "${TWX_DIR}CMake/Script/TwxWriteScript.cmake"
 )
 
 # Build scripting language plugins if the required libraries are available.

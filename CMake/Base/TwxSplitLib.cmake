@@ -130,10 +130,7 @@ function ( twx_split_comparison twx.R_COMPARISON )
   endif ()
 endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
+twx_lib_require ( "Fatal" "Expect" "Arg" )
 
 message ( VERBOSE "Loaded: TwxSplitLib" )
 

@@ -9,7 +9,7 @@ Command to setup the test folder.
 
 Usage:
 ```
-cmake ... -P .../TwxTestCommand.cmake
+cmake ... -P .../TwxTestScript.cmake
 ```
 Input state:
 - `TWX_TARGET`

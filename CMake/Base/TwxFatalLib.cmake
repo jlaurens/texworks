@@ -41,6 +41,8 @@ endif ()
   *   In normal mode, all parameters are forwarded as is to `message(FATAL_ERROR ...)`.
   *   In test mode, the parameters are recorded for later use,
   *   nothing is displayed and the program does not stop.
+  *   As there is no `try-catch` mechanism in `CMake`,
+  *   a `return()` or `break()` statement may follow a `twx_fatal()` instruction.
   *
   */
 twx_fatal(...){}
@@ -49,7 +51,7 @@ twx_fatal(...){}
 function ( twx_fatal )
   set ( m )
   set ( i 0 )
-  unset ( ARGV${ARGC} )
+  set ( ARGV${ARGC} )
   while ( TRUE )
     if ( NOT DEFINED ARGV${i} )
       break ()
@@ -61,8 +63,8 @@ function ( twx_fatal )
     endif ()
     math ( EXPR i "${i}+1" )
   endwhile ()
-  if ( TWX_FATAL_CATCH AND NOT CMAKE_SCRIPT_MODE_FILE )
-    get_target_property(
+  if ( TWX_FATAL_CATCH AND TARGET TwxFatalLib.cmake )
+    get_target_property (
       fatal_
       TwxFatalLib.cmake
       TWX_FATAL_MESSAGE
@@ -79,6 +81,136 @@ function ( twx_fatal )
   else ()
     message ( FATAL_ERROR ${m} )
   endif ()
+endfunction ()
+
+# ANCHOR: twx_fatal_clear
+#[=======[
+*/
+/** @brief Clear catched fatal messages.
+  *
+  * For testing purposes only.
+  *
+  */
+twx_fatal_clear (){}
+/*
+#]=======]
+function ( twx_fatal_clear )
+  if ( NOT ${ARGC} EQUAL 0 )
+    message ( FATAL_ERROR "Too many arguments: ${ARGC} instead of 0." )
+  endif ()
+  if ( TARGET TwxFatalLib.cmake )
+    set_target_properties (
+      TwxFatalLib.cmake
+      PROPERTIES
+        TWX_FATAL_MESSAGE ""
+    )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_fatal_test
+#[=======[
+*/
+/** @brief After the test suite runs
+  *
+  * Must balance a `twx_test_suite_will_begin()`.
+  *
+  */
+twx_fatal_test (ID id) {}
+/*
+#]=======]
+function ( twx_fatal_test )
+  if ( NOT DEFINED twx_fatal_test.CATCH_SAVED )
+    set ( twx_fatal_test.CATCH_SAVED "${TWX_FATAL_CATCH}" PARENT_SCOPE )
+  endif ()
+  set ( TWX_FATAL_CATCH ON PARENT_SCOPE )
+  if ( ${ARGC} GREATER "0" )
+    message ( FATAL_ERROR "Too many arguments" )
+  endif ()
+  twx_fatal_clear ()
+endfunction ()
+
+# ANCHOR: twx_fatal_assert_passed
+#[=======[
+*/
+/** @brief Raise when a test unexpectedly raised.
+  *
+  * This is not extremely strong but does the job in most situations.
+  */
+twx_fatal_assert_passed () {}
+/*
+#]=======]
+function ( twx_fatal_assert_passed )
+  if ( ${ARGC} GREATER "0" )
+    message ( FATAL_ERROR "Too many arguments" )
+  endif ()
+  twx_fatal_catched ( IN_VAR twx_fatal_assert_passed.v )
+  if ( NOT twx_fatal_assert_passed.v STREQUAL "" )
+    message ( FATAL_ERROR "FAILURE: \"${twx_fatal_assert_passed.v}\"" )
+  endif ()
+  twx_fatal_clear ()
+  if ( DEFINED twx_fatal_test.CATCH_SAVED )
+    set ( TWX_FATAL_CATCH "${twx_fatal_test.CATCH_SAVED}" PARENT_SCOPE )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_fatal_assert_failed
+#[=======[
+*/
+/** @brief Raise when a test did not expectedly raised.
+  *
+  * This is not extremely strong but does the job in most situations.
+  */
+twx_fatal_assert_failed () {}
+/*
+#]=======]
+function ( twx_fatal_assert_failed )
+  if ( ${ARGC} GREATER "0" )
+    message ( FATAL_ERROR "Too many arguments" )
+  endif ()
+  twx_fatal_catched ( IN_VAR twx_fatal_assert_failed.v )
+  if ( twx_fatal_assert_failed.v STREQUAL "" )
+    message ( FATAL_ERROR "FAILURE" )
+  endif ()
+  twx_fatal_clear ()
+  if ( DEFINED twx_fatal_test.CATCH_SAVED )
+    set ( TWX_FATAL_CATCH "${twx_fatal_test.CATCH_SAVED}" PARENT_SCOPE )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_fatal_catched
+#[=======[
+*/
+/** @brief Catch fatal messages.
+  *
+  * For testing purposes only.
+  * If the `twx_fatal()` call has no really bad consequences,
+  * we can catch the message.
+  *
+  * @param var for key `IN_VAR`, contains the list of messages on return.
+  */
+twx_fatal_catched (IN_VAR var){}
+/*
+#]=======]
+function ( twx_fatal_catched .IN_VAR twx.R_VAR )
+  if ( NOT ${ARGC} EQUAL 2 )
+    message ( FATAL_ERROR "Wrong number of arguments: ${ARGC} instead of 2." )
+  endif ()
+  if ( NOT .IN_VAR STREQUAL "IN_VAR" )
+    message ( FATAL_ERROR "Missing IN_VAR key: got \"${.IN_VAR}\" instead." )
+  endif ()
+  twx_assert_variable_name ( "${twx.R_VAR}" )
+  
+  if ( TARGET TwxFatalLib.cmake )
+    get_target_property(
+      ${twx.R_VAR}
+      TwxFatalLib.cmake
+      TWX_FATAL_MESSAGE
+    )
+  endif ()
+  if ( ${twx.R_VAR} STREQUAL "fatal_-NOTFOUND")
+    set ( ${twx.R_VAR} "" )
+  endif ()
+  set ( ${twx.R_VAR} "${${twx.R_VAR}}" PARENT_SCOPE )
 endfunction ()
 
 message ( DEBUG "TwxFatalLib loaded" )

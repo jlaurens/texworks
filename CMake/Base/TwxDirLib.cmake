@@ -293,9 +293,7 @@ twx_dir_configure (
   VAR_PREFIX TWX_PROJECT
 )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
+twx_lib_require ( "Fatal" "Assert" "Expect" )
 
 message ( DEBUG "TwxDirLib loaded" )
 

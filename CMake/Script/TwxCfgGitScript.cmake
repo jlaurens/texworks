@@ -7,7 +7,7 @@ See https://github.com/TeXworks/texworks
 
 Usage:
 ```
-cmake ... -P .../CMake/Script/TwxCfg_git.cmake
+cmake ... -P .../CMake/Script/TwxCfgGitScript.cmake
 ```
 
 Expected input state:

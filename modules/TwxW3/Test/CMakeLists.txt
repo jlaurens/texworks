@@ -75,7 +75,7 @@ target_sources (
 )
 
 include ( TwxTestLib )
-twx_test_case ( VAR twx_WorkingDirectory TARGET test_TwxW3 )
+twx_unit_case ( VAR twx_WorkingDirectory TARGET test_TwxW3 )
 
 add_test (
 	NAME test_TwxW3

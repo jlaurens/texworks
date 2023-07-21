@@ -43,8 +43,8 @@ macro ( twx_hook_call .ID twx.R_ID )
     message ( TRACE "Call \"${twx_hook_call.cmd}\"" )
     cmake_language ( CALL "${twx_hook_call.cmd}" ${ARGN} )
   endforeach ()
-  unset ( twx_hook_call.commands )
-  unset ( twx_hook_call.cmd )
+  set ( twx_hook_call.commands )
+  set ( twx_hook_call.cmd )
   list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
 endmacro ()
 
@@ -125,8 +125,7 @@ function ( twx_hook_unregister .ID twx.R_ID )
   twx_hook_export ()
 endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxTreeLib.cmake" )
+twx_lib_require ( "Fatal" "Tree" "Expect" "Export" )
 
 # ANCHOR: TWX_HOOK_COMMANDS
 twx_tree_init ( TWX_HOOK_COMMANDS )

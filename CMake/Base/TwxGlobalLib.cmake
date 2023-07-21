@@ -246,15 +246,6 @@ function ( twx_global_log )
   )
 endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxTreeLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxUtilLib.cmake" )
-
-block ()
-twx_tree_init ( tree/ )
-twx_tree_assert ( tree/ )
-twx_global_save ( TREE tree/ )
-endblock ()
-
 # ANCHOR: twx_tree_prettify
 #[=======[
 */
@@ -276,6 +267,13 @@ function ( twx_global_prettify .IN_VAR twx.R_IN_VAR )
   twx_export ( "${twx.R_IN_VAR}" )
 endfunction ()
 
+twx_lib_require ( "Expect" "Arg" "Tree" "Export" "Util" "Increment" )
+
+block ()
+twx_tree_init ( tree/ )
+twx_tree_assert ( tree/ )
+twx_global_save ( TREE tree/ )
+endblock ()
 
 message ( VERBOSE "Loaded: TwxGlobalLib" )
 

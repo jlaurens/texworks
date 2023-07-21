@@ -183,7 +183,7 @@ macro ( twx_ans_prettify )
   twx_tree_prettify ( "${TWX_ANS}" ${ARGV} )
 endmacro ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxTreeLib.cmake" )
+twx_lib_require ( "Tree" "Export" "Increment" )
 
 twx_ans_clear ()
 

@@ -216,9 +216,7 @@ function ( twx_arg_assert_parsed )
   endif ()
 endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMathLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxIncrementLib.cmake" )
+twx_lib_require ( "Fatal" "Increment" )
 
 message ( DEBUG "TwxArgLib loaded" )
 

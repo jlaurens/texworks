@@ -11,23 +11,19 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-message ( "TwxBaseLib test...")
-
-block ()
 twx_test_suite_will_begin ()
+block ()
 
 message ( "twx_compare_log_level" )
 block ()
 list ( APPEND CMAKE_MESSAGE_CONTEXT test_compare_log_level )
-twx_test_fatal_assert_passed ()
+twx_fatal_assert_passed ()
 if ( TRUE )
 endif ()
-twx_test_fatal_assert_passed ()
+twx_fatal_assert_passed ()
 endblock ()
 
+endblock ()
 twx_test_suite_did_end ()
-endblock ()
-
-message ( STATUS "TwxBaseLib test... DONE")
 
 #/*

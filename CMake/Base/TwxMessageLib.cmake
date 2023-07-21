@@ -15,12 +15,6 @@ Included in `TwxBaseLib`.
 
 include_guard ( GLOBAL )
 
-# Full include only once
-if ( COMMAND twx_message )
-  return ()
-endif ()
-# This has already been included
-
 set (
   TWX_MESSAGE_LOG_LEVELS
     FATAL_ERROR
@@ -326,9 +320,7 @@ function ( twx_message )
   endif ()
 endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMathLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
+twx_lib_require ( "Fatal" "Assert" "Arg" "Increment" "Export" "Math" )
 
 message ( VERBOSE "TwxMessageLib loaded" )
 

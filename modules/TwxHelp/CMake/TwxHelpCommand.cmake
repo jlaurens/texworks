@@ -7,7 +7,7 @@ See https://github.com/TeXworks/texworks
 
 Usage:
 ```
-  cmake -DPROJECT_BINARY_DIR="... -P .../TwxManualCommand.cmake
+  cmake -DPROJECT_BINARY_DIR="... -P .../TwxManualScript.cmake
 ```
 
 Loads `TwxBase`.

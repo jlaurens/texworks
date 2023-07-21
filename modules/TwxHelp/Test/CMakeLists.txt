@@ -60,7 +60,7 @@ twx_Qt_link_libraries ( TARGETS test_TwxHelp )
 twx_module_add ( Help TO_TARGETS test_TwxHelp )
 
 include ( TwxTestLib )
-twx_test_case ( VAR twx_WorkingDirectory TARGET test_TwxHelp )
+twx_unit_case ( VAR twx_WorkingDirectory TARGET test_TwxHelp )
 
 add_test (
 	NAME test_TwxHelp

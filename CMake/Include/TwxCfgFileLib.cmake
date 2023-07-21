@@ -280,7 +280,7 @@ function ( twx_cfg_file_end )
           "${TWX-D_ESCAPE_QUOTES}"
           "${TWX-D_NO_PRIVATE}"
           "${-DTWX_STATE}"
-          -P "${TWX_DIR}CMake/Script/TwxCfgFileCommand.cmake"
+          -P "${TWX_DIR}CMake/Script/TwxCfgFileScript.cmake"
       COMMENT
         "Configure ${PROJECT_NAME}'s ${twx.R_MODULE_NAME} include directory ${output_directory_}"
       VERBATIM
@@ -323,7 +323,7 @@ function ( twx_cfg_file_end )
           "${TWX-D_ESCAPE_QUOTES}"
           "${TWX-D_NO_PRIVATE}"
           "${-DTWX_STATE}"
-          -P "${TWX_DIR}CMake/Script/TwxCfgFileCommand.cmake"
+          -P "${TWX_DIR}CMake/Script/TwxCfgFileScript.cmake"
       COMMENT
         "Configure ${PROJECT_NAME}'s ${twx.R_TARGET} include directory ${output_directory_}"
       VERBATIM
@@ -382,7 +382,7 @@ function ( twx_cfg_file_end )
           "${TWX-D_ESCAPE_QUOTES}"
           "${TWX-D_NO_PRIVATE}"
           "${-DTWX_STATE}"
-          -P "${TWX_DIR}CMake/Script/TwxCfgFileCommand.cmake"
+          -P "${TWX_DIR}CMake/Script/TwxCfgFileScript.cmake"
       COMMAND
         "${CMAKE_COMMAND}"
           -E touch "${stamped_}"

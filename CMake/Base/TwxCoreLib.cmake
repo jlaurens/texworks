@@ -13,7 +13,6 @@ See https://github.com/TeXworks/texworks
   * Utilities:
   *
   * - `twx_fatal()`
-  * - `twx_assert_variable_name()`
   * - `twx_regex_escape()`
   *
   * Testing utilities:
@@ -70,103 +69,71 @@ function ( twx_regex_escape .text .IN_VAR .var )
   set ( "${twx.R_IN_VAR}" "${m}" PARENT_SCOPE )
 endfunction ()
 
-# ANCHOR: TWX_CORE_VARIABLE_RE
-#[=======[*/
-/** @brief Regular expression for variables
-  *
-  * Quoted CMake documentation:
-  *   > Literal variable references may consist of
-  *   > alphanumeric characters,
-  *   > the characters /_.+-,
-  *   > and Escape Sequences.
-  * where "An escape sequence is a \ followed by one character:"
-  *   > escape_sequence  ::=  escape_identity | escape_encoded | escape_semicolon
-  *   > escape_identity  ::=  '\' <match '[^A-Za-z0-9;]'>
-  *   > escape_encoded   ::=  '\t' | '\r' | '\n'
-  *   > escape_semicolon ::=  '\;'
-  */
-TWX_CORE_VARIABLE_RE;
-/*#]=======]
-set (
-  TWX_CORE_VARIABLE_RE
-  "^([a-zA-Z/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)([a-zA-Z0-9/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)*$"
+#[=======[ Paths setup
+This is called from various locations.
+We cannot assume that `PROJECT_SOURCE_DIR` always represent
+the same location, in particular when called from a module
+or a sub code unit. The same holds for `CMAKE_SOURCE_DIR`.
+`TWX_DIR` is always "at the top" because it is defined
+relative to this included file.
+#]=======]
+get_filename_component (
+  TWX_DIR
+  "${CMAKE_CURRENT_LIST_DIR}/../../"
+  REALPATH
 )
 
-# ANCHOR: twx_assert_variable_name
+# ANCHOR: twx_complete_dir_var
 #[=======[*/
-/** @brief Raise when not a literal variable name.
+/** @brief Complete dir variables contents.
   *
-  * @param ..., non empty list of variables names to test.
-  * Support `$|` syntax (`$|<name>` is a shortcut to the more readable `"${<name>}"`)
+  * When the variable is not empty, ensures that it ends with a `/`.
+  * The resulting path may not exists though.
+  *
+  * @param ..., non empty list of string variables containing locations of directories.
+  *
   */
-twx_assert_variable_name(...) {}
-/*#]=======]
-function ( twx_assert_variable_name .name )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_assert_variable_name )
-  set ( i 0 )
-  while ( TRUE )
-    set ( v "${ARGV${i}}" )
-    # message ( TR@CE "v => \"${v}\"" )
-    if ( NOT v MATCHES "${TWX_CORE_VARIABLE_RE}" )
-      twx_fatal ( "Not a variable name: \"${v}\"" )
-      return ()
-    endif ()
-    math ( EXPR i "${i}+1" )
-    if ( i GREATER_EQUAL ARGC )
-      break ()
-    endif ()
-  endwhile ()
-endfunction ( twx_assert_variable_name )
-
-if ( NOT CMAKE_SCRIPT_MODE_FILE )
-  add_custom_target (
-    TwxCoreLib.cmake
-  )
-  define_property (
-    TARGET PROPERTY TWX_FATAL_MESSAGE
-  )
-endif ()
-
-# ANCHOR: twx_fatal
-#[=======[
-*//** @brief Terminate with a FATAL_ERROR message. */
-twx_fatal(...){}
+twx_complete_dir_var(...) {}
 /*
+Implementation details:
+The argument are IO variable names, such that we must name local variables with great care,
+otherwise there might be a conflict.
 #]=======]
-function ( twx_fatal )
-  set ( m )
-  set ( i 0 )
-  unset ( ARGV${ARGC} )
+function ( twx_complete_dir_var twx_complete_dir_var.var )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_complete_dir_var )
+  set ( twx_complete_dir_var.i 0 )
   while ( TRUE )
-    if ( NOT DEFINED ARGV${i} )
+    set ( twx_complete_dir_var.v "${ARGV${twx_complete_dir_var.i}}" )
+    # message ( TR@CE "v => \"${twx_complete_dir_var.v}\"")
+    twx_assert_variable_name ( "${twx_complete_dir_var.v}" )
+    twx_assert_defined ( "${twx_complete_dir_var.v}" )
+    set ( twx_complete_dir_var.w "${${twx_complete_dir_var.v}}" )
+    if ( NOT "${twx_complete_dir_var.w}" STREQUAL "" AND NOT "${twx_complete_dir_var.w}" MATCHES "/$" )
+      set ( "${twx_complete_dir_var.v}" "${twx_complete_dir_var.w}/" PARENT_SCOPE )
+    endif ()
+    math ( EXPR twx_complete_dir_var.i "${twx_complete_dir_var.i}+1" )
+    if ( twx_complete_dir_var.i GREATER_EQUAL ${ARGC} )
       break ()
     endif ()
-    if ( ARGV${i} MATCHES "(^|[^\\])(\\\\)*\\$" )
-      list ( APPEND m "${ARGV${i}}\\" )
-    else ()
-      list ( APPEND m "${ARGV${i}}" )
-    endif ()
-    math ( EXPR i "${i}+1" )
   endwhile ()
-  if ( TWX_FATAL_CATCH AND NOT CMAKE_SCRIPT_MODE_FILE )
-    get_target_property(
-      fatal_
-      TwxCoreLib.cmake
-      TWX_FATAL_MESSAGE
-    )
-    if ( fatal_ STREQUAL "fatal_-NOTFOUND")
-      set ( fatal_ )
-    endif ()
-    list ( APPEND fatal_ "${m}" )
-    set_target_properties (
-      TwxCoreLib.cmake
-      PROPERTIES
-        TWX_FATAL_MESSAGE "${fatal_}"
-    )
-  else ()
-    message ( FATAL_ERROR ${m} )
-  endif ()
-endfunction ()
+endfunction ( twx_complete_dir_var )
+
+twx_lib_require ( "Fatal" "Assert" "Expect" )
+
+twx_complete_dir_var ( TWX_DIR )
+
+#[=======[ setup `CMAKE_MODULE_PATH`
+Make the contents of `CMake/Base` and `CMake/Modules` available.
+The former contains tools and utilities whereas
+the latter only contains modules at a higher level.
+]=======]
+list (
+  INSERT CMAKE_MODULE_PATH 0
+  "${TWX_DIR}CMake/Base"
+  "${TWX_DIR}CMake/Include"
+  "${TWX_DIR}CMake/Modules"
+)
+list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
 
 message ( DEBUG "TwxCoreLib loaded (TWX_DIR => \"${TWX_DIR}\")" )
 

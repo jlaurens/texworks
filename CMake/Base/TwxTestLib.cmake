@@ -10,6 +10,8 @@ https://github.com/TeXworks/texworks
 /*
 #]===============================================]
 
+set ( TWX_TEST ON )
+
 include_guard ( GLOBAL )
 
 # ANCHOR: twx_test_during
@@ -71,26 +73,30 @@ set ( TWX_FATAL_CATCH OFF )
 /** @brief Before the test suite runs
   *
   * Must be balanced by a `twx_test_suite_did_end()`.
-  * Best run with a scope, for example a block scope.
+  * Loads the associate library retrieved from the path of the current list file.
+  * A `block()` instruction should follow.
   *
-  * @param test_id for key ID, a variable name like identifier to uniquely
-  *   identify a test suite.
   * @param level for key LOG_LEVEL, optional log level.
   */
 twx_test_suite_will_begin ([LOG_LEVEL level]) {}
 /*
 #]=======]
-function ( twx_test_suite_will_begin )
+macro ( twx_test_suite_will_begin )
+  block ()
+  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+  message ( "" )
+  endblock()
+  list ( APPEND twx_test_suite_will_begin.CMAKE_MESSAGE_LOG_LEVEL "${CMAKE_MESSAGE_LOG_LEVEL}" )
   if ( ${ARGC} EQUAL 2 )
     if ( NOT ARGV0 STREQUAL "LOG_LEVEL" )
       message ( FATAL_ERROR "Bad usage (ARGV => \"${ARGV}\")" )
     endif ()
-    set ( CMAKE_MESSAGE_LOG_LEVEL ${ARGV1} PARENT_SCOPE )
+    set ( CMAKE_MESSAGE_LOG_LEVEL ${ARGV1} )
   elseif ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR "Bad usage (ARGV => \"${ARGV}\")" )
   endif ()
   get_target_property (
-    list_
+    twx_test_suite_will_begin.list
     TwxTestLib.cmake
     TWX_TEST_SUITE_LIST
   )
@@ -99,7 +105,7 @@ function ( twx_test_suite_will_begin )
   else ()
     set ( TWX_TEST_SUITE_CORE_NAME "Dummy" )
   endif ()
-  list ( APPEND list_ "${TWX_TEST_SUITE_CORE_NAME}" )
+  list ( APPEND twx_test_suite_will_begin.list "${TWX_TEST_SUITE_CORE_NAME}" )
   if ( "${TWX_TEST_SUITE_CORE_NAME}" STREQUAL "Base" )
     set ( TWX_TEST_SUITE_NAME "Twx${TWX_TEST_SUITE_CORE_NAME}" )
   elseif ( "${TWX_TEST_SUITE_CORE_NAME}" STREQUAL "Include" )
@@ -110,21 +116,29 @@ function ( twx_test_suite_will_begin )
   set_target_properties (
     TwxTestLib.cmake
     PROPERTIES
-    TWX_TEST_SUITE_LIST "${list_}"
+    TWX_TEST_SUITE_LIST "${twx_test_suite_will_begin.list}"
   )
-  set ( CMAKE_MESSAGE_CONTEXT_SHOW ON PARENT_SCOPE )
-  set ( TWX_FATAL_CATCH ON PARENT_SCOPE )
-  set ( banner_ "Test suite ${TWX_TEST_SUITE_NAME}...")
-  string ( LENGTH "${banner_}" length_ )
-  string( REPEAT "=" "${length_}" underline_ )
-  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-  message ( "" )
   set ( CMAKE_MESSAGE_CONTEXT_SHOW ON )
-  message ( STATUS "${banner_}" )
-  message ( STATUS "${underline_}" )
+  set ( TWX_FATAL_CATCH ON )
+  set ( twx_test_suite_will_begin.banner "Test suite ${TWX_TEST_SUITE_NAME}...")
+  string ( LENGTH "${twx_test_suite_will_begin.banner}" twx_test_suite_will_begin.length )
+  string( REPEAT "=" "${twx_test_suite_will_begin.length}" twx_test_suite_will_begin.underline )
+  message ( STATUS "${twx_test_suite_will_begin.banner}" )
+  message ( STATUS "${twx_test_suite_will_begin.underline}" )
   list ( APPEND CMAKE_MESSAGE_CONTEXT "${TWX_TEST_SUITE_CORE_NAME}" )
-  return ( PROPAGATE CMAKE_MESSAGE_CONTEXT TWX_TEST_SUITE_CORE_NAME TWX_TEST_SUITE_NAME )
-endfunction ()
+  if ( "${CMAKE_CURRENT_LIST_FILE}" MATCHES "/Twx([^/]+)Test.cmake$" )
+    if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/../../Twx${CMAKE_MATCH_1}.cmake" )
+      include ( "${CMAKE_CURRENT_LIST_DIR}/../../Twx${CMAKE_MATCH_1}.cmake" )
+    else ()
+      include ( "${CMAKE_CURRENT_LIST_DIR}/../../Twx${CMAKE_MATCH_1}Lib.cmake" )
+    endif ()
+  else ()
+    message ( FATAL_ERROR "No library to test" )
+  endif ()
+  set ( twx_test_suite_will_begin.length )
+  set ( twx_test_suite_will_begin.banner )
+  set ( twx_test_suite_will_begin.underline )
+endmacro ()
 
 set ( TWX_FATAL_CATCH OFF )
 
@@ -163,136 +177,8 @@ function ( twx_test_suite_did_end )
   string( REPEAT "=" "${length_}" underline_ )
   message ( STATUS "${banner_}" )
   message ( STATUS "${underline_}" )
-endfunction ()
-
-# ANCHOR: twx_fatal_clear
-#[=======[
-*/
-/** @brief Clear catched fatal messages.
-  *
-  * For testing purposes only.
-  *
-  */
-twx_fatal_clear (){}
-/*
-#]=======]
-function ( twx_fatal_clear )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Too many arguments: ${ARGC} instead of 0." )
-  endif ()
-  if ( TARGET TwxCoreLib.cmake )
-    set_target_properties (
-      TwxCoreLib.cmake
-      PROPERTIES
-        TWX_FATAL_MESSAGE ""
-    )
-  endif ()
-endfunction ()
-
-# ANCHOR: twx_test_fatal
-#[=======[
-*/
-/** @brief After the test suite runs
-  *
-  * Must balance a `twx_test_suite_will_begin()`.
-  *
-  */
-twx_test_fatal (ID id) {}
-/*
-#]=======]
-function ( twx_test_fatal )
-  if ( NOT DEFINED twx_test_fatal.CATCH_SAVED )
-    set ( twx_test_fatal.CATCH_SAVED "${TWX_FATAL_CATCH}" PARENT_SCOPE )
-  endif ()
-  set ( TWX_FATAL_CATCH ON PARENT_SCOPE )
-  if ( ${ARGC} GREATER "0" )
-    message ( FATAL_ERROR "Too many arguments" )
-  endif ()
-  twx_fatal_clear ()
-endfunction ()
-
-# ANCHOR: twx_test_fatal_assert_passed
-#[=======[
-*/
-/** @brief Raise when a test unexpectedly raised.
-  *
-  * This is not extremely strong but does the job in most situations.
-  */
-twx_test_fatal_assert_passed () {}
-/*
-#]=======]
-function ( twx_test_fatal_assert_passed )
-  if ( ${ARGC} GREATER "0" )
-    message ( FATAL_ERROR "Too many arguments" )
-  endif ()
-  twx_fatal_catched ( IN_VAR twx_test_fatal_assert_passed.v )
-  if ( NOT twx_test_fatal_assert_passed.v STREQUAL "" )
-    message ( FATAL_ERROR "FAILURE: \"${twx_test_fatal_assert_passed.v}\"" )
-  endif ()
-  twx_fatal_clear ()
-  if ( DEFINED twx_test_fatal.CATCH_SAVED )
-    set ( TWX_FATAL_CATCH "${twx_test_fatal.CATCH_SAVED}" PARENT_SCOPE )
-  endif ()
-endfunction ()
-
-# ANCHOR: twx_test_fatal_assert_failed
-#[=======[
-*/
-/** @brief Raise when a test did not expectedly raised.
-  *
-  * This is not extremely strong but does the job in most situations.
-  */
-twx_test_fatal_assert_failed () {}
-/*
-#]=======]
-function ( twx_test_fatal_assert_failed )
-  if ( ${ARGC} GREATER "0" )
-    message ( FATAL_ERROR "Too many arguments" )
-  endif ()
-  twx_fatal_catched ( IN_VAR twx_test_fatal_assert_failed.v )
-  if ( twx_test_fatal_assert_failed.v STREQUAL "" )
-    message ( FATAL_ERROR "FAILURE" )
-  endif ()
-  twx_fatal_clear ()
-  if ( DEFINED twx_test_fatal.CATCH_SAVED )
-    set ( TWX_FATAL_CATCH "${twx_test_fatal.CATCH_SAVED}" PARENT_SCOPE )
-  endif ()
-endfunction ()
-
-# ANCHOR: twx_fatal_catched
-#[=======[
-*/
-/** @brief Catch fatal messages.
-  *
-  * For testing purposes only.
-  * If the `twx_fatal()` call has no really bad consequences,
-  * we can catch the message.
-  *
-  * @param var for key `IN_VAR`, contains the list of messages on return.
-  */
-twx_fatal_catched (IN_VAR var){}
-/*
-#]=======]
-function ( twx_fatal_catched .IN_VAR twx.R_VAR )
-  if ( NOT ${ARGC} EQUAL 2 )
-    message ( FATAL_ERROR "Wrong number of arguments: ${ARGC} instead of 2." )
-  endif ()
-  if ( NOT .IN_VAR STREQUAL "IN_VAR" )
-    message ( FATAL_ERROR "Missing IN_VAR key: got \"${.IN_VAR}\" instead." )
-  endif ()
-  twx_assert_variable_name ( "${twx.R_VAR}" )
-  
-  if ( TARGET TwxCoreLib.cmake )
-    get_target_property(
-      ${twx.R_VAR}
-      TwxCoreLib.cmake
-      TWX_FATAL_MESSAGE
-    )
-  endif ()
-  if ( ${twx.R_VAR} STREQUAL "fatal_-NOTFOUND")
-    set ( ${twx.R_VAR} "" )
-  endif ()
-  set ( ${twx.R_VAR} "${${twx.R_VAR}}" PARENT_SCOPE )
+  list ( POP_BACK twx_test_suite_will_begin.CMAKE_MESSAGE_LOG_LEVEL CMAKE_MESSAGE_LOG_LEVEL )
+  return ( PROPAGATE CMAKE_MESSAGE_LOG_LEVEL CMAKE_MESSAGE_CONTEXT )
 endfunction ()
 
 function ( TwxTestLib_state_prepare )
@@ -304,7 +190,23 @@ function ( TwxTestLib_state_prepare )
   twx_export ( TWX_TEST_SUITE_LIST )
 endfunction ()
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
+macro ( twx_test_include )
+  foreach ( twx_include_test.n ${ARGV} )
+    set (
+      twx_include_test.p
+      "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_include_test.n}/Twx${twx_include_test.n}Test.cmake"
+    )
+    if ( EXISTS "${twx_include_test.p}" )
+      include ( "${twx_include_test.p}" )
+    else ()
+      include (
+        "${CMAKE_CURRENT_LIST_DIR}/../Twx${twx_include_test.n}/Twx${twx_include_test.n}Test.cmake"
+      )
+    endif ()
+  endforeach ()
+  set ( twx_include_test.n )
+  set ( twx_include_test.p )
+endmacro ()
 
 message ( VERBOSE "Loaded: TwxTestLib" )
 

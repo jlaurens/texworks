@@ -23,7 +23,7 @@ include (
   NO_POLICY_SCOPE
 )
 
-# ANCHOR: twx_test_case
+# ANCHOR: twx_unit_case
 #[=======[
 *//** @brief Prepare the test working directory for testing executables.
   *
@@ -42,10 +42,10 @@ include (
   *
   * Includes `TwxBase`
   */
-twx_test_case ( IN_VAR ans TARGET executable ) {}
+twx_unit_case ( IN_VAR ans TARGET executable ) {}
 /*
 #]=======]
-function ( twx_test_case )
+function ( twx_unit_case )
   if ( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory/" )
     message ( FATAL_ERROR "No WorkingDirectory" )
   endif ()
@@ -75,7 +75,7 @@ function ( twx_test_case )
   if ( NOT "" STREQUAL "" )
   # Remove this branch when done
     set ( temporaryDir_ "${TWX_PROJECT_BUILD_DATA_DIR}Temporary" )
-    twx_message ( VERBOSE "twx_test_case FROM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
+    twx_message ( VERBOSE "twx_unit_case FROM: ${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory")
     file (
       COPY "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory"
       DESTINATION "${temporaryDir_}"
@@ -87,7 +87,7 @@ function ( twx_test_case )
     file (
       REMOVE_RECURSE "${${twx.R_IN_VAR}}"
     )
-    twx_message ( VERBOSE "twx_test_case DESTINATION: ${${twx.R_IN_VAR}}" )
+    twx_message ( VERBOSE "twx_unit_case DESTINATION: ${${twx.R_IN_VAR}}" )
     file (
       RENAME
         "${temporaryDir_}/WorkingDirectory"
@@ -114,7 +114,7 @@ function ( twx_test_case )
           "-DTWX_TEMPORARY_DIR=\"${TWX_PROJECT_BUILD_DATA_DIR}Temporary/\""
           "-DTWX_DESTINATION_DIR=\"${TWX_PROJECT_PRODUCT_DIR}\""
           "${-DTWX_STATE}"
-          -P "${TWX_DIR}CMake/Script/TwxTestCommand.cmake"
+          -P "${TWX_DIR}CMake/Script/TwxTestScript.cmake"
         COMMAND
           "${CMAKE_COMMAND}"
             -E touch "${stamped_}"
@@ -133,5 +133,5 @@ function ( twx_test_case )
   twx_export ( ${twx.R_IN_VAR} )
 endfunction ()
 
-message ( DEBUG "TwxTestCase loaded" )
+message ( DEBUG "TwxTestLib loaded" )
 #*/

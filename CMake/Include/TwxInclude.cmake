@@ -25,7 +25,6 @@ include (
 twx_state_key_add (
   CMAKE_SOURCE_DIR
   CMAKE_BINARY_DIR
-  TWX_CFG_INI_REQUIRED_KEYS
 )
 
 twx_cfg_ini_required_key_add (
@@ -126,4 +125,68 @@ macro ( TwxInclude_Cfg_hooked_misc )
   twx_cfg_set ( APPLICATION_ID "${niamod}.${TWX_COMMAND}" )
   twx_cfg_set ( ASSEMBLY_IDENTITY "TUG.${TWX_NAME}.${TWX_NAME}" )
 endmacro ()
+
+# ANCHOR: TWX_DEV
+#[=======[*/
+/** @brief Whether in developer mode
+  *
+  * Initially unset.
+  * See @ref TWX_NAME.
+  */
+TWX_DEV;
+/*#]=======]
+
+option ( TWX_DEV "To activate developer mode" )
+
+# ANCHOR: TWX_NAME
+#[=======[*/
+/** @brief The main project name
+  *
+  * One level of indirection is used for two reasons:
+  *
+  * * the word `TeXworks` is used so many times while refering to
+  *   different meanings,
+  * * One may need to change that name. In particular, this name
+  *   is reflected in different parts of the file system. We want to
+  *   allow a developper to have both a release version and  a developer
+  *   version and let them live side by side with nothing in common.
+  *   In particular, the developer version is not allowed to break
+  *   an existing release version.
+  *
+  * Set to `TeXworks` in normal mode but to `TeXworks-dev`
+  * when `TWX_DEV` is set.
+  * In developer mode, use for example
+  *
+  *   cmake ... -DTWX_DEV=ON ...
+  *
+  * Shared by Twx modules and main code.
+  * In particular, main configuration files for metadata
+  * like version and names are <TWX_NAME>.ini.
+  *
+  * See also the `TeXworks.ini` and `TeXworks-dev.ini`
+  * configuration files at the top level.
+  *
+  * When testing, this value can be set beforehand, in that case,
+  * it will not be overwritten.
+  */
+TWX_NAME;
+/** @brief The main project command
+  *
+  * This is the main project name in lowercase.
+  */
+TWX_COMMAND;
+/*#]=======]
+if ( "${TWX_NAME}" STREQUAL "" )
+  if ( TWX_DEV )
+    set ( TWX_NAME TeXworks-dev )
+  else ()
+    set ( TWX_NAME TeXworks )
+  endif ()
+endif ()
+
+if ( "${TWX_COMMAND}" STREQUAL "" )
+  string ( TOLOWER "${TWX_NAME}" TWX_COMMAND)
+endif ()
+
+
 #*/

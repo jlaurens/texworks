@@ -19,10 +19,10 @@ if ( NOT DEFINED TWX_IS_BASED )
 endif ()
 
 set (
-  TwxManualCommand.cmake
-  "${CMAKE_CURRENT_LIST_DIR}/../Script/TwxManualCommand.cmake"
+  TwxManualScript.cmake
+  "${CMAKE_CURRENT_LIST_DIR}/../Script/TwxManualScript.cmake"
 )
-twx_assert_exists ( "${TwxManualCommand}".cmake )
+twx_assert_exists ( "${TwxManualScript}".cmake )
 
 # ANCHOR: Utility `twx_manual_setup`
 #[=======[
@@ -134,7 +134,7 @@ endfunction ()
 */
 /** @brief Alternate method to prepare the manual material
   *
-  * Calls `twx_manual_prepare()` through `TwxManualCommand.cmake`.
+  * Calls `twx_manual_prepare()` through `TwxManualScript.cmake`.
   */
 twx_manual_process () {}
 /*
@@ -148,7 +148,7 @@ function ( twx_manual_process )
       "-DTWX_BASE=${TWX_MANUAL_BASE}"
       "-DTWX_SHA256=${TWX_MANUAL_SHA256}"
       "${-DTWX_STATE}"
-      -P "${TwxManualCommand.cmake}"
+      -P "${TwxManualScript.cmake}"
   )
 endfunction ()
 #*/

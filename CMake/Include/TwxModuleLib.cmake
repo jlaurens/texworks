@@ -989,7 +989,7 @@ macro ( twx_module_configure_test )
   twx_module_includes ( ${TWX_MODULE} IN_TARGETS test_${TWX_MODULE} )
   twx_module_add ( ${${TWX_MODULE}_MODULES} TO_TARGETS test_${TWX_MODULE} )
   include ( TwxTestLib )
-  twx_test_case ( VAR twx_WorkingDirectory TARGET test_${TWX_MODULE} )
+  twx_unit_case ( VAR twx_WorkingDirectory TARGET test_${TWX_MODULE} )
   twx_assert_non_void ( twx_WorkingDirectory )
   twx_assert_target ( test_${TWX_MODULE}.WorkingDirectory )
   target_compile_definitions (

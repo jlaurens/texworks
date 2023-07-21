@@ -147,8 +147,10 @@ twx_cfg_ini_required_key_remove (...) {}
 /*
 #]=======]
 function ( twx_cfg_ini_required_key_remove .k )
-  twx_hook_register ( ID TwxCfgLib ${ARGV} )
-  twx_hook_export ()
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_ini_required_key_remove" )
+  twx_message ( DEBUG "ARGV => \"${ARGV}\"" )
+  list ( REMOVE_ITEM TWX_CFG_INI_REQUIRED_KEYS ${ARGV} )
+  twx_export ( TWX_CFG_INI_REQUIRED_KEYS )
 endfunction ()
 
 # ANCHOR: twx_cfg_register_hooked
@@ -172,7 +174,7 @@ endfunction ()
 */
 /** @brief Update the factory Cfg data file
   *
-  * Launch the `TwxCfg_factory.cmake` command.
+  * Launch the `TwxCfgFactoryScript.cmake` command.
   */
 twx_cfg_update_factory ( ) {}
 /*
@@ -189,7 +191,7 @@ macro ( twx_cfg_update_factory )
       "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
       "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
       "${-DTWX_STATE}"
-      -P "${TWX_DIR}CMake/Script/TwxCfg_factory.cmake"
+      -P "${TWX_DIR}CMake/Script/TwxCfgFactoryScript.cmake"
     RESULT_VARIABLE twx_cfg_update_factory.result
   )
   twx_assert_0 ( "${twx_cfg_update_factory.result}" )
@@ -210,7 +212,7 @@ macro ( twx_cfg_update_git )
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
       "${-DTWX_STATE}"
-      -P "${TWX_DIR}CMake/Script/TwxCfg_git.cmake"
+      -P "${TWX_DIR}CMake/Script/TwxCfgGitScript.cmake"
   )
   twx_cfg_read ( "git" )
 endmacro ()
@@ -324,7 +326,7 @@ function ( twx_cfg_setup )
         "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
         "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
         "${-DTWX_STATE}"
-        -P "${TWX_DIR}CMake/Script/TwxCfg_factory.cmake"
+        -P "${TWX_DIR}CMake/Script/TwxCfgFactoryScript.cmake"
       DEPENDS
         ${TWX_FACTORY_INI}
       COMMENT
@@ -337,7 +339,7 @@ function ( twx_cfg_setup )
       COMMAND "${CMAKE_COMMAND}"
         "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
         "${-DTWX_STATE}"
-        -P "${TWX_DIR}CMake/Script/TwxCfg_git.cmake"
+        -P "${TWX_DIR}CMake/Script/TwxCfgGitScript.cmake"
       DEPENDS
         ${path_factory_twx}
       COMMENT
@@ -428,7 +430,6 @@ function ( twx_cfg_set ID_ )
   endif ()
   while ( TRUE )
     set ( kv "${ARGV${i}}" )
-    twx_assert_kv ( "${kv}" )
     string ( REPLACE ";" "${TWX_CFG_SEMICOLON_PLACEHOLDER}" kv "${kv}" )
     list ( APPEND TwxCfg_kv.${id_} "${kv}" )
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
@@ -455,10 +456,10 @@ function ( twx_cfg_write_end )
   endif ()
   twx_expect_unequal_string ( "${twx.R_ID}" "_private" )
   twx_cfg_path ( ID "${twx.R_ID}" IN_VAR path_ )
-  if ( NOT ";${${PROJECT_NAME}_TWX_CFG_IDS};" MATCHES ";${path_};" )
+  if ( NOT "${path_}" IN_LIST ${PROJECT_NAME}_TWX_CFG_IDS )
     list ( APPEND ${PROJECT_NAME}_TWX_CFG_IDS ${path_})
   endif()
-  set_property(
+  set_property (
     DIRECTORY
     APPEND
     PROPERTY CMAKE_CONFIGURE_DEPENDS
@@ -739,8 +740,8 @@ twx_fatal
 twx_increment_and_break_if
 #]=======]
 
-include (
-  "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxExpectLib.cmake"
-)
+twx_lib_require ( "Fatal" "Assert" "Expect" "Export" "Arg" "State" )
+
+twx_state_key_add ( TWX_CFG_INI_REQUIRED_KEYS )
 
 #*/

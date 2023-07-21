@@ -17,12 +17,6 @@ Output state:
 
 include_guard ( GLOBAL )
 
-# Full include only once
-if ( COMMAND twx_increment )
-  return ()
-endif ()
-# This has already been included
-
 # ANCHOR: twx_increment ()
 #[=======[
 /** @brief Increment a variable
@@ -199,7 +193,7 @@ macro (
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL "<=" )
     if ( NOT "${${twx_increment_and_assert.counter}}" LESS_EQUAL "${twx_increment_and_assert.right}" )
-    twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL "==" OR "${twx_increment_and_assert.op}" STREQUAL "=" )
@@ -209,17 +203,17 @@ macro (
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL "!=" OR "${twx_increment_and_assert.op}" STREQUAL "<>" )
     if ( "${${twx_increment_and_assert.counter}}" EQUAL "${twx_increment_and_assert.right}" )
-    twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL ">=" )
     if ( NOT "${${twx_increment_and_assert.counter}}" GREATER_EQUAL "${twx_increment_and_assert.right}" )
-    twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   elseif ( "${twx_increment_and_assert.op}" STREQUAL ">" )
     if ( NOT "${${twx_increment_and_assert.counter}}" GREATER "${twx_increment_and_assert.right}" )
-    twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
+      twx_fatal ( "Missed ${twx_increment_and_assert.counter} ${twx_increment_and_assert.op} ${twx_increment_and_assert.right}" )
       return ()
     endif ()
   else ()
@@ -228,9 +222,7 @@ macro (
   endif ()
 endmacro ( twx_increment_and_assert )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
+twx_lib_require ( "Fatal" )
 
 message ( VERBOSE "TwxIncrementLib loaded" )
 

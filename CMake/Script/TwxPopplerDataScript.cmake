@@ -7,7 +7,7 @@ See https://github.com/TeXworks/texworks
 
 Usage:
 ```
-  cmake ... -P .../TwxPopplerDataCommand.cmake
+  cmake ... -P .../TwxPopplerDataScript.cmake
 ```
 
 Loads `TwxBase`.

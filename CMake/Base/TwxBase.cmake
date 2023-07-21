@@ -43,7 +43,6 @@ See https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-# Full include only once
 string(ASCII 01 TWX_CHAR_SOH )
 string(ASCII 02 TWX_CHAR_STX )
 string(ASCII 03 TWX_CHAR_ETX )
@@ -206,6 +205,54 @@ include (
 
 set ( TWX_PROJECT_IS_ROOT ON )
 
+# ANCHOR: TWX_BASE_VARIABLE_RE
+#[=======[*/
+/** @brief Regular expression for variables
+  *
+  * Quoted CMake documentation:
+  *   > Literal variable references may consist of
+  *   > alphanumeric characters,
+  *   > the characters /_.+-,
+  *   > and Escape Sequences.
+  * where "An escape sequence is a \ followed by one character:"
+  *   > escape_sequence  ::=  escape_identity | escape_encoded | escape_semicolon
+  *   > escape_identity  ::=  '\' <match '[^A-Za-z0-9;]'>
+  *   > escape_encoded   ::=  '\t' | '\r' | '\n'
+  *   > escape_semicolon ::=  '\;'
+  */
+TWX_BASE_VARIABLE_RE;
+/*#]=======]
+set (
+  TWX_BASE_VARIABLE_RE
+  "^([a-zA-Z/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)([a-zA-Z0-9/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)*$"
+)
+
+# ANCHOR: twx_assert_variable_name
+#[=======[*/
+/** @brief Raise when not a literal variable name.
+  *
+  * @param ..., non empty list of variables names to test.
+  * Support `$|` syntax (`$|<name>` is a shortcut to the more readable `"${<name>}"`)
+  */
+twx_assert_variable_name(...) {}
+/*#]=======]
+function ( twx_assert_variable_name .name )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_assert_variable_name )
+  set ( i 0 )
+  while ( TRUE )
+    set ( v "${ARGV${i}}" )
+    # message ( TR@CE "v => \"${v}\"" )
+    if ( NOT v MATCHES "${TWX_BASE_VARIABLE_RE}" )
+      twx_fatal ( "Not a variable name: \"${v}\"" )
+      return ()
+    endif ()
+    math ( EXPR i "${i}+1" )
+    if ( i GREATER_EQUAL ARGC )
+      break ()
+    endif ()
+  endwhile ()
+endfunction ( twx_assert_variable_name )
+
 #[=======[
 TwxCoreLib.cmake
 TwxAssertLib.cmake
@@ -227,30 +274,66 @@ TwxCfgLib.cmake
 TwxTestLib.cmake
 #]=======]
 
-foreach (
-  twx.lib
-    "Core"
-    "Assert"
-    "Expect"
-    "Dir"
-    "Math"
-    "Increment"
-    "Arg"
-    "Split"
-    "Export"
-    "Message"
-    "Tree"
-    "Test"
-    "Hook"
-    "Util"
-    "Global"
-    "Ans"
-    "State"
-    "Cfg"
+# ANCHOR: twx_lib_require
+#[=======[
+*/
+/** @brief Require a library
+  *
+  * Include the libraries with given names.
+  * The behavior differs whether testing or not.
+  *
+  * `twx_lib_require()` is called from a library during its inclusion process.
+  * A library can only require another library that stands next to it
+  * or is available through `CMAKE_MODULE_PATH`.
+  *
+  * In normal mode, `twx_lib_require()` just executes `include()`
+  * whereas in testing mode, it includes the test file associate to the library.
+  * This test file will in turn include the library and then run tests.
+  *
+  */
+twx_lib_require ( ... ) {}
+/*
+#]=======]
+macro ( twx_lib_require )
+  foreach ( twx_lib_require.lib ${ARGV} )
+    # list ( APPEND twx_lib_require.stack "${twx_lib_require.lib}" )
+    # message ( STATUS "twx_lib_require.lib => \"${twx_lib_require.lib}\"..." )
+    if ( TWX_TEST )
+      message ( TRACE "1) ${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+      include ( "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+    elseif ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
+      message ( TRACE "2) ${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
+      include ( "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
+    else ()
+      include ( "Twx${twx_lib_require.lib}Lib" )
+    endif ()
+    # list ( POP_BACK twx_lib_require.stack twx_lib_require.lib )
+    # message ( STATUS "twx_lib_require.lib => \"${twx_lib_require.lib}\"... DONE" )
+  endforeach ()
+  set ( twx_lib_require.lib )
+endmacro ()
+
+# The order of the library names hereafter almost reflect dependencies
+twx_lib_require (
+  "Fatal"
+  "Assert"
+  "Expect"
+  "Core"
+  "Dir"
+  "Math"
+  "Arg"
+  "Increment"
+  "Split"
+  "Export"
+  "Message"
+  "Tree"
+  "Hook"
+  "Util"
+  "Global"
+  "Ans"
+  "State"
+  "Cfg"
 )
-  include ( "${CMAKE_CURRENT_LIST_DIR}/Twx${twx.lib}Lib.cmake" )
-endforeach ()
-set ( twx.lib )
 
 twx_assert_true ( TWX_IS_BASED )
 
