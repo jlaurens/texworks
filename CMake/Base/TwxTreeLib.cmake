@@ -330,7 +330,7 @@ function ( twx_tree_set )
   while ( TRUE )
     set ( kv_ "${ARGV${i}}" )
     # message ( TR@CE "kv_ => \"${kv_}\"")
-    twx_split_kv ( "${kv_}" IN_KEY key_ IN_VALUE value_ )
+    twx_split_assign ( "${kv_}" IN_KEY key_ IN_VALUE value_ )
     # message ( TR@CE "key_ => \"${key_}\"")
     # message ( TR@CE "value_ => \"${value_}\"")
 
@@ -664,6 +664,6 @@ twx_lib_require ( "Fatal" "Arg" "Export" "Core" )
 twx_tree_init ()
 twx_tree_assert ()
 
-message ( VERBOSE "Loaded: TwxTreeLib" )
+twx_lib_did_load ()
 
 #*/

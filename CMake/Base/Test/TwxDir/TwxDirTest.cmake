@@ -14,11 +14,9 @@ include_guard ( GLOBAL )
 twx_test_suite_will_begin ()
 block ()
 
-message ( STATUS "twx_dir_configure" )
-block ()
-list ( APPEND CMAKE_MESSAGE_CONTEXT configure )
-twx_fatal_assert_passed ()
-if ( TRUE )
+twx_test_unit_will_begin ( NAME "twx_dir_configure" ID configure )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
   foreach (
     p_
       BUILD_DIR
@@ -34,9 +32,9 @@ if ( TRUE )
     # message ( TR@CE "TWX_${p_} => \"${TWX_${p_}}\"" )
     twx_assert_exists ( "${TWX_${p_}}" )
   endforeach ()
+  endblock ()
 endif ()
-twx_fatal_assert_passed ()
-endblock ()
+twx_test_unit_did_end ()
 
 endblock ()
 twx_test_suite_did_end ()

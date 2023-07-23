@@ -14,7 +14,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # Full include only once
 if ( COMMAND twx_math )
@@ -244,6 +244,6 @@ endfunction ( twx_math )
 
 twx_lib_require ( "Fatal" )
 
-message ( DEBUG "TwxMathLib loaded" )
+twx_lib_did_load ()
 
 #*/

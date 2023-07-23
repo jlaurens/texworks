@@ -16,7 +16,7 @@ Usage when `TwxBase` is not used :
 */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # ANCHOR: twx_expect_equal_string
 #[=======[
@@ -321,6 +321,6 @@ endfunction ()
 
 twx_lib_require ( "Fatal" )
 
-message ( DEBUG "TwxExpectLib loaded" )
+twx_lib_did_load ()
 
 #*/

@@ -15,7 +15,7 @@ Output state:
 */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # ANCHOR: TWX_EXPORT_EMPTY
 #[=======[*/
@@ -171,7 +171,7 @@ macro ( twx_export twx_export.kv. )
     # endblock ()
     # message ( TR@CE "0) twx_export.i => \"${twx_export.i}\"")
     # message ( TR@CE "0) twx_export.kv => \"${twx_export.kv}\"")
-    twx_split_kv (
+    twx_split_assign (
       "${twx_export.kv}"
       IN_KEY twx_export.IN_KEY
       IN_VALUE twx_export.IN_VALUE
@@ -263,12 +263,8 @@ macro ( twx_export twx_export.kv. )
   list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
 endmacro ()
 
-twx_lib_require ( "Fatal" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxCoreLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxArgLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxIncrementLib.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxSplitLib.cmake" )
+twx_lib_require ( "Fatal" "Core" "Arg" "Increment" "Split" )
 
-message ( VERBOSE "TwxExportLib loaded" )
+twx_lib_did_load ()
 
 #*/

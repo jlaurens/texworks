@@ -13,9 +13,9 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
-# ANCHOR: twx_split_kv
+# ANCHOR: twx_split_assign
 #[=======[
 */
 /** @brief Split "<key>=<value>"
@@ -25,15 +25,15 @@ include_guard ( GLOBAL )
   *
   * @param kv, value to split.
   * @param key for key `IN_KEY`, name of the variable that
-  *   will hold the key on return.
+  *   will hold the key on return. Undefined when the entry does not match.
   * @param value for key `IN_VALUE`, name of the variable that
   *   will hold the value on return.
   */
-twx_split_kv(kv IN_KEY key IN_VALUE value) {}
+twx_split_assign(kv IN_KEY key IN_VALUE value) {}
 /*
 #]=======]
-function ( twx_split_kv .kv .IN_KEY .key .IN_VALUE .value )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_kv )
+function ( twx_split_assign .kv .IN_KEY .key .IN_VALUE .value )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_assign )
   # message ( TR@CE ".kv => \"${.kv}\"" )
   twx_arg_assert_count ( ${ARGC} = 5 )
   twx_arg_assert_keyword ( .IN_KEY .IN_VALUE )
@@ -61,7 +61,85 @@ function ( twx_split_kv .kv .IN_KEY .key .IN_VALUE .value )
   endif ()
 endfunction ()
 
-# ANCHOR: twx_split_comparison
+# ANCHOR: twx_split_append
+#[=======[
+*/
+/** @brief Split "<key>=<<<value>"
+  *
+  * Split "<key>=<<<value>" arguments into "<key>" and "<value>".
+  * "<key>" must be a valid key name.
+  * "<key>" is the name of a list to which "<value>" is appended.
+  *
+  * @param kv, value to split.
+  * @param key for key `IN_KEY`, name of the variable that
+  *   will hold the key on return. Undefined when the entry does not match.
+  * @param value for key `IN_VALUE`, name of the variable that
+  *   will hold the value on return.
+  */
+twx_split_append(kv IN_KEY key IN_VALUE value) {}
+/*
+#]=======]
+function ( twx_split_append .kv .IN_KEY .key .IN_VALUE .value )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_append )
+  # message ( TR@CE ".kv => \"${.kv}\"" )
+  twx_arg_assert_count ( ${ARGC} = 5 )
+  twx_arg_assert_keyword ( .IN_KEY .IN_VALUE )
+  twx_assert_variable_name ( "${.key}" "${.value}" )
+  twx_expect_unequal_string ( "${.key}" "${.value}" )
+  if ( .kv MATCHES "^([^=]+)=<<(.*)$" )
+    set ( ${.key} "${CMAKE_MATCH_1}" PARENT_SCOPE )
+    set ( ${.value} "${CMAKE_MATCH_2}" PARENT_SCOPE )
+  elseif ( .kv MATCHES "^=" )
+    twx_fatal ( "Unexpected argument: ${.kv}" )
+    return ()
+  else ()
+    set ( ${.key} "${.kv}" PARENT_SCOPE )
+    unset ( ${.value} PARENT_SCOPE )
+    unset ( ${.value} )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_split_prepend
+#[=======[
+*/
+/** @brief Split "<key><<=<value>"
+  *
+  * Split "<key><<=<value>" arguments into "<key>" and "<value>".
+  * "<key>" must be a valid key name.
+  * "<key>" is the name of a list to which "<value>" is appended.
+  *
+  * @param kv, value to split.
+  * @param key for key `IN_KEY`, name of the variable that
+  *   will hold the key on return. Undefined when the entry does not match.
+  * @param value for key `IN_VALUE`, name of the variable that
+  *   will hold the value on return.
+  */
+twx_split_prepend(kv IN_KEY key IN_VALUE value) {}
+/*
+#]=======]
+function ( twx_split_prepend .kv .IN_KEY .key .IN_VALUE .value )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_prepend )
+  # message ( TR@CE ".kv => \"${.kv}\"" )
+  twx_arg_assert_count ( ${ARGC} = 5 )
+  twx_arg_assert_keyword ( .IN_KEY .IN_VALUE )
+  twx_assert_variable_name ( "${.key}" "${.value}" )
+  twx_expect_unequal_string ( "${.key}" "${.value}" )
+  if ( .kv MATCHES "^([^=]+)<<=(.*)$" )
+    set ( ${.key} "${CMAKE_MATCH_1}" PARENT_SCOPE )
+    set ( ${.value} "${CMAKE_MATCH_2}" PARENT_SCOPE )
+    # message ( TR@CE "${.key} => \"${CMAKE_MATCH_1}\"" )
+    # message ( TR@CE "${.value} => \"${CMAKE_MATCH_2}\"" )
+  elseif ( .kv MATCHES "^=" )
+    twx_fatal ( "Unexpected argument: ${.kv}" )
+    return ()
+  else ()
+    set ( ${.key} "${.kv}" PARENT_SCOPE )
+    unset ( ${.value} PARENT_SCOPE )
+    unset ( ${.value} )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_split_compare
 #[=======[
 */
 /** @brief Split "<lhs><op><rhs>"
@@ -79,11 +157,11 @@ endfunction ()
   *   will hold the negation on return. This is necessary because
   *   there is not `!=` comparison in CMake.
   */
-twx_split_comparison(comparison IN_LEFT left IN_OP op IN_RIGHT right IN_NEGATE negate) {}
+twx_split_compare(comparison IN_LEFT left IN_OP op IN_RIGHT right IN_NEGATE negate) {}
 /*
 #]=======]
-function ( twx_split_comparison twx.R_COMPARISON )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_comparison )
+function ( twx_split_compare twx.R_COMPARISON )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_compare )
   twx_arg_assert_count ( ${ARGC} = 9 )
   cmake_parse_arguments (
     PARSE_ARGV 1 twx.R
@@ -132,6 +210,6 @@ endfunction ()
 
 twx_lib_require ( "Fatal" "Expect" "Arg" )
 
-message ( VERBOSE "Loaded: TwxSplitLib" )
+twx_lib_did_load ()
 
 #*/

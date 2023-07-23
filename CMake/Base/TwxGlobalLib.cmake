@@ -275,6 +275,6 @@ twx_tree_assert ( tree/ )
 twx_global_save ( TREE tree/ )
 endblock ()
 
-message ( VERBOSE "Loaded: TwxGlobalLib" )
+twx_lib_did_load ()
 
 #*/

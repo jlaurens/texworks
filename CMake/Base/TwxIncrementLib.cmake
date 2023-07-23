@@ -15,7 +15,7 @@ Output state:
 */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # ANCHOR: twx_increment ()
 #[=======[
@@ -224,6 +224,6 @@ endmacro ( twx_increment_and_assert )
 
 twx_lib_require ( "Fatal" )
 
-message ( VERBOSE "TwxIncrementLib loaded" )
+twx_lib_did_load ()
 
 #*/

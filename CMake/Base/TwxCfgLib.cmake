@@ -31,7 +31,7 @@ NB: We need high control and cannot benefit from
 QSettings.
 #]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 #[=======[
 */
@@ -485,7 +485,7 @@ function ( twx_cfg_write_end )
   message ( TRACE "TwxCfg_kv.${twx.R_ID} => \"${TwxCfg_kv.${twx.R_ID}}\"" )
   foreach ( kv ${TwxCfg_kv.${twx.R_ID}} )
     string ( REPLACE "${TWX_CFG_SEMICOLON_PLACEHOLDER}" ";" kv "${kv}" )
-    twx_split_kv ( "${kv}" IN_KEY k IN_VALUE v )
+    twx_split_assign ( "${kv}" IN_KEY k IN_VALUE v )
     twx_assert_defined ( k )
     string ( LENGTH "${k}" l )
     if ( "${l}" GREATER "${length_}" )
@@ -673,84 +673,69 @@ endfunction ( twx_cfg_read )
   * This allows to rebuild the target each time the cfg data files are modified.
   *
   * Usage:
-  * ```
-  * twx_cfg_target_dependent ( target_i ... [ID id_j ...])
-  * ```
+  *
+  *   twx_cfg_target_dependent ( target_i ... [ID id_j ...])
+  *
   * It makes each target given by its name dependent of each id given.
   * If no id is provided, the `TWX_<project name>_IDS_CFG` is used instead.
   * Of course "ID" is not allowed as target name.
   *
-  * UNUSED AND FALSE.
+  * UNUSED.
   * 
   * @param ... is the list of the dependent target.
   * @param ... after the ID is the list of the dependency id.
   */
-twx_cfg_target_dependent ( ... ) {}
+twx_cfg_target_dependent ( ... ID ... ) {}
 /*
 #]=======]
 function (twx_cfg_target_dependent )
   list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_target_dependent" )
-  set ( targets_ )
-  set ( ids_ )
-  set ( i 0 )
-  while ( TRUE )
-    set ( v "${ARGV${i}}" )
-    if ( v STREQUAL ID )
-      while ( TRUE )
-        twx_increment_and_break_if ( VAR i >= ${ARGC} )
-        list ( APPEND ids_ "${v}" )
-      endwhile ()
-      break ()
-    endif ()
-    list ( APPEND targets_ "${v}" )
-    twx_increment_and_break_if ( VAR i >= ${ARGC} )
-  endwhile ()
-  set_property(
-    TARGET ${ARGN}
-    APPEND
-    PROPERTY SOURCES
-    ${path_}
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "" "ID"
   )
+  set ( path_ )
+  foreach ( id_ ${twx.R_ID} )
+    twx_cfg_path ( ${id_} IN_VAR v )
+    list ( APPEND path_ "${v}" )
+  endforeach ()
+  foreach ( target_ ${twx.R_UNPARSED_ARGUMENTS} )
+    set_property (
+      TARGET ${target_}
+      APPEND
+      PROPERTY SOURCES
+      ${path_}
+    )
+  endforeach ()
 endfunction ()
 
 # ANCHOR: twx_cfg_return_if_exists
 #[=======[
-*//** @brief convenient macro
-
-Return if the Cfg data file with the given id already exists.
-
-@param id is the argument of `twx_cfg_path()`.
 */
-twx_cfg_return_if_exists ( id ) {}
+/** @brief convenient macro
+  *
+  * Return if the Cfg data file with the given id already exists.
+  *
+  * @param id is the argument of `twx_cfg_path()`.
+  */
+twx_cfg_return_if_exists ( ID id ) {}
 /*
 #]=======]
-macro ( twx_cfg_return_if_exists name_ )
-  twx_cfg_path ( ID "${name_}" IN_VAR twx_cfg_return_if_exists.path )
+macro ( twx_cfg_return_if_exists .ID id_ )
+  twx_arg_assert_count ( ${ARGC} 2 )
+  twx_cfg_path ( ${.ID} "${id_}" IN_VAR twx_cfg_return_if_exists.path )
   if ( EXISTS "${twx_cfg_return_if_exists.path}" )
-    unset ( twx_cfg_return_if_exists.path )
+    set ( twx_cfg_return_if_exists.path )
     return ()
   endif ()
   set ( twx_cfg_return_if_exists.path )
 endmacro ()
 set ( twx.lib )
 
-#[=======[
-External functions and constants
-twx_arg_assert_parsed
-twx_assert_variable_name
-twx_export
-twx_assert_non_void
-twx_message
-twx_state_serialize
-twx_assert_0
-twx_assert_exists
-twx_expect_equal
-twx_fatal
-twx_increment_and_break_if
-#]=======]
-
-twx_lib_require ( "Fatal" "Assert" "Expect" "Export" "Arg" "State" )
+twx_lib_require ( "Fatal" "Assert" "Expect" "Export" "Arg" "Increment" "State" )
 
 twx_state_key_add ( TWX_CFG_INI_REQUIRED_KEYS )
+
+twx_lib_did_load ()
 
 #*/

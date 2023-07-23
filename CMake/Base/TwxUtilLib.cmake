@@ -16,7 +16,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # ANCHOR: Utility `twx_util_timestamp`
 #[=======[
@@ -92,6 +92,6 @@ endfunction ()
 
 twx_lib_require ( "Arg" "Export" )
 
-message ( DEBUG "TwxUtilLib loaded" )
+twx_lib_did_load ()
 
 #*/

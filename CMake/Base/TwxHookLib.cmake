@@ -15,7 +15,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # ANCHOR: twx_hook_call
 #[=======[*/
@@ -130,6 +130,6 @@ twx_lib_require ( "Fatal" "Tree" "Expect" "Export" )
 # ANCHOR: TWX_HOOK_COMMANDS
 twx_tree_init ( TWX_HOOK_COMMANDS )
 
-message ( DEBUG "TwxHookLib loaded" )
+twx_lib_did_load ()
 
 #*/

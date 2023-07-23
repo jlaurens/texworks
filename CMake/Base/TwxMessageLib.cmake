@@ -320,8 +320,21 @@ function ( twx_message )
   endif ()
 endfunction ()
 
+# ANCHOR: twx_message_newline
+#[=======[*/
+/** @brief Insert a line separator
+  *
+  */
+twx_message_newline() {}
+/*#]=======]
+function ( twx_message_newline )
+  twx_arg_assert_count ( ${ARGC} == 0 )
+  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+  message ( "" )
+endfunction ()
+
 twx_lib_require ( "Fatal" "Assert" "Arg" "Increment" "Export" "Math" )
 
-message ( VERBOSE "TwxMessageLib loaded" )
+twx_lib_did_load ()
 
 #*/

@@ -15,7 +15,7 @@ Output state:
 */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # Full include only once
 if ( COMMAND twx_arg_assert )
@@ -193,27 +193,33 @@ endfunction ( twx_arg_assert_keyword )
 /** @brief Raise if there are unparsed arguments.
   *
   * @param prefix for key `PREFIX`, optional variable name prefix defaults to `twx.R`.
+  * @param ... for key `UNEXPECTED`, unexpected extra arguments.
   */
-twx_arg_assert_parsed([PREFIX prefix]) {}
+twx_arg_assert_parsed([PREFIX prefix] [UNEXPECTED ...]) {}
 /*#]=======]
 function ( twx_arg_assert_parsed )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_arg_assert_parsed )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx_arg_assert_parsed
-    "" "PREFIX" ""
+    PARSE_ARGV 0 twx_arg_assert_parsed.R
+    "" "PREFIX" "UNEXPECTED"
   )
-  if ( DEFINED twx_arg_assert_parsed_PREFIX )
+  if ( DEFINED twx_arg_assert_parsed.R_PREFIX )
     twx_arg_assert_count ( ${ARGC} == 2 )
-    twx_assert_non_void ( twx_arg_assert_parsed_PREFIX )
   else ()
     twx_arg_assert_count ( ${ARGC} == 0 )
-    set ( twx_arg_assert_parsed_VAR_PREFIX twx.R )
+    set ( twx_arg_assert_parsed.R_PREFIX twx.R )
   endif ()
+  twx_assert_non_void ( twx_arg_assert_parsed.R_PREFIX )
   # NB remember that arguments in functions and macros are not the same
-  if ( NOT "${${twx_arg_assert_parsed_VAR_PREFIX}_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    twx_fatal ( "Unparsed arguments ${${twx_arg_assert_parsed_VAR_PREFIX}_UNPARSED_ARGUMENTS}" )
+  if ( NOT "${${twx_arg_assert_parsed.R_PREFIX}_UNPARSED_ARGUMENTS}" STREQUAL "" )
+    if ( twx_arg_assert_parsed.R_UNEXPECTED )
+      twx_fatal ( "Unparsed arguments \"${twx_arg_assert_parsed.R_UNEXPECTED}\"" )
+    else ()
+      twx_fatal ( "Unparsed arguments \"${${twx_arg_assert_parsed.R_PREFIX}_UNPARSED_ARGUMENTS}\"" )
+    endif ()
     return ()
   endif ()
+
 endfunction ()
 
 twx_lib_require ( "Fatal" "Increment" )

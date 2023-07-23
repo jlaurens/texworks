@@ -20,7 +20,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # ANCHOR: twx_regex_escape ()
 #[=======[
@@ -135,6 +135,6 @@ list (
 )
 list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
 
-message ( DEBUG "TwxCoreLib loaded (TWX_DIR => \"${TWX_DIR}\")" )
+twx_lib_did_load ()
 
 #*/

@@ -19,7 +19,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # ANCHOR: twx_state_key_add ()
 #[=======[
@@ -146,23 +146,22 @@ twx_lib_require ( "Core" "Tree" "Hook" "Arg" )
 
 twx_state_key_add (
   TWX_TEST_SUITE_LIST
-)
-if ( COMMAND TwxTestLib_state_prepare )
-  twx_state_will_serialize_register ( TwxTestLib_state_prepare )
-endif ()
-
-twx_state_key_add (
+  TWX_TEST_UNIT_NAME
   CMAKE_MESSAGE_INDENT
   CMAKE_MESSAGE_LOG_LEVEL
   CMAKE_MESSAGE_CONTEXT
   CMAKE_MESSAGE_CONTEXT_SHOW
 )
 
+if ( COMMAND TwxTestLib_state_prepare )
+  twx_state_will_serialize_register ( TwxTestLib_state_prepare )
+endif ()
+
 function ( TwxInclude_state_prepare )
   cmake_language ( GET_MESSAGE_LOG_LEVEL CMAKE_MESSAGE_LOG_LEVEL )
   twx_export ( CMAKE_MESSAGE_LOG_LEVEL )
 endfunction ()
 
-message ( DEBUG "TwxStateLib loaded" )
+twx_lib_did_load ()
 
 #*/

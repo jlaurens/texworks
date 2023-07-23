@@ -41,7 +41,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # Full include only once
 string(ASCII 01 TWX_CHAR_SOH )
@@ -295,6 +295,6 @@ twx_dir_configure (
 
 twx_lib_require ( "Fatal" "Assert" "Expect" )
 
-message ( DEBUG "TwxDirLib loaded" )
+twx_lib_did_load ()
 
 #*/

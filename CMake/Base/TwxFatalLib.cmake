@@ -20,7 +20,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # We define a custom target as global scope.
 if ( NOT CMAKE_SCRIPT_MODE_FILE )
@@ -144,7 +144,7 @@ function ( twx_fatal_assert_passed )
     message ( FATAL_ERROR "Too many arguments" )
   endif ()
   twx_fatal_catched ( IN_VAR twx_fatal_assert_passed.v )
-  if ( NOT twx_fatal_assert_passed.v STREQUAL "" )
+  if ( twx_fatal_assert_passed.v AND NOT twx_fatal_assert_passed.v STREQUAL "" )
     message ( FATAL_ERROR "FAILURE: \"${twx_fatal_assert_passed.v}\"" )
   endif ()
   twx_fatal_clear ()
@@ -168,7 +168,7 @@ function ( twx_fatal_assert_failed )
     message ( FATAL_ERROR "Too many arguments" )
   endif ()
   twx_fatal_catched ( IN_VAR twx_fatal_assert_failed.v )
-  if ( twx_fatal_assert_failed.v STREQUAL "" )
+  if ( NOT twx_fatal_assert_failed.v OR twx_fatal_assert_failed.v STREQUAL "" )
     message ( FATAL_ERROR "FAILURE" )
   endif ()
   twx_fatal_clear ()
@@ -213,6 +213,6 @@ function ( twx_fatal_catched .IN_VAR twx.R_VAR )
   set ( ${twx.R_VAR} "${${twx.R_VAR}}" PARENT_SCOPE )
 endfunction ()
 
-message ( DEBUG "TwxFatalLib loaded" )
+twx_lib_did_load ()
 
 #*/

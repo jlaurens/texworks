@@ -12,7 +12,7 @@ When the ans is exposed, we have all the contributions so far.
 *//*
 #]===============================================]
 
-include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 # ANCHOR: twx_ans_clear
 #[=======[
@@ -187,4 +187,5 @@ twx_lib_require ( "Tree" "Export" "Increment" )
 
 twx_ans_clear ()
 
+twx_lib_did_load ()
 #*/
