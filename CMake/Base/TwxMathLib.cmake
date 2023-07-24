@@ -14,6 +14,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
 twx_lib_will_load ()
 
 # Full include only once

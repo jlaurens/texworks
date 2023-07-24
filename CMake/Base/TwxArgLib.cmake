@@ -15,6 +15,7 @@ Output state:
 */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
 twx_lib_will_load ()
 
 # Full include only once
@@ -224,6 +225,6 @@ endfunction ()
 
 twx_lib_require ( "Fatal" "Increment" )
 
-message ( DEBUG "TwxArgLib loaded" )
+twx_lib_did_load ()
 
 #*/

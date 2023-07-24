@@ -20,6 +20,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
 twx_lib_will_load ()
 
 # We define a custom target as global scope.

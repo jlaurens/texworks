@@ -12,15 +12,8 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-message ( STATUS "TwxHookLib test...")
-
-include ( "${CMAKE_CURRENT_LIST_DIR}/../../TwxHookLib.cmake")
-
-include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxExpect/TwxExpectTest.cmake")
-include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxTree/TwxTreeTest.cmake")
-
-block ()
 twx_test_suite_will_begin ()
+block ()
 
 twx_test_unit_will_begin ( NAME "twx_hook_*" ID "*" )
 if ( TWX_TEST_UNIT_RUN )
@@ -80,7 +73,7 @@ if ( TWX_TEST_UNIT_RUN )
 endif ()
 twx_test_unit_did_end ()
 
-twx_test_suite_did_end ()
 endblock ()
+twx_test_suite_did_end ()
 
 #*/

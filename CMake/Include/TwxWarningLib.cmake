@@ -20,21 +20,7 @@ TWX_WARNING_OPTIONS;
 
 include_guard ( GLOBAL )
 
-# ANCHOR: TWX_WARNING_OPTIONS
-#[=======[
-# Initialize `TWX_WARNING_OPTIONS`
-#]=======]
-if ( NOT DEFINED TWX_WARNING_OPTIONS )
-  if (MSVC)
-    set (TWX_WARNING_OPTIONS /W4)
-  else ()
-    set (
-      TWX_WARNING_OPTIONS
-      -Wall -Wpedantic -Wextra -Wconversion
-      -Wold-style-cast -Woverloaded-virtual
-    )
-  endif ()
-endif ()
+twx_lib_will_load ()
 
 # ANCHOR: twx_warning_target
 #[=======[
@@ -54,12 +40,13 @@ endfunction ()
 
 # ANCHOR: twx_warning_add
 #[=======[
-*//**
-@brief Append the given warning options
-@param warning some `-W...`
-@param ... more `-W...`
 */
-twx_warning_add ( warning, ... ) {}
+/**
+  * @brief Append the given warning options
+  *
+  * @param ... list of warning options like `-W...`
+  */
+twx_warning_add ( ... ) {}
 /*
 #]=======]
 function ( twx_warning_add )
@@ -68,4 +55,40 @@ function ( twx_warning_add )
     ${ARGN}
   )
 endfunction ()
+
+# ANCHOR: twx_warning_remove
+#[=======[
+*/
+/**
+  * @brief Remove the given warning options
+  *
+  * @param ... list of warning options like `-W...`
+  */
+twx_warning_remove ( ... ) {}
+/*
+#]=======]
+function ( twx_warning_remove )
+  list (
+    REMOVE_ITEM TWX_WARNING_OPTIONS
+    ${ARGN}
+  )
+endfunction ()
+
+# ANCHOR: TWX_WARNING_OPTIONS
+#[=======[
+# Initialize `TWX_WARNING_OPTIONS`
+#]=======]
+if ( NOT DEFINED TWX_WARNING_OPTIONS )
+  if (MSVC)
+    twx_warning_add ( /W4 )
+  else ()
+    twx_warning_add (
+      -Wall -Wpedantic -Wextra -Wconversion
+      -Wold-style-cast -Woverloaded-virtual
+    )
+  endif ()
+endif ()
+
+twx_lib_did_load ()
+
 #*/

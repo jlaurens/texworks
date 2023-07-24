@@ -14,6 +14,7 @@ Included in `TwxBaseLib`.
 /*#]===============================================]
 
 include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 set (
   TWX_MESSAGE_LOG_LEVELS

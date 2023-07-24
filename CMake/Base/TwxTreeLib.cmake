@@ -37,6 +37,7 @@ https://github.com/TeXworks/texworks
 #]===============================================]
 
 include_guard ( GLOBAL )
+twx_lib_will_load ()
 
 string ( ASCII 01 TWX_TREE_MARK   )
 string ( ASCII 02 TWX_TREE_START  )
@@ -529,7 +530,7 @@ function ( twx_tree_expose )
   endif ()
   set ( tree_ "${${twx.R_TREE}}" )
   if ( NOT tree_ MATCHES "^${TWX_TREE_HEADER}" )
-    message ( STATUS "********** ********** Not a tree ${twx.R_TREE} => \"${${twx.R_TREE}}\"" )
+    message ( STATUS "******************** Not a tree ${twx.R_TREE} => \"${${twx.R_TREE}}\"" )
     return ( )
   endif ()
   twx_arg_assert_parsed ()

@@ -31,6 +31,7 @@ NB: We need high control and cannot benefit from
 QSettings.
 #]===============================================]
 
+include_guard ( GLOBAL )
 twx_lib_will_load ()
 
 #[=======[

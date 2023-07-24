@@ -41,6 +41,56 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
+
+# ANCHOR: twx_lib_will_load ()
+#[=======[
+*/
+/** @brief Before a library starts loading.
+  *
+  * Display some message in VERBOSE mode.
+  * @param name, optional libray name used when
+  *   not guessed from the current list file name.
+  */
+twx_lib_will_load ([name]) {}
+/*
+#]=======]
+function ( twx_lib_will_load )
+  if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib)\.cmake" )
+    set ( name_ "${CMAKE_MATCH_1}" )
+  elseif ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+)\.cmake" )
+    set ( name_ "${CMAKE_MATCH_1}" )  
+  elseif ( ARGC EQUAL 1 )
+    set ( name_ "${ARGV0}" )  
+  elseif ()
+    set ( name_ "some library" )  
+  endif ()
+  message ( VERBOSE "Loading ${name_}..." )
+endfunction ()
+
+# ANCHOR: twx_lib_did_load ()
+#[=======[
+*/
+/** @brief After a library has been loaded.
+  *
+  * Display some message in VERBOSE mode.
+  * @param name, optional libray name used when
+  *   not guessed from the current list file name.
+  */
+twx_lib_did_load ([name]) {}
+/*
+#]=======]
+function ( twx_lib_did_load )
+  if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib)\.cmake" )
+    message ( VERBOSE "Loading ${CMAKE_MATCH_1}... DONE" )
+  elseif ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+)\.cmake" )
+    message ( VERBOSE "Loading ${CMAKE_MATCH_1}... DONE" )  
+  elseif ( ARGC EQUAL 1 )
+    message ( VERBOSE "Loading ${ARGV0}... DONE" )  
+  elseif ()
+    message ( VERBOSE "Loading some library... DONE" )  
+  endif ()
+endfunction ()
+
 twx_lib_will_load ()
 
 string(ASCII 01 TWX_CHAR_SOH )
@@ -300,8 +350,12 @@ macro ( twx_lib_require )
     # message ( STATUS "twx_lib_require.lib => \"${twx_lib_require.lib}\"..." )
     if ( TWX_TEST )
       message ( TRACE "1) ${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
-      include ( "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
-    elseif ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
+      if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+        include ( "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+        continue ()
+      endif ()
+    endif ()
+    if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
       message ( TRACE "2) ${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
       include ( "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
     else ()
@@ -314,56 +368,6 @@ macro ( twx_lib_require )
   set ( twx_lib_require.lib )
 endmacro ()
 
-# ANCHOR: twx_lib_will_load ()
-#[=======[
-*/
-/** @brief Before a library starts loading.
-  *
-  * Display some message in VERBOSE mode.
-  * @param name, optional libray name used when
-  *   not guessed from the current list file name.
-  */
-twx_lib_will_load ([name]) {}
-/*
-#]=======]
-function ( twx_lib_will_load )
-  include_guard ( GLOBAL )
-  if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib).cmake" )
-    set ( name_ "${CMAKE_MATCH_1}" )
-  elseif ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+).cmake" )
-    set ( name_ "${CMAKE_MATCH_1}" )  
-  elseif ( ARGC EQUAL 1 )
-    set ( name_ "${ARGV0}" )  
-  elseif ()
-    set ( name_ "some library" )  
-  endif ()
-  message ( VERBOSE "Loading ${name_}..." )
-endfunction ()
-
-# ANCHOR: twx_lib_did_load ()
-#[=======[
-*/
-/** @brief After a library has been loaded.
-  *
-  * Display some message in VERBOSE mode.
-  * @param name, optional libray name used when
-  *   not guessed from the current list file name.
-  */
-twx_lib_did_load ([name]) {}
-/*
-#]=======]
-function ( twx_lib_did_load )
-  if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib).cmake" )
-    message ( VERBOSE "Loading ${CMAKE_MATCH_1}... DONE" )
-  elseif ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+).cmake" )
-    message ( VERBOSE "Loading ${CMAKE_MATCH_1}... DONE" )  
-  elseif ( ARGC EQUAL 1 )
-    message ( VERBOSE "Loading ${ARGV0}... DONE" )  
-  elseif ()
-    message ( VERBOSE "Loading some library... DONE" )  
-  endif ()
-endfunction ()
-
 # The order of the library names hereafter almost reflect dependencies
 twx_lib_require (
   "Fatal"
@@ -372,8 +376,8 @@ twx_lib_require (
   "Core"
   "Dir"
   "Math"
-  "Arg"
   "Increment"
+  "Arg"
   "Split"
   "Export"
   "Message"

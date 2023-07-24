@@ -17,6 +17,8 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
+twx_lib_will_load ()
+
 include (
   "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
   NO_POLICY_SCOPE
@@ -188,5 +190,16 @@ if ( "${TWX_COMMAND}" STREQUAL "" )
   string ( TOLOWER "${TWX_NAME}" TWX_COMMAND)
 endif ()
 
+twx_lib_require (
+  Warning
+)
+
+twx_message ( VERBOSE
+  "NAME => ${TWX_NAME}"
+  "COMMAND => ${TWX_COMMAND}"
+  NO_SHORT
+)
+
+twx_lib_did_load ()
 
 #*/

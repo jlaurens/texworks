@@ -29,8 +29,8 @@ include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxTestLib.cmake" )
 
 set ( CMAKE_MESSAGE_CONTEXT_SHOW ON )
 
-twx_test_domain_will_begin ( NAME Base )
-
+twx_test_domain_will_begin ()
+if ( TWX_TEST_DOMAIN_RUN )
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxPOC/TwxPOCTest.cmake" )
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxBase.cmake" )
 
@@ -39,7 +39,7 @@ file ( GLOB_RECURSE tests "${CMAKE_CURRENT_LIST_DIR}/*Test.cmake" )
 foreach ( t ${tests} )
   include ( ${t} )
 endforeach ()
-
+endif ()
 twx_test_domain_did_end ()
 
 #*/
