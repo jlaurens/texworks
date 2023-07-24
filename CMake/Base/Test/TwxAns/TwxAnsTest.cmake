@@ -16,7 +16,6 @@ block ()
 
 twx_tree_init ( empty/ )
 
-message ( STATUS "twx_ans_*" )
 twx_test_unit_will_begin ( NAME "twx_ans_*" ID * )
 if ( TWX_TEST_UNIT_RUN )
   block ()
