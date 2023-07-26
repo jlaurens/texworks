@@ -9,9 +9,10 @@ Command to setup the test folder.
 
 Usage:
 ```
-cmake ... -P .../TwxTestScript.cmake
+cmake ... -P .../TwxUnitScript.cmake
 ```
 Input state:
+
 - `TWX_TARGET`
 - `TWX_SOURCE_DIR`
 - `TWX_TEMPORARY_DIR`
@@ -30,6 +31,8 @@ include (
 )
 twx_state_deserialize ()
 
+message ( "THIS IS TWX TEST SCRIPT SPEAKING" )
+
 twx_assert_non_void ( TWX_TARGET )
 twx_assert_non_void ( TWX_SOURCE_DIR )
 twx_assert_exists ( "${TWX_SOURCE_DIR}WorkingDirectory" )
@@ -45,7 +48,7 @@ twx_assert_exists ( "${TWX_TEMPORARY_DIR}WorkingDirectory" )
 file (
   REMOVE_RECURSE "${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory"
 )
-twx_message ( VERBOSE "TwxTestCommand DESTINATION: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory" )
+twx_message ( VERBOSE "TwxUnitScript DESTINATION: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory/" )
 file (
   RENAME
     "${TWX_TEMPORARY_DIR}WorkingDirectory"
@@ -54,5 +57,5 @@ file (
 file (
   REMOVE_RECURSE "${TWX_TEMPORARY_DIR}WorkingDirectory"
 )
-twx_message ( VERBOSE "TwxTestCommand Setup: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory")
+twx_message ( VERBOSE "TwxUnitScript Setup: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory/")
 #*/

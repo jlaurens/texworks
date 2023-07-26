@@ -66,7 +66,7 @@ function ( twx_unit_case )
   )
   set (
     ${twx.R_IN_VAR}
-    "${TWX_PROJECT_PRODUCT_DIR}${twx.R_TARGET}.WorkingDirectory"
+    "${TWX_PROJECT_PRODUCT_DIR}${twx.R_TARGET}.WorkingDirectory/"
   )
   if ( NOT TARGET ${twx.R_TARGET}.WorkingDirectory )
     twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
@@ -82,7 +82,7 @@ function ( twx_unit_case )
         "-DTWX_TEMPORARY_DIR=\"${TWX_PROJECT_BUILD_DATA_DIR}Temporary/\""
         "-DTWX_DESTINATION_DIR=\"${TWX_PROJECT_PRODUCT_DIR}\""
         "${-DTWX_STATE}"
-        -P "${TWX_DIR}CMake/Script/TwxTestScript.cmake"
+        -P "${TWX_DIR}CMake/Script/TwxUnitScript.cmake"
       COMMAND
         "${CMAKE_COMMAND}"
           -E touch "${stamped_}"

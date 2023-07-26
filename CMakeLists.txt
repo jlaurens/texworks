@@ -477,7 +477,7 @@ add_subdirectory ( trans "${TWX_PROJECT_BUILD_DIR}trans/" )
 # if one isn't there.  This may need to be customized for use on non-Apple
 # systems.
 #
-# Protip: If there are wierd errors like "Qt libraries loaded twice" or
+# Protip: If there are weird errors like "Qt libraries loaded twice" or
 # "looking for a tablet device", then something may have gone pear shaped with
 # `qt.conf`.
 if ( APPLE )
@@ -487,8 +487,8 @@ if ( APPLE )
   install ( CODE
     "
     file ( WRITE
-    ``\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${dir_}/qt.conf''
-      ``${contents_}''
+    \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${dir_}/qt.conf\"
+      \"${contents_}\"
     )
     "
   )

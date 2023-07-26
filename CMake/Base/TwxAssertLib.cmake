@@ -268,6 +268,36 @@ function ( twx_assert_exists .p )
   endwhile ( )
 endfunction ( twx_assert_exists )
 
+# ANCHOR: twx_assert_matches
+#[=======[*/
+/** @brief Raises when no match.
+  *
+  * @param actual, text to test.
+  * @param regex, the regular expression.
+  */
+twx_assert_matches(actual regex) {}
+/*#]=======]
+function ( twx_assert_matches a m )
+  if ( NOT a MATCHES "${m}" )
+    twx_fatal ( "Failure: ``${a}'' does not match ``${m}''" )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_assert_not_matches
+#[=======[*/
+/** @brief Raises when match.
+  *
+  * @param actual, text to test.
+  * @param regex, the regular expression.
+  */
+twx_assert_not_matches(actual regex) {}
+/*#]=======]
+function ( twx_assert_not_matches a m )
+  if ( a MATCHES "${m}" )
+    twx_fatal ( "Failure: ``${a}'' does not match ``${m}''" )
+  endif ()
+endfunction ()
+
 # ANCHOR: twx_assert_target
 #[=======[*/
 /** @brief Raise when a target does not exist.

@@ -16,7 +16,7 @@ block ()
 
 add_library (
   TwxWarningTest.cmake
-  "${CMAKE_CURRENT_LIST_DIR}/SOURCES/dummy.c"
+  "${CMAKE_CURRENT_LIST_DIR}/SOURCES/main.c"
 )
 
 twx_test_unit_will_begin ( ID contains )

@@ -82,8 +82,6 @@ else ()
   include ( TwxInclude )
 endif ()
 
-
-
 twx_message ( VERBOSE "TwxCfgFactoryScript.cmake..." DEEPER )
 twx_message ( VERBOSE
   "TWX_NAME        => ${TWX_NAME}"
