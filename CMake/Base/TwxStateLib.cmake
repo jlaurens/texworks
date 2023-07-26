@@ -22,6 +22,15 @@ See https://github.com/TeXworks/texworks
 include_guard ( GLOBAL )
 twx_lib_will_load ()
 
+block ( PROPAGATE TWX_STATE_PLACEHOLDER_SEMI_COLON ) 
+  string(ASCII 02 TWX_CHAR_STX )
+  string(ASCII 03 TWX_CHAR_ETX )
+  set (
+    TWX_STATE_PLACEHOLDER_SEMI_COLON
+    "${TWX_CHAR_STX}SEMI_COLON${TWX_CHAR_ETX}"
+  )
+endblock ()
+
 # ANCHOR: twx_state_key_add ()
 #[=======[
 /** @brief Register state keys
@@ -111,6 +120,7 @@ function ( twx_state_serialize )
   foreach ( k_ ${TWX_STATE_KEYS} )
     twx_tree_set ( TREE state_ "${k_}=${${k_}}" )
   endforeach ()
+  string ( REPLACE ";" "${TWX_STATE_PLACEHOLDER_SEMI_COLON}" state_ "${state_}" )
   if ( DEFINED twx.R_IN_VAR )
     set ( ${twx.R_IN_VAR} "${state_}" PARENT_SCOPE )
   endif ()
@@ -138,6 +148,7 @@ macro ( twx_state_deserialize )
     set ( twx_state_deserialize.name "TWX_STATE" )
   endif ()
   # message ( TR@CE "WILL DESERIALIZE" )
+  string ( REPLACE "${TWX_STATE_PLACEHOLDER_SEMI_COLON}" ";" state_ "${state_}" )
   twx_tree_expose ( TREE "${twx_state_deserialize.name}" )
   set ( twx_state_deserialize.name )
   list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
