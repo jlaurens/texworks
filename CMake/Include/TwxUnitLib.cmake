@@ -12,7 +12,8 @@ https://github.com/TeXworks/texworks
   *
   *   include ( TwxUnitLib )
   *
-  *//*
+  */
+/*
 #]===============================================]
 
 include_guard ( GLOBAL )

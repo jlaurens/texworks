@@ -31,8 +31,6 @@ include (
 )
 twx_state_deserialize ()
 
-message ( "THIS IS TWX TEST SCRIPT SPEAKING" )
-
 twx_assert_non_void ( TWX_TARGET )
 twx_assert_non_void ( TWX_SOURCE_DIR )
 twx_assert_exists ( "${TWX_SOURCE_DIR}WorkingDirectory" )

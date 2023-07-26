@@ -10,10 +10,10 @@ See https://github.com/TeXworks/texworks
   * See @ref CMake/README.md.
   *
   * Usage (`TwxBase` is required) :
-  * ```
+  *
   *   include ( TwxDoxydocLib )
   *   twx_doxydoc (...)
-  * ```
+  *
   * Output:
   * 
   * - `twx_doxydoc()`
@@ -23,10 +23,7 @@ See https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
-  message ( FATAL_ERROR "Missing `TwxBase`" )
-  return ()
-endif ()
+twx_lib_will_load ()
 
 find_package ( Doxygen )
 
@@ -59,23 +56,34 @@ void twx_doxydoc() {}
 /*#]=======]
 function ( twx_doxydoc )
   # set input and output files
-  twx_assert_non_void ( CMAKE_CURRENT_SOURCE_DIR )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "SOURCE_DIR" ""
+  )
+  if ( NOT twx.R_SOURCE_DIR )
+    set ( twx.R_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+  endif ()
+  twx_assert_non_void ( twx.R_SOURCE_DIR )
   set (
     twx_in
-    "${CMAKE_CURRENT_SOURCE_DIR}/Developer/doxydoc.in.txt"
+    "${twx.R_SOURCE_DIR}/Developer/doxydoc.in.txt"
   )
+  message ( "``${twx_in}''" )
   if ( NOT EXISTS "${twx_in}" )
     set (
       twx_in
       "${TWX_DIR}Developer/doxydoc.in.txt"
     )
   endif ()
+  twx_assert_exists ( "${twx_in}" )
   twx_assert_non_void ( TWX_PROJECT_BUILD_DATA_DIR )
   set (
     twx_out
     "${TWX_PROJECT_BUILD_DATA_DIR}doxydoc.txt"
   )
   twx_assert_non_void ( CMAKE_CURRENT_BINARY_DIR )
+  twx_message ( DEBUG "configure_file: ``${twx_in}'' -> ``${twx_out}''" )
+  # Complete state for configuration:
   set (
     TWX_CFG_DOXYGEN_OUTPUT_DIRECTORY
     "${TWX_PROJECT_DOXYDOC_DIR}"
@@ -84,13 +92,15 @@ function ( twx_doxydoc )
   add_custom_target (
     ${PROJECT_NAME}_doxydoc
     COMMAND "${DOXYGEN_EXECUTABLE}" "${twx_out}"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    WORKING_DIRECTORY "${twx.R_SOURCE_DIR}"
     COMMENT "Generating ${PROJECT_NAME} developer documentation with Doxygen"
     VERBATIM
   )
   if ( TWX_PROJECT_IS_ROOT )
-    add_custom_target ( doxydoc ALIAS ${PROJECT_NAME}_doxydoc )
+    add_custom_target ( doxydoc DEPENDS ${PROJECT_NAME}_doxydoc )
   endif ()
 endfunction ( twx_doxydoc )
+
+twx_lib_did_load ()
 
 #*/
