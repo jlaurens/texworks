@@ -30,17 +30,18 @@ twx_lib_will_load ()
   * Raises when one of the arguments is the name of a defined variable.
   *
   * @param ... is a non empty list of variable names.
-  * support the `$|` syntax
   */
 twx_assert_undefined ( ... ) {}
 /*
 #]=======]
 function ( twx_assert_undefined twx_assert_undefined.v )
+  # Beware of name conflicts
+  # Local variables should not hide arguments
   set ( twx_assert_undefined.i 0 )
   while ( TRUE )
     set ( twx_assert_undefined.v ${ARGV${twx_assert_undefined.i}} )
     if ( DEFINED ${twx_assert_undefined.v} )
-      twx_fatal ( "Unexpected defined \"${twx_assert_undefined.v}\"" )
+      twx_fatal ( "Unexpected defined ``${twx_assert_undefined.v}''" )
     endif ()
     math ( EXPR twx_assert_undefined.i "${twx_assert_undefined.i}+1" ) 
     if ( ${ARGC} EQUAL twx_assert_undefined.i )
@@ -63,11 +64,13 @@ twx_assert_defined ( ... ) {}
 /*
 #]=======]
 function ( twx_assert_defined twx_assert_defined.n )
+  # Beware of name conflicts
+  # Local variables should not hide arguments
   set ( twx_assert_defined.i 0 )
   while ( TRUE )
     set ( twx_assert_defined.n ${ARGV${twx_assert_defined.i}} )
     if ( NOT DEFINED ${twx_assert_defined.n} )
-      twx_fatal ( "Unexpected undefined \"${twx_assert_defined.n}\"" )
+      twx_fatal ( "Unexpected undefined ``${twx_assert_defined.n}''" )
     endif ()
     math ( EXPR twx_assert_defined.i "${twx_assert_defined.i}+1" ) 
     if ( ${ARGC} EQUAL twx_assert_defined.i )
@@ -133,7 +136,7 @@ function ( twx_assert_compare .left .op .right )
         twx_fatal ( "Unsatisfied ${left_} ${op_} ${right_}" )
       endif ()
     else ()
-      twx_fatal ( "Missing comparison binary operator (2), got \"${op_}\" instead" )
+      twx_fatal ( "Missing comparison binary operator (2), got ``${op_}'' instead" )
     endif ()
     math ( EXPR i "${i}+1" ) 
     if ( ${ARGC} EQUAL i )
@@ -152,18 +155,18 @@ endfunction ( twx_assert_compare )
 twx_assert_non_void( ... ) {}
 /*#]=======]
 # TODO: twx_fatal_message ( IN_VAR ... )
-function ( twx_assert_non_void var_ )
-  set ( twx_assert_non_void.i 0 ) 
+function ( twx_assert_non_void .var )
+  set ( i 0 )
   while ( TRUE )
-    set ( twx_assert_non_void.v "${ARGV${twx_assert_non_void.i}}" )
-    if ( twx_assert_non_void.v MATCHES "^ARG(C|[VN][0-9]*)$" )
-      twx_fatal ( "Unsupported argument: \"${twx_assert_non_void.v}\"")
+    set ( v "${ARGV${i}}" )
+    if ( v MATCHES "^ARG(C|[VN][0-9]*)$" )
+      twx_fatal ( "Unsupported argument: ``${v}''")
     endif ()
-    if ( "${${twx_assert_non_void.v}}" STREQUAL "" )
-      twx_fatal ( "Missing ${twx_assert_non_void.v}" )
+    if ( "${${v}}" STREQUAL "" )
+      twx_fatal ( "Missing ${v}" )
     endif ()
-    math ( EXPR twx_assert_non_void.i "${twx_assert_non_void.i}+1" )
-    if ( "${twx_assert_non_void.i}" EQUAL ${ARGC} )
+    math ( EXPR i "${i}+1" )
+    if ( "${i}" EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ( )
@@ -184,9 +187,9 @@ function ( twx_assert_0 v )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )
-    # message ( TR@CE "v => \"${v}\"" )
+    # message ( TR@CE "v => ``${v}''" )
     if ( NOT "${v}" EQUAL "0" )
-      twx_fatal ( "Unexpected \"${v}\" instead of 0")
+      twx_fatal ( "Unexpected ``${v}'' instead of 0")
     endif ()
     math ( EXPR i "${i}+1" )
     if ( "${i}" EQUAL ${ARGC} )
@@ -222,8 +225,7 @@ endfunction ()
 #[=======[*/
 /** @brief Raise when the argument is not a falsy value
   *
-  * @param ... is a non empty list of values
-  * Support the `$|` syntax.
+  * @param ... is a non empty list of value names
   */
 twx_assert_false( ... ) {}
 /*#]=======]
@@ -286,7 +288,7 @@ function ( twx_assert_target .t )
       break ()
     endif ()
   endwhile ( )
-endfunction ( twx_assert_target )
+endfunction ()
 
 # ANCHOR: twx_assert_command
 #[=======[*/

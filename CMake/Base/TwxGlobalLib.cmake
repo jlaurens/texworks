@@ -62,7 +62,7 @@ function ( twx_global_save .TREE twx.R_TREE )
       TWX_GLOBAL_TREE/ "${${twx.R_TREE}}"
   )
   # twx_tree_prettify ( "${${twx.R_TREE}}" IN_VAR m ) 
-  # message ( TR@CE "${twx.R_TREE} => \"${m}\"" )
+  # message ( TR@CE "${twx.R_TREE} => ``${m}''" )
 endfunction ()
 
 # ANCHOR: twx_global_clear
@@ -139,7 +139,7 @@ function ( twx_global_get .IN_TREE twx.R_IN_TREE .KEY twx.R_KEY )
   twx_arg_assert_count ( ${ARGC} == 4 )
   twx_global_restore ( "${.IN_TREE}" "${twx.R_IN_TREE}" )
   # twx_tree_prettify ( "${${twx.R_IN_TREE}}" IN_VAR m )
-  # message ( TR@CE "${twx.R_IN_TREE} => \"${m}\"" )
+  # message ( TR@CE "${twx.R_IN_TREE} => ``${m}''" )
   set ( v "${twx.R_IN_TREE}" )
   twx_complete_dir_var ( v )
   string ( APPEND v "${twx.R_KEY}" )
@@ -148,7 +148,7 @@ function ( twx_global_get .IN_TREE twx.R_IN_TREE .KEY twx.R_KEY )
     "${.KEY}" "${twx.R_KEY}"
     IN_VAR "${v}"
   )
-  # message ( TR@CE "Export: ${v} => \"${${v}}\"" )
+  # message ( TR@CE "Export: ${v} => ``${${v}}''" )
   twx_export ( "${v}" "TWX_IS_TREE_${v}" )
 endfunction ()
 
@@ -175,7 +175,7 @@ function ( twx_global_set .kv )
       TREE tree/
       "${ARGV${i}}"
     )
-    # message ( TR@CE "AFTER set: tree/ => \"${tree}\"/")
+    # message ( TR@CE "AFTER set: tree/ => ``${tree}''/")
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
   twx_global_save ( TREE tree/ )

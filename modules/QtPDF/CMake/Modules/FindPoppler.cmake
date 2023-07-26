@@ -61,10 +61,10 @@ find_path(Poppler_PRIVATE_INCLUDE_DIR NAMES poppler-config.h
 if (Poppler_PRIVATE_INCLUDE_DIR)
   find_package_message(Poppler_PRIVATE_HEADERS "Found Poppler private headers: ${Poppler_PRIVATE_INCLUDE_DIR}" "${Poppler_PRIVATE_INCLUDE_DIR}")
 
-  file(STRINGS "${Poppler_PRIVATE_INCLUDE_DIR}/poppler-config.h" Poppler_CONFIG_H REGEX "^#define POPPLER_VERSION \"[0-9.]+\"$")
+  file(STRINGS "${Poppler_PRIVATE_INCLUDE_DIR}/poppler-config.h" Poppler_CONFIG_H REGEX "^#define POPPLER_VERSION ``[0-9.]+''$")
 
   if(Poppler_CONFIG_H)
-    string(REGEX REPLACE "^.*POPPLER_VERSION \"([0-9.]+)\"$" "\\1" Poppler_VERSION_STRING "${Poppler_CONFIG_H}")
+    string(REGEX REPLACE "^.*POPPLER_VERSION ``([0-9.]+)''$" "\\1" Poppler_VERSION_STRING "${Poppler_CONFIG_H}")
     string(REGEX REPLACE "^([0-9]+).*$" "\\1" Poppler_VERSION_MAJOR "${Poppler_VERSION_STRING}")
     string(REGEX REPLACE "^${Poppler_VERSION_MAJOR}\\.([0-9]+).*$" "\\1" Poppler_VERSION_MINOR  "${Poppler_VERSION_STRING}")
     string(REGEX REPLACE "^${Poppler_VERSION_MAJOR}\\.${Poppler_VERSION_MINOR}\\.([0-9]+)$" "\\1" Poppler_VERSION_PATCH "${Poppler_VERSION_STRING}")
@@ -140,10 +140,10 @@ foreach (cmp IN LISTS Poppler_FIND_COMPONENTS)
 
   # Find version
   if (EXISTS "${${label}_INCLUDE_DIR}/poppler-version.h")
-    file(STRINGS "${${label}_INCLUDE_DIR}/poppler-version.h" ${label}_CONFIG_H REGEX "^#define POPPLER_VERSION \"[0-9.]+\"$")
+    file(STRINGS "${${label}_INCLUDE_DIR}/poppler-version.h" ${label}_CONFIG_H REGEX "^#define POPPLER_VERSION ``[0-9.]+''$")
 
     if(${label}_CONFIG_H)
-      string(REGEX REPLACE "^.*POPPLER_VERSION \"([0-9.]+)\"$" "\\1" ${label}_VERSION_STRING "${${label}_CONFIG_H}")
+      string(REGEX REPLACE "^.*POPPLER_VERSION ``([0-9.]+)''$" "\\1" ${label}_VERSION_STRING "${${label}_CONFIG_H}")
       string(REGEX REPLACE "^([0-9]+).*$" "\\1" ${label}_VERSION_MAJOR "${${label}_VERSION_STRING}")
       string(REGEX REPLACE "^${${label}_VERSION_MAJOR}\\.([0-9]+).*$" "\\1" ${label}_VERSION_MINOR  "${${label}_VERSION_STRING}")
       string(REGEX REPLACE "^${${label}_VERSION_MAJOR}\\.${${label}_VERSION_MINOR}\\.([0-9]+)$" "\\1" ${label}_VERSION_PATCH "${${label}_VERSION_STRING}")

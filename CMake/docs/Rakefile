@@ -89,7 +89,7 @@ def fixup_css_paths
   css_file = DOC_DIR + "html" + css_url
 
   # Regular expression that searches for hard-coded CSS URL.
-  css_rex = Regexp.new("\"https?://[^\"]+#{Regexp.escape(css_url)}\"")
+  css_rex = Regexp.new("``https?://[^'']+#{Regexp.escape(css_url)}\"")
 
   # HTML files to operate on.
   html_files = Dir.chdir(DOC_OUTPUT_DIR) { Dir["**/*.html"] }
@@ -97,7 +97,7 @@ def fixup_css_paths
     abs_f = DOC_OUTPUT_DIR + f
     css_rel = css_file.relative_path_from(abs_f.dirname)
     f_data = abs_f.read()
-    f_data.gsub!(css_rex, "\"#{css_rel}\"")
+    f_data.gsub!(css_rex, "``#{css_rel}''")
     IO.write(abs_f, f_data)
   end
 end

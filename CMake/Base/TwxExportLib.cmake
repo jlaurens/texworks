@@ -138,7 +138,7 @@ macro ( twx_export twx_export.kv. )
 
   # block ()
   # foreach ( i RANGE 10 )
-  #   message ( TRACE "***** twx_export.${i} => \"${twx_export.${i}}\"")
+  #   message ( TRACE "***** twx_export.${i} => ``${twx_export.${i}}''")
   #   if ( DEFINED "twx_export.${i}" )
   #     message ( TRACE "***** DEFINED")
   #   else ()
@@ -146,15 +146,15 @@ macro ( twx_export twx_export.kv. )
   #   endif ()
   # endforeach ()
   # endblock ()
-  # message ( TR@CE "twx_export.R_EMPTY => \"${twx_export.R_EMPTY}\"")
-  # message ( TR@CE "twx_export.R_UNSET => \"${twx_export.R_UNSET}\"")
-  # message ( TR@CE "twx_export.R_VAR_PREFIX => \"${twx_export.R_VAR_PREFIX}\"")
+  # message ( TR@CE "twx_export.R_EMPTY => ``${twx_export.R_EMPTY}''")
+  # message ( TR@CE "twx_export.R_UNSET => ``${twx_export.R_UNSET}''")
+  # message ( TR@CE "twx_export.R_VAR_PREFIX => ``${twx_export.R_VAR_PREFIX}''")
   if ( NOT "${twx_export.R_VAR_PREFIX}" STREQUAL "" )
     string ( APPEND twx_export.R_VAR_PREFIX "_" )
   endif ()
   set ( twx_export.i 0 )
   set ( twx_export.kv ${twx_export.${twx_export.i}} )
-  # message ( TR@CE "TEST twx_export.1 => \"${twx_export.1}\"")
+  # message ( TR@CE "TEST twx_export.1 => ``${twx_export.1}''")
   if ( NOT DEFINED twx_export.kv )
     twx_fatal ( "Nothing to export" )
   endif ()
@@ -162,7 +162,7 @@ macro ( twx_export twx_export.kv. )
   while ( TRUE )
     # block ()
     # foreach ( i RANGE 10 )
-    #   message ( TRACE "***** twx_export.${i} => \"${twx_export.${i}}\"")
+    #   message ( TRACE "***** twx_export.${i} => ``${twx_export.${i}}''")
     #   if ( DEFINED twx_export.${i} )
     #     message ( TRACE "***** DEFINED")
     #   else ()
@@ -170,62 +170,62 @@ macro ( twx_export twx_export.kv. )
     #   endif ()
     # endforeach ()
     # endblock ()
-    # message ( TR@CE "0) twx_export.i => \"${twx_export.i}\"")
-    # message ( TR@CE "0) twx_export.kv => \"${twx_export.kv}\"")
+    # message ( TR@CE "0) twx_export.i => ``${twx_export.i}''")
+    # message ( TR@CE "0) twx_export.kv => ``${twx_export.kv}''")
     twx_split_assign (
       "${twx_export.kv}"
       IN_KEY twx_export.IN_KEY
       IN_VALUE twx_export.IN_VALUE
     )
-    # message ( TR@CE "1) twx_export.IN_KEY => \"${twx_export.IN_KEY}\"")
+    # message ( TR@CE "1) twx_export.IN_KEY => ``${twx_export.IN_KEY}''")
     # if ( DEFINED twx_export.IN_VALUE )
-    #   message ( TRACE "2) twx_export.IN_VALUE => \"${twx_export.IN_VALUE}\"")
+    #   message ( TRACE "2) twx_export.IN_VALUE => ``${twx_export.IN_VALUE}''")
     # else ()
     #   message ( TRACE "3) twx_export.IN_VALUE => UNSET ")
     # endif ()
     string ( PREPEND twx_export.IN_KEY "${twx_export.R_VAR_PREFIX}" )
     if ( DEFINED twx_export.IN_VALUE )
-      # message ( TR@CE "4) \"${twx_export.IN_KEY}\" => \"${twx_export.IN_VALUE}\"" )
+      # message ( TR@CE "4) ``${twx_export.IN_KEY}'' => ``${twx_export.IN_VALUE}''" )
       set (
         "${twx_export.IN_KEY}"
         "${twx_export.IN_VALUE}"
         PARENT_SCOPE
       )
     elseif ( twx_export.R_EMPTY )
-      # message ( TR@CE "5) \"${twx_export.IN_KEY}\" => empty string" )
+      # message ( TR@CE "5) ``${twx_export.IN_KEY}'' => empty string" )
       set (
         "${twx_export.IN_KEY}"
         ""
         PARENT_SCOPE
       )
     elseif ( twx_export.R_UNSET )
-      # message ( TR@CE "6) \"${twx_export.IN_KEY}\" => UNSET" )
+      # message ( TR@CE "6) ``${twx_export.IN_KEY}'' => UNSET" )
       set (
         "${twx_export.IN_KEY}"
         PARENT_SCOPE
       )
-      # message ( TR@CE "7) ${twx_export.IN_KEY} => \"${${twx_export.IN_KEY}}\"" )
+      # message ( TR@CE "7) ${twx_export.IN_KEY} => ``${${twx_export.IN_KEY}}''" )
     elseif ( DEFINED "${twx_export.IN_KEY}" )
-      # message ( TR@CE "8) \"${twx_export.IN_KEY}\" => \"${${twx_export.IN_KEY}}\"" )
+      # message ( TR@CE "8) ``${twx_export.IN_KEY}'' => ``${${twx_export.IN_KEY}}''" )
       set (
         "${twx_export.IN_KEY}"
         "${${twx_export.IN_KEY}}"
         PARENT_SCOPE
       )
     else ()
-      # message ( TR@CE "9) \"${twx_export.IN_KEY}\" => UNSET(2)" )
+      # message ( TR@CE "9) ``${twx_export.IN_KEY}'' => UNSET(2)" )
       set (
         "${twx_export.IN_KEY}"
         PARENT_SCOPE
       )
     endif ()
-    # message ( TR@CE "twx_export.i => \"${twx_export.i}\"" )
+    # message ( TR@CE "twx_export.i => ``${twx_export.i}''" )
     twx_increment ( VAR twx_export.i )
-    # message ( TR@CE "twx_export.i => \"${twx_export.i}\"" )
+    # message ( TR@CE "twx_export.i => ``${twx_export.i}''" )
     # block ()
     # foreach ( i RANGE 10 )
     #   message ( TRACE "***** twx_
-    #   export.${i} => \"${twx_export.${i}}\"")
+    #   export.${i} => ``${twx_export.${i}}''")
     #   if ( DEFINED twx_export.${i} )
     #     message ( TRACE "***** DEFINED")
     #   else ()
@@ -240,7 +240,7 @@ macro ( twx_export twx_export.kv. )
       break ()
     endif ()
     set ( twx_export.kv "${twx_export.${twx_export.i}}" )
-    # message ( TR@CE "10) twx_export.kv => \"${twx_export.kv}\"" )
+    # message ( TR@CE "10) twx_export.kv => ``${twx_export.kv}''" )
   endwhile ()
   set ( twx_export.i )
   set ( twx_export.kv )

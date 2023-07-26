@@ -41,55 +41,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-
-# ANCHOR: twx_lib_will_load ()
-#[=======[
-*/
-/** @brief Before a library starts loading.
-  *
-  * Display some message in VERBOSE mode.
-  * @param name, optional libray name used when
-  *   not guessed from the current list file name.
-  */
-twx_lib_will_load ([name]) {}
-/*
-#]=======]
-function ( twx_lib_will_load )
-  if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib)\.cmake" )
-    set ( name_ "${CMAKE_MATCH_1}" )
-  elseif ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+)\.cmake" )
-    set ( name_ "${CMAKE_MATCH_1}" )  
-  elseif ( ARGC EQUAL 1 )
-    set ( name_ "${ARGV0}" )  
-  elseif ()
-    set ( name_ "some library" )  
-  endif ()
-  message ( VERBOSE "Loading ${name_}..." )
-endfunction ()
-
-# ANCHOR: twx_lib_did_load ()
-#[=======[
-*/
-/** @brief After a library has been loaded.
-  *
-  * Display some message in VERBOSE mode.
-  * @param name, optional libray name used when
-  *   not guessed from the current list file name.
-  */
-twx_lib_did_load ([name]) {}
-/*
-#]=======]
-function ( twx_lib_did_load )
-  if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib)\.cmake" )
-    message ( VERBOSE "Loading ${CMAKE_MATCH_1}... DONE" )
-  elseif ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+)\.cmake" )
-    message ( VERBOSE "Loading ${CMAKE_MATCH_1}... DONE" )  
-  elseif ( ARGC EQUAL 1 )
-    message ( VERBOSE "Loading ${ARGV0}... DONE" )  
-  elseif ()
-    message ( VERBOSE "Loading some library... DONE" )  
-  endif ()
-endfunction ()
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMetaLib.cmake" )
 
 twx_lib_will_load ()
 
@@ -117,14 +69,14 @@ twx_set_if_defined( var from_var ) {}
 function ( twx_set_if_defined var_ from_ )
   set ( var_name_ ${var_} )
   set ( from_name_ ${from_} )
-  twx_assert_variable_name ( ${var_name_} )
-  twx_assert_variable_name ( ${from_name_} )
+  twx_assert_variable_name ( "${var_name_}" )
+  twx_assert_variable_name ( "${from_name_}" )
   if ( DEFINED ${from_name_} )
     set ( ${var_} "${${from_name_}}" PARENT_SCOPE )
   else ()
     unset ( ${var_} PARENT_SCOPE )
   endif ()
-endfunction ( twx_set_if_defined )
+endfunction ()
 
 # ANCHOR: twx_base_prettify
 #[=======[
@@ -291,9 +243,9 @@ function ( twx_assert_variable_name .name )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )
-    # message ( TR@CE "v => \"${v}\"" )
+    # message ( TR@CE "v => ``${v}''" )
     if ( NOT v MATCHES "${TWX_BASE_VARIABLE_RE}" )
-      twx_fatal ( "Not a variable name: \"${v}\"" )
+      twx_fatal ( "Not a variable name: ``${v}''" )
       return ()
     endif ()
     math ( EXPR i "${i}+1" )
@@ -347,7 +299,7 @@ twx_lib_require ( ... ) {}
 macro ( twx_lib_require )
   foreach ( twx_lib_require.lib ${ARGV} )
     # list ( APPEND twx_lib_require.stack "${twx_lib_require.lib}" )
-    # message ( STATUS "twx_lib_require.lib => \"${twx_lib_require.lib}\"..." )
+    # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''..." )
     if ( TWX_TEST )
       message ( TRACE "1) ${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
       if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
@@ -363,7 +315,7 @@ macro ( twx_lib_require )
       include ( "Twx${twx_lib_require.lib}Lib" )
     endif ()
     # list ( POP_BACK twx_lib_require.stack twx_lib_require.lib )
-    # message ( STATUS "twx_lib_require.lib => \"${twx_lib_require.lib}\"... DONE" )
+    # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''... DONE" )
   endforeach ()
   set ( twx_lib_require.lib )
 endmacro ()

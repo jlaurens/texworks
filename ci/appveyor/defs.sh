@@ -29,5 +29,5 @@ echo_and_run() {
 
 echo_var() {
 	# echo "$1 = ${!1}" does not work in dash (Ubuntu's default sh)
-	eval "echo \"$1 = \$$1\""
+	eval "echo ``$1 = \$$1''"
 }

@@ -534,7 +534,7 @@ void PDFDocumentWindow::reload()
 		emit reloaded();
 	}
 	else {
-		statusBar()->showMessage(tr("Failed to load file \"%1\"; perhaps it is not a valid PDF document.").arg(Tw::Utils::WindowManager::strippedName(curFile)));
+		statusBar()->showMessage(tr("Failed to load file ``%1''; perhaps it is not a valid PDF document.").arg(Tw::Utils::WindowManager::strippedName(curFile)));
 	}
 	updateTypesettingAction();
 	QApplication::restoreOverrideCursor();
@@ -555,7 +555,7 @@ void PDFDocumentWindow::loadSyncData()
 	else if (!_synchronizer->isValid())
 		statusBar()->showMessage(tr("No SyncTeX data available"), kStatusMessageDuration);
 	else
-		statusBar()->showMessage(tr("SyncTeX: \"%1\"").arg(_synchronizer->syncTeXFilename()), kStatusMessageDuration);
+		statusBar()->showMessage(tr("SyncTeX: ``%1''").arg(_synchronizer->syncTeXFilename()), kStatusMessageDuration);
 }
 
 void PDFDocumentWindow::syncClick(size_type pageIndex, const QPointF& pos)

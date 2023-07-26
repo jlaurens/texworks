@@ -14,7 +14,7 @@ endif (NOT OUTPUTFILE)
 list(SORT FILES)
 list(REMOVE_DUPLICATES FILES)
 
-message(STATUS "Updating \"${OUTPUTFILE}\"")
+message(STATUS "Updating ``${OUTPUTFILE}''")
 create_qt_pro_file("${OUTPUTFILE}" INCLUDEPATH "${INCLUDEPATH}" FILES "${FILES}")
 
 if (Qt_LUPDATE_EXECUTABLE)

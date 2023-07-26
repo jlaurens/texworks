@@ -265,7 +265,7 @@ function(install_qt5_plugin plugin executable copy installed_plugin_path_var)
                 endforeach()
 
                 if((NOT DEFINED plugin_tmp_release_path OR NOT EXISTS "${plugin_tmp_release_path}") AND (NOT DEFINED plugin_tmp_debug_PATH OR NOT EXISTS "${plugin_tmp_debug_path}"))
-                        message(WARNING "Qt plugin \"${plugin}\" not recognized or found.")
+                        message(WARNING "Qt plugin ``${plugin}'' not recognized or found.")
                 endif()
 
                 if(EXISTS "${plugin_tmp_release_path}")
@@ -339,9 +339,9 @@ function(install_qt5_executable executable)
         resolve_qt5_paths(libs "")
 
         install(CODE
-  "include(\"${DeployQt5_cmake_dir}/DeployQt5.cmake\")
+  "include(``${DeployQt5_cmake_dir}/DeployQt5.cmake'')
   set(BU_CHMOD_BUNDLE_ITEMS TRUE)
-  FIXUP_QT5_EXECUTABLE(\"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${executable}\" \"\" \"${libs}\" \"${dirs}\" \"${plugins_dir}\" \"${request_qt_conf}\")"
+  FIXUP_QT5_EXECUTABLE(``\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${executable}'' \"`` ''${libs}`` ''${dirs}`` ''${plugins_dir}`` ''${request_qt_conf}\")"
                 ${component}
         )
 endfunction()

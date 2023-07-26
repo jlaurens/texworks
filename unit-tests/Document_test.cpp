@@ -403,7 +403,7 @@ void TestDocument::findNextWord()
 
 		bool rv = Tw::Document::TeXDocument::findNextWord(text, index, start, end);
 
-		QString msg = QStringLiteral("\"%1\" [expected: %2--%3, actual %4--%5, index %6]").arg(text).arg(expectedStart).arg(expectedEnd).arg(start).arg(end).arg(index);
+		QString msg = QStringLiteral("``%1'' [expected: %2--%3, actual %4--%5, index %6]").arg(text).arg(expectedStart).arg(expectedEnd).arg(start).arg(end).arg(index);
 		msg.insert(index + 1, QChar('|'));
 
 		QVERIFY2(rv == returnValue, qPrintable(msg));

@@ -360,7 +360,7 @@ function ( twx_module_setup )
       get_filename_component ( f_ "${f_}" NAME )
       if ( "${f_}" MATCHES "^(.*_private)[.](in[.])?([^.]+)$" )
         twx_cfg_set (
-          "include_${CMAKE_MATCH_1}_${CMAKE_MATCH_3}=#include \"${f_}\""
+          "include_${CMAKE_MATCH_1}_${CMAKE_MATCH_3}=#include ``${f_}''"
         )
       endif ()
     endforeach ( f_ )

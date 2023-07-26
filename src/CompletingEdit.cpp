@@ -1198,7 +1198,7 @@ void CompletingEdit::loadIndentModes()
 		indentModes = new QList<IndentMode>;
 		QFile indentPatternFile(configDir.filePath(QString::fromLatin1("auto-indent-patterns.txt")));
 		if (indentPatternFile.open(QIODevice::ReadOnly)) {
-			QRegularExpression re(QStringLiteral("^\"([^\"]+)\"\\s+(.+)$"));
+			QRegularExpression re(QStringLiteral("^``([^'']+)\"\\s+(.+)$"));
 			while (true) {
 				QByteArray ba = indentPatternFile.readLine();
 				if (ba.size() == 0)

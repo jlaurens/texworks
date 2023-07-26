@@ -68,7 +68,7 @@ bool W3::openUrl(const QUrl & url)
 
 QString W3::warningText(const QUrl & url)
 {
-	return tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
+	return tr("Unable to access ``%1''; perhaps your browser or mail application is not properly configured?")
 							.arg(url.toString());
 }
 

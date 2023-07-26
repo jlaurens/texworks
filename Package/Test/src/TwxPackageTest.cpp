@@ -141,7 +141,7 @@ void TwxPackageTest::openUrl(const QUrl& url)
 {
 	if (!QDesktopServices::openUrl(url))
 		QMessageBox::warning(nullptr, applicationName(),
-							 tr("Unable to access \"%1\"; perhaps your browser or mail application is not properly configured?")
+							 tr("Unable to access ``%1''; perhaps your browser or mail application is not properly configured?")
 							 .arg(url.toString()));
 }
 void TwxPackageTest::openUrlHome()

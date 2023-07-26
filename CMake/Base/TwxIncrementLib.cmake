@@ -27,30 +27,28 @@ twx_lib_will_load ()
   * @param counter: name or the variable to increment.
   * Raise when undefined.
   * @param step for key `STEP`: optional value, defaults to 1.
-  * Support `$|` syntax.
   */
 twx_increment(VAR counter) {}
 /*#]=======]
 function ( twx_increment )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "VAR;STEP" "" )
   if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    twx_fatal ( "Unexpected arguments: ARGV => \"${ARGV}\"" )
+    twx_fatal ( "Unexpected arguments: ARGV => ``${twx.R_UNPARSED_ARGUMENTS}''" )
     return ()
   endif ()
-  twx_arg_assert_parsed ()
   if ( NOT DEFINED twx.R_VAR )
-    twx_fatal ( "Missing argument: VAR in \"${ARGV}\"")
+    twx_fatal ( "Missing argument: VAR in ``${ARGV}''")
     return ()
   endif ()
   if ( NOT DEFINED twx.R_STEP )
     if ( NOT ${ARGC} EQUAL 2 )
-    twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
+    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
     return ()
     endif ()
     set ( twx.R_STEP 1 )
   else ()
     if ( NOT ${ARGC} EQUAL 4 )
-    twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
+    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
     return ()
     endif ()
   endif ()
@@ -79,7 +77,7 @@ macro (
   twx_break_if.right
 )
   if ( NOT ${ARGC} EQUAL 3 )
-    twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
+    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
     break ()
   elseif ( "${twx_break_if.op}" STREQUAL "<" )
     if ( "${twx_break_if.left}" LESS "${twx_break_if.right}" )
@@ -106,7 +104,7 @@ macro (
       break ()
     endif ()
   else ()
-    twx_fatal ( "Missing comparison binary operator (3), got \"${twx_break_if.op}\" instead" )
+    twx_fatal ( "Missing comparison binary operator (3), got ``${twx_break_if.op}'' instead" )
     break ()
   endif ()
 endmacro ()
@@ -144,7 +142,7 @@ macro (
   twx_increment_and_break_if.right
 )
   if ( NOT ${ARGC} EQUAL 4 )
-    twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
+    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
     return ()
   endif ()
   twx_increment (
@@ -180,7 +178,7 @@ macro (
   twx_increment_and_assert.right
 )
   if ( NOT ${ARGC} EQUAL 4 )
-    twx_fatal ( "Wrong arguments: ARGV => \"${ARGV}\"" )
+    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
     return ()
   endif ()
   twx_increment (
@@ -218,7 +216,7 @@ macro (
       return ()
     endif ()
   else ()
-    twx_fatal ( "Missing comparison binary operator (3), got \"${twx_increment_and_assert.op}\" instead" )
+    twx_fatal ( "Missing comparison binary operator (3), got ``${twx_increment_and_assert.op}'' instead" )
     return ()
   endif ()
 endmacro ( twx_increment_and_assert )

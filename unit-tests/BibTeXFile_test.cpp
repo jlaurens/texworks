@@ -38,7 +38,7 @@ void TestBibTeXFile::numEntries()
 
 void TestBibTeXFile::strings()
 {
-	const QMap<QString, QString> expected{{QStringLiteral("Tw"), QStringLiteral("\"TeXworks\"")}};
+	const QMap<QString, QString> expected{{QStringLiteral("Tw"), QStringLiteral("``TeXworks''")}};
 	BibTeXFile b("bibtex-1.bib");
 	QCOMPARE(b.strings(), expected);
 }

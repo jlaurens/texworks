@@ -39,9 +39,9 @@ macro ( twx_hook_call .ID twx.R_ID )
     KEY "${twx.R_ID}"
     IN_VAR twx_hook_call.commands
   )
-  message ( TRACE "Commands \"${twx_hook_call.commands}\"" )
+  message ( TRACE "Commands ``${twx_hook_call.commands}''" )
   foreach ( twx_hook_call.cmd ${twx_hook_call.commands} )
-    message ( TRACE "Call \"${twx_hook_call.cmd}\"" )
+    message ( TRACE "Call ``${twx_hook_call.cmd}''" )
     cmake_language ( CALL "${twx_hook_call.cmd}" ${ARGN} )
   endforeach ()
   set ( twx_hook_call.commands )
@@ -88,7 +88,7 @@ function ( twx_hook_register .ID twx.R_ID )
     TREE TWX_HOOK_COMMANDS
     "${twx.R_ID}=${commands_}"
   )
-  message ( TRACE "Registered: \"${commands_}\"" )
+  message ( TRACE "Registered: ``${commands_}''" )
   twx_hook_export ()
 endfunction ()
 

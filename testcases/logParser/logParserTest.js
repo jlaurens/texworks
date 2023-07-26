@@ -193,6 +193,6 @@ if (file.status == 0) {
   TW.result = html;
 }
 else {
-  TW.warning(null, "", "Cannot load script \"logParser.js\"!");
+  TW.warning(null, "", "Cannot load script ``logParser.js''!");
 }
 undefined;

@@ -73,7 +73,7 @@ function ( twx_arg_assert_count argc_ op_ right_ )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_arg_assert_count )
   # message ( TR@CE "${argc_} ${op_} ${right_}" )
   if ( ARGC GREATER 3 )
-    twx_fatal ( "Too many arguments(${ARGC}>3): ARGV => \"${ARGV}\"" )
+    twx_fatal ( "Too many arguments(${ARGC}>3): ARGV => ``${ARGV}''" )
     return ()
   elseif ( ARGC LESS 3 )
     twx_fatal ( "Too few arguments" ) # Unreachable code, CMake breaks before
@@ -110,7 +110,7 @@ function ( twx_arg_assert_count argc_ op_ right_ )
       return ()
     endif ()
   else ()
-    twx_fatal ( "Missing comparison binary operator (1), got \"${op_}\" instead" )
+    twx_fatal ( "Missing comparison binary operator (1), got ``${op_}'' instead" )
     return ()
   endif ()
 endfunction ( twx_arg_assert_count )
@@ -163,7 +163,7 @@ function ( twx_arg_expect_keyword twx_arg_expect_keyword.ACTUAL twx_arg_expect_k
   if ( NOT "${${twx_arg_expect_keyword.ACTUAL}}" STREQUAL "${twx_arg_expect_keyword.EXPECTED}" )
     twx_fatal ( "Missing keyword: ${${twx_arg_expect_keyword.ACTUAL}} \
 should be ${twx_arg_expect_keyword.EXPECTED} \
-instead of \"${${twx_arg_expect_keyword.ACTUAL}}\"" )
+instead of ``${${twx_arg_expect_keyword.ACTUAL}}''" )
     return ()
   endif ()
 endfunction ( twx_arg_expect_keyword )
@@ -183,7 +183,7 @@ function ( twx_arg_assert_keyword twx_arg_assert_keyword.ACTUAL )
     if ( twx_arg_assert_keyword.ACTUAL MATCHES "[A-Z][A-Z]([A-Z_]*[A-Z][A-Z]|[A-Z]*)" )
       twx_arg_expect_keyword ( "${twx_arg_assert_keyword.ACTUAL}" "${CMAKE_MATCH_0}" )
     else ()
-      twx_fatal ( "Unsatisfied argument \"${twx_arg_assert_keyword.ACTUAL}\"" )
+      twx_fatal ( "Unsatisfied argument ``${twx_arg_assert_keyword.ACTUAL}''" )
       return ()
     endif ()
   endforeach ()
@@ -198,11 +198,12 @@ endfunction ( twx_arg_assert_keyword )
   */
 twx_arg_assert_parsed([PREFIX prefix] [UNEXPECTED ...]) {}
 /*#]=======]
-function ( twx_arg_assert_parsed )
+macro ( twx_arg_assert_parsed )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_arg_assert_parsed )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx_arg_assert_parsed.R
+    twx_arg_assert_parsed.R
     "" "PREFIX" "UNEXPECTED"
+    ${ARGV}
   )
   if ( DEFINED twx_arg_assert_parsed.R_PREFIX )
     twx_arg_assert_count ( ${ARGC} == 2 )
@@ -214,14 +215,15 @@ function ( twx_arg_assert_parsed )
   # NB remember that arguments in functions and macros are not the same
   if ( NOT "${${twx_arg_assert_parsed.R_PREFIX}_UNPARSED_ARGUMENTS}" STREQUAL "" )
     if ( twx_arg_assert_parsed.R_UNEXPECTED )
-      twx_fatal ( "Unparsed arguments \"${twx_arg_assert_parsed.R_UNEXPECTED}\"" )
+      twx_fatal ( "Unparsed arguments ``${twx_arg_assert_parsed.R_UNEXPECTED}''" )
     else ()
-      twx_fatal ( "Unparsed arguments \"${${twx_arg_assert_parsed.R_PREFIX}_UNPARSED_ARGUMENTS}\"" )
+      twx_fatal ( "Unparsed arguments ``${${twx_arg_assert_parsed.R_PREFIX}_UNPARSED_ARGUMENTS}''" )
     endif ()
+    list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
     return ()
   endif ()
-
-endfunction ()
+  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
+endmacro ()
 
 twx_lib_require ( "Fatal" "Increment" )
 

@@ -512,7 +512,7 @@ void TestQtPDF::destination_data()
   QTest::newRow("named") << dst << true << false << -1 << dstName <<
     QtPDF::PDFDestination::Type::Destination_XYZ << -1. <<
     invalidRect << viewport << viewport << viewport << QRectF(QPointF(102, 750.89), QSizeF(3, 4)) << QRectF(QPointF(102, 750.89), QSizeF(3, 4)) <<
-    QStringLiteral("PDFDestination(name=\"%1\")").arg(dstName);
+    QStringLiteral("PDFDestination(name=``%1'')").arg(dstName);
 
   // Unsetting the name should yield an invalid destination again
   dst.setDestinationName(QString());

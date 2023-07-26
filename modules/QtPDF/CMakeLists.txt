@@ -366,10 +366,10 @@ get_target_property(lupdatePath Qt${QT_VERSION_MAJOR}::lupdate LOCATION)
 get_target_property(_sources qtpdf SOURCES)
 twx_state_serialize ()
 add_custom_target(${PROJECT_NAME}_UpdateTranslations COMMAND "${CMAKE_COMMAND}"
-  "-DOUTPUTFILE=\"${CMAKE_CURRENT_SOURCE_DIR}/trans/QtPDF_trans.pro\""
-  "-DPROJECT_NAME=\"${PROJECT_NAME}\""
-  "-DQt_LUPDATE_EXECUTABLE=\"${lupdatePath}\""
-  "-DFILES=\"${_sources};${QTPDF_UIS};${TRANSLATIONS_SOURCES}\""
+  "-DOUTPUTFILE=``${CMAKE_CURRENT_SOURCE_DIR}/trans/QtPDF_trans.pro''"
+  "-DPROJECT_NAME=``${PROJECT_NAME}''"
+  "-DQt_LUPDATE_EXECUTABLE=``${lupdatePath}''"
+  "-DFILES=``${_sources};${QTPDF_UIS};${TRANSLATIONS_SOURCES}''"
   "${-DTWX_STATE}"
   -P "${PROJECT_SOURCE_DIR}/CMake/Modules/UpdateTranslations.cmake"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")

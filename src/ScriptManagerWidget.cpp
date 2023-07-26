@@ -206,7 +206,7 @@ void ScriptManagerWidget::treeSelectionChanged()
 		QString url = sli->scriptLanguageURL();
 		QString str = sli->scriptLanguageName();
 		if (!url.isEmpty())
-			str = QString::fromLatin1("<a href=\"%1\">%2</a>").arg(url, str);
+			str = QString::fromLatin1("<a href=``%1''>%2</a>").arg(url, str);
 		addDetailsRow(rows, tr("Language: "), str);
 	}
 

@@ -131,7 +131,7 @@ twx_cfg_ini_required_key_add (...) {}
 #]=======]
 function ( twx_cfg_ini_required_key_add .k )
   list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_ini_required_key_add" )
-  twx_message ( DEBUG "ARGV => \"${ARGV}\"" )
+  twx_message ( DEBUG "ARGV => ``${ARGV}''" )
   list ( APPEND TWX_CFG_INI_REQUIRED_KEYS ${ARGV} )
   list ( REMOVE_DUPLICATES TWX_CFG_INI_REQUIRED_KEYS )
   twx_export ( TWX_CFG_INI_REQUIRED_KEYS )
@@ -149,7 +149,7 @@ twx_cfg_ini_required_key_remove (...) {}
 #]=======]
 function ( twx_cfg_ini_required_key_remove .k )
   list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_ini_required_key_remove" )
-  twx_message ( DEBUG "ARGV => \"${ARGV}\"" )
+  twx_message ( DEBUG "ARGV => ``${ARGV}''" )
   list ( REMOVE_ITEM TWX_CFG_INI_REQUIRED_KEYS ${ARGV} )
   twx_export ( TWX_CFG_INI_REQUIRED_KEYS )
 endfunction ()
@@ -483,7 +483,7 @@ function ( twx_cfg_write_end )
   # and find the largest key for pretty printing
   set ( length_ 0 )
   set ( keys_ )
-  message ( TRACE "TwxCfg_kv.${twx.R_ID} => \"${TwxCfg_kv.${twx.R_ID}}\"" )
+  message ( TRACE "TwxCfg_kv.${twx.R_ID} => ``${TwxCfg_kv.${twx.R_ID}}''" )
   foreach ( kv ${TwxCfg_kv.${twx.R_ID}} )
     string ( REPLACE "${TWX_CFG_SEMICOLON_PLACEHOLDER}" ";" kv "${kv}" )
     twx_split_assign ( "${kv}" IN_KEY k IN_VALUE v )
@@ -581,7 +581,7 @@ function ( twx_cfg_read )
       # TODO: what happens if it contains more than one '*'?
       file ( GLOB cfg_ini_mixed_ "${glob_}" )
       if ( "${cfg_ini_mixed_}" STREQUAL "" )
-        twx_fatal ( "No id available\nARGV => \"${ARGV}\"\nglob_ => \"${glob_}\"" )
+        twx_fatal ( "No id available\nARGV => ``${ARGV}''\nglob_ => ``${glob_}''" )
         return ()
       endif ()
     endif ()
@@ -635,7 +635,7 @@ function ( twx_cfg_read )
     foreach ( l ${lines} )
       if ( l MATCHES "^[ ]*([^ =]+)[ ]*=(.*)$" )
         string ( STRIP "${CMAKE_MATCH_2}" CMAKE_MATCH_2 )
-        twx_message ( DEBUG "TWX_CFG_${CMAKE_MATCH_1} => \"${CMAKE_MATCH_2}\"" )
+        twx_message ( DEBUG "TWX_CFG_${CMAKE_MATCH_1} => ``${CMAKE_MATCH_2}''" )
         set (
           TWX_CFG_${CMAKE_MATCH_1}
           "${CMAKE_MATCH_2}"

@@ -192,6 +192,7 @@ endif ()
 
 twx_lib_require (
   Warning
+  Unit
 )
 
 twx_message ( VERBOSE

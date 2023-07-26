@@ -272,9 +272,9 @@ function ( twx_cfg_file_end )
       POST_BUILD
       COMMAND
         "${CMAKE_COMMAND}"
-          "-DTWX_CFG_INI_DIR=\"${${twx.R_MODULE}_CFG_INI_DIR}\""
-          "-DTWX_IN_DIR=\"${twx.R_IN_DIR}\""
-          "-DTWX_OUT_DIR=\"${output_directory_}\""
+          "-DTWX_CFG_INI_DIR=``${${twx.R_MODULE}_CFG_INI_DIR}''"
+          "-DTWX_IN_DIR=``${twx.R_IN_DIR}''"
+          "-DTWX_OUT_DIR=``${output_directory_}''"
           "-DTWX_IN=${in_}"
           "-DTWX_CFG_INI_IDS=${twx.R_CFG_INI_IDS}"
           "${TWX-D_ESCAPE_QUOTES}"
@@ -315,9 +315,9 @@ function ( twx_cfg_file_end )
       POST_BUILD
       COMMAND
         "${CMAKE_COMMAND}"
-          "-DTWX_CFG_INI_DIR=\"${TWX_CFG_INI_DIR}\""
-          "-DTWX_IN_DIR=\"${twx.R_IN_DIR}\""
-          "-DTWX_OUT_DIR=\"${output_directory_}\""
+          "-DTWX_CFG_INI_DIR=``${TWX_CFG_INI_DIR}''"
+          "-DTWX_IN_DIR=``${twx.R_IN_DIR}''"
+          "-DTWX_OUT_DIR=``${output_directory_}''"
           "-DTWX_IN=${in_}"
           "-DTWX_CFG_INI_IDS=${twx.R_CFG_INI_IDS}"
           "${TWX-D_ESCAPE_QUOTES}"
@@ -374,9 +374,9 @@ function ( twx_cfg_file_end )
         ${output_}
       COMMAND
         "${CMAKE_COMMAND}"
-          "-DTWX_CFG_INI_DIR=\"${cfg_ini_dir_}\""
-          "-DTWX_IN_DIR=\"${twx.R_IN_DIR}\""
-          "-DTWX_OUT_DIR=\"${twx.R_OUT_DIR}\""
+          "-DTWX_CFG_INI_DIR=``${cfg_ini_dir_}''"
+          "-DTWX_IN_DIR=``${twx.R_IN_DIR}''"
+          "-DTWX_OUT_DIR=``${twx.R_OUT_DIR}''"
           "-DTWX_IN=${in_}"
           "-DTWX_CFG_INI_IDS=${twx.R_CFG_INI_IDS}"
           "${TWX-D_ESCAPE_QUOTES}"

@@ -513,7 +513,7 @@ extern "C" {
 #if __clang__
 #define __PRAGMA_PUSH_NO_EXTRA_ARG_WARNINGS \
 _Pragma("clang diagnostic push") \
-_Pragma("clang diagnostic ignored \"-Wformat-extra-args\"")
+_Pragma("clang diagnostic ignored ``-Wformat-extra-args''")
     
 #define __PRAGMA_POP_NO_EXTRA_ARG_WARNINGS _Pragma("clang diagnostic pop")
 #else

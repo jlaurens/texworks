@@ -144,7 +144,7 @@ TWScriptableWindow::runScript(QObject* scriptObj, Tw::Scripting::Script::ScriptT
 	if (success) {
 		if (!result.isNull() && !result.toString().isEmpty()) {
 			if (scriptType == Tw::Scripting::Script::ScriptHook)
-				statusBar()->showMessage(tr("Script \"%1\": %2").arg(s->getTitle(), result.toString()), kStatusMessageDuration);
+				statusBar()->showMessage(tr("Script ``%1'': %2").arg(s->getTitle(), result.toString()), kStatusMessageDuration);
 			else
 				QMessageBox::information(this, tr("Script result"), result.toString(), QMessageBox::Ok, QMessageBox::Ok);
 		}
@@ -152,7 +152,7 @@ TWScriptableWindow::runScript(QObject* scriptObj, Tw::Scripting::Script::ScriptT
 	else {
 		if (result.isNull())
 			result = tr("unknown error");
-		QMessageBox::information(this, tr("Script error"), tr("Script \"%1\": %2").arg(s->getTitle(), result.toString()), QMessageBox::Ok, QMessageBox::Ok);
+		QMessageBox::information(this, tr("Script error"), tr("Script ``%1'': %2").arg(s->getTitle(), result.toString()), QMessageBox::Ok, QMessageBox::Ok);
 	}
 }
 
@@ -171,7 +171,7 @@ TWScriptableWindow::doAboutScripts()
 	Settings settings;
 	bool enableScriptsPlugins = settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool();
 
-	QString scriptingLink = QString::fromLatin1("<a href=\"%1\">%1</a>").arg(QString::fromLatin1("https://github.com/TeXworks/texworks/wiki/ScriptingTeXworks"));
+	QString scriptingLink = QString::fromLatin1("<a href=``%1''>%1</a>").arg(QString::fromLatin1("https://github.com/TeXworks/texworks/wiki/ScriptingTeXworks"));
 	QString aboutText = QLatin1String("<p>");
 	aboutText += tr("Scripts may be used to add new commands to %1, "
 					"and to extend or modify its behavior.").arg(QCoreApplication::applicationName());
@@ -194,7 +194,7 @@ TWScriptableWindow::doAboutScripts()
 #endif
 			qobject_cast<const Tw::Scripting::ECMAScriptInterface*>(plugin) == nullptr
 		);
-		aboutText += QString::fromLatin1("<li><a href=\"%1\">%2</a>").arg(i->scriptLanguageURL(), i->scriptLanguageName());
+		aboutText += QString::fromLatin1("<li><a href=``%1''>%2</a>").arg(i->scriptLanguageURL(), i->scriptLanguageName());
 		if (isPlugin && !enableScriptsPlugins) {
 			//: This string is appended to a script language name to indicate it is currently disabled
 			aboutText += QChar::fromLatin1(' ') + tr("(disabled in the preferences)");

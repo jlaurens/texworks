@@ -149,12 +149,12 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr*/)
 	// Add a (customized) TEXEDIT environment variable
 	env.insert(
 		QStringLiteral("TEXEDIT"),
-		QStringLiteral("\"%1\" --position=%d \"%s\"").arg(QCoreApplication::applicationFilePath())
+		QStringLiteral("``%1'' --position=%d ``%s''").arg(QCoreApplication::applicationFilePath())
 	);
 	// MiKTeX apparently uses it's own variable
 	env.insert(
 		QStringLiteral("MIKTEX_EDITOR"),
-		QStringLiteral("\"%1\" --position=%l \"%f\"").arg(QCoreApplication::applicationFilePath())
+		QStringLiteral("``%1'' --position=%l ``%f''").arg(QCoreApplication::applicationFilePath())
 	);
 #endif
 

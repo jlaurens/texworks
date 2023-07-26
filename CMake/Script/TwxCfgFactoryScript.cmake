@@ -75,7 +75,7 @@ twx_state_deserialize ()
 include ( TwxTestLib )
 include ( TwxCfgLib )
 
-twx_test_during ( ID Cfg IN_VAR during_Cfg_ )
+twx_test_during ( SUITE Cfg IN_VAR during_Cfg_ )
 if ( during_Cfg_ )
   message ( DEBUG "Testing mode" )
 else ()

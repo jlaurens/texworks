@@ -291,7 +291,7 @@ QMap<QString, QVariant> ScriptAPI::launchFile(const QString& fileName) const
 			retVal[QString::fromLatin1("status")] = SystemAccess_OK;
 		else {
 			retVal[QString::fromLatin1("status")] = SystemAccess_Failed;
-			retVal[QString::fromLatin1("message")] = tr("\"%1\" could not be opened.").arg(fileName);
+			retVal[QString::fromLatin1("message")] = tr("``%1'' could not be opened.").arg(fileName);
 		}
 	}
 	else
@@ -345,7 +345,7 @@ QMap<QString, QVariant> ScriptAPI::readFile(const QString& filename) const
 	QFile fin(path);
 
 	if (!fin.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		retVal[QString::fromLatin1("message")] = tr("The file \"%1\" could not be opened for reading").arg(path);
+		retVal[QString::fromLatin1("message")] = tr("The file ``%1'' could not be opened for reading").arg(path);
 		retVal[QString::fromLatin1("status")] = ScriptAPI::SystemAccess_Failed;
 		return retVal;
 	}

@@ -66,7 +66,7 @@ QString ResourcesDialog::pathToLink(const QString & path)
 {
 	QFileInfo fi(path);
 	QString absPath = fi.absoluteFilePath();
-	return QString::fromLatin1("<a href=\"%1\">%2</a>").arg(QUrl::fromLocalFile(absPath).toString(), absPath);
+	return QString::fromLatin1("<a href=``%1''>%2</a>").arg(QUrl::fromLocalFile(absPath).toString(), absPath);
 }
 
 /*
@@ -74,11 +74,11 @@ void ResourcesDialog::toggleDetails()
 {
 	if(groupResources->isVisibleTo(this)) {
 		groupResources->hide();
-		labelDetails->setText(QString("<a href=\"#\">%1</a>").arg(tr("Show Details")));
+		labelDetails->setText(QString("<a href=``#''>%1</a>").arg(tr("Show Details")));
 	}
 	else {
 		groupResources->show();
-		labelDetails->setText(QString("<a href=\"#\">%1</a>").arg(tr("Hide Details")));
+		labelDetails->setText(QString("<a href=``#''>%1</a>").arg(tr("Hide Details")));
 	}
 	adjustSize();
 }

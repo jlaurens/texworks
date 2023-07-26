@@ -29,7 +29,7 @@ if ( TWX_TEST_UNIT_RUN )
       PACKAGE_DIR
       EXTERNAL_DIR
   )
-    # message ( TR@CE "TWX_${p_} => \"${TWX_${p_}}\"" )
+    # message ( TR@CE "TWX_${p_} => ``${TWX_${p_}}''" )
     twx_assert_exists ( "${TWX_${p_}}" )
   endforeach ()
   endblock ()

@@ -116,7 +116,7 @@ Please use CMake instead. See README.md for further instructions.\")"
     set ( line_ "${label_} =" )
     foreach( _file ${_my_${label_}} )
       file ( RELATIVE_PATH _file ${pro_DIR_twx} ${_file} )
-      list ( APPEND line_ "  \"${_file}\"" )
+      list ( APPEND line_ "  ``${_file}''" )
     endforeach()
     string ( REPLACE ";" "\\\n" _file "${_file}" )
     list (

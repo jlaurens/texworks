@@ -38,6 +38,9 @@ https://github.com/TeXworks/texworks
 set ( TWX_TEST ON )
 
 include_guard ( GLOBAL )
+
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMetaLib.cmake" )
+
 twx_lib_will_load ()
 
 # ANCHOR: twx_test_during
@@ -58,8 +61,8 @@ function ( twx_test_during )
     PARSE_ARGV 0 twx.R
     "RE" "DOMAIN;SUITE;UNIT;FULL;IN_VAR" ""
   )
-  if ( ARGN )
-    message ( FATAL_ERROR "Bad usage ( ARGN => \"${ARGN}\")" )
+  if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
+    message ( FATAL_ERROR "Bad usage ( twx.R_UNPARSED_ARGUMENTS => ``${twx.R_UNPARSED_ARGUMENTS}'')" )
   endif ()
   twx_assert_variable_name ( "${twx.R_IN_VAR}" )
   if ( TARGET TwxTestLib.cmake )
@@ -174,12 +177,12 @@ twx_test_domain_will_begin (NAME name) {}
 #]=======]
 macro ( twx_test_domain_will_begin )
   if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Bad usage (ARGV => \"${ARGV}\")" )
+    message ( FATAL_ERROR "Bad usage (ARGV => ``${ARGV}'')" )
   endif ()
   if ( CMAKE_CURRENT_LIST_DIR MATCHES "/CMake/([^/]+)" )
     set ( TWX_TEST_DOMAIN_NAME "${CMAKE_MATCH_1}" )
   else ()
-    message ( "********** CMAKE_CURRENT_LIST_DIR => \"${CMAKE_CURRENT_LIST_DIR}\"")
+    message ( "********** CMAKE_CURRENT_LIST_DIR => ``${CMAKE_CURRENT_LIST_DIR}''")
     set ( TWX_TEST_DOMAIN_NAME "None" )
   endif ()
   get_target_property (
@@ -234,7 +237,7 @@ twx_test_domain_did_end () {}
 #]=======]
 function ( twx_test_domain_did_end )
   if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Bad usage (ARGV => \"${ARGV}\")" )
+    message ( FATAL_ERROR "Bad usage (ARGV => ``${ARGV}'')" )
   endif ()
   if ( COMMAND twx_fatal_assert_passed )
     twx_fatal_assert_passed ()
@@ -289,11 +292,11 @@ macro ( twx_test_suite_will_begin )
   # API guards
   if ( ${ARGC} EQUAL 2 )
     if ( NOT ARGV0 STREQUAL "LOG_LEVEL" )
-      message ( FATAL_ERROR "Bad usage (ARGV => \"${ARGV}\")" )
+      message ( FATAL_ERROR "Bad usage (ARGV => ``${ARGV}'')" )
     endif ()
     set ( CMAKE_MESSAGE_LOG_LEVEL ${ARGV1} )
   elseif ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Bad usage (ARGV => \"${ARGV}\")" )
+    message ( FATAL_ERROR "Bad usage (ARGV => ``${ARGV}'')" )
   endif ()
   # Get the name of the test suite
   if ( "${CMAKE_CURRENT_LIST_FILE}" MATCHES "CMake/([^/]+)/Test/Twx([^/]+)/Twx[^/]+Test.cmake$" )
@@ -399,7 +402,7 @@ twx_test_suite_did_end (ID id) {}
 #]=======]
 function ( twx_test_suite_did_end )
   if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Bad usage (ARGV => \"${ARGV}\")" )
+    message ( FATAL_ERROR "Bad usage (ARGV => ``${ARGV}'')" )
   endif ()
   get_target_property (
     list_
@@ -491,9 +494,10 @@ macro ( twx_test_unit_will_begin )
   # API guards
   cmake_parse_arguments ( twx_test_unit_will_begin.R "" "NAME;ID" "" ${ARGV} )
   if ( NOT "${twx_test_unit_will_begin.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    message ( FATAL_ERROR "Unexpected arguments \"${twx_test_unit_will_begin.R_UNPARSED_ARGUMENTS}\"" )
+    message ( FATAL_ERROR "Unexpected arguments ``${twx_test_unit_will_begin.R_UNPARSED_ARGUMENTS}''" )
   endif ()
   # 
+  string ( TOLOWER "${TWX_TEST_SUITE_CORE_NAME}" twx_test_unit_will_begin.CORE )
   if ( "${twx_test_unit_will_begin.R_NAME}" STREQUAL "" )
     if ( "${twx_test_unit_will_begin.R_ID}" STREQUAL "" )
       message ( FATAL_ERROR "Missing NAME or ID" )
@@ -503,7 +507,6 @@ macro ( twx_test_unit_will_begin )
       twx_${twx_test_unit_will_begin.CORE}_${twx_test_unit_will_begin.R_ID}
     )
   elseif ( "${twx_test_unit_will_begin.R_ID}" STREQUAL "" )
-    string ( TOLOWER "${TWX_TEST_SUITE_CORE_NAME}" twx_test_unit_will_begin.CORE )
     if ( TWX_TEST_UNIT_NAME MATCHES "^twx_${twx_test_unit_will_begin.CORE}_(.*)$" )
       set ( twx_test_unit_will_begin.R_ID "${CMAKE_MATCH_1}" )
     else ()
@@ -580,7 +583,7 @@ twx_test_unit_did_end () {}
 #]=======]
 function ( twx_test_unit_did_end )
   if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Bad usage (ARGV => \"${ARGV}\")" )
+    message ( FATAL_ERROR "Bad usage (ARGV => ``${ARGV}'')" )
   endif ()
   if ( COMMAND twx_fatal_assert_passed )
     twx_fatal_assert_passed ()

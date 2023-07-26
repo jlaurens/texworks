@@ -487,8 +487,8 @@ if ( APPLE )
   install ( CODE
     "
     file ( WRITE
-    \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${dir_}/qt.conf\"
-      \"${contents_}\"
+    ``\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${dir_}/qt.conf''
+      ``${contents_}''
     )
     "
   )
@@ -568,24 +568,24 @@ IF ( UNIX AND NOT APPLE )
     CODE "
       set (
         TWX_CFG_INI_DIR
-        \"${TWX_CFG_INI_DIR}\"
+        ``${TWX_CFG_INI_DIR}''
       )
-      include ( \"${TWX_DIR}CMake/Base/TwxBase.cmake\" )
-      include ( \"${TWX_DIR}CMake/Include/TwxCfgLib.cmake\" )
+      include ( ``${TWX_DIR}CMake/Base/TwxBase.cmake'' )
+      include ( ``${TWX_DIR}CMake/Include/TwxCfgLib.cmake'' )
       twx_cfg_read ( NO_PRIVATE ONLY_CONFIGURE )
       configure_file (
-        \"${TWX_DIR}res/os_other/${TWX_COMMAND}.in.1\"
-        \"${TWX_PROJECT_BUILD_DIR}res/os_other/${TWX_COMMAND}.1\"
+        ``${TWX_DIR}res/os_other/${TWX_COMMAND}.in.1''
+        ``${TWX_PROJECT_BUILD_DIR}res/os_other/${TWX_COMMAND}.1''
         @ONLY
       )
       configure_file (
-        \"${TWX_DIR}res/os_other/${COMMAND}.in.desktop\"
-        \"${TWX_PROJECT_BUILD_DIR}res/os_other/${COMMAND}.desktop\"
+        ``${TWX_DIR}res/os_other/${COMMAND}.in.desktop''
+        ``${TWX_PROJECT_BUILD_DIR}res/os_other/${COMMAND}.desktop''
         @ONLY
       )
       configure_file (
-        \"${TWX_DIR}res/os_other/${COMMAND}.in.appdata.xml\"
-        \"${TWX_PROJECT_BUILD_DIR}res/os_other/${COMMAND}.appdata.xml\"
+        ``${TWX_DIR}res/os_other/${COMMAND}.in.appdata.xml''
+        ``${TWX_PROJECT_BUILD_DIR}res/os_other/${COMMAND}.appdata.xml''
         @ONLY
       )
     "

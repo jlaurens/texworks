@@ -146,7 +146,7 @@ function ( twx_fatal_assert_passed )
   endif ()
   twx_fatal_catched ( IN_VAR twx_fatal_assert_passed.v )
   if ( twx_fatal_assert_passed.v AND NOT twx_fatal_assert_passed.v STREQUAL "" )
-    message ( FATAL_ERROR "FAILURE: \"${twx_fatal_assert_passed.v}\"" )
+    message ( FATAL_ERROR "FAILURE: ``${twx_fatal_assert_passed.v}''" )
   endif ()
   twx_fatal_clear ()
   if ( DEFINED twx_fatal_test.CATCH_SAVED )
@@ -197,7 +197,7 @@ function ( twx_fatal_catched .IN_VAR twx.R_VAR )
     message ( FATAL_ERROR "Wrong number of arguments: ${ARGC} instead of 2." )
   endif ()
   if ( NOT .IN_VAR STREQUAL "IN_VAR" )
-    message ( FATAL_ERROR "Missing IN_VAR key: got \"${.IN_VAR}\" instead." )
+    message ( FATAL_ERROR "Missing IN_VAR key: got ``${.IN_VAR}'' instead." )
   endif ()
   twx_assert_variable_name ( "${twx.R_VAR}" )
   
@@ -213,6 +213,37 @@ function ( twx_fatal_catched .IN_VAR twx.R_VAR )
   endif ()
   set ( ${twx.R_VAR} "${${twx.R_VAR}}" PARENT_SCOPE )
 endfunction ()
+
+# ANCHOR: twx_fatal_catched
+#[=======[
+*/
+/** @brief Catch fatal messages.
+  *
+  * For testing purposes only.
+  * If the `twx_fatal()` call has no really bad consequences,
+  * we can catch the message.
+  *
+  * @param var for key `IN_VAR`, contains the list of messages on return.
+  */
+twx_fatal_catched (IN_VAR var){}
+/*
+#]=======]
+macro ( twx_return_on_fatal )
+  if ( NOT ${ARGC} EQUAL 0 )
+    message ( FATAL_ERROR "Bad usage: ``${ARGV}''." )
+  endif ()
+  if ( TARGET TwxFatalLib.cmake )
+    get_target_property(
+      twx_return_on_fatal.MESSAGE
+      TwxFatalLib.cmake
+      TWX_FATAL_MESSAGE
+    )
+    if ( NOT twx_return_on_fatal.MESSAGE STREQUAL "twx_return_on_fatal.MESSAGE-NOTFOUND$"
+    AND NOT twx_return_on_fatal.MESSAGE STREQUAL "" )
+      return ()
+    endif ()
+  endif ()
+endmacro ()
 
 twx_lib_did_load ()
 

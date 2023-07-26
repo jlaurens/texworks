@@ -875,7 +875,7 @@ bool TeXDocumentWindow::maybeSave()
 {
 	if (textEdit->document()->isModified()) {
 		QMessageBox msgBox(QMessageBox::Warning, QCoreApplication::applicationName(),
-						   tr("The document \"%1\" has been modified.\n"
+						   tr("The document ``%1'' has been modified.\n"
 							  "Do you want to save your changes?")
 						   .arg(textDoc()->getFileInfo().fileName()),
 						   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
@@ -906,7 +906,7 @@ void TeXDocumentWindow::revert()
 {
 	if (!untitled()) {
 		QMessageBox messageBox(QMessageBox::Warning, QCoreApplication::applicationName(),
-					tr("Do you want to discard all changes to the document \"%1\", and revert to the last saved version?")
+					tr("Do you want to discard all changes to the document ``%1'', and revert to the last saved version?")
 					   .arg(textDoc()->getFileInfo().fileName()), QMessageBox::Cancel, this);
 		QAbstractButton *revertButton = messageBox.addButton(tr("Revert"), QMessageBox::DestructiveRole);
 		revertButton->setShortcut(QKeySequence(tr("Ctrl+R", "shortcut: Revert")));
@@ -1004,7 +1004,7 @@ QString TeXDocumentWindow::readFile(const QFileInfo & fileInfo,
 	// with CR-only line endings. See issue #242.
 	if (!file.open(QFile::ReadOnly)) {
 		QMessageBox::warning(this, QCoreApplication::applicationName(),
-							 tr("Cannot read file \"%1\":\n%2")
+							 tr("Cannot read file ``%1'':\n%2")
 							 .arg(fileInfo.absoluteFilePath(), file.errorString()));
 		return QString();
 	}
@@ -1158,7 +1158,7 @@ void TeXDocumentWindow::loadFile(const QFileInfo & fileInfo, bool asTemplate, bo
 			settings.setValue(QString::fromLatin1("openDialogDir"), info.canonicalPath());
 		}
 
-		statusBar()->showMessage(tr("File \"%1\" loaded").arg(textDoc()->getFileInfo().fileName()),
+		statusBar()->showMessage(tr("File ``%1'' loaded").arg(textDoc()->getFileInfo().fileName()),
 								 kStatusMessageDuration);
 		setupFileWatcher();
 	}
@@ -1328,7 +1328,7 @@ void TeXDocumentWindow::reloadIfChangedOnDisk()
 	if (i == 10) { // the file has been changing constantly - give up and inform the user
 		QMessageBox::information(this, tr("File changed on disk"),
 								 tr("%1 is constantly being modified by another program.\n\n"
-									"Please use \"File > Revert to Saved\" manually when the external process has finished.")
+									"Please use ``File > Revert to Saved'' manually when the external process has finished.")
 								 .arg(textDoc()->getFileInfo().filePath()),
 								 QMessageBox::Ok, QMessageBox::Ok);
 	}
@@ -1424,7 +1424,7 @@ bool TeXDocumentWindow::saveFile(const QFileInfo & fileInfo)
 								 .arg(fileInfo.absoluteFilePath()),
 								 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Cancel) {
 			notSaved:
-				statusBar()->showMessage(tr("Document \"%1\" was not saved")
+				statusBar()->showMessage(tr("Document ``%1'' was not saved")
 										 .arg(textDoc()->getFileInfo().fileName()),
 										 kStatusMessageDuration);
 				return false;
@@ -1461,7 +1461,7 @@ bool TeXDocumentWindow::saveFile(const QFileInfo & fileInfo)
 		QFile file(fileInfo.absoluteFilePath());
 		if (!file.open(QFile::WriteOnly)) {
 			QMessageBox::warning(this, QCoreApplication::applicationName(),
-								 tr("Cannot write file \"%1\":\n%2")
+								 tr("Cannot write file ``%1'':\n%2")
 								 .arg(fileInfo.absoluteFilePath(), file.errorString()));
 			setupFileWatcher();
 			goto notSaved;
@@ -1493,7 +1493,7 @@ bool TeXDocumentWindow::saveFile(const QFileInfo & fileInfo)
 	// time (i.e. it did not exist before saveFile() was called),
 	// fileInfo.exists() will return the wrong (cached) info.
 	setCurrentFile(QFileInfo(fileInfo.absoluteFilePath()));
-	statusBar()->showMessage(tr("File \"%1\" saved")
+	statusBar()->showMessage(tr("File ``%1'' saved")
 								.arg(textDoc()->getFileInfo().fileName()),
 								kStatusMessageDuration);
 
@@ -1710,7 +1710,7 @@ void TeXDocumentWindow::encodingPopup(const QPoint loc)
 	//: Item in the encoding popup menu
 	QAction * reloadAction = new QAction(tr("Reload using selected encoding"), &menu);
 	//: Tooltip for "Reload using selected encoding"
-	reloadAction->setToolTip(tr("Reloads the current file with the encoding selected from this menu.\n\nThe selected encoding replaces the default one and overrides all \"%!TEX encoding\" lines."));
+	reloadAction->setToolTip(tr("Reloads the current file with the encoding selected from this menu.\n\nThe selected encoding replaces the default one and overrides all ``%!TEX encoding'' lines."));
 	QAction * BOMAction = new QAction(tr("Write UTF-8 byte order mark"), &menu);
 	BOMAction->setCheckable(true);
 	BOMAction->setChecked(utf8BOM);
@@ -2822,13 +2822,13 @@ void TeXDocumentWindow::typeset()
 		TpstMngr::stopTypesetting(this);
 
 		QMessageBox msgBox(QMessageBox::Critical, tr("Unable to execute %1").arg(e.name()),
-		                      QLatin1String("<p>") + tr("The program \"%1\" was not found.").arg(e.program()) + QLatin1String("</p>") +
+		                      QLatin1String("<p>") + tr("The program ``%1'' was not found.").arg(e.program()) + QLatin1String("</p>") +
 #if defined(Q_OS_WIN)
-		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=\"http://tug.org/texlive/\">TeX Live</a> or <a href=\"http://miktex.org/\">MiKTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +
+		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=``http://tug.org/texlive/''>TeX Live</a> or <a href=``http://miktex.org/''>MiKTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +
 #elif defined(Q_OS_DARWIN)
-		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=\"http://www.tug.org/mactex/\">MacTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +
+		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=``http://www.tug.org/mactex/''>MacTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +
 #else // defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
-		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=\"http://tug.org/texlive/\">TeX Live</a> installed on your system to typeset your document. On most systems such a TeX distribution is available as prebuilt package.") + QLatin1String("</p>") +
+		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=``http://tug.org/texlive/''>TeX Live</a> installed on your system to typeset your document. On most systems such a TeX distribution is available as prebuilt package.") + QLatin1String("</p>") +
 #endif
 		                      QLatin1String("<p>") + tr("When a TeX distribution is installed you may need to tell TeXworks where to find it in Edit -> Preferences -> Typesetting.") + QLatin1String("</p>"),
 							  QMessageBox::Cancel, this);
@@ -3125,11 +3125,11 @@ void TeXDocumentWindow::handleModelineChange(QStringList changedKeys, QStringLis
 		if (index > -1) {
 			if (index != engineComboBox->currentIndex()) {
 				engineComboBox->setCurrentIndex(index);
-				emit asyncFlashStatusBarMessage(tr("Set engine to \"%1\"").arg(engineComboBox->currentText()), kStatusMessageDuration);
+				emit asyncFlashStatusBarMessage(tr("Set engine to ``%1''").arg(engineComboBox->currentText()), kStatusMessageDuration);
 			}
 		}
 		else {
-			emit asyncFlashStatusBarMessage(tr("Engine \"%1\" not defined").arg(name), kStatusMessageDuration);
+			emit asyncFlashStatusBarMessage(tr("Engine ``%1'' not defined").arg(name), kStatusMessageDuration);
 		}
 	}
 	if (changedKeys.contains(QStringLiteral("encoding"))) {

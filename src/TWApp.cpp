@@ -365,13 +365,13 @@ void TWApp::about()
 	aboutText += QLatin1String("<small>");
 	aboutText += QLatin1String("<p>&#xA9; 2007-2023  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen");
 	aboutText += tr("<br>Version %1").arg(Twx::Core::Info::version);
-	aboutText += tr("<p>Distributed under the <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU General Public License</a>, version 2 or (at your option) any later version.");
-	aboutText += tr("<p><a href=\"http://www.qt.io/\">Qt application framework</a> v%1 by The Qt Company.").arg(QString::fromLatin1(qVersion()));
-	aboutText += tr("<br><a href=\"http://poppler.freedesktop.org/\">Poppler</a> PDF rendering library by Kristian H&#xF8;gsberg, Albert Astals Cid and others.");
-	aboutText += tr("<br><a href=\"http://hunspell.github.io/\">Hunspell</a> spell checker by L&#xE1;szl&#xF3; N&#xE9;meth.");
-	aboutText += tr("<br>Concept and resources from <a href=\"https://pages.uoregon.edu/koch/texshop/\">TeXShop</a> by Richard Koch.");
-	aboutText += tr("<br><a href=\"http://itexmac.sourceforge.net/SyncTeX.html\">SyncTeX</a> technology by J&#xE9;r&#xF4;me Laurens.");
-	aboutText += tr("<br>Some icons used are from the <a href=\"http://tango.freedesktop.org/\">Tango Desktop Project</a>.");
+	aboutText += tr("<p>Distributed under the <a href=``http://www.gnu.org/licenses/gpl-2.0.html''>GNU General Public License</a>, version 2 or (at your option) any later version.");
+	aboutText += tr("<p><a href=``http://www.qt.io/''>Qt application framework</a> v%1 by The Qt Company.").arg(QString::fromLatin1(qVersion()));
+	aboutText += tr("<br><a href=``http://poppler.freedesktop.org/''>Poppler</a> PDF rendering library by Kristian H&#xF8;gsberg, Albert Astals Cid and others.");
+	aboutText += tr("<br><a href=``http://hunspell.github.io/''>Hunspell</a> spell checker by L&#xE1;szl&#xF3; N&#xE9;meth.");
+	aboutText += tr("<br>Concept and resources from <a href=``https://pages.uoregon.edu/koch/texshop/''>TeXShop</a> by Richard Koch.");
+	aboutText += tr("<br><a href=``http://itexmac.sourceforge.net/SyncTeX.html''>SyncTeX</a> technology by J&#xE9;r&#xF4;me Laurens.");
+	aboutText += tr("<br>Some icons used are from the <a href=``http://tango.freedesktop.org/''>Tango Desktop Project</a>.");
 	QString trText = tr("<p>%1 translation kindly contributed by %2.").arg(tr("[language name]"), tr("[translator's name/email]"));
 	if (!trText.contains(QString::fromLatin1("[language name]")))
 		aboutText += trText;	// omit this if it hasn't been translated!
@@ -527,7 +527,7 @@ void TWApp::writeToMailingList()
 {
 	// The strings here are deliberately NOT localizable!
 	QString address(QLatin1String("texworks@tug.org"));
-	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
+	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the ``configuration info'' below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
 
 	body += QStringLiteral("TeXworks version : %1\n").arg(Twx::Core::Info::versionFull);
 #if defined(Q_OS_DARWIN)
@@ -1070,7 +1070,7 @@ QMap<QString, QVariant> TWApp::openFileFromScript(const QString& fileName, QObje
 				return retVal;
 			if (QMessageBox::warning(qobject_cast<QWidget*>(scriptApi->GetTarget()),
 				tr("Permission request"),
-				tr("The script \"%1\" is trying to open the file \"%2\" without sufficient permissions. Do you want to open the file?")\
+				tr("The script ``%1'' is trying to open the file ``%2'' without sufficient permissions. Do you want to open the file?")\
 					.arg(scriptObj->getTitle(), path),
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::No
 			) != QMessageBox::Yes)

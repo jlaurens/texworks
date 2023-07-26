@@ -75,11 +75,11 @@ function ( twx_translation_target_setup twx.R_TARGET )
   add_custom_target (
     ${twx.R_TARGET}_translation
     COMMAND "${CMAKE_COMMAND}"
-      "-DTWX_BUILD_DIR=\"${twx.R_BUILD_DIR}\""
-      "-DTWX_TARGET=\"${twx.R_TARGET}\""
-      "-DTWX_INPUT_FILES=\"${_sources};${${twx.R_TARGET}_UIS};${${twx.R_TARGET}_TRANS_TS}\""
-      "-DTWX_INCLUDE_PATH=\"${TYWX_DIR}/src\""
-      "-DQt_LUPDATE_EXECUTABLE=\"${_lupdate_path}\""
+      "-DTWX_BUILD_DIR=``${twx.R_BUILD_DIR}''"
+      "-DTWX_TARGET=``${twx.R_TARGET}''"
+      "-DTWX_INPUT_FILES=``${_sources};${${twx.R_TARGET}_UIS};${${twx.R_TARGET}_TRANS_TS}''"
+      "-DTWX_INCLUDE_PATH=``${TYWX_DIR}/src''"
+      "-DQt_LUPDATE_EXECUTABLE=``${_lupdate_path}''"
       "${-DTWX_STATE}"
       -P "${TWX_DIR}CMake/Script/TwxTranslationScript.cmake"
   )
@@ -108,13 +108,13 @@ function ( twx_translation_make_qrc outfile )
   twx_arg_assert_parsed ()
   set ( _contents
     "<!DOCTYPE RCC>"
-    "<RCC version=\"1.0\">"
+    "<RCC version=``1.0''>"
     "<qresource>"
   )
   foreach ( _file ${twx.R_QM_FILES} )
     get_filename_component ( _filename "${_file}" NAME )
     list ( APPEND _contents
-      "<file alias=\"resfiles/translations/${_filename}\">${_file}</file>"
+      "<file alias=``resfiles/translations/${_filename}''>${_file}</file>"
     )
   endforeach ( _file )
   list (
