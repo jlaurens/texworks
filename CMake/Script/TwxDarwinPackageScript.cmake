@@ -55,6 +55,7 @@ if ( NOT EXISTS "${TWX_PACKAGE_DIR}${manual_base_}" )
   execute_process (
     COMMAND unzip "${TWX_PACKAGE_DIR}${manual_archive_}"
     WORKING_DIRECTORY "${TWX_PACKAGE_DIR}${manual_base_}"
+    COMMAND_ERROR_IS_FATAL ANY
   )
 else ( )
   message (
@@ -135,6 +136,7 @@ execute_process (
   COMMAND lipo -info "${main_executable_}"
   COMMAND cut -d : -f 3-
   OUTPUT_VARIABLE architectures_
+  COMMAND_ERROR_IS_FATAL ANY
 )
 
 # Strip leading and trailing whitespace.
@@ -164,6 +166,7 @@ foreach ( dylib_ ${bundles_dylibs_} )
     COMMAND cut -d : -f 1
     COMMAND grep -q "Non-fat file"
     RESULT_VARIABLE dylib_is_fat_
+    COMMAND_ERROR_IS_FATAL ANY
   )
   if ( NOT ${dylib_is_fat_} EQUAL 0 )
     message ( STATUS "Processing fat library: ${dylib_}" )
@@ -171,7 +174,8 @@ foreach ( dylib_ ${bundles_dylibs_} )
     # execute through bash to side-step the issue.
     execute_process (
       COMMAND bash -c "lipo ${ARCHS_TO_EXTRACT} ${dylib_} -output ${dylib_}"
-    )
+    COMMAND_ERROR_IS_FATAL ANY
+  )
   else ()
     message ( STATUS "Skipping non-fat library: ${dylib_}" )
   endif()

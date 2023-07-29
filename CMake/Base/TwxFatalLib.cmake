@@ -50,6 +50,7 @@ twx_fatal(...){}
 /*
 #]=======]
 function ( twx_fatal )
+  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
   set ( m )
   set ( i 0 )
   set ( ARGV${ARGC} )
@@ -96,14 +97,14 @@ twx_fatal_clear (){}
 /*
 #]=======]
 function ( twx_fatal_clear )
+  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_clear" )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR "Too many arguments: ${ARGC} instead of 0." )
   endif ()
   if ( TARGET TwxFatalLib.cmake )
-    set_target_properties (
-      TwxFatalLib.cmake
-      PROPERTIES
-        TWX_FATAL_MESSAGE ""
+    set_property (
+      TARGET TwxFatalLib.cmake
+      PROPERTY TWX_FATAL_MESSAGE
     )
   endif ()
 endfunction ()
@@ -113,13 +114,15 @@ endfunction ()
 */
 /** @brief After the test suite runs
   *
-  * Must balance a `twx_test_suite_will_begin()`.
+  * Catch the fatal status and calls `twx_fatal_clear()`.
+  * Called at the start of a scope.
   *
   */
-twx_fatal_test (ID id) {}
+twx_fatal_test () {}
 /*
 #]=======]
 function ( twx_fatal_test )
+  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_test" )
   if ( NOT DEFINED twx_fatal_test.CATCH_SAVED )
     set ( twx_fatal_test.CATCH_SAVED "${TWX_FATAL_CATCH}" PARENT_SCOPE )
   endif ()
@@ -141,6 +144,7 @@ twx_fatal_assert_passed () {}
 /*
 #]=======]
 function ( twx_fatal_assert_passed )
+  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_assert_passed" )
   if ( ${ARGC} GREATER "0" )
     message ( FATAL_ERROR "Too many arguments" )
   endif ()
@@ -165,6 +169,7 @@ twx_fatal_assert_failed () {}
 /*
 #]=======]
 function ( twx_fatal_assert_failed )
+  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_assert_failed" )
   if ( ${ARGC} GREATER "0" )
     message ( FATAL_ERROR "Too many arguments" )
   endif ()
@@ -193,6 +198,7 @@ twx_fatal_catched (IN_VAR var){}
 /*
 #]=======]
 function ( twx_fatal_catched .IN_VAR twx.R_VAR )
+  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_catched" )
   if ( NOT ${ARGC} EQUAL 2 )
     message ( FATAL_ERROR "Wrong number of arguments: ${ARGC} instead of 2." )
   endif ()
@@ -202,30 +208,26 @@ function ( twx_fatal_catched .IN_VAR twx.R_VAR )
   twx_assert_variable_name ( "${twx.R_VAR}" )
   
   if ( TARGET TwxFatalLib.cmake )
-    get_target_property(
+    get_target_property (
       ${twx.R_VAR}
       TwxFatalLib.cmake
       TWX_FATAL_MESSAGE
     )
   endif ()
-  if ( ${twx.R_VAR} STREQUAL "fatal_-NOTFOUND")
+  if ( ${twx.R_VAR} STREQUAL "${twx.R_VAR}-NOTFOUND")
     set ( ${twx.R_VAR} "" )
   endif ()
-  set ( ${twx.R_VAR} "${${twx.R_VAR}}" PARENT_SCOPE )
+  return ( PROPAGATE ${twx.R_VAR} )
 endfunction ()
 
-# ANCHOR: twx_fatal_catched
+# ANCHOR: twx_return_on_fatal
 #[=======[
 */
-/** @brief Catch fatal messages.
+/** @brief Return on fatal messages.
   *
   * For testing purposes only.
-  * If the `twx_fatal()` call has no really bad consequences,
-  * we can catch the message.
-  *
-  * @param var for key `IN_VAR`, contains the list of messages on return.
   */
-twx_fatal_catched (IN_VAR var){}
+twx_return_on_fatal () {}
 /*
 #]=======]
 macro ( twx_return_on_fatal )

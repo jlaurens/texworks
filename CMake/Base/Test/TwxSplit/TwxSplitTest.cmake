@@ -35,7 +35,8 @@ block ()
 # TwxSplitTest_ARGC ( 1 2 3 )
 # endblock()
 
-twx_test_unit_will_begin ( NAME "twx_split_assign" ID twx_split_assign )
+# ANCHOR: assign(0)
+twx_test_unit_will_begin ( ID "assign(0)" )
 if ( TWX_TEST_UNIT_RUN )
   block ()
   # Failure: two many arguments
@@ -107,7 +108,70 @@ if ( TWX_TEST_UNIT_RUN )
 endif ()
 twx_test_unit_did_end ()
 
-twx_test_unit_will_begin ( NAME "twx_split_compare" ID twx_split_assign )
+# ANCHOR: assign(1)
+twx_test_unit_will_begin ( ID "assign(1)" )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  # Failure: two many arguments
+  twx_fatal_test ()
+  twx_split_assign ( a b c d e f ) # `twx_split_assign ( 1 2 3 4 5 6 )` has side effects
+  twx_fatal_assert_failed ()
+  # Failure: bad keyword 1
+  twx_fatal_test ()
+  twx_split_assign ( kv IN_VARx )
+  twx_fatal_assert_failed ()
+  twx_split_assign ( kv IN_VAR <k> )
+  twx_fatal_assert_failed ()
+  # Success: Normal call
+  twx_fatal_test ()
+  set ( kv.key )
+  twx_assert_undefined ( kv.key )
+  set ( kv.value )
+  twx_assert_undefined ( kv.key kv.value )
+  twx_fatal_assert_passed ()
+  twx_split_assign ( key=value IN_VAR kv )
+  twx_fatal_assert_passed ()
+  # Success: Normal call, value with "="
+  set ( kv.key )
+  set ( kv.value )
+  twx_split_assign ( key=va=ue IN_VAR kv )
+  twx_expect ( kv.key key )
+  twx_expect ( kv.value va=ue )
+  twx_fatal_assert_passed ()
+  # Failure: no key
+  twx_split_assign ( =value IN_VAR kv )
+  twx_fatal_assert_failed ()
+  # Success: only key
+  twx_fatal_test ()
+  set ( k )
+  set ( v )
+  twx_assert_undefined ( k v )
+  twx_fatal_test ()
+  twx_split_assign ( key IN_VAR kv )
+  twx_expect ( kv.key key )
+  twx_assert_undefined ( kv.value )
+  twx_fatal_assert_passed ()
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+# ANCHOR: assign(2)
+twx_test_unit_will_begin ( ID "assign(2)" )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  set ( kv.key )
+  set ( kv.value )
+  set ( kv "key1=value1" )
+  message ( TRACE "kv => ``$''")
+  twx_split_assign ( kv )
+  twx_expect ( kv.key key1 )
+  twx_expect ( kv.value value1 )
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+# ANCHOR: compare
+twx_test_unit_will_begin ( ID compare )
 if ( TWX_TEST_UNIT_RUN )
   block ()
   # Failure: two few arguments
@@ -212,6 +276,48 @@ if ( TWX_TEST_UNIT_RUN )
   twx_fatal_test ()
   twx_split_compare ( kkll IN_LEFT l IN_OP o IN_RIGHT r IN_NEGATE n )
   twx_fatal_assert_failed ()
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+# ANCHOR: append
+twx_test_unit_will_begin ( ID append )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  twx_split_append ( "" )
+  twx_fatal_assert_failed ()
+  set ( list1 )
+  set ( list2 )
+  twx_split_append (
+    list1=<<1.1
+    list1=<<1.2
+    "list2=<<2.1;2.2"
+    list1=<<1.3
+    list2=<<2.3
+  )
+  twx_expect ( list1 "1.1;1.2;1.3" )
+  twx_expect ( list2 "2.1;2.2;2.3" )
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+# ANCHOR: prepend
+twx_test_unit_will_begin ( ID prepend )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  twx_split_prepend ( "" )
+  twx_fatal_assert_failed ()
+  set ( list1 )
+  set ( list2 )
+  twx_split_prepend (
+    list1=>>1.1
+    list1=>>1.2
+    "list2=>>2.1;2.2"
+    list1=>>1.3
+    list2=>>2.3
+  )
+  twx_expect ( list1 "1.3;1.2;1.1" )
+  twx_expect ( list2 "2.3;2.1;2.2" )
   endblock ()
 endif ()
 twx_test_unit_did_end ()

@@ -76,6 +76,7 @@ include ( TwxTestLib )
 include ( TwxCfgLib )
 
 twx_test_during ( SUITE Cfg IN_VAR during_Cfg_ )
+
 if ( during_Cfg_ )
   message ( DEBUG "Testing mode" )
 else ()
@@ -89,7 +90,7 @@ twx_message ( VERBOSE
 )
 
 # Parse the ini contents
-twx_message ( VERBOSE "Parsing ${TWX_FACTORY_INI}" )
+twx_message ( VERBOSE "Parsing ``${TWX_FACTORY_INI}''" )
 twx_cfg_read ( "${TWX_FACTORY_INI}" )
 twx_cfg_write_begin ( ID "factory" )
 # verify the expectations

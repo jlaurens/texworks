@@ -39,6 +39,8 @@ See https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
+twx_lib_will_load ( NO_SCRIPT )
+
 # Full include only once
 if ( COMMAND twx_target_expose )
 # This has already been included
@@ -819,5 +821,9 @@ function ( twx_target_summary_section_files twx.R_target )
   endforeach ()
   twx_summary_end ( ${twx.R_EOL} )
 endfunction ( twx_target_summary_section_files )
+
+twx_lib_require ( Summary )
+
+twx_lib_did_load ()
 
 #*/

@@ -134,6 +134,7 @@ Please use CMake instead. See README.md for further instructions.\")"
       "${${path_var_}}"
     COMMAND ${CMAKE_COMMAND} -E remove
       "${${path_var_}}(busy)"
+    COMMAND_ERROR_IS_FATAL ANY
   )
   twx_export ( ${path_var_} )
 endfunction ( twx_translation_create_pro_file )
@@ -151,4 +152,5 @@ twx_message ( VERBOSE "TwxTranslationCommand: ${pro_path_}" DEEPER )
 message ( STATUS "TwxTranslationCommand: Running lupdate ${TWX_TARGET}.pro" )
 execute_process (
 	COMMAND "${Qt_LUPDATE_EXECUTABLE}" "${TWX_TARGET}.pro"
+  COMMAND_ERROR_IS_FATAL ANY
 )

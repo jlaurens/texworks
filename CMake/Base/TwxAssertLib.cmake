@@ -229,7 +229,7 @@ endfunction ()
   */
 twx_assert_false( ... ) {}
 /*#]=======]
-function ( twx_assert_false value_ )
+function ( twx_assert_false .value )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )

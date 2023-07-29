@@ -2,21 +2,21 @@
 This is part of the TWX build and test system.
 https://github.com/TeXworks/texworks
 (C)  JL 2023
-*//** @file
-@brief Coloring log output of the summaries.
-
-This is not available on windows.
-Include this file on demand.
-
-Known formats:
-  `BOLD`, `RED`, `GREEN`, `YELLOW`, `BLUE`, `MAGENTA`, `CYAN`, `WHITE`,
-  `BOLD_RED`, `BOLD_GREEN`, `BOLD_YELLOW`, `BOLD_BLUE`, `BOLD_MAGENTA`, `BOLD_CYAN`, `BOLD_WHITE`
 */
-**
-@brief Coloring
-
-Turn this off to disable coloring, or switch to windows.
-*/
+/** @file
+  * @brief Coloring log output of the summaries.
+  *
+  * This is not available on windows.
+  * Include this file on demand.
+  *
+  * Known formats:
+  *   `BOLD`, `RED`, `GREEN`, `YELLOW`, `BLUE`, `MAGENTA`, `CYAN`, `WHITE`,
+  *   `BOLD_RED`, `BOLD_GREEN`, `BOLD_YELLOW`, `BOLD_BLUE`, `BOLD_MAGENTA`, `BOLD_CYAN`, `BOLD_WHITE`
+  */
+/** @brief Coloring
+  *
+  * Turn this off to disable coloring, or switch to windows.
+  */
 TWX_SUMMARY_NO_COLOR;
 /*
 Output:
@@ -33,30 +33,23 @@ Each function is documented below.
 
 include_guard ( GLOBAL )
 
-if ( NOT TWX_IS_BASED )
-  message ( FATAL_ERROR "Base is not loaded." )
-endif ()
+twx_lib_will_load ( NO_SCRIPT )
 
-set ( TWX_VERBOSE_SAVED ${TWX_VERBOSE} )
-set ( TWX_VERBOSE OFF )
-include ( TwxCfgLib )
 twx_cfg_read ( factory git )
-set ( TWX_VERBOSE ${TWX_VERBOSE_SAVED} )
-unset ( TWX_VERBOSE_SAVED )
 
 # Coloring output
 # Standard feature to display colors on the terminal
 if ( WIN32 OR TWX_SUMMARY_NO_COLOR )
-  set ( twx-format-reset )
-  set ( twx-format-key )
-  set ( twx-format-value )
+  set ( twx-summary-format-reset )
+  set ( twx-summary-format-key )
+  set ( twx-summary-format-value )
 else ()
   # One character to reset format
-  string ( ASCII 27 TWX_TWENTY_SEVEN )
-  set ( twx-format-reset "${TWX_TWENTY_SEVEN}[m" )
+  string ( ASCII 27 TWX_SUMMARY_CHAR_ESCAPE )
+  set ( twx-summary-format-reset "${TWX_SUMMARY_CHAR_ESCAPE}[m" )
   # This is a poor man map
   set (
-    twx-format
+    twx-summary-format
     BOLD         "1m"
     RED          "31m"
     GREEN        "32m"
@@ -77,63 +70,75 @@ endif ()
 
 # ANCHOR: twx_log_format
 #[=======[
-*//**
-@brief Formatter
-
-Enclose the input between appropriate formatting characters,
-put the result in the variable pointed to by output.
-
-@param format is one of the known formats
-@param output for key `IN_VAR` is the variable name holding the result
-@param ... for key `TEXT` is the list of texts to format
-
 */
-twx_log_format( format IN_VAR output TEXT msg ) {}
+/**
+  * @brief Formatter
+  *
+  * Enclose the input between appropriate formatting characters,
+  * put the result in the variable pointed to by output.
+  *
+  * @param format is one of the known formats, optional
+  * @param output for key `IN_VAR` is the variable name holding the result
+  * @param ... for key `TEXT`, is the optional list of texts to format.
+  *   When not provided, the contents of *<output>* is used instead
+  *
+  */
+twx_log_format( [format] [TEXT msg ...] IN_VAR output ) {}
 /*
 #]=======]
-function ( twx_log_format format_ .IN_VAR var_ .TEXT msg_ )
-  twx_arg_assert_count ( ${ARVC} == 5 )
-  twx_arg_assert_keyword ( .IN_VAR .TEXT )
-  twx_assert_variable_name ( "${var_}" )
-  if ( "${format_}" STREQUAL "" )
-    set( ${var_} "${msg_}" PARENT_SCOPE )
-  else ()
-    list ( FIND twx-format "${format_}" _i )
-    if ( "${_i}" LESS "0" )
-      twx_fatal ( "Unknown format ${format_}")
-      return ()
-    endif ()
-    math ( EXPR _i "${_i}+1" )
-    list ( GET twx-format "${_i}" _l )
-    set ( _l "${TWX_TWENTY_SEVEN}[${_l}" )
-    set ( ${var_} "${_l}${msg_}${twx-format-reset}" PARENT_SCOPE )
+function ( twx_log_format )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "IN_VAR" "TEXT"
+  )
+  list ( POP_FRONT twx.R_UNPARSED_ARGUMENTS twx.R_FORMAT )
+  twx_arg_assert_parsed ()
+  twx_assert_variable_name ( "${twx.R_VAR}" )
+  if ( NOT DEFINED twx.R_TEXT )
+    set ( twx.R_TEXT "${${twx.R_VAR}}" )
   endif ()
+  if ( "${twx.R_FORMAT}" STREQUAL "" )
+    set( ${twx.R_VAR} "${twx.R_TEXT}" PARENT_SCOPE )
+    return ()
+  endif ()
+  list ( FIND twx-summary-format "${twx.R_FORMAT}" i )
+  if ( "${i}" LESS "0" )
+    twx_fatal ( "Unknown format ${twx.R_FORMAT}" )
+    return ()
+  endif ()
+  math ( EXPR i "${i}+1" )
+  list ( GET twx-summary-format "${i}" l )
+  set ( l "${TWX_SUMMARY_CHAR_ESCAPE}[${l}" )
+  set (
+    ${twx.R_VAR}
+    "${l}${twx.R_TEXT}${twx-summary-format-reset}"
+    PARENT_SCOPE
+  )
 endfunction ()
 
 # ANCHOR: twx_log
 #[=======[
-*//**
-@brief Print a message depending on a level.
-
-@param format one of the known formats, optional
-@param message some text
-@param ... more messages
-@param level is the log level, 0 to allways log, `+∞` to never log.
-  `TWX_LOG_LEVEL_MAX` is the maximum value for display.
 */
+/** @brief Print a message depending on a level.
+  *
+  * @param format one of the known formats, optional
+  * @param message some text
+  * @param ... more messages
+  * @param level is the log level, 0 to allways log, `+∞` to never log.
+  *   `TWX_SUMMARY_LOG_LEVEL_CURRENT` is the maximum value for display.
+  */
 twx_log ( [format] message ... [LEVEL level] ) {}
-/**
-@brief maximum value for display
-
-Nothing is displayed if the given level is more than
-`TWX_LOG_LEVEL_MAX`.
-*/
-TWX_LOG_LEVEL_MAX;
+/** @brief maximum value for display
+  *
+  * Nothing is displayed if the given level is more than
+  * `TWX_SUMMARY_LOG_LEVEL_CURRENT`.
+  */
+TWX_SUMMARY_LOG_LEVEL_CURRENT;
 /*
 #]=======]
 
-if ( NOT DEFINED TWX_LOG_LEVEL_MAX )
-  set ( TWX_LOG_LEVEL_MAX 0 )
+if ( NOT DEFINED TWX_SUMMARY_LOG_LEVEL_CURRENT )
+  set ( TWX_SUMMARY_LOG_LEVEL_CURRENT 0 )
 endif ()
 
 # `twx.R_ARGN` is a list variable.
@@ -141,133 +146,114 @@ endif ()
 # Parse the format, define shared variables
 # `left` and `right`
 
-# ANCHOR: __twx_summary_parse_arguments
+# ANCHOR: twx_summary__parse_arguments
 # Private macro to parse the leading `<format>`
-# and the trailing `VERBOSE`.
-# Outputs twx.R_VERBOSE, twx.R_EOL
-function ( __twx_summary_parse_arguments )
-# nothing to show if the whole section is hidden
-
-  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "VERBOSE;EOL" "" "" )
-  if ( twx.R_VERBOSE  AND NOT TWX_VERBOSE )
+# and the trailing `VERBOSE|DEBUG|TRACE`.
+# Outputs twx.R_HIDE, twx.R_EOL, twx.R_UNPARSED_ARGUMENTS
+macro ( twx_summary__parse_arguments )
+  # nothing to show if the whole section is hidden
+  cmake_parse_arguments ( twx.R "VERBOSE;DEBUG;TRACE;EOL" "" "" ${ARGV} )
+  twx_message_log_level_index ( STATUS IN_VAR log_level_status_ )
+  set ( log_level_ STATUS )
+  if ( twx.R_VERBOSE )
+    twx_assert_undefined ( twx.R_DEBUG twx.R_TRACE )
+    set ( log_level_ VERBOSE )
+  elseif ( twx.R_DEBUG )
+    twx_assert_undefined ( twx.R_TRACE twx.R_VERBOSE )
+    set ( log_level_ DEBUG )
+  elseif ( twx.R_TRACE )
+    twx_assert_undefined ( twx.R_VERBOSE twx.R_DEBUG )
+    set ( log_level_ TRACE )
+  endif ()
+  twx_message_log_level_index ( ${log_level_} IN_VAR log_level_ )
+  if ( log_level_ GREATER log_level_status_ )
     set ( twx.R_HIDE ON )
   endif ()
-  set ( twx.R_ARGN "${twx.R_UNPARSED_ARGUMENTS}" )
-  if ( NOT "${twx.R_ARGN}" STREQUAL "" )
-    list ( GET twx.R_ARGN 0 twx.R_FORMAT )
-    list ( FIND twx-format "${twx.R_FORMAT}" i )
-    if ( "${_i}" LESS "0" )
-      set ( twx.R_FORMAT )
+  if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
+    list ( GET twx.R_UNPARSED_ARGUMENTS 0 twx.R_FORMAT )
+    if ( twx.R_FORMAT IN_LIST twx-summary-format )
+      list ( REMOVE_AT twx.R_UNPARSED_ARGUMENTS 0 )
     else ()
-      list ( REMOVE_AT twx.R_ARGN 0 )
+      set ( twx.R_FORMAT )
     endif ()
   endif ()
-endfunction ()
+endmacro ()
 
-# ANCHOR: __twx_summary_set_format
-# Private macro to set the format
-# __twx_summary_set_format ( format IN_VAR var )
+# ANCHOR: twx_summary__set_format
+# Private function to set the format
+# twx_summary__set_format ( format IN_VAR var )
 # On return <var> is defined if the format is acceptable
 # undefined otherwise.
-function ( __twx_summary_set_format twx.R_FORMAT .IN_VAR twx.R_IN_VAR )
+function ( twx_summary__set_format twx.R_FORMAT .IN_VAR twx.R_IN_VAR )
   twx_arg_assert_keyword ( .IN_VAR )
   twx_assert_variable_name ( "${twx.R_IN_VAR}" )
-  twx_assert_undefined ( ARGN )
-  list ( FIND twx-format "${twx.R_FORMAT}" i )
-  if ( "${_i}" LESS "0" )
-    unset ( ${twx.R_IN_VAR} PARENT_SCOPE )
+  list ( FIND twx-summary-format "${twx.R_FORMAT}" i )
+  if ( "${i}" LESS "0" )
+    set ( ${twx.R_IN_VAR} PARENT_SCOPE )
   else ()
     set ( ${twx.R_IN_VAR} "${twx.R_FORMAT}" PARENT_SCOPE )
   endif ()
-endfunction ( __twx_summary_set_format )
-
-LEVEL
+endfunction ( twx_summary__set_format )
 
 # ANCHOR: twx_log
 function ( twx_log )
   if ( ${ARGC} EQUAL "0" )
     return ()
   endif ()
-  __twx_summary_set_format ( "${ARG0}" IN_VAR twx.R_FORMAT )
-  set ( i 0 )
-  if ( DEFINED twx.R_FORMAT )
-    set ( i 1 )
-  endif ()
-  cmake_parse_arguments ( PARSE_ARGV ${i} twx.R "VERBOSE;EOL" "" "" )
-  if ( twx.R_VERBOSE  AND NOT TWX_VERBOSE )
-    set ( twx.R_HIDE ON )
-  else ()
-    set ( twx.R_HIDE OFF )
-  endif ()
+  twx_summary__parse_arguments ( ${ARGV} )
   if ( twx.R_HIDE )
     # nothing to print
     message ( "" )
     return ()
   endif ()
-  # Find the level
-  if ( NOT "${twx.R_LEVEL}" GREATER "${TWX_LOG_LEVEL_MAX}" )
-    set ( msg "[TWX]:${twx.R_UNPARSED_ARGUMENTS}" )
-    if ( DEFINED twx.R_FORMAT )
-      twx_log_format ( "${twx.R_FORMAT}" IN_VAR msg TEXT "${twx.R_UNPARSED_ARGUMENTS}" )
-    endif ()
-    message ( "${msg}" )
+  if ( DEFINED twx.R_FORMAT )
+    twx_log_format ( "${twx.R_FORMAT}" TEXT "${twx.R_UNPARSED_ARGUMENTS}" IN_VAR msg_ )
+  else ()
+    set ( msg_ "[TWX]:${twx.R_UNPARSED_ARGUMENTS}" )
   endif ()
+  message ( "${msg_}" )
 endfunction ( twx_log )
-
-BROKEN
-TWX_VERBOSE
 
 # ANCHOR: twx_summary_log
 #[=======[ `twx_summary_log`
-*//**
-@brief Basic logger
-
-Other loggers depend on this one.
-
-@param format is one of the knwon formats, optional
-@param value optional text displayed on the right,
-  with line break management
-@param ... more optional values
-@param `VERBOSE|DEBUG|TRACE` optional message log level.
 */
-twx_summary_log( message value [format] [VERBOSE|DEBUG|TRACE] ) {}
+/**
+  * @brief Basic logger
+  *
+  * Other loggers depend on this one.
+  *
+  * @param format is one of the known formats, optional
+  * @param message, text displayed from the left
+  * @param value optional text displayed on the right,
+  *   with line break management
+  * @param `VERBOSE|DEBUG|TRACE` optional message log level.
+  */
+twx_summary_log([format] message value [VERBOSE|DEBUG|TRACE]) {}
 /*
 #]=======]
-BROKEN twx_summary_log
-function( twx_summary_log )
+function ( twx_summary_log )
+  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
   if ( TWX_SUMMARY_section_hidden_l OR ${ARGC} EQUAL "0" )
     return ()
   endif ()
-  set ( message_ "${ARGV0}" )
-  set ( value_ "${ARGV1}" )
-  __twx_summary_set_format ( "${ARG2}" IN_VAR twx.R_FORMAT )
-  if ( DEFINED twx.R_FORMAT )
-    if ( ${ARGC} EQUAL "4" )
-      set ( twx.R_LEVEL "${ARGV3}" )
-    elseif ( ${ARGC} GREATER "4" ) ()
-      twx_fatal ( "Wrong number of arguments" )
-      return ()
-    endif ()
-  elseif ( ${ARGC} EQUAL "3" )
-    set ( twx.R_LEVEL "${ARGV2}" )
-  elseif ( ${ARGC} GREATER "3" OR ${ARGC} LESS "2" ) ()
-    twx_fatal ( "Wrong number of arguments" )
-    return ()
-  endif ()
+  set ( ARGV${ARGC} )
+  twx_summary__parse_arguments ( ${ARGV} )
+  list ( POP_FRONT twx.R_UNPARSED_ARGUMENTS msg_ value_ )
+  twx_arg_assert_parsed ()
   if ( twx.R_HIDE )
     message( "" )
     return ()
   endif ()
-  set ( message_ "${message_}:" )
-  if ( "${value_}" STREQUAL "" )
-    if ( DEFINED twx.R_FORMAT )
-      twx_log_format( ${twx.R_FORMAT} IN_VAR message_ TEXT "${message_}" )
-    endif ()
-    message ( "${TWX_SUMMARY_indentation}${message_}" )
+  if ( NOT DEFINED value_ )
+    twx_log_format( ${twx.R_FORMAT} IN_VAR msg_ )
+    message ( "${TWX_SUMMARY_indentation}${msg_}" )
     return ()
   endif ()
+  string ( APPEND msg_ ":" )
+  if ( "${value_}" STREQUAL "" )
+  endif ()
   # Hard wrap the remaining material.
-  string ( LENGTH "${message_}" length_what_ )
+  string ( LENGTH "${msg_}" length_what_ )
   string ( LENGTH "${TWX_SUMMARY_indentation}" length_indent )
   math ( EXPR left_char "30 - ${length_what_} - ${length_indent}" )
   set ( blanks_ )
@@ -276,55 +262,51 @@ function( twx_summary_log )
     # string( APPEND blanks_ " " ) in modern cMake
   endforeach ()
   # wrap the value to just more than 80 characters
-  set ( _prefix "${TWX_SUMMARY_indentation}${message_}${blanks_}" )
+  set ( prefix_ "${TWX_SUMMARY_indentation}${msg_}${blanks_}" )
   # This is the prefix for the first line
   # for the next lines obtained by hard wrapping
   # this will be a blank string with the same length.
-  string ( LENGTH "${_prefix}" _length )
-  if ( DEFINED twx.R_FORMAT )
-    twx_log_format( ${twx.R_FORMAT} IN_VAR _prefix TEXT "${_prefix}" )
-  endif ()
+  string ( LENGTH "${prefix_}" length_ )
+  twx_log_format( ${twx.R_FORMAT} IN_VAR prefix_ )
   set ( blanks_ )
-  foreach ( _i RANGE 1 ${_length} )
+  foreach ( _i RANGE 1 ${length_} )
     set ( blanks_ " ${blanks_}" )
     # string( APPEND blanks_ " " ) in modern cMake
   endforeach()
   set ( _lines )
   foreach ( item ${value_} )
-    set ( _line "${_line} ${item}" )
-    string ( LENGTH "${_line}" _length )
-    if    ( "${_length}" GREATER "50" )
-      if ( DEFINED twx.R_FORMAT )
-        twx_log_format( ${twx.R_FORMAT} IN_VAR _line TEXT "${_line}" )
-      endif ()
-      message ( "${_prefix}${_line}" )
-      set ( _prefix "${blanks_}" )
-      # `message_` and `_line` have been consumed,
-      set ( message_ )
-      set ( _line )
+    string ( APPEND line_ " ${item}" )
+    string ( LENGTH "${line_}" length_ )
+    if ( "${length_}" GREATER "50" )
+      twx_log_format( ${twx.R_FORMAT} IN_VAR line_ )
+      message ( "${prefix_}${line_}" )
+      set ( prefix_ "${blanks_}" )
+      # `msg_` and `line_` have been consumed,
+      set ( msg_ )
+      set ( line_ )
     endif ()
   endforeach ()
   # Everything consumed?
-  if ( NOT "${_prefix}" STREQUAL "" OR NOT "${_line}" STREQUAL "" )
-    if ( DEFINED twx.R_FORMAT AND NOT "${_line}" STREQUAL "" )
-      twx_log_format( "${twx.R_FORMAT}" IN_VAR _line TEXT "${_line}" )
+  if ( NOT "${prefix_}" STREQUAL "" OR NOT "${line_}" STREQUAL "" )
+    if ( NOT "${line_}" STREQUAL "" )
+      twx_log_format( ${twx.R_FORMAT} IN_VAR line_ )
     endif ()
-    message ( "${_prefix}${_line}" )
+    message ( "${prefix_}${line_}" )
   endif ()
-endfunction()
+endfunction ( twx_summary_log )
 
 # ANCHOR: twx_summary_log_kv
 #[=======[
-*//**
-@brief .....key:....value lines
-
-@param format one of the known formats, optional
-@param key some label
-@param value is displayed as `yes` or `no` with `FLAG`,
-  variable content with `VAR` and as is otherwise.
-@param `VERBOSE` mode, when unset nothing is displayed except if
-  `TWX_VERBOSE` is set.
 */
+/**
+  * @brief .....key:....value lines
+  *
+  * @param format one of the known formats, optional
+  * @param key some label
+  * @param value is displayed as `yes` or `no` with `FLAG`,
+  *   variable content with `VAR` and as is otherwise.
+  * @param `VERBOSE|DEBUG|TRACE` mode.
+  */
 twx_summary_log_kv ( [format] key [FLAG|VAR] value [VERBOSE|DEBUG|TRACE] ) {}
 /*
 #]=======]
@@ -339,41 +321,44 @@ function( twx_summary_log_kv )
   if ( ${ARGC} LESS "1" )
     return ()
   endif ()
-  __twx_summary_set_format ( "${ARG0}" IN_VAR twx.R_FORMAT )
+  twx_summary__set_format ( "${ARGV0}" IN_VAR twx.R_FORMAT )
   if ( DEFINED twx.R_FORMAT )
     set ( i 1 )
   else ()
     set ( i 0 )
   endif ()
+  set ( key_ "${ARGV${i}}" )
+  math ( EXPR i "${i}+1" )
   cmake_parse_arguments (
-    PARSE_ARG ${i} twx.R
+    PARSE_ARGV "${i}" twx.R
     "VERBOSE;DEBUG;TRACE" "FLAG;VAR" ""
   )
   twx_arg_pass_option ( VERBOSE DEBUG TRACE )
   if ( DEFINED twx.R_UNPARSED_ARGUMENTS )
     twx_assert_undefined ( twx.R_FLAG twx.R_VAR )
-    set ( value "${twx.R_UNPARSED_ARGUMENTS}" )
+    list ( POP_FRONT twx.R_UNPARSED_ARGUMENTS value_ )
+    twx_arg_assert_parsed ()
   elseif ( DEFINED twx.R_FLAG )
     twx_assert_undefined ( twx.R_UNPARSED_ARGUMENTS twx.R_VAR )
-    if ( ${${twx.R_FLAG}} )
-      set ( value "yes" )
+    if ( "${${twx.R_FLAG}}" )
+      set ( value_ "yes" )
     else  ()
-      set ( value "no" )
+      set ( value_ "no" )
     endif ()
   elseif ( DEFINED twx.R_VAR )
-    twx_assert_undefined ( twx.R_FLAG twx.R_UNPARSED_ARGUMENTS )
-    set ( value "${${twx.R_VAR}}" )
+    twx_assert_undefined ( twx.R_UNPARSED_ARGUMENTS twx.R_FLAG )
+    set ( value_ "${${twx.R_VAR}}" )
   else ()
     message( "" )
     return ()
   endif ()
-  twx_summary_log( "${key}" "${value}" ${twx.R_FORMAT} ${twx.R_VERBOSE}  ${twx.R_DEBUG}  ${twx.R_TRACE} )
-endfunction( twx_summary_log_kv )
-BROKEN twx_summary_log
+  twx_summary_log( ${twx.R_FORMAT} "${key_}" "${value_}" ${twx.R_VERBOSE} ${twx.R_DEBUG} ${twx.R_TRACE} )
+endfunction ( twx_summary_log_kv )
+
 # ANCHOR: twx_summary_begin
 #[=======[
 */
-/** @brief begin a new config section
+/** @brief begin a new summary section
   * 
   * Display the title and setup indentation.
   * Must be balanced by a `twx_summary_end()`.
@@ -381,10 +366,10 @@ BROKEN twx_summary_log
   *
   * @param format optional known format
   * @param title required
-  * @param `VERBOSE` optional. When `VERBOSE` is provided, the whole section is hidden
-  * unless `TWX_VERBOSE` is set.
+  * @param `VERBOSE|DEBUG|TRACE` optional, log level.
+  * @param `EOL` optional, instert a new line at the end.
   */
-twx_summary_begin(format title VERBOSE) {}
+twx_summary_begin([format] title [VERBOSE|DEBUG|TRACE]) {}
 /*
 Implementation detail:
 * `TWX_SUMMARY_stack` keeps track of enclosing section.
@@ -396,110 +381,117 @@ Implementation detail:
   the visibility state of the current section
 * `TWX_SUMMARY_indentation` is bigger in embedded sections.
 #]=======]
-set ( TWX_SUMMARY_stack )
 function ( twx_summary_begin )
-  twx_assert_compare ( 1 <= VAR ARGC <= 3 )
-  __twx_summary_set_format ( "${ARG0}" IN_VAR twx.R_FORMAT )
-  if ( DEFINED twx.R_FORMAT )
-    set ( twx.R_TITLE "${ARGV1}" )
-    twx_set_if_defined ( twx.R_LEVEL ARGV2 )
-  else ()
-    set ( twx.R_TITLE "${ARGV0}" )
-    twx_set_if_defined ( twx.R_LEVEL ARGV1 )
-  endif ()
-
-  # Is this section hidden?
-  __twx_summary_parse_arguments ( ${ARGN} )
+  twx_summary__parse_arguments ( ${ARGN} )
+  list ( POP_FRONT twx.R_UNPARSED_ARGUMENTS twx.R_TITLE )
+  twx_arg_assert_parsed ()
   if ( twx.R_HIDE )
     set ( TWX_SUMMARY_section_hidden_l ON )
   endif ()
   if ( TWX_SUMMARY_section_hidden_l )
-    list ( INSERT TWX_SUMMARY_stack 0 "-" )
+    list ( PUSH_FRONT TWX_SUMMARY_stack "-" )
   elseif ( TWX_SUMMARY_stack )
     # Propagate the visibility state: duplicate and insert.
-    list ( GET TWX_SUMMARY_stack 0 _previous )
-    list ( INSERT TWX_SUMMARY_stack 0 "${_previous}" )
+    list ( GET TWX_SUMMARY_stack 0 previous_ )
+    list ( PUSH_FRONT TWX_SUMMARY_stack "${previous_}" )
   else  ()
-    list( INSERT TWX_SUMMARY_stack 0 "+" )
+    list ( PUSH_FRONT TWX_SUMMARY_stack "+" )
   endif ()
   # export the main values
-  twx_export ( TWX_SUMMARY_stack )
-  twx_export ( TWX_SUMMARY_section_hidden_l )
   if ( NOT TWX_SUMMARY_section_hidden_l )
-    set ( msg "${TWX_SUMMARY_indentation}${twx.R_ARGN}" )
-    if ( twx.R_FORMAT )
-      twx_log_format ( "${twx.R_FORMAT}" IN_VAR msg TEXT "${msg}" )
-    endif ()
-    message ( "${msg}" )
+    block ()
+    set ( m "${TWX_SUMMARY_indentation}${twx.R_TITLE}" )
+    twx_log_format ( ${twx.R_FORMAT} IN_VAR m )
+    message ( "${m}" )
+    endblock ()
   endif ()
   # build the indentation from scratch
-  set ( TWX_SUMMARY_indentation )
-  foreach   ( _ IN LISTS TWX_SUMMARY_stack )
-    set ( TWX_SUMMARY_indentation "  ${TWX_SUMMARY_indentation}" )
-  endforeach ()
-  set ( TWX_SUMMARY_indentation "${TWX_SUMMARY_indentation}" PARENT_SCOPE )
+  list ( LENGTH TWX_SUMMARY_stack l )
+  string ( REPEAT "  " ${l} TWX_SUMMARY_indentation )
   if ( twx.R_EOL )
     message ( "" )
   endif ()
+  twx_export (
+    TWX_SUMMARY_indentation
+    TWX_SUMMARY_stack
+    TWX_SUMMARY_section_hidden_l
+  )
 endfunction ()
 
 # ANCHOR: twx_summary_end
 #[=======[
-*//**
-@brief Balance a `twx_summary_begin`
-
-End a config section, setup indentation and associate variables.
-Must balance a previous `twx_summary_begin` in the same scope.
-
-@param `NO_EOL` optional key to remove an extra EOL
 */
-twx_summary_end( NO_EOL ) {}
+/** @brief Balance a `twx_summary_begin`
+  *
+  * End a config section, setup indentation and associate variables.
+  * Must balance a previous `twx_summary_begin` in the same scope.
+  *
+  * @param `NO_EOL` optional key to remove an extra EOL
+  */
+twx_summary_end([NO_EOL]) {}
 /*
 #]=======]
-macro ( twx_summary_end )
-  set ( TWX_break_l ON )
-  if    ( "${ARGN}" STREQUAL "NO_EOL" )
-    set ( TWX_break_l OFF )
+function ( twx_summary_end )
+  if ( NOT TWX_SUMMARY_stack )
+    twx_fatal ( "Missing ``twx_summary_begin()''" )
   endif ()
-  if ( TWX_break_l AND NOT TWX_SUMMARY_section_hidden_l )
+  block ()
+  set ( break_ ON )
+  if ( "${ARGV}" STREQUAL "NO_EOL" )
+    set ( break_ OFF )
+  elseif ( ARGC GREATER 0 )
+    twx_fatal ( "Bad usage: ``${ARGV}''")
+    return ()
+  endif ()
+  if ( break_ AND NOT TWX_SUMMARY_section_hidden_l )
     message( "" )
   endif ()
-  set( TWX_SUMMARY_indentation )
-  if ( TWX_SUMMARY_stack )
-    list( REMOVE_AT TWX_SUMMARY_stack 0 )
-    if    ( TWX_SUMMARY_stack )
-      list( GET TWX_SUMMARY_stack 0 TWX_l )
-      if    ( "${TWX_l}" STREQUAL "-" )
-        set( TWX_SUMMARY_section_hidden_l ON )
-      else  ()
-        set ( TWX_SUMMARY_section_hidden_l OFF )
-      endif ()
-      foreach   ( TWX_l IN LISTS TWX_SUMMARY_stack )
-        set ( TWX_SUMMARY_indentation "  ${TWX_SUMMARY_indentation}" )
-      endforeach()
-      unset ( TWX_l )
+  endblock ()
+  list( POP_FRONT TWX_SUMMARY_stack )
+  if( TWX_SUMMARY_stack )
+    block ( PROPAGATE TWX_SUMMARY_section_hidden_l TWX_SUMMARY_indentation )
+    list( GET TWX_SUMMARY_stack 0 l )
+    if( "${l}" STREQUAL "-" )
+      set( TWX_SUMMARY_section_hidden_l ON )
     else  ()
       set ( TWX_SUMMARY_section_hidden_l OFF )
     endif ()
-    list ( LENGTH TWX_SUMMARY_stack TWX_l )
-    twx_log( ">>> HIDDEN: ${TWX_SUMMARY_section_hidden_l}, DEPTH: ${TWX_l}" LEVEL 1000 )
-    unset ( TWX_l )
-  else ()
-    twx_log( "Unexpected command `twx_summary_end`.\n" )
+    list ( LENGTH TWX_SUMMARY_stack l )
+    string ( REPEAT "  " ${l} TWX_SUMMARY_indentation )
+    endblock ()
+  else  ()
+    set ( TWX_SUMMARY_section_hidden_l OFF )
+    set( TWX_SUMMARY_indentation )
   endif ()
-  unset( TWX_break_l )
-endmacro ( twx_summary_end )
+  block ()
+  list ( LENGTH TWX_SUMMARY_stack l )
+  twx_log( ">>> HIDDEN: ${TWX_SUMMARY_section_hidden_l}, DEPTH: ${l}" TRACE )
+  endblock ()
+  twx_export (
+    TWX_SUMMARY_stack
+    TWX_SUMMARY_indentation
+    TWX_SUMMARY_section_hidden_l
+  )
+endfunction ( twx_summary_end )
 
-# ANCHOR: __twx_summary_common_ancestor
+# ANCHOR: twx_summary__common_ancestor
 # problem if the arguments are not canonical paths
-# @param `VAR_ANCESTOR` to collect the common ancestor
-function ( __twx_summary_common_ancestor )
-  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "VAR_ANCESTOR;VAR_RELATIVE" "" )
-  set ( ${twx.R_VAR_ANCESTOR} )
-  set ( ${twx.R_VAR_RELATIVE} "${twx.R_UNPARSED_ARGUMENTS}" )
-  if ( NOT NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    twx_export ( ${twx.R_VAR_ANCESTOR} )
-    twx_export ( ${twx.R_VAR_RELATIVE} )
+# @param `...` to collect the common ancestor
+# @param `IN_VAR_ANCESTOR` to collect the common ancestor
+# @param `IN_VAR_RELATIVE` to collect the relative paths
+function ( twx_summary__common_ancestor )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "IN_VAR_ANCESTOR;IN_VAR_RELATIVE" ""
+  )
+  twx_assert_variable_name (
+    "${twx.R_IN_VAR_ANCESTOR}"
+    "${twx.R_IN_VAR_RELATIVE}"
+  )
+  set ( ${twx.R_IN_VAR_ANCESTOR} )
+  if ( "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
+    twx_export ( ${twx.R_IN_VAR_ANCESTOR} )
+    twx_export ( ${twx.R_IN_VAR_RELATIVE} UNSET )
     return ()
   endif ()
   list ( GET twx.R_UNPARSED_ARGUMENTS 0 ref_ )
@@ -507,39 +499,39 @@ function ( __twx_summary_common_ancestor )
     set ( common_ "${CMAKE_MATCH_1}" )
     set ( ref_ "${CMAKE_MATCH_2}" )
     set ( new_ )
-    foreach ( x_ ${${twx.R_VAR_RELATIVE}} )
-      if ( "${x_}" MATCHES "^${common_}(.+)$" )
+    foreach ( full_ ${twx.R_UNPARSED_ARGUMENTS} )
+      if ( "${full_}" MATCHES "^${common_}(.+)$" )
         list ( APPEND new_ "${CMAKE_MATCH_1}" )
       else ()
         twx_export (
-          ${twx.R_VAR_RELATIVE}
-          ${twx.R_VAR_ANCESTOR}
+          ${twx.R_IN_VAR_RELATIVE}
+          ${twx.R_IN_VAR_ANCESTOR}
         )
         return ()
       endif ()
-    endforeach ( x_ )
-    set ( ${twx.R_VAR_ANCESTOR} "${${twx.R_VAR_ANCESTOR}}${common_}" )
-    set ( ${twx.R_VAR_RELATIVE} "${new_}" )
+    endforeach ( full_ )
+    set ( ${twx.R_IN_VAR_ANCESTOR} "${${twx.R_VAR_ANCESTOR}}${common_}" )
+    set ( ${twx.R_IN_VAR_RELATIVE} "${new_}" )
   endwhile ()
   twx_export (
-    ${twx.R_VAR_RELATIVE}
-    ${twx.R_VAR_ANCESTOR}
+    ${twx.R_IN_VAR_RELATIVE}
+    ${twx.R_IN_VAR_ANCESTOR}
   )
-endfunction ( __twx_summary_common_ancestor )
+endfunction ( twx_summary__common_ancestor )
 
 # SECTION: sections
 # ANCHOR: twx_summary_section_compiler
 #[=======[
 */
-/** @brief Log target compiler info
+/** @brief Log compiler info
   *
-  * @param ... are target names.
   */
-twx_summary_section_compiler( target ) {}
+twx_summary_section_compiler() {}
 /*
 #]=======]
 function ( twx_summary_section_compiler )
-  twx_summary_begin ( BOLD_MAGENTA "Compiler" ${twx.R_VERBOSE} )
+  twx_assert_parsed ()
+  twx_summary_begin ( BOLD_MAGENTA "Compiler" VERBOSE )
   twx_summary_log_kv ( "ID" ${CMAKE_CXX_COMPILER_ID})
   twx_summary_log_kv ( "Version" ${CMAKE_CXX_COMPILER_VERSION})
   if ( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "" )
@@ -559,8 +551,11 @@ twx_summary_section_build_settings( target ) {}
 /*
 #]=======]
 function ( twx_summary_section_build_settings )
-  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "VERBOSE" "" "" )
-  twx_arg_pass_option ( VERBOSE )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "VERBOSE;DEBUG;TRACE" "" ""
+  )
+  twx_arg_pass_option ( VERBOSE DEBUG TRACE )
   foreach ( target_ ${twx.R_UNPARSED_ARGUMENTS} )
     if ( NOT TARGET ${target_} )
       string ( PREPEND target_ "Twx" )
@@ -581,7 +576,7 @@ function ( twx_summary_section_build_settings )
     AND "${INCLUDE_DIRECTORIES_}" MATCHES "NOTFOUND")
       continue ()
     endif ()
-    twx_summary_begin ( BOLD_BLUE "${target_} build settings" ${twx.R_VERBOSE} )
+    twx_summary_begin ( BOLD_BLUE "${target_} build settings" ${twx.R_VERBOSE} ${twx.R_DEBUG} ${twx.R_TRACE} )
     if ( NOT "${COMPILE_OPTIONS_}" MATCHES "NOTFOUND" )
       # TODO: include the test in twx_summary_log_kv
       twx_summary_log_kv ( "Compile options" VAR COMPILE_OPTIONS_ )
@@ -599,9 +594,9 @@ function ( twx_summary_section_build_settings )
           MODULE ${target_} ${${target_}_MODULES}
         )
       else ()
-        __twx_summary_common_ancestor (
-          VAR_ANCESTOR dir_
-          VAR_RELATIVE rel_
+        twx_summary__common_ancestor (
+          IN_VAR_ANCESTOR dir_
+          IN_VAR_RELATIVE rel_
           ${INCLUDE_DIRECTORIES_}
         )
         if ( NOT "${dir_}" STREQUAL "" )
@@ -628,8 +623,11 @@ twx_summary_section_libraries( target ... ) {}
 /*
 #]=======]
 function ( twx_summary_section_libraries )
-  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "VERBOSE" "" "" )
-  twx_arg_pass_option ( VERBOSE )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "VERBOSE;DEBUG;TRACE" "" ""
+  )
+  twx_arg_pass_option ( VERBOSE DEBUG TRACE )
   foreach ( target_ ${twx.R_UNPARSED_ARGUMENTS} )
     if ( NOT TARGET ${target_} )
       string ( PREPEND target_ "Twx" )
@@ -686,8 +684,11 @@ twx_summary_section_directories() {}
 /*
 #]=======]
 function ( twx_summary_section_directories )
-  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "VERBOSE" "" "" )
-  twx_arg_pass_option ( VERBOSE )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "VERBOSE;DEBUG;TRACE" "" ""
+  )
+  twx_arg_pass_option ( VERBOSE DEBUG TRACE )
   foreach ( target_ ${twx.R_UNPARSED_ARGUMENTS} )
     if ( NOT TARGET "${target_}" )
       string ( PREPEND target_ "Twx" )
@@ -696,7 +697,7 @@ function ( twx_summary_section_directories )
         continue( )
       endif ()
     endif ()
-    twx_summary_begin ( BOLD_BLUE "${target_} directories" VERBOSE ${twx.R_VERBOSE} )
+    twx_summary_begin ( BOLD_BLUE "${target_} directories" ${twx.R_VERBOSE} ${twx.R_DEBUG} ${twx.R_TRACE} )
     twx_summary_log_kv ( "root"   VAR TWX_DIR )
     twx_summary_log_kv ( "source" VAR CMAKE_SOURCE_DIR )
     twx_summary_log_kv ( "binary" VAR CMAKE_BINARY_DIR )
@@ -716,8 +717,11 @@ twx_summary_section_files( target ) {}
 /*
 #]=======]
 function ( twx_summary_section_files )
-  cmake_parse_arguments ( PARSE_ARGV 0 twx.R "VERBOSE" "" "" )
-  twx_arg_pass_option ( VERBOSE )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "VERBOSE;DEBUG;TRACE" "" ""
+  )
+  twx_arg_pass_option ( VERBOSE DEBUG TRACE )
   foreach ( target_ ${twx.R_UNPARSED_ARGUMENTS} )
     if ( NOT TARGET "${target_}" )
       string ( PREPEND target_ "Twx" )
@@ -748,20 +752,20 @@ function ( twx_summary_section_files )
     set ( built_ )
     set ( raw_ )
     foreach ( f_ ${files_} )
-      if ( "${f_}" MATCHES "/TwxBuild/" )
+      if ( f_ MATCHES "/TwxBuild/" )
         list ( APPEND built_ "${f_}" )
       else ()
         list ( APPEND raw_ "${f_}" )
       endif ()
     endforeach ()
-    __twx_summary_common_ancestor (
-      VAR_ANCESTOR built_dir_
-      VAR_RELATIVE built_rel_
+    twx_summary__common_ancestor (
+      IN_VAR_ANCESTOR built_dir_
+      IN_VAR_RELATIVE built_rel_
       ${built_}
     )
-    __twx_summary_common_ancestor (
-      VAR_ANCESTOR raw_dir_
-      VAR_RELATIVE raw_rel_
+    twx_summary__common_ancestor (
+      IN_VAR_ANCESTOR raw_dir_
+      IN_VAR_RELATIVE raw_rel_
       ${raw_}
     )
     set ( Private_ )
@@ -772,9 +776,9 @@ function ( twx_summary_section_files )
       get_filename_component ( n_ "${f_}" NAME )
       if ( "${n_}" MATCHES "_private" )
         list ( APPEND Private_ "${n_}" )
-      elseif ( "${n_}" MATCHES "[.](c|m)" )
+      elseif ( "${n_}" MATCHES "[.](c|m)[^.]$" )
         list ( APPEND SOURCES_ "${n_}" )
-      elseif ( "${n_}" MATCHES "[.]h" )
+      elseif ( "${n_}" MATCHES "[.]h[^.]$" )
         list ( APPEND HEADERS_ "${n_}" )
       else ()
         list ( APPEND Other_ "${n_}" )
@@ -811,7 +815,6 @@ twx_summary_section_git() {}
 /*
 #]=======]
 function ( twx_summary_section_git )
-  set ( CMAKE_MESSAGE_LOG_LEVEL NOTICE )
   include ( TwxCfgLib )
   twx_cfg_setup ()
   twx_cfg_update_git ()
@@ -821,5 +824,7 @@ function ( twx_summary_section_git )
   twx_summary_log ( "Branch"  "${TWX_CFG_GIT_BRANCH}" )
   twx_summary_end ()
 endfunction ()
+
+twx_lib_did_load ()
 
 #*/

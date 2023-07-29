@@ -130,5 +130,6 @@ function ( twx_translation_make_qrc outfile )
       "${outfile}"
     COMMAND ${CMAKE_COMMAND} -E remove
       "${outfile}(busy)"
+    COMMAND_ERROR_IS_FATAL ANY
   )
 endfunction(twx_translation_make_qrc)

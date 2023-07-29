@@ -35,9 +35,12 @@ if ( NOT DEFINED TWX_IS_BASED )
     NO_POLICY_SCOPE
   )
 endif ()
+
 twx_state_deserialize ()
 
-twx_message ( VERBOSE "TwxCfg_git:" DEEPER )
+twx_message ( VERBOSE "TwxCfgGitScript:" )
+
+list ( APPEND CMAKE_MESSAGE_CONTEXT "TwxCfgGitScript" )
 
 include ( TwxCfgLib )
 
@@ -53,6 +56,7 @@ set ( new_BRANCH "${Unavailable}" )
 
 # Try to run git to obtain the last commit hash, date and branch
 find_package ( Git QUIET )
+
 if ( GIT_FOUND )
   execute_process (
     COMMAND "${GIT_EXECUTABLE}"
@@ -61,6 +65,7 @@ if ( GIT_FOUND )
     RESULT_VARIABLE result_HASH
     OUTPUT_VARIABLE new_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE
+    COMMAND_ERROR_IS_FATAL ANY
   )
 #[=======[
 In theory, `set( ENV{TZ} UTC0 )` followed by
@@ -76,6 +81,7 @@ Would show the date and time UTC.
     RESULT_VARIABLE result_DATE
     OUTPUT_VARIABLE new_DATE
     OUTPUT_STRIP_TRAILING_WHITESPACE
+    COMMAND_ERROR_IS_FATAL ANY
   )
   execute_process (
     COMMAND "${GIT_EXECUTABLE}"
@@ -84,6 +90,7 @@ Would show the date and time UTC.
     RESULT_VARIABLE result_BRANCH
     OUTPUT_VARIABLE new_BRANCH
     OUTPUT_STRIP_TRAILING_WHITESPACE
+    COMMAND_ERROR_IS_FATAL ANY
   )
   if (  "${result_HASH}"   EQUAL "0" AND
         "${result_DATE}"   EQUAL "0" AND
@@ -97,6 +104,7 @@ Would show the date and time UTC.
         "--git-dir=.git" "diff" "--ignore-cr-at-eol" "--quiet" "HEAD"
       WORKING_DIRECTORY "${TWX_DIR}"
       RESULT_VARIABLE MODIFIED_RESULT_twx
+      COMMAND_ERROR_IS_FATAL ANY
     )
     if ( "${MODIFIED_RESULT_twx}" EQUAL "1" )
       set( new_HASH "${new_HASH}*")
@@ -107,18 +115,18 @@ endif ( GIT_FOUND )
 if ( TWX_TEST )
   twx_cfg_write_begin ( ID "git" )
   foreach (key_ HASH BRANCH)
-    twx_cfg_set ( GIT_${key_} "TEST(${key_}):${new_${key_}}" )
+    twx_cfg_set ( "GIT_${key_}=TEST(${key_}):${new_${key_}}" )
   endforeach ()
-  twx_cfg_set ( GIT_DATE "1978-07-06T05:04:03+02:01" )
-  twx_cfg_set ( GIT_OK ${TWX_CPP_TRUTHY_CFG} )
+  twx_cfg_set ( GIT_DATE=1978-07-06T05:04:03+02:01 )
+  twx_cfg_set ( GIT_OK=${TWX_CPP_TRUTHY_CFG} )
   twx_cfg_write_end ()
   twx_message ( DEBUG "TwxCfg_git: Git commit info updated (TEST)" )
 else ()
   twx_cfg_write_begin ( ID "git" )
   foreach ( key_ HASH DATE BRANCH OK )
-    twx_cfg_set ( GIT_${key_} "${new_${key_}}" )
+    twx_cfg_set ( "GIT_${key_}=${new_${key_}}" )
   endforeach ()
-  twx_cfg_write_end ( ID "git" )
+  twx_cfg_write_end ()
   twx_message ( DEBUG "TwxCfg_git: Git commit info updated" )
 endif ()
 

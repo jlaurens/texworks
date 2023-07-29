@@ -120,6 +120,7 @@ function ( twx_manual_prepare )
     execute_process (
       COMMAND unzip "${twx.R_ARCHIVE}"
       WORKING_DIRECTORY "${twx.R_BASE}"
+      COMMAND_ERROR_IS_FATAL ANY
     )
   else ()
     message (
@@ -149,6 +150,7 @@ function ( twx_manual_process )
       "-DTWX_SHA256=${TWX_MANUAL_SHA256}"
       "${-DTWX_STATE}"
       -P "${TwxManualScript.cmake}"
+    COMMAND_ERROR_IS_FATAL ANY
   )
 endfunction ()
 #*/

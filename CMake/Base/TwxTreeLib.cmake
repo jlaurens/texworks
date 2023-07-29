@@ -51,24 +51,25 @@ set ( TWX_TREE_HEADER "${TWX_TREE_MARK}TwxTree${TWX_TREE_START}" )
 # ANCHOR: twx_tree_assert
 #[=======[
 */
-/** @brief Raises when the argument is not a tree
+/** @brief Raises when the argument is not a tree name
   *
-  * @param tree is an optional tree name that defaults to `TWX_TREE`.
+  * @param tree is an optional variable name that defaults to `TWX_TREE`.
   */
 twx_tree_assert([tree]) {}
 /*
 #]=======]
 function ( twx_tree_assert )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_assert )
+  # Argument can be a variable name: avoid collision
   if ( ${ARGC} EQUAL 0 )
-    set ( tree_ "TWX_TREE" )
+    set ( twx_tree_assert.x "TWX_TREE" )
   else ()
-    set ( tree_ "${ARGV0}" )
+    set ( twx_tree_assert.x "${ARGV0}" )
     twx_arg_assert_count ( ${ARGC} == 1 )
   endif ()
-  twx_assert_defined ( "${tree_}" )
-  if ( NOT "${${tree_}}" MATCHES "^${TWX_TREE_HEADER}" )
-    twx_fatal ( "Not a tree ${tree_} (=> ``${${tree_}}'')" )
+  twx_assert_defined ( "${twx_tree_assert.x}" )
+  if ( NOT "${${twx_tree_assert.x}}" MATCHES "^${TWX_TREE_HEADER}" )
+    twx_fatal ( "Not a tree ${twx_tree_assert.x} (=> ``${${twx_tree_assert.x}}'')" )
     return ()
   endif ()
 endfunction ()
@@ -88,16 +89,17 @@ twx_tree_init([tree]) {}
 #]=======]
 function ( twx_tree_init )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_init )
+  # Argument can be a variable name: avoid collision
   if ( ${ARGC} EQUAL 0 )
-    set ( tree_ TWX_TREE )
+    set ( twx_tree_init.x TWX_TREE )
   else ()
     twx_arg_assert_count ( ${ARGC} == 1 )
-    set ( tree_ "${ARGV0}" )    
+    set ( twx_tree_init.x "${ARGV0}" )    
   endif ()
-  twx_assert_variable_name ( "${tree_}" )
+  twx_assert_variable_name ( "${twx_tree_init.x}" )
   twx_export (
-    "${tree_}=${TWX_TREE_HEADER}"
-    "TWX_IS_TREE_${tree_}=ON"
+    "${twx_tree_init.x}=${TWX_TREE_HEADER}"
+    "TWX_IS_TREE_${twx_tree_init.x}=ON"
   )
 endfunction ()
 
@@ -128,7 +130,7 @@ set (
 */
 /** @brief Raise if one argument is not a suitable key name
   *
-  * Actually a key is just a variable name, but it may chnage in the future.
+  * Actually a key is just a variable name, but this may change in the future.
   * @param ... non empty list of candidates.
   */
 twx_tree_assert_key(key ...) {}

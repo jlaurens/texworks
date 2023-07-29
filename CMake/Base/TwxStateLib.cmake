@@ -109,7 +109,7 @@ endfunction ()
 twx_state_serialize([IN_VAR var]) {}
 /*#]=======]
 function ( twx_state_serialize )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_state_serialize )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_state_serialize" )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "" "IN_VAR" ""
@@ -120,7 +120,7 @@ function ( twx_state_serialize )
   foreach ( k_ ${TWX_STATE_KEYS} )
     twx_tree_set ( TREE state_ "${k_}=${${k_}}" )
   endforeach ()
-  string ( REPLACE ";" "${TWX_STATE_PLACEHOLDER_SEMI_COLON}" state_ "${state_}" )
+  # string ( REPLACE ";" "${TWX_STATE_PLACEHOLDER_SEMI_COLON}" state_ "${state_}" )
   if ( DEFINED twx.R_IN_VAR )
     set ( ${twx.R_IN_VAR} "${state_}" PARENT_SCOPE )
   endif ()
@@ -134,29 +134,32 @@ endfunction ()
   * To forward the current state to CMake `-P` commands.
   * Deserialize the `TWX_STATE` variable into the current state.
   * See the balancing `twx_state_serialize ()`.
-  * @param state, optional string modelling the state.
-  * Defaults to the contents of the `TWX_STATE` variable.
+  * @param state, optional name of a variable modelling the state.
+  *   Defaults to `TWX_STATE`.
   */
 twx_state_deserialize([state]) {}
 /*#]=======]
 macro ( twx_state_deserialize )
   list ( APPEND CMAKE_MESSAGE_CONTEXT twx_state_deserialize )
+  # Argument may be a variable name: avoid collision
   if ( ${ARGC} EQUAL "1" )
-    set ( twx_state_deserialize.name "${ARGV0}" )
+    set ( twx_state_deserialize.x "${ARGV0}" )
   else ()
     twx_arg_assert_count ( ${ARGC} == 0 )
-    set ( twx_state_deserialize.name "TWX_STATE" )
+    set ( twx_state_deserialize.x "TWX_STATE" )
   endif ()
   # message ( TR@CE "WILL DESERIALIZE" )
-  string ( REPLACE "${TWX_STATE_PLACEHOLDER_SEMI_COLON}" ";" state_ "${state_}" )
-  twx_tree_expose ( TREE "${twx_state_deserialize.name}" )
-  set ( twx_state_deserialize.name )
+  # string ( REPLACE "${TWX_STATE_PLACEHOLDER_SEMI_COLON}" ";" twx_state_deserialize.x "${${twx_state_deserialize.x}}" )
+  twx_tree_assert ( "${twx_state_deserialize.x}" )
+  twx_tree_expose ( TREE "${twx_state_deserialize.x}" )
+  set ( twx_state_deserialize.x )
   list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
 endmacro ()
 
 twx_lib_require ( "Core" "Tree" "Hook" "Arg" )
 
 twx_state_key_add (
+  TWX_TEST_DOMAIN_NAME
   TWX_TEST_SUITE_LIST
   TWX_TEST_UNIT_NAME
   CMAKE_MESSAGE_INDENT

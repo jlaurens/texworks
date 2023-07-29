@@ -41,8 +41,6 @@ include_guard ( GLOBAL )
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMetaLib.cmake" )
 
-twx_lib_will_load ()
-
 # ANCHOR: twx_test_during
 #[=======[
 */
@@ -138,10 +136,7 @@ function ( twx_test_during )
   endif ()
 endfunction ( twx_test_during )
 
-if ( CMAKE_SCRIPT_MODE_FILE )
-  message ( DEBUG "No testing library in script mode" )
-  return ()
-endif ()
+twx_lib_will_load ( NO_SCRIPT )
 
 add_custom_target (
   TwxTestLib.cmake
@@ -492,7 +487,11 @@ twx_test_unit_will_begin ([NAME name] [ID id]) {}
 #]=======]
 macro ( twx_test_unit_will_begin )
   # API guards
-  cmake_parse_arguments ( twx_test_unit_will_begin.R "" "NAME;ID" "" ${ARGV} )
+  cmake_parse_arguments (
+    twx_test_unit_will_begin.R
+    "" "NAME;ID" ""
+    ${ARGV}
+  )
   if ( NOT "${twx_test_unit_will_begin.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
     message ( FATAL_ERROR "Unexpected arguments ``${twx_test_unit_will_begin.R_UNPARSED_ARGUMENTS}''" )
   endif ()
@@ -500,12 +499,16 @@ macro ( twx_test_unit_will_begin )
   string ( TOLOWER "${TWX_TEST_SUITE_CORE_NAME}" twx_test_unit_will_begin.CORE )
   if ( "${twx_test_unit_will_begin.R_NAME}" STREQUAL "" )
     if ( "${twx_test_unit_will_begin.R_ID}" STREQUAL "" )
-      message ( FATAL_ERROR "Missing NAME or ID" )
+      set (
+        twx_test_unit_will_begin.R_NAME
+        twx_${twx_test_unit_will_begin.CORE}
+      )
+    else ()
+      set (
+        twx_test_unit_will_begin.R_NAME
+        twx_${twx_test_unit_will_begin.CORE}_${twx_test_unit_will_begin.R_ID}
+      )
     endif ()
-    set (
-      twx_test_unit_will_begin.R_NAME
-      twx_${twx_test_unit_will_begin.CORE}_${twx_test_unit_will_begin.R_ID}
-    )
   elseif ( "${twx_test_unit_will_begin.R_ID}" STREQUAL "" )
     if ( TWX_TEST_UNIT_NAME MATCHES "^twx_${twx_test_unit_will_begin.CORE}_(.*)$" )
       set ( twx_test_unit_will_begin.R_ID "${CMAKE_MATCH_1}" )

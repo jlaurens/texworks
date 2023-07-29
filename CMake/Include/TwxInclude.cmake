@@ -27,6 +27,7 @@ include (
 twx_state_key_add (
   CMAKE_SOURCE_DIR
   CMAKE_BINARY_DIR
+  TWX_FACTORY_INI
 )
 
 twx_cfg_ini_required_key_add (
@@ -193,6 +194,11 @@ endif ()
 twx_lib_require (
   Warning
   Unit
+  Doxydoc
+  # Summary
+  # Target
+  # Module
+  # CfgFile
 )
 
 twx_message ( VERBOSE

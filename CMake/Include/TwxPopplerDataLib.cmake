@@ -131,6 +131,7 @@ function ( twx_poppler_data_process )
       "-DTWX_SHA256=${TWX_POPPLER_DATA_SHA256}"
       "${-DTWX_STATE}"
       -P "${TwxPopplerDataScript.cmake}"
+    COMMAND_ERROR_IS_FATAL ANY
   )
 endfunction ()
 

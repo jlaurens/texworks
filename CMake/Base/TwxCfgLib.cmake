@@ -79,6 +79,7 @@ twx_cfg_path ( ID id IN_VAR var [STAMPED] ) {}
 /*
 #]=======]
 function ( twx_cfg_path .ID .id .IN_VAR .var )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_path" )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "STAMPED" "ID;IN_VAR" ""
@@ -166,6 +167,7 @@ twx_cfg_register_hooked (...) {}
 /*
 #]=======]
 function ( twx_cfg_register_hooked .k )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_register_hooked" )
   twx_hook_register ( ID TwxCfgLib ${ARGV} )
   twx_hook_export ()
 endfunction ()
@@ -177,10 +179,11 @@ endfunction ()
   *
   * Launch the `TwxCfgFactoryScript.cmake` command.
   */
-twx_cfg_update_factory ( ) {}
+twx_cfg_update_factory() {}
 /*
 #]=======]
 macro ( twx_cfg_update_factory )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_update_factory" )
   twx_message ( VERBOSE
     "twx_cfg_update_factory: ${TWX_FACTORY_INI}"
   )
@@ -194,10 +197,12 @@ macro ( twx_cfg_update_factory )
       "${-DTWX_STATE}"
       -P "${TWX_DIR}CMake/Script/TwxCfgFactoryScript.cmake"
     RESULT_VARIABLE twx_cfg_update_factory.result
+    COMMAND_ERROR_IS_FATAL ANY
   )
   twx_assert_0 ( "${twx_cfg_update_factory.result}" )
-  unset ( twx_cfg_update_factory.result )
+  set ( twx_cfg_update_factory.result )
   twx_cfg_read ( "factory" )
+  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
 endmacro ()
 
 # ANCHOR: `twx_cfg_update_git`
@@ -208,14 +213,17 @@ twx_cfg_update_git ( ) {}
 /*
 #]=======]
 macro ( twx_cfg_update_git )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_update_git" )
   twx_state_serialize ()
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
       "${-DTWX_STATE}"
       -P "${TWX_DIR}CMake/Script/TwxCfgGitScript.cmake"
+    COMMAND_ERROR_IS_FATAL ANY
   )
   twx_cfg_read ( "git" )
+  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
 endmacro ()
 
 # ANCHOR: Utility `twx_cfg_target`
@@ -231,6 +239,7 @@ twx_cfg_target ( ID id IN_VAR var ) {}
 /*
 #]=======]
 function ( twx_cfg_target )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_target" )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID;IN_VAR" "" )
   twx_arg_assert_parsed ()
   twx_assert_non_void ( twx.R_ID )
@@ -299,7 +308,7 @@ function ( twx_cfg_setup )
     set ( target_twx "TwxCfg_${PROJECT_NAME}" )
   endif ()
   twx_message ( VERBOSE
-    "twx_cfg_setup target: ${target_twx}"
+    "twx_cfg_setup target: ``${target_twx}''"
     DEEPER
   )
   twx_message ( VERBOSE
@@ -318,40 +327,38 @@ function ( twx_cfg_setup )
     PROPERTY CMAKE_CONFIGURE_DEPENDS
     ${TWX_FACTORY_INI}
   )
-  if ( COMMAND add_custom_command )
-    twx_cfg_path ( ID "factory" IN_VAR path_factory_twx )
-    twx_state_serialize ()
-    add_custom_command (
-      OUTPUT ${path_factory_twx}
-      COMMAND "${CMAKE_COMMAND}"
-        "-DTWX_NAME=${TWX_NAME}"
-        "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
-        "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-        "${-DTWX_STATE}"
-        -P "${TWX_DIR}CMake/Script/TwxCfgFactoryScript.cmake"
-      DEPENDS
-        ${TWX_FACTORY_INI}
-      COMMENT
-        "Update factory Cfg information"
-    )
-    twx_cfg_path ( ID "git" IN_VAR path_git_twx )
-    twx_state_serialize ()
-    add_custom_command (
-      OUTPUT ${path_git_twx}
-      COMMAND "${CMAKE_COMMAND}"
-        "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
-        "${-DTWX_STATE}"
-        -P "${TWX_DIR}CMake/Script/TwxCfgGitScript.cmake"
-      DEPENDS
-        ${path_factory_twx}
-      COMMENT
-        "Update git Cfg information"
-    )
-    add_custom_target (
-      "${target_twx}" ALL
-      DEPENDS ${path_git_twx}
-    )
-  endif ()
+  twx_cfg_path ( ID "factory" IN_VAR path_factory_twx )
+  twx_state_serialize ()
+  add_custom_command (
+    OUTPUT ${path_factory_twx}
+    COMMAND "${CMAKE_COMMAND}"
+      "-DTWX_NAME=${TWX_NAME}"
+      "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
+      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+      "${-DTWX_STATE}"
+      -P "${TWX_DIR}CMake/Script/TwxCfgFactoryScript.cmake"
+    DEPENDS
+      ${TWX_FACTORY_INI}
+    COMMENT
+      "Update factory Cfg information"
+  )
+  twx_cfg_path ( ID "git" IN_VAR path_git_twx )
+  twx_state_serialize ()
+  add_custom_command (
+    OUTPUT ${path_git_twx}
+    COMMAND "${CMAKE_COMMAND}"
+      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+      "${-DTWX_STATE}"
+      -P "${TWX_DIR}CMake/Script/TwxCfgGitScript.cmake"
+    DEPENDS
+      ${path_factory_twx}
+    COMMENT
+      "Update git Cfg information"
+  )
+  add_custom_target (
+    "${target_twx}" ALL
+    DEPENDS ${path_git_twx}
+  )
   twx_cfg_update_factory ()
   twx_cfg_update_git ()
   twx_export ( TWX_FACTORY_INI TWX_CFG_INI_DIR )
@@ -483,29 +490,31 @@ function ( twx_cfg_write_end )
   # and find the largest key for pretty printing
   set ( length_ 0 )
   set ( keys_ )
-  message ( TRACE "TwxCfg_kv.${twx.R_ID} => ``${TwxCfg_kv.${twx.R_ID}}''" )
+  message ( DEBUG "TwxCfg_kv.${twx.R_ID} => ``${TwxCfg_kv.${twx.R_ID}}''" )
   foreach ( kv ${TwxCfg_kv.${twx.R_ID}} )
     string ( REPLACE "${TWX_CFG_SEMICOLON_PLACEHOLDER}" ";" kv "${kv}" )
-    twx_split_assign ( "${kv}" IN_KEY k IN_VALUE v )
-    twx_assert_defined ( k )
-    string ( LENGTH "${k}" l )
+    twx_split_assign ( kv )
+    twx_assert_defined ( kv.key )
+    string ( LENGTH "${kv.key}" l )
     if ( "${l}" GREATER "${length_}" )
       set ( length_ "${l}" )
     endif ()
-    list ( APPEND keys_ "${k}" )
-    set ( "${k}_value" "${v}" )
+    list ( APPEND keys_ "${kv.key}" )
+    set ( "${kv.key}_value" "${kv.value}" )
   endforeach ()
   # Set the contents
+  block ( PROPAGATE contents_ )
   foreach ( key_ ${keys_} )
     string ( LENGTH "${key_}" l )
-    math ( EXPR l "${length_}-${l}" )
-    if ( "${l}" GREATER "0" )
-      foreach (i RANGE 1 ${l} )
-        string ( APPEND key_ " " )
-      endforeach ()
+    if ( length_ GREATER l )
+      math ( EXPR l "${length_}-${l}" )
+      string ( REPEAT " " ${l} padding_ )
+    else ()
+      set ( padding_ )
     endif ()
-    string ( APPEND contents_ "${key_} = ${${key_}_value}\n" )
+    string ( APPEND contents_ "${key_}${padding_} = ${${key_}_value}\n" )
   endforeach ()
+  endblock ()
   # write the file
   twx_message ( VERBOSE "twx_cfg_write_end:" DEEPER )
   twx_message ( VERBOSE "Writing ${path_}" )
@@ -520,6 +529,7 @@ function ( twx_cfg_write_end )
       "${path_}(busy)"
       "${path_}"
     RESULT_VARIABLE ans_twx
+    COMMAND_ERROR_IS_FATAL ANY
   )
   if ( NOT "${ans_twx}" EQUAL "0" )
     twx_message ( WARNING "copy_if_different: ans_twx => ${ans_twx}" )
@@ -532,6 +542,7 @@ function ( twx_cfg_write_end )
     COMMAND ${CMAKE_COMMAND} -E remove
       "${path_}(busy)"
     RESULT_VARIABLE ans_twx
+    COMMAND_ERROR_IS_FATAL ANY
   )
   unset ( TwxCfg_kv.${twx.R_ID} PARENT_SCOPE )
   # Now we can start another write sequence in the parent scope
@@ -561,12 +572,12 @@ twx_cfg_read ( ... [QUIET] [ONLY_CONFIGURE]) {}
 /*
 #]=======]
 function ( twx_cfg_read )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_read" )
   set ( TWX_CFG_READ_FAILED OFF )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "QUIET;ONLY_CONFIGURE;NO_PRIVATE" "" ""
   )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_read" )
   # core ids or absolute paths: mixed
   set ( cfg_ini_mixed_ "${twx.R_UNPARSED_ARGUMENTS}" )
   if ( "${cfg_ini_mixed_}" STREQUAL "" )
@@ -622,7 +633,6 @@ function ( twx_cfg_read )
     list ( APPEND cfg_ini_ordered_ ${older_} )
   endwhile ()
   # Parse the files
-  twx_message ( DEBUG "twx_cfg_read:" DEEPER )
   foreach ( name_ ${cfg_ini_ordered_} )
     twx_message ( DEBUG "Reading: ${name_}" )
     file (

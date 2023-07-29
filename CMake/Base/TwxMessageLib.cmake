@@ -30,6 +30,30 @@ set (
     TRACE
 )
 
+# ANCHOR: twx_message_log_level_index
+#[=======[*/
+/** @brief Return the log level index.
+  *
+  * FATAL_ERROR has lower index, TRACE has higher index.
+  *
+  * @param level, a known level name, raises when not recognized
+  * @param var for key `IN_VAR`, will hold the result.
+  */
+twx_message_log_level_index( level IN_VAR var ) {}
+/*#]=======]
+function ( twx_message_log_level_index twx.R_LEVEL .IN_VAR twx.R_VAR )
+  twx_arg_assert_keyword ( .IN_VAR )
+  twx_assert_variable_name ( "${twx.R_VAR}" )
+  if ( twx.R_LEVEL STREQUAL "" )
+    set ( twx.R_LEVEL NOTICE )
+  endif ()
+  list ( FIND TWX_MESSAGE_LOG_LEVELS "${twx.R_LEVEL}" ${twx.R_VAR} )
+  if ( ${twx.R_VAR} LESS 0 )
+    set ( ${twx.R_VAR} )
+  endif ()
+  twx_export ( ${twx.R_VAR} )
+endfunction ()
+
 # ANCHOR: twx_message_log_level_order
 #[=======[*/
 /** @brief Order log levels.
@@ -272,10 +296,10 @@ function ( twx_message )
     unset ( mode_ )
   endif ()
   set ( m )
-  unset ( twx.R_IN_VAR )
+  set ( twx.R_IN_VAR )
   set ( twx.R_DEEPER OFF )
   set ( twx.R_NO_SHORT OFF )
-  unset ( ARGV${ARGC} )
+  set ( ARGV${ARGC} )
   while ( TRUE )
     if ( "${i}" GREATER_EQUAL ${ARGC} )
       break()

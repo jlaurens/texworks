@@ -39,6 +39,8 @@ See https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
+twx_lib_will_load ()
+
 # ANCHOR: twx_module_guess
 #[=======[*/
 /** @brief Get the module name.
@@ -1177,7 +1179,7 @@ endfunction ( twx_module_shorten )
 
 include ( TwxTargetLib )
 include ( TwxCfgFileLib )
-include ( TwxCfgLib )
 
+twx_lib_did_load ()
 
 #*/

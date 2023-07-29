@@ -19,5 +19,8 @@ create_qt_pro_file("${OUTPUTFILE}" INCLUDEPATH "${INCLUDEPATH}" FILES "${FILES}"
 
 if (Qt_LUPDATE_EXECUTABLE)
 	message(STATUS "Running lupdate")
-	execute_process(COMMAND "${Qt_LUPDATE_EXECUTABLE}" "${OUTPUTFILE}")
+	execute_process(
+		COMMAND "${Qt_LUPDATE_EXECUTABLE}" "${OUTPUTFILE}"
+    COMMAND_ERROR_IS_FATAL ANY
+	)
 endif (Qt_LUPDATE_EXECUTABLE)

@@ -18,6 +18,29 @@ block ()
 
 set ( CMAKE_MESSAGE_LOG_LEVEL DEBUG )
 
+message ( STATUS "ARGV${ARGC}" )
+# depending on the context, ARGV${ARGC} is defined or not
+block ()
+function ( TwxBase_argv_argc_1 )
+  if ( NOT DEFINED ARGV${ARGC} )
+    message ( FATAL_ERROR "IS DEFINED ARGV${ARGC}" )
+  endif ()
+endfunction ()
+function ( TwxBase_argv_argc_2 x )
+  TwxBase_argv_argc_1 ( ${ARGN} )
+endfunction ()
+TwxBase_argv_argc_2 ( a b c )
+function ( TwxBase_argv_argc_3 )
+  if ( DEFINED ARGV${ARGC} )
+    message ( FATAL_ERROR "IS UNDEFINED ARGV${ARGC}" )
+  endif ()
+endfunction ()
+function ( TwxBase_argv_argc_4 )
+  TwxBase_argv_argc_3 ( ${ARGV} x )
+endfunction ()
+TwxBase_argv_argc_4 ( a b c )
+endblock ()
+
 message ( STATUS "Always OR" )
 block ()
 list ( APPEND CMAKE_MESSAGE_CONTEXT "OR" )
@@ -138,6 +161,28 @@ if ( TRUE )
   if ( NOT "${actual_}" STREQUAL "\\^" )
     message ( FATAL_ERROR "FAILURE" )
   endif ()
+endif ()
+endblock ()
+
+# ANCHOR: Script arguments
+message ( STATUS "Script arguments" )
+block ()
+list ( APPEND CMAKE_MESSAGE_CONTEXT script )
+if ( TRUE )
+  execute_process (
+    COMMAND "${CMAKE_COMMAND}"
+      "-DARGV0=ZERO"
+      "-DARGV1=O N E"
+      "-DARGV2=T;W;O"
+      "-DARGV3=T\nH\nR\nE\nE"
+      -P "${CMAKE_CURRENT_LIST_DIR}/TwxPOCScript.cmake"
+    RESULT_VARIABLE result_
+    OUTPUT_VARIABLE output_
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    COMMAND_ERROR_IS_FATAL ANY
+  )
+  message ( "result_ => ``${result_}''" )
+  message ( "output_ => ``${output_}''" )
 endif ()
 endblock ()
 

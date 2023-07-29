@@ -59,22 +59,18 @@ string(ASCII 31 TWX_CHAR_US  )
 #[=======[*/
 /** @brief Set or unset.
   *
-  * @param var is the variable to set
-  * @param from_var is the variable holding the value.
+  * @param var is the name of the variable to set
+  * @param from_var is the name of the variable holding the value.
   * If <from_var> is defined, var is set to the value,
-  * otherwise var is unset. Assignments occur in the caller scope.
+  * otherwise var is left unchanged. Assignments occur in the caller scope.
   */
 twx_set_if_defined( var from_var ) {}
 /*#]=======]
-function ( twx_set_if_defined var_ from_ )
-  set ( var_name_ ${var_} )
-  set ( from_name_ ${from_} )
-  twx_assert_variable_name ( "${var_name_}" )
-  twx_assert_variable_name ( "${from_name_}" )
-  if ( DEFINED ${from_name_} )
-    set ( ${var_} "${${from_name_}}" PARENT_SCOPE )
-  else ()
-    unset ( ${var_} PARENT_SCOPE )
+function ( twx_set_if_defined twx_set_if_defined.var twx_set_if_defined.from )
+  twx_assert_variable_name ( "${twx_set_if_defined.var}" )
+  twx_assert_variable_name ( "${twx_set_if_defined.from}" )
+  if ( DEFINED ${twx_set_if_defined.from} )
+    set ( ${twx_set_if_defined.var} "${${twx_set_if_defined.from}}" PARENT_SCOPE )
   endif ()
 endfunction ()
 
@@ -300,7 +296,7 @@ macro ( twx_lib_require )
   foreach ( twx_lib_require.lib ${ARGV} )
     # list ( APPEND twx_lib_require.stack "${twx_lib_require.lib}" )
     # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''..." )
-    if ( TWX_TEST )
+    if ( TWX_TEST AND NOT CMAKE_SCRIPT_MODE_FILE )
       message ( TRACE "1) ${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
       if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
         include ( "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )

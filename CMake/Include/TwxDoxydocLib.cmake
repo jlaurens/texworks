@@ -23,7 +23,14 @@ See https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_lib_will_load ()
+function ( twx_doxydoc )
+  message (
+    STATUS
+    "Not doxydoc in script mode"
+  )
+endfunction ()
+
+twx_lib_will_load ( NO_SCRIPT )
 
 find_package ( Doxygen )
 
@@ -34,6 +41,7 @@ if ( NOT DOXYGEN_FOUND )
       "Install Doxygen to generate the developer documentation"
     )
   endfunction ()
+  twx_lib_did_load ()
   return ()
 endif ()
 
@@ -55,6 +63,7 @@ endif ()
 void twx_doxydoc() {}
 /*#]=======]
 function ( twx_doxydoc )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_doxydoc" )
   # set input and output files
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
@@ -97,6 +106,10 @@ function ( twx_doxydoc )
     VERBATIM
   )
   if ( TWX_PROJECT_IS_ROOT )
+    if ( TARGET doxydoc )
+      twx_fatal ( "``twx_doxydoc()'' already called on root project" )
+      return ()
+    endif ()
     add_custom_target ( doxydoc DEPENDS ${PROJECT_NAME}_doxydoc )
   endif ()
 endfunction ( twx_doxydoc )

@@ -39,12 +39,11 @@ if ( TWX_TEST_DOMAIN_RUN )
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxInclude.cmake" )
 
-
-# All the test that we did not list in `TwxBase.cmake`.
-file ( GLOB_RECURSE tests "${CMAKE_CURRENT_LIST_DIR}/*Test.cmake" )
-foreach ( t ${tests} )
-  include ( ${t} )
-endforeach ()
+# # All the test that we did not list in `TwxBase.cmake`.
+# file ( GLOB_RECURSE tests "${CMAKE_CURRENT_LIST_DIR}/*Test.cmake" )
+# foreach ( t ${tests} )
+#   include ( ${t} )
+# endforeach ()
 
 endif ()
 twx_test_domain_did_end ()
