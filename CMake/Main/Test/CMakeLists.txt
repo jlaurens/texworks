@@ -3,7 +3,7 @@ This is part of TWX build and test system.
 https://github.com/TeXworks/texworks
 */
 /** @file
-  * @brief CMake/Include/Test Cmake file
+  * @brief CMake/Main/Test Cmake file
   * 
   * Test the various cmake libraries more related to TeXworks and projects.
   * 
@@ -31,13 +31,13 @@ else ()
   set ( TWX_TEST_DOMAIN.Base.SUITE_RE_NO ".*" )
 endif ()
 
-project ( TwxCMakeIncludeTest )
+project ( TwxCMakeMainTest )
 
 twx_test_domain_will_begin ()
 
 if ( TWX_TEST_DOMAIN_RUN )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxInclude.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxMain.cmake" )
 
 # # All the test that we did not list in `TwxBase.cmake`.
 # file ( GLOB_RECURSE tests "${CMAKE_CURRENT_LIST_DIR}/*Test.cmake" )

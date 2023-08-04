@@ -4,12 +4,13 @@ See https://github.com/TeXworks/texworks
 (C)  JL 2023
 */
 /** @file
-  * @brief  Meta material
+  * @brief  Library related material
   *
   * Commands
   *
   * - `twx_lib_will_load()`
   * - `twx_lib_did_load()`
+  * - `twx_lib_require()`
   *
   */
 /*#]===============================================]
@@ -75,14 +76,62 @@ function ( twx_lib_did_load )
     message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''" )
   endif ()
   if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib)[.]cmake" )
-    message ( VERBOSE "Loading ${CMAKE_MATCH_1}... DONE" )
+    set ( name_ "${CMAKE_MATCH_1}" )
   elseif ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+)[.]cmake" )
-    message ( VERBOSE "Loading ${CMAKE_MATCH_1}... DONE" )  
-  elseif ( DEFINED twx.R_NAME )
-    message ( VERBOSE "Loading ${twx.R_NAME}... DONE" )  
+    set ( name_ "${CMAKE_MATCH_1}" )  
+  elseif ( DEFINED twx_lib_will_load.R_NAME )
+    set ( name_ "${twx_lib_will_load.R_NAME}" )
   elseif ()
-    message ( VERBOSE "Loading some library... DONE" )  
+    set ( name_ "some library" )
   endif ()
+  message ( VERBOSE "Loading ${name_}... DONE" )
 endfunction ()
+
+# ANCHOR: twx_lib_require
+#[=======[
+*/
+/** @brief Require a library
+  *
+  * Include the libraries with given names.
+  * The behavior differs whether testing or not.
+  *
+  * `twx_lib_require()` is called from a library during its inclusion process.
+  * A library can only require another library that stands next to it
+  * or is available through `CMAKE_MODULE_PATH`.
+  *
+  * In normal mode, `twx_lib_require()` just executes `include()`
+  * whereas in testing mode, it includes the test file associate to the library.
+  * This test file will in turn include the library and then run tests.
+  *
+  */
+twx_lib_require ( ... ) {}
+/*
+#]=======]
+macro ( twx_lib_require )
+  foreach ( twx_lib_require.lib ${ARGV} )
+    # list ( APPEND twx_lib_require.stack "${twx_lib_require.lib}" )
+    # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''..." )
+    if ( TWX_TEST AND NOT CMAKE_SCRIPT_MODE_FILE )
+      if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+        message ( TRACE "1) ${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+        include ( "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+        continue ()
+      endif ()
+    endif ()
+    if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
+      message ( TRACE "2) ${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
+      include ( "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
+    elseif ( ";Core;Base;Main;" MATCHES ";${twx_lib_require.lib};" )
+      message ( TRACE "3) Twx${twx_lib_require.lib}" )
+      include ( "Twx${twx_lib_require.lib}" )
+    else ()
+      message ( TRACE "4) Twx${twx_lib_require.lib}Lib" )
+      include ( "Twx${twx_lib_require.lib}Lib" )
+    endif ()
+    # list ( POP_BACK twx_lib_require.stack twx_lib_require.lib )
+    # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''... DONE" )
+  endforeach ()
+  set ( twx_lib_require.lib )
+endmacro ()
 
 #*/

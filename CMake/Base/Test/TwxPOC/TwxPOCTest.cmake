@@ -175,7 +175,7 @@ if ( TRUE )
       "-DARGV1=O N E"
       "-DARGV2=T;W;O"
       "-DARGV3=T\nH\nR\nE\nE"
-      -P "${CMAKE_CURRENT_LIST_DIR}/TwxPOCScript.cmake"
+      -P "${CMAKE_CURRENT_LIST_DIR}/TwxPOCScript1.cmake"
     RESULT_VARIABLE result_
     OUTPUT_VARIABLE output_
     OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -183,6 +183,55 @@ if ( TRUE )
   )
   message ( "result_ => ``${result_}''" )
   message ( "output_ => ``${output_}''" )
+endif ()
+endblock ()
+
+# ANCHOR: Script messages
+message ( STATUS "Script messages" )
+block ()
+list ( APPEND CMAKE_MESSAGE_CONTEXT script )
+if ( TRUE )
+  macro ( TwxPOCScriptMsg type )
+    execute_process (
+      COMMAND "${CMAKE_COMMAND}"
+        "-DTWX_POC_TEST_TYPE=${type}"
+        -P "${CMAKE_CURRENT_LIST_DIR}/TwxPOCScript2.cmake"
+      RESULT_VARIABLE twx.RESULT_VARIABLE
+      OUTPUT_VARIABLE twx.OUTPUT_VARIABLE
+      ERROR_VARIABLE  twx.ERROR_VARIABLE
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      # COMMAND_ERROR_IS_FATAL ANY
+    )
+    twx_assert_0 ( "${twx.RESULT_VARIABLE}" )
+  endmacro ()
+  foreach ( type
+    # SEND_ERROR
+    WARNING AUTHOR_WARNING DEPRECATION
+  )
+    TwxPOCScriptMsg ( "${type}" )
+    twx_expect_matches ( "${twx.ERROR_VARIABLE}" "MSG: ${type}" )
+    twx_expect ( twx.OUTPUT_VARIABLE "" )
+    message ( "twx.RESULT_VARIABLE => ``${twx.RESULT_VARIABLE}''" )
+    message ( "twx.OUTPUT_VARIABLE => ``${twx.OUTPUT_VARIABLE}''" )
+    message ( "twx.ERROR_VARIABLE  => ``${twx.ERROR_VARIABLE}''" )
+  endforeach ()
+  foreach ( type
+    NOTICE
+  )
+    TwxPOCScriptMsg ( "${type}" )
+    twx_expect ( twx.ERROR_VARIABLE "MSG: ${type}\n" )
+    twx_expect ( twx.OUTPUT_VARIABLE "" )
+  endforeach ()
+  TwxPOCScriptMsg ( "NOTYPE" )
+  twx_expect ( twx.ERROR_VARIABLE "NOTYPEMSG: NOTYPE\n" )
+  twx_expect ( twx.OUTPUT_VARIABLE "" )
+  foreach ( type
+    STATUS VERBOSE DEBUG TRACE
+  )
+    TwxPOCScriptMsg ( "${type}" )
+    twx_expect ( twx.OUTPUT_VARIABLE "-- MSG: ${type}" )
+    twx_expect ( twx.ERROR_VARIABLE "" )
+  endforeach ()
 endif ()
 endblock ()
 

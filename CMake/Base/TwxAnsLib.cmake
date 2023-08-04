@@ -13,6 +13,7 @@ When the ans is exposed, we have all the contributions so far.
 #]===============================================]
 
 include_guard ( GLOBAL )
+
 twx_lib_will_load ()
 
 # ANCHOR: twx_ans_clear
@@ -57,14 +58,23 @@ endfunction ()
 /**
   * @brief Add a key=value pair.
   *
+  * @param ONLY_ON_TEST, optional flag to execute the instruction only when
+  *   `TWX_TEST` is truthy.
   * @param ... non empty list of key[=value] arguments.
   *   When no value is provided, this is equivalent to "${<key>}"
   */
-twx_ans_set(...) {}
+twx_ans_set([ONLY_ON_TEST] ...) {}
 /*
 #]=======]
 function ( twx_ans_set .kv )
-  set ( i 0 )
+  if ( ARGV0 STREQUAL "ONLY_ON_TEST" )
+    if ( NOT TWX_TEST )
+      return ()
+    endif ()
+    set ( i 1 )
+  else ()
+    set ( i 0 )
+  endif ()
   while ( TRUE )
     twx_tree_set ( TREE TWX_ANS "${ARGV${i}}" )
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
@@ -147,12 +157,15 @@ endmacro ()
 /** @brief Expose the answer.
   *
   * Expose the content of `TWX_ANS`.
+  * Forward to `twx_tree_expose()`, which arguments are supported.
+  *
+  * @param prefix for key `PREFIX` optional output value prefix.
   */
 twx_ans_expose () {}
 /*
 #]=======]
 macro ( twx_ans_expose )
-  twx_tree_expose ( TREE TWX_ANS )
+  twx_tree_expose ( TREE TWX_ANS ${ARGV} )
 endmacro ()
 
 # ANCHOR: twx_ans_log
@@ -161,19 +174,22 @@ endmacro ()
 /** @brief Display the answer.
   *
   * Display the content of `TWX_ANS`.
+  * Forward to `twx_tree_log()`, which arguments are supported.
   */
 twx_ans_log () {}
 /*
 Beware of regular expression syntax.
 #]=======]
 function ( twx_ans_log )
-  twx_tree_log ( TREE TWX_ANS )
+  twx_tree_log ( TREE TWX_ANS ${ARGV} )
 endfunction ()
 
 # ANCHOR: twx_ans_prettify
 #[=======[
 */
 /** @brief Turn ans contents into human readable
+  *
+  * Forward to `twx_tree_prettify()`, which arguments are supported.
   *
   * @param var for key `IN_VAR` holds the human readable string on return.
   */

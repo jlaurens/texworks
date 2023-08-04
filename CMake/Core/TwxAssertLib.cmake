@@ -342,6 +342,33 @@ function ( twx_assert_command .c )
   endwhile ( )
 endfunction ( twx_assert_command )
 
+# ANCHOR: twx_assert_error
+#[=======[*/
+/** @brief Raise when no error is pending.
+  *
+  * Raises when the `twx.ERROR_VARIABLE` is undefined.
+  */
+twx_assert_error(...) {}
+/*#]=======]
+function ( twx_assert_error )
+  twx_assert_defined ( twx.ERROR_VARIABLE )
+  set ( twx.ERROR_VARIABLE PARENT_SCOPE )
+endfunction ()
+
+# ANCHOR: twx_assert_no_error
+#[=======[*/
+/** @brief Raise when an error is pending.
+  *
+  * Raises when the `twx.ERROR_VARIABLE` is defined.
+  */
+twx_assert_no_error(...) {}
+/*#]=======]
+function ( twx_assert_no_error )
+  if ( "${twx.RESULT_VARIABLE}" EQUAL 1 AND DEFINED twx.ERROR_VARIABLE )
+    twx_fatal ( "Unexpected error: ``${twx.ERROR_VARIABLE}''" )
+  endif ()
+endfunction ()
+
 twx_lib_require ( "Fatal" )
 
 twx_lib_did_load ()

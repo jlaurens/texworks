@@ -17,11 +17,14 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
+include (
+  "${CMAKE_CURRENT_LIST_DIR}/../Core/TwxCore.cmake"
+)
+
 twx_lib_will_load ()
 
 include (
   "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
-  NO_POLICY_SCOPE
 )
 
 twx_state_key_add (
@@ -195,10 +198,17 @@ twx_lib_require (
   Warning
   Unit
   Doxydoc
-  # Summary
+  CfgPATH
+  CfgFile
   # Target
   # Module
-  # CfgFile
+  # Summary
+  # Translation
+  # Qt
+  # PopplerData
+  # CfgPaths
+  # CfgFileLib
+
 )
 
 twx_message ( VERBOSE

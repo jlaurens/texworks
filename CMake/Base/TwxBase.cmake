@@ -41,7 +41,26 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMetaLib.cmake" )
+if ( TWX_TEST_DOMAIN.Core.RUN )
+  include (
+    "${CMAKE_CURRENT_LIST_DIR}/../Core/Test/CMakeLists.txt"
+    NO_POLICY_SCOPE
+  )
+else ()
+  include (
+    "${CMAKE_CURRENT_LIST_DIR}/../Core/TwxCore.cmake"
+    NO_POLICY_SCOPE
+  )
+  include (
+    "${CMAKE_CURRENT_LIST_DIR}/../Core/TwxTestLib.cmake"
+  )
+  set ( TWX_TEST_DOMAIN.Core.SUITE_RE_NO ".*" )
+endif ()
+
+include (
+  "${CMAKE_CURRENT_LIST_DIR}/../Core/TwxCore.cmake"
+  NO_POLICY_SCOPE
+)
 
 twx_lib_will_load ()
 
@@ -116,40 +135,6 @@ function ( twx_base_prettify )
   twx_export ( "${twx.R_IN_VAR}=${value_}" )
 endfunction ()
 
-# ANCHOR: TWX_PATH_LIST_SEPARATOR
-#[=======[
-*/
-/** @brief The system dependent path list separator.
-  *
-  * `;` on windows and friends, `:` otherwise.
-  */
-TWX_PATH_LIST_SEPARATOR;
-/*#]=======]
-if (WIN32)
-	set ( TWX_PATH_LIST_SEPARATOR ";" )
-else ()
-	set ( TWX_PATH_LIST_SEPARATOR ":" )
-endif ()
-
-# ANCHOR: SWITCHER
-#[=======[
-*//**
-The system dependent switcher is used as path component.
-Possible values are
-- `os_windows`,
-- `os_darwin`,
-- `os_other`,
-*/
-TWX_OS_SWITCHER;
-/*#]=======]
-if (WIN32)
-  set ( TWX_OS_SWITCHER "os_windows" )
-elseif (APPLE)
-  set ( TWX_OS_SWITCHER "os_darwin" )
-else ()
-  set ( TWX_OS_SWITCHER "os_other" )
-endif ()
-
 # ANCHOR: twx_base_after_project
 #[=======[*/
 /** @brief Setup the state.
@@ -194,62 +179,7 @@ set ( TWX_IS_BASED ON )
 # Next is meant to be run only once per cmake session.
 # However, a different process can run this on its own.
 
-# We load the policies as soon as possible
-# Before using any higher level cmake command
-include (
-  "${CMAKE_CURRENT_LIST_DIR}/TwxBasePolicy.cmake"
-  NO_POLICY_SCOPE
-)
-
 set ( TWX_PROJECT_IS_ROOT ON )
-
-# ANCHOR: TWX_BASE_VARIABLE_RE
-#[=======[*/
-/** @brief Regular expression for variables
-  *
-  * Quoted CMake documentation:
-  *   > Literal variable references may consist of
-  *   > alphanumeric characters,
-  *   > the characters /_.+-,
-  *   > and Escape Sequences.
-  * where "An escape sequence is a \ followed by one character:"
-  *   > escape_sequence  ::=  escape_identity | escape_encoded | escape_semicolon
-  *   > escape_identity  ::=  '\' <match '[^A-Za-z0-9;]'>
-  *   > escape_encoded   ::=  '\t' | '\r' | '\n'
-  *   > escape_semicolon ::=  '\;'
-  */
-TWX_BASE_VARIABLE_RE;
-/*#]=======]
-set (
-  TWX_BASE_VARIABLE_RE
-  "^([a-zA-Z/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)([a-zA-Z0-9/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)*$"
-)
-
-# ANCHOR: twx_assert_variable_name
-#[=======[*/
-/** @brief Raise when not a literal variable name.
-  *
-  * @param ..., non empty list of variables names to test.
-  * Support `$|` syntax (`$|<name>` is a shortcut to the more readable `"${<name>}"`)
-  */
-twx_assert_variable_name(...) {}
-/*#]=======]
-function ( twx_assert_variable_name .name )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_assert_variable_name )
-  set ( i 0 )
-  while ( TRUE )
-    set ( v "${ARGV${i}}" )
-    # message ( TR@CE "v => ``${v}''" )
-    if ( NOT v MATCHES "${TWX_BASE_VARIABLE_RE}" )
-      twx_fatal ( "Not a variable name: ``${v}''" )
-      return ()
-    endif ()
-    math ( EXPR i "${i}+1" )
-    if ( i GREATER_EQUAL ARGC )
-      break ()
-    endif ()
-  endwhile ()
-endfunction ( twx_assert_variable_name )
 
 #[=======[
 TwxCoreLib.cmake
@@ -264,7 +194,7 @@ TwxMessageLib.cmake
 TwxTreeLib.cmake
 TwxUtilLib.cmake
 
-TwxBase.cmake
+TwxCore.cmake
 
 TwxAnsLib.cmake
 TwxBasePolicy.cmake
@@ -272,57 +202,8 @@ TwxCfgLib.cmake
 TwxTestLib.cmake
 #]=======]
 
-# ANCHOR: twx_lib_require
-#[=======[
-*/
-/** @brief Require a library
-  *
-  * Include the libraries with given names.
-  * The behavior differs whether testing or not.
-  *
-  * `twx_lib_require()` is called from a library during its inclusion process.
-  * A library can only require another library that stands next to it
-  * or is available through `CMAKE_MODULE_PATH`.
-  *
-  * In normal mode, `twx_lib_require()` just executes `include()`
-  * whereas in testing mode, it includes the test file associate to the library.
-  * This test file will in turn include the library and then run tests.
-  *
-  */
-twx_lib_require ( ... ) {}
-/*
-#]=======]
-macro ( twx_lib_require )
-  foreach ( twx_lib_require.lib ${ARGV} )
-    # list ( APPEND twx_lib_require.stack "${twx_lib_require.lib}" )
-    # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''..." )
-    if ( TWX_TEST AND NOT CMAKE_SCRIPT_MODE_FILE )
-      message ( TRACE "1) ${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
-      if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
-        include ( "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
-        continue ()
-      endif ()
-    endif ()
-    if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
-      message ( TRACE "2) ${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
-      include ( "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
-    else ()
-      message ( TRACE "3) Twx${twx_lib_require.lib}Lib" )
-      include ( "Twx${twx_lib_require.lib}Lib" )
-    endif ()
-    # list ( POP_BACK twx_lib_require.stack twx_lib_require.lib )
-    # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''... DONE" )
-  endforeach ()
-  set ( twx_lib_require.lib )
-endmacro ()
-
-# The order of the library names hereafter almost reflect dependencies
+# The order of the library names hereafter almost reflects dependencies
 twx_lib_require (
-  "Fatal"
-  "Assert"
-  "Expect"
-  "Core"
-  "Dir"
   "Math"
   "Increment"
   "Arg"
@@ -343,13 +224,6 @@ twx_assert_true ( TWX_IS_BASED )
 if ( COMMAND twx_message_register_prettifier )
   twx_message_register_prettifier ( twx_base )
 endif ()
-
-twx_message ( VERBOSE
-  "ROOT   DIR => ${TWX_DIR}"
-  "SOURCE DIR => ${CMAKE_SOURCE_DIR}"
-  "BINARY DIR => ${CMAKE_BINARY_DIR}"
-  NO_SHORT
-)
 
 twx_lib_did_load ()
 

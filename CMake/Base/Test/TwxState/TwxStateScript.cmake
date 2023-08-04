@@ -25,6 +25,8 @@ include (
 twx_state_deserialize ()
 
 set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-message ( "``${TWX_FOUR}''" )
+
+message ( STATUS "STATUS ``${TWX_FOUR}''" )
+message ( NOTICE "NOTICE ``${TWX_FOUR}''" )
 
 #*/

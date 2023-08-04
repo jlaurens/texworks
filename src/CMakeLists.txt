@@ -154,9 +154,9 @@ set ( TeXworks_RCS
 )
 
 IF ( WIN32 )
-  if (NOT MSVC)
-    set(CREATE_MANIFEST TRUE)
-  endif (NOT MSVC)
+  if ( NOT MSVC )
+    set ( CREATE_MANIFEST TRUE )
+  endif ( NOT MSVC )
   include ( TwxCfgLib )
   twx_cfg_write_begin ( ID "package-private" )
   twx_cfg_set ( PKG_APP_ICO   "${TWX_DIR}res/images/TeXworks.ico" )

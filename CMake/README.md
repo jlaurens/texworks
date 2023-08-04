@@ -47,10 +47,10 @@ This will be achieved by the inclusion of various `.cmake` files contained in th
 
 ## Shared preamble
 It is a minimal set of configuration settings and tools.
-The `TwxBase.cmake` should be included by any main `CMakeLists.txt` at the very top with for example:
+The `TwxMain.cmake` should be included by any main `CMakeLists.txt` at the very top with for example:
 ```
 include(
-  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Main/TwxMain.cmake"
   NO_POLICY_SCOPE
 )
 ```
@@ -65,7 +65,7 @@ this global variable is set to false.
 Such `CMakeLists.txt` will start with
 ```
 include(
-  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxBase.cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Main/TwxMain.cmake"
   NO_POLICY_SCOPE
 )
 if (TWX_PROJECT_IS_ROOT)

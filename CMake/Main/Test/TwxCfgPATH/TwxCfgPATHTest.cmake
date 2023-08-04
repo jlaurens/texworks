@@ -1,0 +1,142 @@
+#[===============================================[/*
+This is part of the TWX build and test system.
+https://github.com/TeXworks/texworks
+(C)  JL 2023
+*/
+/** @file
+  * @brief TwxCfgPATHLib test suite.
+  *
+  *//*
+#]===============================================]
+
+include_guard ( GLOBAL )
+
+if ( WIN32 )
+  message ( FATAL_ERROR "**********" )
+endif ()
+twx_test_suite_will_begin ()
+block ()
+  
+# ANCHOR: _add_TeXLive_default
+twx_test_unit_will_begin ( ID _add_TeXLive_default )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+  set ( CMAKE_MESSAGE_INDENT )
+  set ( WIN32 ON )
+  set ( paths_ )
+  twx_binary_PATH__add_TeXLive_default ( VAR paths_ YEAR_DELTA 0 )
+  string ( REPLACE ";" "\n  " paths_ "${paths_}" )
+  message ( "TeXLive W32:\n  ${paths_}" )
+  set ( WIN32 OFF )
+  set ( APPLE ON )
+  foreach ( CMAKE_SIZEOF_VOID_P 4 8 )
+    set ( paths_ )
+    twx_binary_PATH__add_TeXLive_default ( VAR paths_ YEAR_DELTA 0 )
+    string ( REPLACE ";" "\n  " paths_ "${paths_}" )
+    message ( "TeXLive APPLE(CMAKE_SIZEOF_VOID_P => ${CMAKE_SIZEOF_VOID_P}):\n  ${paths_}" )
+  endforeach ()
+  set ( APPLE OFF )
+  set ( CYGWIN ON )
+  foreach ( CMAKE_SIZEOF_VOID_P 4 8 )
+  set ( paths_ )
+  twx_binary_PATH__add_TeXLive_default ( VAR paths_ YEAR_DELTA 0 )
+    string ( REPLACE ";" "\n  " paths_ "${paths_}" )
+    message ( "TeXLive CYGWIN(CMAKE_SIZEOF_VOID_P => ${CMAKE_SIZEOF_VOID_P}):\n  ${paths_}" )
+  endforeach ()
+  set ( CYGWIN OFF )
+  foreach ( CMAKE_SYSTEM_NAME "FreeBSD" "NetBSD" "SunOS" "OtherOS" )
+    foreach ( CMAKE_SIZEOF_VOID_P 4 8 )
+    set ( paths_ )
+    twx_binary_PATH__add_TeXLive_default ( VAR paths_ YEAR_DELTA 0 )
+      string ( REPLACE ";" "\n  " paths_ "${paths_}" )
+      message ( "TeXLive ${CMAKE_SYSTEM_NAME}(CMAKE_SIZEOF_VOID_P => ${CMAKE_SIZEOF_VOID_P}):\n  ${paths_}" )
+    endforeach ()
+  endforeach ()
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+# ANCHOR: _add_MiKTeX_default
+twx_test_unit_will_begin ( ID _add_MiKTeX_default )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+  set ( CMAKE_MESSAGE_INDENT )
+  set ( WIN32 ON )
+  set ( paths_ )
+  twx_binary_PATH__add_MiKTeX_default ( VAR paths_ VERSION 4.0 )
+  string ( REPLACE ";" "\n  " paths_ "${paths_}" )
+  message ( "MikTeX W32:\n  ${paths_}" )
+  set ( WIN32 OFF )
+  set ( paths_ )
+  twx_binary_PATH__add_MiKTeX_default ( VAR paths_ )
+  string ( REPLACE ";" "\n  " paths_ "${paths_}" )
+  message ( "MikTeX W32:\n  ${paths_}" )
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+# ANCHOR: _add_TeX
+twx_test_unit_will_begin ( ID _add_TeX )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+  set ( CMAKE_MESSAGE_INDENT )
+  set ( paths_ )
+  twx_binary_PATH__add_TeX ( VAR paths_ )
+  string ( REPLACE ";" "\n  " paths_ "${paths_}" )
+  message ( "TeX:\n  ${paths_}" )
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+# ANCHOR: _add_system_default
+twx_test_unit_will_begin ( ID _add_system_default )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+  set ( CMAKE_MESSAGE_INDENT )
+  set ( paths_ )
+  twx_binary_PATH__add_system_default ( VAR paths_ )
+  string ( REPLACE ";" "\n  " paths_ "${paths_}" )
+  message ( "System:\n  ${paths_}" )
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+# ANCHOR: generate_ini
+twx_test_unit_will_begin ( ID generate_ini )
+if ( TWX_TEST_UNIT_RUN )
+  block ()
+  set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+  set ( CMAKE_MESSAGE_INDENT )
+  twx_cfg_path ( ID "paths_test" IN_VAR where )
+  
+  if ( EXISTS "${where}" )
+    file ( REMOVE "${where}" )
+    if ( EXISTS "${where}" )
+      twx_fatal ( "Unexpected ``${where}''" )
+      twx_fatal_assert_passed ()
+    endif ()
+  endif ()
+  twx_binary_PATH_generate_ini ( ID "paths_test" )
+  twx_fatal_assert_passed ()
+  twx_assert_exists ( "${where}" )
+  twx_fatal_assert_passed ()
+  set ( TWX_CFG_FACTORY_PATH )
+  twx_cfg_read ( "paths_test" )
+  twx_assert_non_void ( TWX_CFG_FACTORY_PATH )
+  file ( REMOVE "${where}" )
+  if ( EXISTS "${where}" )
+    twx_fatal ( "Unexpected ``${where}''" )
+  endif ()
+  endblock ()
+endif ()
+twx_test_unit_did_end ()
+
+
+endblock ()
+twx_test_suite_did_end ()
+
+#*/

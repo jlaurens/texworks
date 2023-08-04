@@ -39,7 +39,7 @@ set ( TWX_TEST ON )
 
 include_guard ( GLOBAL )
 
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxMetaLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxLib.cmake" )
 
 # ANCHOR: twx_test_during
 #[=======[
@@ -478,6 +478,8 @@ endmacro ()
   *   Must not evaluate to false in boolean context.
   *   When not provided, the <id> must be provided and the name is therefore
   *   `twx_<TWX_TEST_SUITE_CORE_NAME:lower>_<id>`.
+  *   Goodies: TWX_TEST_SUITE_CORE_NAME is possibly splitted into 2 words
+  *   separated by a `_` character.
   * @param id for key `ID`, short identifier for the message context.
   *   Must not evaluate to false in boolean context.
   *   When not provided, guessed form the requires <name>.
@@ -495,8 +497,12 @@ macro ( twx_test_unit_will_begin )
   if ( NOT "${twx_test_unit_will_begin.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
     message ( FATAL_ERROR "Unexpected arguments ``${twx_test_unit_will_begin.R_UNPARSED_ARGUMENTS}''" )
   endif ()
-  # 
-  string ( TOLOWER "${TWX_TEST_SUITE_CORE_NAME}" twx_test_unit_will_begin.CORE )
+  #
+  if ( TWX_TEST_SUITE_CORE_NAME MATCHES "^(.[^A-Z]+)([A-Z].*)$" )
+    string ( TOLOWER "${CMAKE_MATCH_1}_${CMAKE_MATCH_2}" twx_test_unit_will_begin.CORE )
+  else ()
+    string ( TOLOWER "${TWX_TEST_SUITE_CORE_NAME}" twx_test_unit_will_begin.CORE )
+  endif ()
   if ( "${twx_test_unit_will_begin.R_NAME}" STREQUAL "" )
     if ( "${twx_test_unit_will_begin.R_ID}" STREQUAL "" )
       set (

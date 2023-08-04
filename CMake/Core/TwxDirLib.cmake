@@ -45,6 +45,74 @@ include_guard ( GLOBAL )
 
 twx_lib_will_load ()
 
+#[=======[ Paths setup
+This is called from various locations.
+We cannot assume that `PROJECT_SOURCE_DIR` always represent
+the same location, in particular when called from a module
+or a sub code unit. The same holds for `CMAKE_SOURCE_DIR`.
+`TWX_DIR` is always "at the top" because it is defined
+relative to this included file.
+#]=======]
+get_filename_component (
+  TWX_DIR
+  "${CMAKE_CURRENT_LIST_DIR}/../../"
+  REALPATH
+)
+
+# ANCHOR: twx_complete_dir_var
+#[=======[*/
+/** @brief Complete dir variables contents.
+  *
+  * When the variable is not empty, ensures that it ends with a `/`.
+  * The resulting path may not exists though.
+  *
+  * @param ..., non empty list of string variables containing locations of directories.
+  *
+  */
+twx_complete_dir_var(...) {}
+/*
+Implementation details:
+The argument are IO variable names, such that we must name local variables with great care,
+otherwise there might be a conflict.
+#]=======]
+function ( twx_complete_dir_var twx_complete_dir_var.var )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_complete_dir_var )
+  set ( twx_complete_dir_var.i 0 )
+  while ( TRUE )
+    set ( twx_complete_dir_var.v "${ARGV${twx_complete_dir_var.i}}" )
+    # message ( TR@CE "v => ``${twx_complete_dir_var.v}''")
+    twx_assert_variable_name ( "${twx_complete_dir_var.v}" )
+    twx_assert_defined ( "${twx_complete_dir_var.v}" )
+    set ( twx_complete_dir_var.w "${${twx_complete_dir_var.v}}" )
+    if ( NOT "${twx_complete_dir_var.w}" STREQUAL "" AND NOT "${twx_complete_dir_var.w}" MATCHES "/$" )
+      set ( "${twx_complete_dir_var.v}" "${twx_complete_dir_var.w}/" PARENT_SCOPE )
+    endif ()
+    math ( EXPR twx_complete_dir_var.i "${twx_complete_dir_var.i}+1" )
+    if ( twx_complete_dir_var.i GREATER_EQUAL ${ARGC} )
+      break ()
+    endif ()
+  endwhile ()
+endfunction ( twx_complete_dir_var )
+
+twx_lib_require ( "Fatal" "Assert" "Expect" )
+
+twx_complete_dir_var ( TWX_DIR )
+
+#[=======[ setup `CMAKE_MODULE_PATH`
+Make the contents of `CMake/Base` and `CMake/Modules` available.
+The former contains tools and utilities whereas
+the latter only contains modules at a higher level.
+]=======]
+list (
+  PREPEND CMAKE_MODULE_PATH
+  "${TWX_DIR}CMake/Core"
+  "${TWX_DIR}CMake/Base"
+  "${TWX_DIR}CMake/Main"
+  "${TWX_DIR}CMake/Modules"
+)
+list ( REMOVE_DUPLICATES CMAKE_MODULE_PATH )
+message ( DEBUG "CMAKE_MODULE_PATH setup DONE" )
+
 # ANCHOR: twx_dir_after_project
 #[=======[*/
 /** @brief Setup the state.

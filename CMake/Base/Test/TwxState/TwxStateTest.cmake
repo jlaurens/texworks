@@ -167,10 +167,16 @@ if ( TWX_TEST_UNIT_RUN )
     COMMAND "${CMAKE_COMMAND}"
       "${-DTWX_STATE}"
     -P "${CMAKE_CURRENT_LIST_DIR}/TwxStateScript.cmake"
-    ERROR_VARIABLE error_
+    RESULT_VARIABLE twx.RESULT_VARIABLE
+    ERROR_VARIABLE twx.ERROR_VARIABLE
+    OUTPUT_VARIABLE twx.OUTPUT_VARIABLE
     ERROR_STRIP_TRAILING_WHITESPACE
-    COMMAND_ERROR_IS_FATAL ANY
+    # COMMAND_ERROR_IS_FATAL ANY
   )
+  message ( "twx.RESULT_VARIABLE => ``${twx.RESULT_VARIABLE}''" )
+  message ( "twx.ERROR_VARIABLE  => ``${twx.ERROR_VARIABLE}''"  )
+  message ( "twx.OUTPUT_VARIABLE => ``${twx.OUTPUT_VARIABLE}''" )
+  twx_assert_no_error ()
   twx_fatal_assert_passed ()
   endblock ()
 endif ()

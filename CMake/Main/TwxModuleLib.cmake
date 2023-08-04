@@ -308,7 +308,7 @@ endfunction ( twx_module_after_project )
   *
   * @see
   * - `TwxCfgFileLib.cmake`
-  * - `TwxCfgPaths.cmake`
+  * - `TwxCfgPATHLib.cmake`
   *
   * @param ... is a list of names or short names
   * of the modules to setup
@@ -1177,8 +1177,7 @@ function ( twx_module_shorten )
   endforeach ()
 endfunction ( twx_module_shorten )
 
-include ( TwxTargetLib )
-include ( TwxCfgFileLib )
+twx_lib_require ( Target CfgFile )
 
 twx_lib_did_load ()
 
