@@ -211,7 +211,7 @@ twx_lib_require (
 
 )
 
-twx_message ( VERBOSE
+twx_message_log ( VERBOSE
   "NAME => ${TWX_NAME}"
   "COMMAND => ${TWX_COMMAND}"
   NO_SHORT

@@ -24,7 +24,7 @@ include (
 )
 twx_assert_non_void ( TWX_OUTPUT )
 
-twx_message ( VERBOSE "TwxWriteCommand: -> ${TWX_OUTPUT}" )
+twx_message_log ( VERBOSE "TwxWriteCommand: -> ${TWX_OUTPUT}" )
 
 file (
   WRITE

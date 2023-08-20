@@ -45,6 +45,8 @@ include_guard ( GLOBAL )
 
 twx_lib_will_load ()
 
+twx_lib_require ( Var Assert Expect )
+
 #[=======[ Paths setup
 This is called from various locations.
 We cannot assume that `PROJECT_SOURCE_DIR` always represent
@@ -59,7 +61,7 @@ get_filename_component (
   REALPATH
 )
 
-# ANCHOR: twx_complete_dir_var
+# ANCHOR: twx_dir_complete_var
 #[=======[*/
 /** @brief Complete dir variables contents.
   *
@@ -69,34 +71,32 @@ get_filename_component (
   * @param ..., non empty list of string variables containing locations of directories.
   *
   */
-twx_complete_dir_var(...) {}
+twx_dir_complete_var(...) {}
 /*
 Implementation details:
 The argument are IO variable names, such that we must name local variables with great care,
 otherwise there might be a conflict.
 #]=======]
-function ( twx_complete_dir_var twx_complete_dir_var.var )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_complete_dir_var )
-  set ( twx_complete_dir_var.i 0 )
+function ( twx_dir_complete_var twx_dir_complete_var.var )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  set ( twx_dir_complete_var.i 0 )
   while ( TRUE )
-    set ( twx_complete_dir_var.v "${ARGV${twx_complete_dir_var.i}}" )
-    # message ( TR@CE "v => ``${twx_complete_dir_var.v}''")
-    twx_assert_variable_name ( "${twx_complete_dir_var.v}" )
-    twx_assert_defined ( "${twx_complete_dir_var.v}" )
-    set ( twx_complete_dir_var.w "${${twx_complete_dir_var.v}}" )
-    if ( NOT "${twx_complete_dir_var.w}" STREQUAL "" AND NOT "${twx_complete_dir_var.w}" MATCHES "/$" )
-      set ( "${twx_complete_dir_var.v}" "${twx_complete_dir_var.w}/" PARENT_SCOPE )
+    set ( twx_dir_complete_var.v "${ARGV${twx_dir_complete_var.i}}" )
+    # message ( TR@CE "v => ``${twx_dir_complete_var.v}''")
+    twx_var_assert_name ( "${twx_dir_complete_var.v}" )
+    twx_assert_defined ( "${twx_dir_complete_var.v}" )
+    set ( twx_dir_complete_var.w "${${twx_dir_complete_var.v}}" )
+    if ( NOT "${twx_dir_complete_var.w}" STREQUAL "" AND NOT "${twx_dir_complete_var.w}" MATCHES "/$" )
+      set ( "${twx_dir_complete_var.v}" "${twx_dir_complete_var.w}/" PARENT_SCOPE )
     endif ()
-    math ( EXPR twx_complete_dir_var.i "${twx_complete_dir_var.i}+1" )
-    if ( twx_complete_dir_var.i GREATER_EQUAL ${ARGC} )
+    math ( EXPR twx_dir_complete_var.i "${twx_dir_complete_var.i}+1" )
+    if ( twx_dir_complete_var.i GREATER_EQUAL ${ARGC} )
       break ()
     endif ()
   endwhile ()
-endfunction ( twx_complete_dir_var )
+endfunction ( twx_dir_complete_var )
 
-twx_lib_require ( "Fatal" "Assert" "Expect" )
-
-twx_complete_dir_var ( TWX_DIR )
+twx_dir_complete_var ( TWX_DIR )
 
 #[=======[ setup `CMAKE_MODULE_PATH`
 Make the contents of `CMake/Base` and `CMake/Modules` available.
@@ -117,23 +117,24 @@ message ( DEBUG "CMAKE_MODULE_PATH setup DONE" )
 #[=======[*/
 /** @brief Setup the state.
   *
-  * Set various variables for a newly declareed project.
+  * Set various variables for a newly declared project.
   *
   */
 twx_base_after_project() {}
 /*#]=======]
 macro ( twx_dir_after_project )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_expect_compare ( ${ARGC} == 1 )
   twx_expect_unequal_string ( "${PROJECT_NAME}" "" )
   # This has already been included
-  message ( DEBUG "twx_dir_after_project: PROJECT_NAME => ${PROJECT_NAME}" )
+  message ( DEBUG "PROJECT_NAME => ${PROJECT_NAME}" )
 # ANCHOR: TWX_BUILD_DIR
 #[=======[*/
 /** @brief Main build directory: .../TwxBuild
   *
   * Contains a copy of the sources, after an eventual configuration step.
   *
-  * Set by the very first `include ( TwxBase )`
+  * Set by the very first `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_BUILD_DIR;
@@ -144,7 +145,7 @@ TWX_BUILD_DIR;
   * In particular, it contains shared `...cfg.ini` files that are used
   * in the `configure_file()` instructions steps.
   *
-  * Set by the very first `include ( TwxBase )`
+  * Set by the very first `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_BUILD_DATA_DIR;
@@ -156,7 +157,7 @@ TWX_CFG_INI_DIR;
   *
   * Contains the main built products, executables, tests and bundles.
   *
-  * Set by the very first `include ( TwxBase )`
+  * Set by the very first `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_PRODUCT_DIR;
@@ -165,7 +166,7 @@ TWX_PRODUCT_DIR;
   *
   * Contains the main documentation.
   *
-  * Set by the very first `include ( TwxBase )`
+  * Set by the very first `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_DOC_DIR;
@@ -174,7 +175,7 @@ TWX_DOC_DIR;
   *
   * Contains the downloaded material.
   *
-  * Set by the very first `include ( TwxBase )`
+  * Set by the very first `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_PACKAGE_DIR;
@@ -183,10 +184,19 @@ TWX_PACKAGE_DIR;
   *
   * Contains the material related to the manual and popppler data.
   *
-  * Set by the very first `include ( TwxBase )`
+  * Set by the very first `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_EXTERNAL_DIR;
+# ANCHOR: TWX_TEST_DIR
+/** @brief Main test directory: .../TwxTest
+  *
+  * Contains the material related to the manual and popppler data.
+  *
+  * Set by the very first `include ( TwxCore )`
+  * that follows a `project()` declaration.
+  */
+TWX_TEST_DIR;
 /*#]=======]
   if ( "${TWX_BUILD_DIR}" STREQUAL "" )
     twx_assert_exists ( "${PROJECT_BINARY_DIR}" )
@@ -203,7 +213,7 @@ TWX_EXTERNAL_DIR;
   *
   * Contains a copy of the sources, after an eventual configuration step.
   *
-  * Set by the `include ( TwxBase )`
+  * Set by the `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_PROJECT_BUILD_DIR;
@@ -214,7 +224,7 @@ TWX_PROJECT_BUILD_DIR;
   * In particular, it contains `...cfg.ini` files that are used
   * in the `configure_file()` instructions steps.
   *
-  * Set by the `include ( TwxBase )`
+  * Set by the `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_PROJECT_BUILD_DATA_DIR;
@@ -229,7 +239,7 @@ TWX_PROJECT_DOXYDOC_DIR;
   *
   * Contains the built products, executables, tests and bundles.
   *
-  * Set by the `include ( TwxBase )`
+  * Set by the `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_PROJECT_PRODUCT_DIR;
@@ -238,7 +248,7 @@ TWX_PROJECT_PRODUCT_DIR;
   *
   * Contains the project documentation.
   *
-  * Set by the `include ( TwxBase )`
+  * Set by the `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_PROJECT_DOC_DIR;
@@ -247,7 +257,7 @@ TWX_PROJECT_DOC_DIR;
   *
   * Contains the project documentation.
   *
-  * Set by the `include ( TwxBase )`
+  * Set by the `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_PROJECT_PACKAGE_DIR;
@@ -256,17 +266,26 @@ TWX_PROJECT_PACKAGE_DIR;
   *
   * Contains the project documentation and poppler data.
   *
-  * Set by the `include ( TwxBase )`
+  * Set by the `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
 TWX_PROJECT_EXTERNAL_DIR;
+# ANCHOR: TWX_PROJECT_TEST_DIR
+/** @brief Project test directory: .../TwxTest
+  *
+  * Contains the project test data.
+  *
+  * Set by the `include ( TwxCore )`
+  * that follows a `project()` declaration.
+  */
+TWX_PROJECT_TEST_DIR;
 /*#]=======]
   twx_dir_configure (
     BINARY_DIR "${PROJECT_BINARY_DIR}/"
     VAR_PREFIX TWX_PROJECT
     MKDIR
   )
-
+  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
 endmacro ( twx_dir_after_project )
 
 # ANCHOR: twx_dir_configure ()
@@ -289,11 +308,12 @@ macro (
   .VAR_PREFIX
   twx.R_VAR_PREFIX
 )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_expect_equal_string ( "${.BINARY_DIR}" "BINARY_DIR" )
   twx_expect_equal_string ( "${.VAR_PREFIX}" "VAR_PREFIX" )
   twx_expect_unequal_string ( "${twx.R_BINARY_DIR}" "/" )
   twx_assert_exists ( "${twx.R_BINARY_DIR}" )
-  twx_assert_variable_name ( "${twx.R_VAR_PREFIX}" )
+  twx_var_assert_name ( "${twx.R_VAR_PREFIX}" )
   set ( twx_dir_configure.PARENT_SCOPE )
   set ( twx_dir_configure.MKDIR )
   if ( ${ARGC} GREATER "4" )
@@ -321,6 +341,7 @@ macro (
   set ( ${twx.R_VAR_PREFIX}_DOWNLOAD_DIR    "${twx.R_BINARY_DIR}TwxDownload/"      ${twx_dir_configure.PARENT_SCOPE} )
   set ( ${twx.R_VAR_PREFIX}_PACKAGE_DIR     "${twx.R_BINARY_DIR}TwxPackage/"       ${twx_dir_configure.PARENT_SCOPE} )
   set ( ${twx.R_VAR_PREFIX}_EXTERNAL_DIR    "${twx.R_BINARY_DIR}TwxExternal/"      ${twx_dir_configure.PARENT_SCOPE} )
+  set ( ${twx.R_VAR_PREFIX}_TEST_DIR        "${twx.R_BINARY_DIR}TwxTest/"          ${twx_dir_configure.PARENT_SCOPE} )
   set (
     TwxBuild_DESCRIPTION
     "It contains intermediate build files"
@@ -353,6 +374,10 @@ macro (
     TwxExternal_DESCRIPTION
     "It contains external material"
   )
+  set (
+    TwxTest_DESCRIPTION
+    "It contains test material"
+  )
   if ( twx_dir_configure.MKDIR )
     foreach (
       p
@@ -364,6 +389,7 @@ macro (
         Download
         Package
         External
+        Test
     )
       file ( MAKE_DIRECTORY "${twx.R_BINARY_DIR}Twx${p}" )
       file ( WRITE
@@ -377,6 +403,7 @@ This folder is automatically generated by the Twx build and test system.
   endif ()
   set ( twx_dir_configure.PARENT_SCOPE )
   set ( twx_dir_configure.MKDIR )
+  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
 endmacro ()
 
 twx_dir_configure (
@@ -389,8 +416,6 @@ twx_dir_configure (
   BINARY_DIR "${CMAKE_BINARY_DIR}/"
   VAR_PREFIX TWX_PROJECT
 )
-
-twx_lib_require ( "Fatal" "Assert" "Expect" )
 
 twx_lib_did_load ()
 

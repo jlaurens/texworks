@@ -64,10 +64,10 @@ twx_assert_non_void ( TWX_IN TWX_IN_DIR TWX_OUT_DIR )
 
 if ( TWX_NO_PRIVATE )
   set ( NO_PRIVATE_args_ NO_PRIVATE )
-  twx_message ( VERBOSE "TwxCfgFileScript (NO_PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
+  twx_message_log ( VERBOSE "TwxCfgFileScript (NO_PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
 else ()
   set ( NO_PRIVATE_args_ )
-  twx_message ( VERBOSE "TwxCfgFileScript (PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
+  twx_message_log ( VERBOSE "TwxCfgFileScript (PRIVATE):" "${TWX_IN_DIR} -> ${TWX_OUT_DIR}" DEEPER )
 endif ()
 
 include ( TwxCfgLib )
@@ -99,7 +99,7 @@ foreach ( file.in ${TWX_IN} )
   )
     continue ()
   endif ()
-  twx_message ( VERBOSE "TwxCfgFileScript: ${file.in} => ${file.out}" )
+  twx_message_log ( VERBOSE "TwxCfgFileScript: ${file.in} => ${file.out}" )
   configure_file (
     "${input}"
     "${output}"
@@ -108,6 +108,6 @@ foreach ( file.in ${TWX_IN} )
   )
 endforeach ()
 
-twx_message ( VERBOSE "TwxCfgFileScript... DONE" )
+twx_message_log ( VERBOSE "TwxCfgFileScript... DONE" )
 
 #*/

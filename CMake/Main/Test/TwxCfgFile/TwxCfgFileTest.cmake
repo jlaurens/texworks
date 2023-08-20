@@ -146,20 +146,27 @@ twx_test_unit_did_end ()
 twx_test_unit_will_begin ( NAME POCbuild )
 if ( TWX_TEST_UNIT_RUN )
   block ()
-  set ( pwd "${CMAKE_BINARY_DIR}/TwxTest/${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}/${TWX_TEST_UNIT_NAME}" )
-  file(MAKE_DIRECTORY "${pwd}" )
-  message ( ${CMAKE_CURRENT_LIST_DIR} )
-  twx_state_serialize ()
-  execute_process (
-    COMMAND "${CMAKE_COMMAND}"
-      "${CMAKE_CURRENT_LIST_DIR}/POCBuild"
-    WORKING_DIRECTORY "${pwd}"
-    RESULT_VARIABLE POCbuild.result
-    COMMAND_ERROR_IS_FATAL ANY
-  )
-  # cmake ../CMake/Include/Test
-  # add_subdirectory ( "${CMAKE_CURRENT_LIST_DIR}/POCBuild" )
-  twx_fatal_assert_passed ()
+  set ( component "TwxTest/${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}/${TWX_TEST_UNIT_NAME}" )
+  if ( "${CMAKE_BINARY_DIR}" MATCHES "/${component}" )
+    # reentrant call
+    message ( "CMAKE_SOURCE_DIR => ``${CMAKE_SOURCE_DIR}''")
+    message ( "CMAKE_BINARY_DIR => ``${CMAKE_BINARY_DIR}''")
+    message ( FATAL_ERROR "**********" )
+  else ()
+    set ( pwd "${CMAKE_BINARY_DIR}/${component}" )
+    file ( MAKE_DIRECTORY "${pwd}" )
+    twx_state_serialize ()
+    execute_process (
+      COMMAND "${CMAKE_COMMAND}"
+        "${CMAKE_CURRENT_LIST_DIR}/POCBuild"
+      WORKING_DIRECTORY "${pwd}"
+      RESULT_VARIABLE POCbuild.result
+      COMMAND_ERROR_IS_FATAL ANY
+    )
+    # cmake ../CMake/Include/Test
+    # add_subdirectory ( "${CMAKE_CURRENT_LIST_DIR}/POCBuild" )
+    # twx_fatal_assert_passed ()
+  endif ()
   message ( FATAL_ERROR "**********" )
   endblock ()
 endif ()

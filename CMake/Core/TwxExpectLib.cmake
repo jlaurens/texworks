@@ -34,7 +34,7 @@ twx_expect_equal_string(actual expected) {}
 #]=======]
 function ( twx_expect_equal_string actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
-    twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
     return ()
   endif ()
   if ( NOT "${actual_}" STREQUAL "${expected_}" )
@@ -58,7 +58,7 @@ twx_expect_equal_string(actual expected) {}
 #]=======]
 function ( twx_expect_unequal_string actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
-    twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
     return ()
   endif ()
   if ( "${actual_}" STREQUAL "${expected_}" )
@@ -82,7 +82,7 @@ twx_expect_equal_number(actual expected) {}
 #]=======]
 function ( twx_expect_equal_number actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
-    twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
     return ()
   endif ()
   if ( NOT "${actual_}" EQUAL "${expected_}" )
@@ -106,7 +106,7 @@ twx_expect_unequal_number(actual expected) {}
 #]=======]
 function ( twx_expect_unequal_number actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
-    twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    twx_fatal ( "Wrong arguments:" VAR ARGV )
     return ()
   endif ()
   if ( "${actual_}" EQUAL "${expected_}" )
@@ -124,7 +124,7 @@ endfunction ()
   *
   * @param actual_var is the name of the variable to test.
   *   Only one indirection.
-  * @param expected_value is the expected value.
+  * @param expected_value is the expected value or nothing .
   * @param NUMBER, optional flag to switch to number comparison.
   */
 twx_expect(actual_var expected_value [NUMBER] ) {}
@@ -136,7 +136,7 @@ function ( twx_expect twx_expect.ACTUAL twx_expect.EXPECTED )
     "NUMBER" "" ""
   )
   if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    twx_fatal ( "Wrong arguments\nARGV => ${ARGV}" )
     return ()
   endif ()
   if ( NOT DEFINED "${twx_expect.ACTUAL}" )
@@ -176,7 +176,7 @@ function ( twx_unexpect twx_unexpect.ACTUAL twx_unexpect.EXPECTED )
     "NUMBER" "" ""
   )
   if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
   endif ()
   if ( NOT DEFINED "${twx_unexpect.ACTUAL}" )
     twx_fatal ( "Unexpected undefined ``${twx_unexpect.ACTUAL}''")
@@ -209,7 +209,7 @@ twx_expect_matches( actual expected ) {}
 /*#]=======]
 macro ( twx_expect_matches twx_expect_matches.actual twx_expect_matches.expected )
   if ( NOT ${ARGC} EQUAL 2 )
-    twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
   endif ()
   if ( NOT "${twx_expect_matches.actual}" MATCHES "${twx_expect_matches.expected}" )
     twx_fatal ( "Failure: ${twx_expect_matches.actual} should match ${twx_expect_matches.expected}" )
@@ -229,7 +229,7 @@ twx_expect_unmatches( actual expected ) {}
 /*#]=======]
 function ( twx_expect_unmatches actual_ expected_ )
   if ( NOT ${ARGC} EQUAL 2 )
-    twx_fatal ( "Wrong arguments: ARGV => ${ARGV}" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
   endif ()
   if ( "${actual_}" MATCHES "${expected_}" )
     twx_fatal ( "Failure: ${actual_} should not match ${expected_}" )
@@ -263,7 +263,7 @@ twx_expect_in_list( actual expected ) {}
 /*#]=======]
 function ( twx_expect_in_list actual_ expected_ )
   if ( NOT ARGC EQUAL 2 )
-    twx_fatal ( "Bad usage (ARGN => ``${ARGN}'')" )
+    twx_fatal ( " Bad usage (ARGN => ``${ARGN}'')" )
     return ()
   endif ()
   if ( NOT "${actual_}" IN_LIST "${expected_}" )
@@ -282,7 +282,7 @@ twx_expect_not_in_list( actual expected ) {}
 /*#]=======]
 function ( twx_expect_not_in_list actual_ expected_ )
   if ( NOT ARGC EQUAL 2 )
-    twx_fatal ( "Bad usage (ARGN => ``${ARGN}'')" )
+    twx_fatal ( " Bad usage (ARGN => ``${ARGN}'')" )
     return ()
   endif ()
   if ( "${actual_}" IN_LIST "${expected_}" )

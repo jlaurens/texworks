@@ -14,129 +14,8 @@ Included in `TwxBaseLib`.
 /*#]===============================================]
 
 include_guard ( GLOBAL )
+
 twx_lib_will_load ()
-
-set (
-  TWX_MESSAGE_LOG_LEVELS
-    FATAL_ERROR
-    SEND_ERROR
-    WARNING
-    AUTHOR_WARNING
-    DEPRECATION
-    NOTICE
-    STATUS
-    VERBOSE
-    DEBUG
-    TRACE
-)
-
-# ANCHOR: twx_message_log_level_index
-#[=======[*/
-/** @brief Return the log level index.
-  *
-  * FATAL_ERROR has lower index, TRACE has higher index.
-  *
-  * @param level, a known level name, raises when not recognized
-  * @param var for key `IN_VAR`, will hold the result.
-  */
-twx_message_log_level_index( level IN_VAR var ) {}
-/*#]=======]
-function ( twx_message_log_level_index twx.R_LEVEL .IN_VAR twx.R_VAR )
-  twx_arg_assert_keyword ( .IN_VAR )
-  twx_assert_variable_name ( "${twx.R_VAR}" )
-  if ( twx.R_LEVEL STREQUAL "" )
-    set ( twx.R_LEVEL NOTICE )
-  endif ()
-  list ( FIND TWX_MESSAGE_LOG_LEVELS "${twx.R_LEVEL}" ${twx.R_VAR} )
-  if ( ${twx.R_VAR} LESS 0 )
-    set ( ${twx.R_VAR} )
-  endif ()
-  twx_export ( ${twx.R_VAR} )
-endfunction ()
-
-# ANCHOR: twx_message_log_level_order
-#[=======[*/
-/** @brief Order log levels.
-  *
-  * Returns -1 if the arguments are in ascending order,
-  * 0 for equality, 1 for descending.
-  * (Quite the index of the characters in `<=>`)
-  *
-  * @param lhs, a level name, raises when not recognized
-  * @param rhs, a level name, raises when not recognized
-  * @param var for key `IN_VAR`, will hold the result.
-  */
-twx_message_log_level_order( lhs <=> rhs IN_VAR var ) {}
-/*#]=======]
-function ( twx_message_log_level_order twx.R_LHS .LEG twx.R_RHS .IN_VAR twx.R_VAR )
-  twx_arg_expect_keyword ( .LEG "<=>" )
-  twx_arg_assert_keyword ( .IN_VAR )
-  twx_assert_variable_name ( "${twx.R_VAR}" )
-  if ( twx.R_LHS STREQUAL "" )
-    set ( twx.R_LHS NOTICE )
-  endif ()
-  if ( twx.R_RHS STREQUAL "" )
-    set ( twx.R_RHS NOTICE )
-  endif ()
-  list ( FIND TWX_MESSAGE_LOG_LEVELS "${twx.R_LHS}" lhs_ )
-  if ( "${lhs_}" LESS "0" )
-    twx_fatal ( "Unknown message log level ${twx.R_LHS}" )
-    return ()
-  endif ()
-  list ( FIND TWX_MESSAGE_LOG_LEVELS "${twx.R_RHS}" rhs_ )
-  if ( "${rhs_}" LESS "0" )
-    twx_fatal ( "Unknown message log level ${twx.R_RHS}" )
-    return ()
-  endif ()
-  if ( "${lhs_}" LESS "${rhs_}" )
-    set ( ${twx.R_VAR} -1 PARENT_SCOPE )
-  elseif ( "${lhs_}" GREATER "${rhs_}" )
-    set ( ${twx.R_VAR} 1 PARENT_SCOPE )
-  else ()
-    set ( ${twx.R_VAR} 0 PARENT_SCOPE )
-  endif ()
-endfunction ( twx_message_log_level_order )
-
-# ANCHOR: twx_message_log_level_compare
-#[=======[*/
-/** @brief Compares log levels.
-  *
-  *
-  * @param lhs, a level name, raises when not recognized
-  * @param op, binary comparison operator, raises when not recognized
-  * @param rhs, a level name, raises when not recognized
-  * @param var for key `IN_VAR`, will hold the result
-  * ON when the comparison holds, OFF otherwise.
-  * (Quite the index of the characters in `<=>`)
-  */
-twx_message_log_level_compare( lhs op rhs IN_VAR var ) {}
-/*#]=======]
-function ( twx_message_log_level_compare twx.R_LHS twx.R_OP twx.R_RHS .IN_VAR twx.R_VAR )
-  twx_arg_assert_keyword ( .IN_VAR )
-  twx_assert_variable_name ( "${twx.R_VAR}" )
-  if ( twx.R_LHS STREQUAL "" )
-    set ( twx.R_LHS NOTICE )
-  endif ()
-  if ( twx.R_RHS STREQUAL "" )
-    set ( twx.R_RHS NOTICE )
-  endif ()
-  list ( FIND TWX_MESSAGE_LOG_LEVELS "${twx.R_LHS}" lhs_ )
-  if ( "${lhs_}" LESS "0" )
-    twx_fatal ( "Unknown message log level ${twx.R_LHS}" )
-    return ()
-  endif ()
-  list ( FIND TWX_MESSAGE_LOG_LEVELS "${twx.R_RHS}" rhs_ )
-  if ( "${rhs_}" LESS "0" )
-    twx_fatal ( "Unknown message log level ${twx.R_RHS}" )
-    return ()
-  endif ()
-  twx_math ( EXPR ans "${lhs_}${twx.R_OP}${rhs_}" )
-  if ( ans )
-    set ( ${twx.R_VAR} ON PARENT_SCOPE )
-  else ()
-    set ( ${twx.R_VAR} OFF PARENT_SCOPE )
-  endif ()
-endfunction ( twx_message_log_level_compare )
 
 if ( NOT CMAKE_SCRIPT_MODE_FILE )
   add_custom_target (
@@ -227,7 +106,7 @@ twx_message_prettify( ... IN_VAR var [NO_SHORT] ) {}
 /*#]=======]
 function ( twx_message_prettify .text .IN_VAR .var )
   cmake_parse_arguments ( PARSE_ARGV 1 twx.R "NO_SHORT" "IN_VAR" "" )
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   set ( m )
   set ( i 0 )
   while ( TRUE )
@@ -270,7 +149,7 @@ function ( twx_message_prettify .text .IN_VAR .var )
   set ( ${twx.R_IN_VAR} "${m}" PARENT_SCOPE )
 endfunction ()
 
-# ANCHOR: twx_message
+# ANCHOR: twx_message_log
 #[=======[*/
 /** @brief Log prettified message
   *
@@ -280,10 +159,10 @@ endfunction ()
   * @param DEEPER optional flag to add an indentation level.
   * @param NO_SHORT optional flag to disallow path shortcuts.
   */
-twx_message(...) {}
+twx_message_log(...) {}
 /*#]=======]
-function ( twx_message )
-  if ( NOT DEFINED ARGV0 )
+function ( twx_message_log )
+  if ( ARGC EQUAL "0" )
     message ()
     return()
   endif ()
@@ -307,7 +186,7 @@ function ( twx_message )
     if ( "${ARGV${i}}" STREQUAL "IN_VAR" )
       twx_increment ( VAR i )
       set ( twx.R_IN_VAR "${ARGV${i}}" )
-      twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+      twx_var_assert_name ( "${twx.R_IN_VAR}" )
       twx_increment ( VAR i )
       if ( "${i}" GREATER_EQUAL ${ARGC} )
         break ()
@@ -332,7 +211,82 @@ function ( twx_message )
   twx_arg_pass_option ( NO_SHORT )
   twx_message_prettify ( "${m}" IN_VAR m ${twx.R_NO_SHORT} )
   if ( DEFINED twx.R_IN_VAR )
-    twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+    twx_var_assert_name ( "${twx.R_IN_VAR}" )
+    list ( APPEND ${twx.R_IN_VAR} "${m}" )
+    twx_export ( "${twx.R_IN_VAR}" )
+  else ()
+    foreach ( msg_ ${m} )
+      message ( ${mode_} "${msg_}" )
+    endforeach ()
+  endif ()
+  if ( twx.R_DEEPER )
+    set ( CMAKE_MESSAGE_INDENT "${CMAKE_MESSAGE_INDENT}  " PARENT_SCOPE )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_message
+#[=======[*/
+/** @brief Log prettified message
+  *
+  * @param ... same arguments as `message()` except.
+  * @param var for key `IN_VAR`, optional variable holding the message on return.
+  *   Mainly a testing facility.
+  * @param DEEPER optional flag to add an indentation level.
+  * @param NO_SHORT optional flag to disallow path shortcuts.
+  */
+twx_message_log(...) {}
+/*#]=======]
+function ( twx_message_log )
+  if ( ARGC EQUAL "0" )
+    message ()
+    return()
+  endif ()
+  list ( FIND TWX_MESSAGE_LOG_LEVELS "${ARGV0}" ARGV0_i )
+  if ( "${ARGV0_i}" GREATER "-1" )
+    set ( i 1 )
+    set ( mode_ "${ARGV0}" )
+  else ()
+    set ( i 0 )
+    unset ( mode_ )
+  endif ()
+  set ( m )
+  set ( twx.R_IN_VAR )
+  set ( twx.R_DEEPER OFF )
+  set ( twx.R_NO_SHORT OFF )
+  set ( ARGV${ARGC} )
+  while ( TRUE )
+    if ( "${i}" GREATER_EQUAL ${ARGC} )
+      break()
+    endif ()
+    if ( "${ARGV${i}}" STREQUAL "IN_VAR" )
+      twx_increment ( VAR i )
+      set ( twx.R_IN_VAR "${ARGV${i}}" )
+      twx_var_assert_name ( "${twx.R_IN_VAR}" )
+      twx_increment ( VAR i )
+      if ( "${i}" GREATER_EQUAL ${ARGC} )
+        break ()
+      endif ()
+    endif ()
+    if ( "${ARGV${i}}" STREQUAL "DEEPER" )
+      set ( twx.R_DEEPER ON )
+      twx_increment_and_break_if ( VAR i >= ${ARGC} )
+    endif ()
+    if ( "${ARGV${i}}" STREQUAL "NO_SHORT" )
+      twx_increment_and_assert ( VAR i == ${ARGC} )
+      set ( twx.R_NO_SHORT ON )
+      break ()
+    endif ()
+    if ( "${ARGV${i}}" MATCHES "(^|[^\\])(\\\\)*\\$" )
+      list ( APPEND m "${ARGV${i}}\\" )
+    else ()
+      list ( APPEND m "${ARGV${i}}" )
+    endif ()
+    twx_increment_and_break_if( VAR i >= ${ARGC} )
+  endwhile ()
+  twx_arg_pass_option ( NO_SHORT )
+  twx_message_prettify ( "${m}" IN_VAR m ${twx.R_NO_SHORT} )
+  if ( DEFINED twx.R_IN_VAR )
+    twx_var_assert_name ( "${twx.R_IN_VAR}" )
     list ( APPEND ${twx.R_IN_VAR} "${m}" )
     twx_export ( "${twx.R_IN_VAR}" )
   else ()

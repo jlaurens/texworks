@@ -64,16 +64,6 @@ include (
 
 twx_lib_will_load ()
 
-string(ASCII 01 TWX_CHAR_SOH )
-string(ASCII 02 TWX_CHAR_STX )
-string(ASCII 03 TWX_CHAR_ETX )
-string(ASCII 25 TWX_CHAR_EM )
-string(ASCII 26 TWX_CHAR_SUB )
-string(ASCII 28 TWX_CHAR_FS  )
-string(ASCII 29 TWX_CHAR_GS  )
-string(ASCII 30 TWX_CHAR_RS  )
-string(ASCII 31 TWX_CHAR_US  )
-
 # ANCHOR: twx_set_if_defined
 #[=======[*/
 /** @brief Set or unset.
@@ -86,8 +76,8 @@ string(ASCII 31 TWX_CHAR_US  )
 twx_set_if_defined( var from_var ) {}
 /*#]=======]
 function ( twx_set_if_defined twx_set_if_defined.var twx_set_if_defined.from )
-  twx_assert_variable_name ( "${twx_set_if_defined.var}" )
-  twx_assert_variable_name ( "${twx_set_if_defined.from}" )
+  twx_var_assert_name ( "${twx_set_if_defined.var}" )
+  twx_var_assert_name ( "${twx_set_if_defined.from}" )
   if ( DEFINED ${twx_set_if_defined.from} )
     set ( ${twx_set_if_defined.var} "${${twx_set_if_defined.from}}" PARENT_SCOPE )
   endif ()
@@ -115,7 +105,7 @@ function ( twx_base_prettify )
     if ( "${v}" STREQUAL IN_VAR )
       twx_increment ( VAR i )
       set ( twx.R_IN_VAR "${ARGV${i}}" )
-      twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+      twx_var_assert_name ( "${twx.R_IN_VAR}" )
       twx_increment_and_assert ( VAR i == ${ARGC} )
       break ()
     endif ()
@@ -131,7 +121,7 @@ function ( twx_base_prettify )
     string ( APPEND value_ "${v}" )
     twx_increment_and_assert ( VAR i < ${ARGC} )
   endwhile ()
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   twx_export ( "${twx.R_IN_VAR}=${value_}" )
 endfunction ()
 
@@ -204,9 +194,6 @@ TwxTestLib.cmake
 
 # The order of the library names hereafter almost reflects dependencies
 twx_lib_require (
-  "Math"
-  "Increment"
-  "Arg"
   "Split"
   "Export"
   "Message"
@@ -225,6 +212,12 @@ if ( COMMAND twx_message_register_prettifier )
   twx_message_register_prettifier ( twx_base )
 endif ()
 
+set (
+  TWX_EXECUTE_PROCESS_VARIABLE
+    RESULT_VARIABLE twx.RESULT_VARIABLE
+    ERROR_VARIABLE twx.ERROR_VARIABLE
+    OUTPUT_VARIABLE twx.OUTPUT_VARIABLE
+)
 twx_lib_did_load ()
 
 #*/

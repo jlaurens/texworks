@@ -46,7 +46,7 @@ twx_assert_exists ( "${TWX_TEMPORARY_DIR}WorkingDirectory" )
 file (
   REMOVE_RECURSE "${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory"
 )
-twx_message ( VERBOSE "TwxUnitScript DESTINATION: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory/" )
+twx_message_log ( VERBOSE "TwxUnitScript DESTINATION: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory/" )
 file (
   RENAME
     "${TWX_TEMPORARY_DIR}WorkingDirectory"
@@ -55,5 +55,5 @@ file (
 file (
   REMOVE_RECURSE "${TWX_TEMPORARY_DIR}WorkingDirectory"
 )
-twx_message ( VERBOSE "TwxUnitScript Setup: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory/")
+twx_message_log ( VERBOSE "TwxUnitScript Setup: ${TWX_DESTINATION_DIR}${TWX_TARGET}.WorkingDirectory/")
 #*/

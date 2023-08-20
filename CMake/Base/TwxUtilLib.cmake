@@ -42,7 +42,7 @@ twx_util_timestamp ( path IN_VAR var ) {}
 function ( twx_util_timestamp filepath_ .IN_VAR twx.R_IN_VAR )
   twx_arg_assert_count ( ${ARGC} == 3 )
   twx_arg_assert_keyword ( .IN_VAR )
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   file (
     TIMESTAMP "${filepath_}" ts "%S:%M:%H:%j:%Y" UTC
   )

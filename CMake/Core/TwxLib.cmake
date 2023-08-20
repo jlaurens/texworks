@@ -6,6 +6,8 @@ See https://github.com/TeXworks/texworks
 /** @file
   * @brief  Library related material
   *
+  * This is the very first library that is loaded.
+  *
   * Commands
   *
   * - `twx_lib_will_load()`
@@ -16,6 +18,17 @@ See https://github.com/TeXworks/texworks
 /*#]===============================================]
 
 include_guard ()
+
+string ( ASCII 01 TWX_CHAR_SOH )
+string ( ASCII 02 TWX_CHAR_STX )
+string ( ASCII 03 TWX_CHAR_ETX )
+string ( ASCII 25 TWX_CHAR_EM  )
+string ( ASCII 26 TWX_CHAR_SUB )
+string ( ASCII 28 TWX_CHAR_FS  )
+string ( ASCII 29 TWX_CHAR_GS  )
+string ( ASCII 30 TWX_CHAR_RS  )
+string ( ASCII 31 TWX_CHAR_US  )
+
 
 # ANCHOR: twx_lib_will_load ()
 #[=======[
@@ -34,7 +47,7 @@ twx_lib_will_load ([NAME name] [NO_SCRIPT]) {}
 macro ( twx_lib_will_load )
   cmake_parse_arguments ( twx_lib_will_load.R "NO_SCRIPT" "NAME" "" ${ARGV} )
   if ( NOT "${twx_lib_will_load.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''" )
+    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
   block ()
   if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib)[.]cmake" )
@@ -46,7 +59,11 @@ macro ( twx_lib_will_load )
   elseif ()
     set ( name_ "some library" )
   endif ()
-  message ( VERBOSE "Loading ${name_}..." )
+  if ( COMMAND twx_log )
+    twx_log ( VERBOSE "Loading ${name_}..." )
+  else ()
+    message ( VERBOSE "Loading ${name_}..." )
+  endif ()
   endblock ()
   set ( twx_lib_will_load.R_UNPARSED_ARGUMENTS )
   if ( CMAKE_SCRIPT_MODE_FILE AND twx_lib_will_load.R_NO_SCRIPT )
@@ -73,7 +90,7 @@ twx_lib_did_load ([NAME name]) {}
 function ( twx_lib_did_load )
   cmake_parse_arguments ( twx.R "NO_SCRIPT" "NAME" "" ${ARGV} )
   if ( NOT "${twx_lib_will_load.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''" )
+    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
   if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib)[.]cmake" )
     set ( name_ "${CMAKE_MATCH_1}" )
@@ -84,7 +101,11 @@ function ( twx_lib_did_load )
   elseif ()
     set ( name_ "some library" )
   endif ()
-  message ( VERBOSE "Loading ${name_}... DONE" )
+  if ( COMMAND twx_log )
+    twx_log ( VERBOSE "Loading ${name_}... DONE" )
+  else ()
+    message ( VERBOSE "Loading ${name_}... DONE" )
+  endif ()
 endfunction ()
 
 # ANCHOR: twx_lib_require
@@ -103,19 +124,51 @@ endfunction ()
   * whereas in testing mode, it includes the test file associate to the library.
   * This test file will in turn include the library and then run tests.
   *
+  * @param ..., list of library names or `<name>:TEST`.
+  *   In the latter case, the library is loaded in test mode.
+  * @param TEST, optional flag to enable testing mode for all libraries.
+  *   A library name cannot be `TEST`.
+  *
   */
-twx_lib_require ( ... ) {}
+twx_lib_require ( ... [TEST]) {}
 /*
 #]=======]
 macro ( twx_lib_require )
+  cmake_parse_arguments ( twx_lib_require.R "TEST" "" "" ${ARGV} )
+  set ( twx_lib_require.TWX_TEST "${TWX_TEST}" )
   foreach ( twx_lib_require.lib ${ARGV} )
+    if ( twx_lib_require.lib STREQUAL "TEST" )
+      continue ()
+    endif ()
+    block ( PROPAGATE twx_lib_require.lib twx_lib_require.test )
+      set ( twx_lib_require.test ON )
+      if ( "${twx_lib_require.lib}" MATCHES "^(.*):TEST$" )
+        set ( twx_lib_require.lib "${CMAKE_MATCH_1}" ) # <- local variable
+      elseif ( twx_lib_require.TWX_TEST OR twx_lib_require.R_TEST )
+        if ( CMAKE_SCRIPT_MODE_FILE )
+          set ( twx_lib_require.test OFF )
+        endif ()
+      else ()
+        set ( twx_lib_require.test OFF )
+      endif ()
+    endblock ()
     # list ( APPEND twx_lib_require.stack "${twx_lib_require.lib}" )
     # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''..." )
-    if ( TWX_TEST AND NOT CMAKE_SCRIPT_MODE_FILE )
-      if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+    if ( twx_lib_require.test )
+      set ( TWX_TEST ON )
+      if ( ";Core;Base;Main;" MATCHES ";${twx_lib_require.lib};" )
+        include ( "${CMAKE_CURRENT_LIST_DIR}/../${twx_lib_require.lib}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+        continue ()
+      elseif ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
         message ( TRACE "1) ${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
         include ( "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
         continue ()
+      elseif ( ";Core;Base;Main;" MATCHES ";${twx_lib_require.lib};" )
+        if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+          message ( TRACE "1') ${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+          include ( "${CMAKE_CURRENT_LIST_DIR}/Test/Twx${twx_lib_require.lib}/Twx${twx_lib_require.lib}Test.cmake" )
+          continue ()
+        endif ()
       endif ()
     endif ()
     if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_lib_require.lib}Lib.cmake" )
@@ -132,6 +185,18 @@ macro ( twx_lib_require )
     # message ( STATUS "twx_lib_require.lib => ``${twx_lib_require.lib}''... DONE" )
   endforeach ()
   set ( twx_lib_require.lib )
+  set ( TWX_TEST ${twx_lib_require.TWX_TEST} )
+  set ( twx_lib_require.TWX_TEST )
+  set ( twx_lib_require.test )
 endmacro ()
 
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxVarLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFormatLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxFatalLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxAssertLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxExpectLib.cmake" )
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxDirLib.cmake" )
+
+twx_format_define ( ID TestDomain BOLD TEXT_COLOR Blue BACK_COLOR "Bright Green" )
+twx_format_define ( ID TestSuite BOLD TEXT_COLOR Blue BACK_COLOR "Bright Green" )
 #*/

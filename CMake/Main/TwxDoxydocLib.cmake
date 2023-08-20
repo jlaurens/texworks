@@ -63,7 +63,7 @@ endif ()
 void twx_doxydoc() {}
 /*#]=======]
 function ( twx_doxydoc )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_doxydoc" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   # set input and output files
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
@@ -91,7 +91,7 @@ function ( twx_doxydoc )
     "${TWX_PROJECT_BUILD_DATA_DIR}doxydoc.txt"
   )
   twx_assert_non_void ( CMAKE_CURRENT_BINARY_DIR )
-  twx_message ( DEBUG "configure_file: ``${twx_in}'' -> ``${twx_out}''" )
+  twx_message_log ( DEBUG "configure_file: ``${twx_in}'' -> ``${twx_out}''" )
   # Complete state for configuration:
   set (
     TWX_CFG_DOXYGEN_OUTPUT_DIRECTORY

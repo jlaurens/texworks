@@ -183,7 +183,7 @@ endfunction ( twx_assert_non_void )
 twx_assert_0( ... ) {}
 /*#]=======]
 function ( twx_assert_0 v )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_assert_0 )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )

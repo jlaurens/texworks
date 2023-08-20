@@ -48,7 +48,7 @@ twx_ans_assert_key ( key ... ) {}
 function ( twx_ans_assert_key twx_ans_assert_key.KEY )
   set ( i 0 )
   while ( TRUE )
-    twx_assert_variable_name ( "${ARGV${i}}" )
+    twx_var_assert_name ( "${ARGV${i}}" )
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
 endfunction ()

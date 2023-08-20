@@ -6,9 +6,9 @@ See https://github.com/TeXworks/texworks
 /** @file
   * @brief Split utility
   *
-  * include (
-  *  "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwSplitLib.cmake"
-  *  )
+  *   include (
+  *    "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwSplitLib.cmake"
+  *   )
   *
   */
 /*#]===============================================]
@@ -41,7 +41,7 @@ twx_split_assign(kv [IN_VAR var|IN_KEY key IN_VALUE value]) {}
 /*
 #]=======]
 function ( twx_split_assign )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_assign )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   # One of the arguments may be a variable name: avoid collisions
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_split_assign.R
@@ -52,19 +52,19 @@ function ( twx_split_assign )
   if ( DEFINED twx_split_assign.R_IN_VAR )
     # message ( TR@CE "1)" )
     twx_assert_undefined ( twx_split_assign.R_IN_KEY twx_split_assign.R_IN_VALUE )
-    twx_assert_variable_name ( "${twx_split_assign.R_IN_VAR}" )
+    twx_var_assert_name ( "${twx_split_assign.R_IN_VAR}" )
     set ( twx_split_assign.R_IN_KEY ${twx_split_assign.R_IN_VAR}.key )
     set ( twx_split_assign.R_IN_VALUE ${twx_split_assign.R_IN_VAR}.value )
   elseif ( DEFINED twx_split_assign.R_IN_KEY )
     # message ( TR@CE "2)" )
     twx_assert_defined ( twx_split_assign.R_IN_VALUE )
     twx_assert_undefined ( twx_split_assign.R_IN_VAR )
-    twx_assert_variable_name ( "${twx_split_assign.R_IN_KEY}" "${twx_split_assign.R_IN_VALUE}" )
+    twx_var_assert_name ( "${twx_split_assign.R_IN_KEY}" "${twx_split_assign.R_IN_VALUE}" )
     twx_expect_unequal_string ( "${twx_split_assign.R_IN_KEY}" "${twx_split_assign.R_IN_VALUE}" )
   else ()
     # message ( TR@CE "3) twx_split_assign.R_KV => ``${twx_split_assign.R_KV}''" )
     twx_assert_undefined ( twx_split_assign.R_IN_VAR twx_split_assign.R_IN_VALUE )
-    twx_assert_variable_name ( "${twx_split_assign.R_KV}" )
+    twx_var_assert_name ( "${twx_split_assign.R_KV}" )
     set ( twx_split_assign.R_IN_KEY ${twx_split_assign.R_KV}.key )
     set ( twx_split_assign.R_IN_VALUE ${twx_split_assign.R_KV}.value )
     set ( twx_split_assign.R_KV "${${twx_split_assign.R_KV}}")
@@ -113,20 +113,20 @@ twx_split_compare(comparison IN_LEFT left IN_OP op IN_RIGHT right IN_NEGATE nega
 /*
 #]=======]
 function ( twx_split_compare twx.R_COMPARISON )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_compare )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} = 9 )
   cmake_parse_arguments (
     PARSE_ARGV 1 twx.R
     "" "IN_LEFT;IN_OP;IN_RIGHT;IN_NEGATE" ""
   )
-  twx_assert_variable_name ( "${twx.R_IN_LEFT}" "${twx.R_IN_OP}" "${twx.R_IN_RIGHT}" "${twx.R_IN_NEGATE}" )
-  twx_expect_unequal_string ( "${twx.R_IN_LEFT}"    "${twx.R_IN_OP}"      )
-  twx_expect_unequal_string ( "${twx.R_IN_OP}"      "${twx.R_IN_RIGHT}"   )
-  twx_expect_unequal_string ( "${twx.R_IN_RIGHT}"   "${twx.R_IN_NEGATE}"  )
-  twx_expect_unequal_string ( "${twx.R_IN_NEGATE}"  "${twx.R_IN_LEFT}"    )
-  twx_expect_unequal_string ( "${twx.R_IN_LEFT}"    "${twx.R_IN_RIGHT}"   )
-  twx_expect_unequal_string ( "${twx.R_IN_OP}"      "${twx.R_IN_NEGATE}"  )
-  if ( twx.R_COMPARISON MATCHES "^(!?)([^<>=!]+)([<>=!]+)([^<>=!]+)$" )
+  twx_var_assert_name ( "${twx.R_IN_LEFT}" "${twx.R_IN_OP}" "${twx.R_IN_RIGHT}" "${twx.R_IN_NEGATE}" )
+  twx_expect_unequal_string ( "${twx.R_IN_LEFT}"    "${twx.R_IN_OP}"     )
+  twx_expect_unequal_string ( "${twx.R_IN_OP}"      "${twx.R_IN_RIGHT}"  )
+  twx_expect_unequal_string ( "${twx.R_IN_RIGHT}"   "${twx.R_IN_NEGATE}" )
+  twx_expect_unequal_string ( "${twx.R_IN_NEGATE}"  "${twx.R_IN_LEFT}"   )
+  twx_expect_unequal_string ( "${twx.R_IN_LEFT}"    "${twx.R_IN_RIGHT}"  )
+  twx_expect_unequal_string ( "${twx.R_IN_OP}"      "${twx.R_IN_NEGATE}" )
+  if ( twx.R_COMPARISON MATCHES "^(!?)([^<>=!]+)([<>=!]+)([^<>=!]+)$"    )
     set ( ${twx.R_IN_LEFT} ${CMAKE_MATCH_2} PARENT_SCOPE )
     set ( ${twx.R_IN_RIGHT} ${CMAKE_MATCH_4} PARENT_SCOPE )
     if ( CMAKE_MATCH_1 )
@@ -176,7 +176,7 @@ twx_split_append(...) {}
 /*
 #]=======]
 function ( twx_split_append .kv )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_append )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   set ( ARGV${ARGC} )
   while ( DEFINED ARGV${i} )
@@ -208,7 +208,7 @@ twx_split_prepend(...) {}
 /*
 #]=======]
 function ( twx_split_prepend .kv )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_split_prepend )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   set ( ARGV${ARGC} )
   while ( DEFINED ARGV${i} )

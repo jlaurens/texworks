@@ -2,20 +2,27 @@
 This is part of the TWX build and test system.
 See https://github.com/TeXworks/texworks
 (C)  JL 2023
-*//** @file
-@brief  Collection of core utilities
-
-  include (
-    "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxCoreLib.cmake"
-  )
-
-Output state:
-- `TWX_DIR`
-
 */
+/** @file
+  * @brief  Incrementation utilities
+  *
+  * Loaded by the `Core` library with
+  *
+  *   include (
+  *     "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Core/TwxIncrementLib.cmake"
+  *   )
+  *
+  * Output state:
+  * - `twx_increment()`
+  * - `twx_break_if()`
+  * - `twx_increment_and_break_if()`
+  * - `twx_increment_and_assert()`
+  *
+  */
 /*#]===============================================]
 
 include_guard ( GLOBAL )
+
 twx_lib_will_load ()
 
 # ANCHOR: twx_increment ()
@@ -33,7 +40,7 @@ twx_increment(VAR counter) {}
 function ( twx_increment )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "VAR;STEP" "" )
   if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    twx_fatal ( "Unexpected arguments: ARGV => ``${twx.R_UNPARSED_ARGUMENTS}''" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
     return ()
   endif ()
   if ( NOT DEFINED twx.R_VAR )
@@ -42,18 +49,18 @@ function ( twx_increment )
   endif ()
   if ( NOT DEFINED twx.R_STEP )
     if ( NOT ${ARGC} EQUAL 2 )
-    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
-    return ()
+      twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
+      return ()
     endif ()
     set ( twx.R_STEP 1 )
   else ()
     if ( NOT ${ARGC} EQUAL 4 )
-    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
-    return ()
+      twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
+      return ()
     endif ()
   endif ()
-  # No twx_assert_variable_name
-  twx_assert_variable_name ( "${twx.R_VAR}" )
+  # No twx_var_assert_name
+  twx_var_assert_name ( "${twx.R_VAR}" )
   set ( .value "${${twx.R_VAR}}" )
   math ( EXPR .value "${.value}+(${twx.R_STEP})" )
   set ( ${twx.R_VAR} "${.value}" PARENT_SCOPE )
@@ -77,7 +84,7 @@ macro (
   twx_break_if.right
 )
   if ( NOT ${ARGC} EQUAL 3 )
-    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
     break ()
   elseif ( "${twx_break_if.op}" STREQUAL "<" )
     if ( "${twx_break_if.left}" LESS "${twx_break_if.right}" )
@@ -142,7 +149,7 @@ macro (
   twx_increment_and_break_if.right
 )
   if ( NOT ${ARGC} EQUAL 4 )
-    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
     return ()
   endif ()
   twx_increment (
@@ -178,7 +185,7 @@ macro (
   twx_increment_and_assert.right
 )
   if ( NOT ${ARGC} EQUAL 4 )
-    twx_fatal ( "Wrong arguments: ARGV => ``${ARGV}''" )
+    twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
     return ()
   endif ()
   twx_increment (

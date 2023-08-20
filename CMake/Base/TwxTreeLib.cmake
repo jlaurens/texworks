@@ -59,7 +59,7 @@ twx_tree_assert([tree]) {}
 /*
 #]=======]
 function ( twx_tree_assert )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_assert )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   # Argument can be a variable name: avoid collision
   if ( ${ARGC} EQUAL 0 )
     set ( twx_tree_assert.x "TWX_TREE" )
@@ -88,7 +88,7 @@ twx_tree_init([tree]) {}
 /*
 #]=======]
 function ( twx_tree_init )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_init )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   # Argument can be a variable name: avoid collision
   if ( ${ARGC} EQUAL 0 )
     set ( twx_tree_init.x TWX_TREE )
@@ -96,7 +96,7 @@ function ( twx_tree_init )
     twx_arg_assert_count ( ${ARGC} == 1 )
     set ( twx_tree_init.x "${ARGV0}" )    
   endif ()
-  twx_assert_variable_name ( "${twx_tree_init.x}" )
+  twx_var_assert_name ( "${twx_tree_init.x}" )
   twx_export (
     "${twx_tree_init.x}=${TWX_TREE_HEADER}"
     "TWX_IS_TREE_${twx_tree_init.x}=ON"
@@ -137,7 +137,7 @@ twx_tree_assert_key(key ...) {}
 /*
 #]=======]
 function ( twx_tree_assert_key .key )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_assert_key )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   while ( TRUE )
     set ( k "${ARGV${i}}" )
@@ -183,7 +183,7 @@ function ( twx_tree_get_keys )
     set ( twx.R_TREE "TWX_TREE" )
   endif ()
   twx_tree_assert ( "${twx.R_TREE}" )
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   set ( "${twx.R_IN_VAR}" )
   if ( twx.R_PREFIX )
     twx_regex_escape ( "${twx.R_PREFIX}" IN_VAR prefix_ )
@@ -233,7 +233,7 @@ twx_tree_get([TREE tree] KEY key [IN_VAR var]) {}
 /*
 #]=======]
 function ( twx_tree_get .KEY .key )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_get )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
 # TODO: More list ( APPEND CMAKE_MESSAGE_CONTEXT ... )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TREE;KEY;IN_VAR" "" )
   twx_arg_assert_parsed ()
@@ -251,7 +251,7 @@ function ( twx_tree_get .KEY .key )
   else ()
     set ( v "${twx.R_IN_VAR}" )
   endif ()
-  twx_assert_variable_name ( "${v}" )
+  twx_var_assert_name ( "${v}" )
   # message ( TR@CE "${twx.R_TREE}[${twx.R_KEY}] => ${v}")
   set ( "tree_" "${${twx.R_TREE}}" )
   twx_regex_escape ( "${twx.R_KEY}" IN_VAR get_scpd_ )
@@ -319,7 +319,7 @@ twx_tree_set([TREE tree] ... ) {}
 /*
 #]=======]
 function ( twx_tree_set )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_set )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TREE" "" )
   # message ( TR@CE "Parsed: twx.R_TREE => ``${twx.R_TREE}''")
   if ( DEFINED "twx.R_TREE" )
@@ -410,7 +410,7 @@ twx_tree_remove(TREE tree KEY ...) {}
 /*
 #]=======]
 function ( twx_tree_remove )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_remove )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TREE" "KEY" )
   twx_arg_assert_parsed ()
   if ( "${twx.R_TREE}" STREQUAL "" )
@@ -524,7 +524,7 @@ twx_tree_expose(TREE tree [PREFIX prefix]) {}
 /*
 #]=======]
 function ( twx_tree_expose )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_expose )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TREE;PREFIX" "" )
   twx_arg_assert_parsed ()
   if ( NOT DEFINED  twx.R_TREE )
@@ -597,7 +597,7 @@ twx_tree_log(tree) {}
 /*
 #]=======]
 function ( twx_tree_log )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_log )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "NO_BANNER" "TREE" "" )
   twx_arg_assert_parsed ()
   if ( "${twx.R_TREE}" STREQUAL "" )
@@ -643,10 +643,10 @@ twx_tree_prettify(message IN_VAR var) {}
 /*
 #]=======]
 function ( twx_tree_prettify twx.R_MSG .IN_VAR twx.R_IN_VAR )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_tree_prettify )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 3 )
   twx_arg_assert_keyword ( .IN_VAR )
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   string ( REPLACE "${TWX_TREE_MARK}"   "<SOH>" twx.R_MSG "${twx.R_MSG}" )
   string ( REPLACE "${TWX_TREE_START}"  "<STX>" twx.R_MSG "${twx.R_MSG}" )
   string ( REPLACE "${TWX_TREE_RECORD}" "<GS/>" twx.R_MSG "${twx.R_MSG}" )

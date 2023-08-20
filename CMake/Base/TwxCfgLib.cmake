@@ -79,13 +79,13 @@ twx_cfg_path ( ID id IN_VAR var [STAMPED] ) {}
 /*
 #]=======]
 function ( twx_cfg_path .ID .id .IN_VAR .var )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_path" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "STAMPED" "ID;IN_VAR" ""
   )
   twx_arg_assert_parsed ()
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   if ( EXISTS "${twx.R_ID}" )
     twx_export ( "${twx.R_IN_VAR}=${twx.R_ID}" )
     return ()
@@ -131,8 +131,8 @@ twx_cfg_ini_required_key_add (...) {}
 /*
 #]=======]
 function ( twx_cfg_ini_required_key_add .k )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_ini_required_key_add" )
-  twx_message ( DEBUG "ARGV => ``${ARGV}''" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_message_log ( DEBUG "ARGV => ``${ARGV}''" )
   list ( APPEND TWX_CFG_INI_REQUIRED_KEYS ${ARGV} )
   list ( REMOVE_DUPLICATES TWX_CFG_INI_REQUIRED_KEYS )
   twx_export ( TWX_CFG_INI_REQUIRED_KEYS )
@@ -149,8 +149,8 @@ twx_cfg_ini_required_key_remove (...) {}
 /*
 #]=======]
 function ( twx_cfg_ini_required_key_remove .k )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_ini_required_key_remove" )
-  twx_message ( DEBUG "ARGV => ``${ARGV}''" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_message_log ( DEBUG "ARGV => ``${ARGV}''" )
   list ( REMOVE_ITEM TWX_CFG_INI_REQUIRED_KEYS ${ARGV} )
   twx_export ( TWX_CFG_INI_REQUIRED_KEYS )
 endfunction ()
@@ -167,7 +167,7 @@ twx_cfg_register_hooked (...) {}
 /*
 #]=======]
 function ( twx_cfg_register_hooked .k )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_register_hooked" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_hook_register ( ID TwxCfgLib ${ARGV} )
   twx_hook_export ()
 endfunction ()
@@ -183,8 +183,8 @@ twx_cfg_update_factory() {}
 /*
 #]=======]
 macro ( twx_cfg_update_factory )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_update_factory" )
-  twx_message ( VERBOSE
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_message_log ( VERBOSE
     "twx_cfg_update_factory: ${TWX_FACTORY_INI}"
   )
   twx_assert_exists ( "${TWX_CFG_INI_DIR}" )
@@ -213,7 +213,7 @@ twx_cfg_update_git ( ) {}
 /*
 #]=======]
 macro ( twx_cfg_update_git )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_update_git" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_state_serialize ()
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
@@ -239,11 +239,11 @@ twx_cfg_target ( ID id IN_VAR var ) {}
 /*
 #]=======]
 function ( twx_cfg_target )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_target" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID;IN_VAR" "" )
   twx_arg_assert_parsed ()
   twx_assert_non_void ( twx.R_ID )
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   set ( ${twx.R_IN_VAR} "TwxCfg_${twx.R_ID}_target" PARENT_SCOPE)
 endfunction ()
 
@@ -294,7 +294,7 @@ TWX_FACTORY_INI;
 #]=======]
 function ( twx_cfg_setup )
   twx_assert_non_void ( PROJECT_NAME TWX_PROJECT_BUILD_DATA_DIR )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_setup" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   set ( TWX_CFG_INI_DIR "${TWX_PROJECT_BUILD_DATA_DIR}" )
   if ( "${TWX_FACTORY_INI}" STREQUAL "" )
     set (
@@ -307,11 +307,11 @@ function ( twx_cfg_setup )
     twx_assert_exists ( "${TWX_FACTORY_INI}" )
     set ( target_twx "TwxCfg_${PROJECT_NAME}" )
   endif ()
-  twx_message ( VERBOSE
+  twx_message_log ( VERBOSE
     "twx_cfg_setup target: ``${target_twx}''"
     DEEPER
   )
-  twx_message ( VERBOSE
+  twx_message_log ( VERBOSE
     "TWX_FACTORY_INI => ${TWX_FACTORY_INI}"
     "TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
   )
@@ -399,8 +399,8 @@ twx_cfg_write_begin ( ID id ) {}
 function ( twx_cfg_write_begin .ID twx.R_ID )
   twx_arg_assert_count ( ${ARGC} == 2 )
   twx_arg_assert_keyword ( .ID )
-  twx_assert_variable_name ( "${twx.R_ID}" )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_write_begin" )
+  twx_var_assert_name ( "${twx.R_ID}" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   if ( DEFINED TwxCfg_kv.${twx.R_ID} )
     twx_fatal ( "Missing `twx_cfg_write_end( ID ${twx.R_ID} )`" )
     return ()
@@ -432,7 +432,7 @@ set (
   "${TWX_CHAR_STX}semicolon${TWX_CHAR_ETX}"
 )
 function ( twx_cfg_set ID_ )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_set" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   if ( "${ID_}" STREQUAL "ID")
     twx_arg_assert_count ( ${ARGC} > 2 )
     set ( id_ "${ARGV1}" )
@@ -462,7 +462,7 @@ twx_cfg_write_end ( [ID id] ) {}
 /*
 #]=======]
 function ( twx_cfg_write_end )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_write_end" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "" )
   twx_arg_assert_parsed ()
   if ( "${twx.R_ID}" STREQUAL "" )
@@ -516,8 +516,8 @@ function ( twx_cfg_write_end )
   endforeach ()
   endblock ()
   # write the file
-  twx_message ( VERBOSE "twx_cfg_write_end:" DEEPER )
-  twx_message ( VERBOSE "Writing ${path_}" )
+  twx_message_log ( VERBOSE "twx_cfg_write_end:" DEEPER )
+  twx_message_log ( VERBOSE "Writing ${path_}" )
   file ( WRITE "${path_}(busy)" "${contents_}" )
   if ( NOT EXISTS "${path_}(busy)" )
     twx_fatal ( "Could not create ${path_}(busy)" )
@@ -532,7 +532,7 @@ function ( twx_cfg_write_end )
     COMMAND_ERROR_IS_FATAL ANY
   )
   if ( NOT "${ans_twx}" EQUAL "0" )
-    twx_message ( WARNING "copy_if_different: ans_twx => ${ans_twx}" )
+    twx_message_log ( WARNING "copy_if_different: ans_twx => ${ans_twx}" )
   endif ()
   if ( NOT EXISTS "${path_}" )
     twx_fatal ( "Could not create ${path_}" )
@@ -572,7 +572,7 @@ twx_cfg_read ( ... [QUIET] [ONLY_CONFIGURE]) {}
 /*
 #]=======]
 function ( twx_cfg_read )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_read" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   set ( TWX_CFG_READ_FAILED OFF )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
@@ -634,7 +634,7 @@ function ( twx_cfg_read )
   endwhile ()
   # Parse the files
   foreach ( name_ ${cfg_ini_ordered_} )
-    twx_message ( DEBUG "Reading: ${name_}" )
+    twx_message_log ( DEBUG "Reading: ${name_}" )
     file (
       STRINGS "${name_}"
       lines
@@ -645,7 +645,7 @@ function ( twx_cfg_read )
     foreach ( l ${lines} )
       if ( l MATCHES "^[ ]*([^ =]+)[ ]*=(.*)$" )
         string ( STRIP "${CMAKE_MATCH_2}" CMAKE_MATCH_2 )
-        twx_message ( DEBUG "TWX_CFG_${CMAKE_MATCH_1} => ``${CMAKE_MATCH_2}''" )
+        twx_message_log ( DEBUG "TWX_CFG_${CMAKE_MATCH_1} => ``${CMAKE_MATCH_2}''" )
         set (
           TWX_CFG_${CMAKE_MATCH_1}
           "${CMAKE_MATCH_2}"
@@ -667,7 +667,7 @@ function ( twx_cfg_read )
         IN_VAR ${name_}_TWX_TIMESTAMP_CFG
       )
     endif ()
-    twx_message ( DEBUG "Read: ${count_} records in ${name_}" )
+    twx_message_log ( DEBUG "Read: ${count_} records in ${name_}" )
     if ( twx.R_QUIET )
       return ()
     endif ()
@@ -700,7 +700,7 @@ twx_cfg_target_dependent ( ... ID ... ) {}
 /*
 #]=======]
 function (twx_cfg_target_dependent )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_target_dependent" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "" "" "ID"

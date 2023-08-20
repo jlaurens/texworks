@@ -21,17 +21,10 @@ See https://github.com/TeXworks/texworks
 /*#]===============================================]
 
 include_guard ( GLOBAL )
-twx_lib_will_load ()
 
-# We define a custom target as global scope.
-if ( NOT CMAKE_SCRIPT_MODE_FILE )
-  add_custom_target (
-    TwxFatalLib.cmake
-  )
-  define_property (
-    TARGET PROPERTY TWX_FATAL_MESSAGE
-  )
-endif ()
+include ( "${CMAKE_CURRENT_LIST_DIR}/TwxVarLib.cmake" )
+
+twx_lib_will_load ()
 
 # ANCHOR: twx_fatal
 #[=======[
@@ -44,46 +37,138 @@ endif ()
   *   nothing is displayed and the program does not stop.
   *   As there is no `try-catch` mechanism in `CMake`,
   *   a `return()` or `break()` statement may follow a `twx_fatal()` instruction.
+  * @param RETURN, optional flag to execute `return()` in test mode
+  * @param BREAK, optional flag to execute `break()` in test mode.
+  *   RETURN takes precedence over BREAK.
   *
   */
 twx_fatal(...){}
 /*
 #]=======]
-function ( twx_fatal )
-  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
-  set ( m )
-  set ( i 0 )
-  set ( ARGV${ARGC} )
-  while ( TRUE )
-    if ( NOT DEFINED ARGV${i} )
+macro ( twx_fatal )
+  # list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
+  set ( twx_fatal.FILE "${CMAKE_CURRENT_LIST_FILE}" )
+  set ( twx_fatal.LINE "${CMAKE_CURRENT_LIST_LINE}" )
+  if ( TWX_FATAL_CATCH )
+    # twx_global_get ( TWX_FATAL_MESSAGE IN_VAR twx_fatal.MSG )
+    # twx_global ( TWX_FATAL_MESSAGE => twx_fatal.MSG )
+    get_property (
+      twx_fatal.MSG
+      GLOBAL
+      PROPERTY TWX_FATAL_MESSAGE
+    )
+    if ( DEFINED twx_fatal.MSG )
+      string ( APPEND twx_fatal.MSG "\n " )
+    else ()
+      set ( twx_fatal.MSG " " )
+    endif ()
+  else ()
+    set ( twx_fatal.MSG )
+  endif ()
+  cmake_parse_arguments (
+    twx_fatal.R "RETURN;BREAK" "VAR" "" ${ARGV}
+  )
+  foreach ( twx_fatal.m twx_fatal.R_UNPARSED_ARGUMENTS )
+    if ( "${twx_fatal.m}" MATCHES "(^|[^\\])(\\\\)*\\$" )
+      list ( APPEND twx_fatal.MSG "${twx_fatal.m}\\" )
+    else ()
+      list ( APPEND twx_fatal.MSG "${twx_fatal.m}" )
+    endif ()
+  endforeach ()
+  if ( DEFINED twx_fatal.R_VAR )
+    if ( v MATCHES "${TWX_CORE_VARIABLE_RE}" )
+      string ( APPENDtwx_fatal.MSG ":" VAR ${twx_fatal.R_VAR} )
+    else ()
+      set ( twx_fatal.MSG "Not a variable name: ``${twx_fatal.R_VAR}''" )
+      set ( twx_fatal.FILE "${CMAKE_CURRENT_FUNCTION_FILE}" )
+      set ( twx_fatal.LINE "${CMAKE_CURRENT_FUNCTION_LINE}" )
+    endif ()
+  endif ()
+  if ( TWX_FATAL_CATCH )
+    set_property (
+      GLOBAL
+      PROPERTY TWX_FATAL_MESSAGE "${twx_fatal.MSG}"
+    )
+    # Store the location of the error
+    string ( REPLACE ";" "${TWX_CHAR_STX}PLACEHOLDER:SEMICOLON${TWX_CHAR_ETX}" twx_fatal.FILE "${CMAKE_CURRENT_FUNCTION_LIST_FILE}" )
+    if ( NOT TWX_DIR STREQUAL "" )
+      string ( REPLACE "${TWX_DIR}" ";" twx_fatal.FILE "${twx_fatal.FILE}" )
+      if ( "${twx_fatal.FILE}" MATCHES "^;" )
+        list ( POP_BACK twx_fatal.FILE twx_fatal.LAST )
+        set ( twx_fatal.FILE "<source>/${twx_fatal.LAST}" )
+      endif ()
+    endif ()
+    if ( NOT CMAKE_BINARY_DIR STREQUAL "" )
+      string ( REPLACE "${CMAKE_BINARY_DIR}/" ";" twx_fatal.FILE "${twx_fatal.FILE}" )
+      if ( "${twx_fatal.FILE}" MATCHES "^;" )
+        list ( POP_BACK twx_fatal.FILE twx_fatal.LAST )
+        set ( twx_fatal.FILE "<binary>/${twx_fatal.LAST}" )
+      endif ()
+    endif ()
+    string ( REPLACE "${TWX_CHAR_STX}PLACEHOLDER:SEMICOLON${TWX_CHAR_ETX}" ";" twx_fatal.FILE "${twx_fatal.FILE}" )
+    # string ( APPEND twx_fatal.MSG "${twx_fatal.CONTEXT}:${twx_fatal.FILE}:${CMAKE_CURRENT_LIST_LINE}:\n ${m}" )
+    # twx_global_set ( "TWX_FATAL_MESSAGE=${twx_fatal.MSG}" )
+    set ( twx_fatal.WHERE "${CMAKE_CURRENT_FUNCTION_LIST_FILE}:${CMAKE_CURRENT_FUNCTION_LIST_LINE}:" )
+    set_property (
+      GLOBAL
+      PROPERTY TWX_FATAL_WHERE "${twx_fatal.WHERE}"
+    )
+    string ( REPLACE ";" "->" twx_fatal.CONTEXT "${CMAKE_MESSAGE_CONTEXT}" )
+    twx_var_log ( twx_fatal.CONTEXT )
+    set_property (
+      GLOBAL
+      PROPERTY TWX_FATAL_CONTEXT "${twx_fatal.CONTEXT}"
+    )
+    if ( TWX_TEST )
+      twx_var_log ( twx_fatal.MSG MSG "TWX_TEST" )
+      message ( CHECK_START "${CMAKE_MESSAGE_CONTEXT}/TWX_FATAL_MESSAGE" )
+      get_property (
+        twx_fatal.MSG_saved
+        GLOBAL
+        PROPERTY TWX_FATAL_MESSAGE
+      )
+      if ( NOT twx_fatal.MSG_saved STREQUAL twx_fatal.MSG )
+        message ( CHECK_FAIL "Internal inconsistency" )
+      endif ()
+      message ( CHECK_START "${CMAKE_MESSAGE_CONTEXT}/TWX_FATAL_WHERE" )
+      get_property (
+        twx_fatal.WHERE_saved
+        GLOBAL
+        PROPERTY TWX_FATAL_WHERE
+      )
+      if ( twx_fatal.WHERE_saved STREQUAL twx_fatal.WHERE )
+        message ( CHECK_PASS "OK" )
+      else ()
+        twx_var_log ( twx_fatal.WHERE_saved )
+        message ( CHECK_FAIL "Internal inconsistency" )
+      endif ()
+      message ( CHECK_START "${CMAKE_MESSAGE_CONTEXT}/TWX_FATAL_CONTEXT" )
+      get_property (
+        twx_fatal.CONTEXT_saved
+        GLOBAL
+        PROPERTY TWX_FATAL_MESSAGE
+      )
+      if ( twx_fatal.CONTEXT_saved STREQUAL twx_fatal.CONTEXT )
+        message ( CHECK_PASS "OK" )
+      else ()
+        twx_var_log ( twx_fatal.CONTEXT_saved )
+        message ( CHECK_FAIL "Internal inconsistency" )
+      endif ()
+    endif ()
+    if ( twx_fatal.R_RETURN )
+      return ()
+    elseif ( twx_fatal.R_BREAK )
       break ()
     endif ()
-    if ( ARGV${i} MATCHES "(^|[^\\])(\\\\)*\\$" )
-      list ( APPEND m "${ARGV${i}}\\" )
-    else ()
-      list ( APPEND m "${ARGV${i}}" )
+  elseif ( DEFINED twx_fatal.R_VAR )
+    if ( NOT v MATCHES "${TWX_CORE_VARIABLE_RE}" )
+      message ( FATAL_ERROR "Not a variable name: ``${twx_fatal.R_VAR}''" )
     endif ()
-    math ( EXPR i "${i}+1" )
-  endwhile ()
-  if ( TWX_FATAL_CATCH AND TARGET TwxFatalLib.cmake )
-    get_target_property (
-      fatal_
-      TwxFatalLib.cmake
-      TWX_FATAL_MESSAGE
-    )
-    if ( fatal_ MATCHES "-NOTFOUND$")
-      set ( fatal_ )
-    endif ()
-    list ( APPEND fatal_ "${m}" )
-    set_target_properties (
-      TwxFatalLib.cmake
-      PROPERTIES
-        TWX_FATAL_MESSAGE "${fatal_}"
-    )
+    message ( FATAL_ERROR ${twx_fatal.MSG} " : ${twx_fatal.R_VAR} => ``${${twx_fatal.R_VAR}}''" )
   else ()
-    message ( FATAL_ERROR ${m} )
+    message ( FATAL_ERROR ${twx_fatal.MSG} )
   endif ()
-endfunction ()
+endmacro ()
 
 # ANCHOR: twx_fatal_clear
 #[=======[
@@ -101,12 +186,10 @@ function ( twx_fatal_clear )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR "Too many arguments: ${ARGC} instead of 0." )
   endif ()
-  if ( TARGET TwxFatalLib.cmake )
-    set_property (
-      TARGET TwxFatalLib.cmake
-      PROPERTY TWX_FATAL_MESSAGE
-    )
-  endif ()
+  set_property (
+    GLOBAL
+    PROPERTY TWX_FATAL_MESSAGE
+  )
 endfunction ()
 
 # ANCHOR: twx_fatal_test
@@ -150,7 +233,7 @@ function ( twx_fatal_assert_passed )
   endif ()
   twx_fatal_catched ( IN_VAR twx_fatal_assert_passed.v )
   if ( twx_fatal_assert_passed.v AND NOT twx_fatal_assert_passed.v STREQUAL "" )
-    message ( FATAL_ERROR "FAILURE: ``${twx_fatal_assert_passed.v}''" )
+    message ( FATAL_ERROR "${twx_fatal_assert_passed.v}" )
   endif ()
   twx_fatal_clear ()
   if ( DEFINED twx_fatal_test.CATCH_SAVED )
@@ -193,32 +276,41 @@ endfunction ()
   * we can catch the message.
   *
   * @param var for key `IN_VAR`, contains the list of messages on return.
+  * @param context for key `IN_CONTEXT`, optional, contains the list of corresponding contexts on return.
   */
-twx_fatal_catched (IN_VAR var){}
+twx_fatal_catched (IN_VAR var [IN_CONTEXT context]){}
 /*
 #]=======]
-function ( twx_fatal_catched .IN_VAR twx.R_VAR )
+function ( twx_fatal_catched )
   list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_catched" )
-  if ( NOT ${ARGC} EQUAL 2 )
-    message ( FATAL_ERROR "Wrong number of arguments: ${ARGC} instead of 2." )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx_fatal_catched.R
+    "" "IN_VAR;IN_CONTEXT" ""
+  )
+  twx_var_log ( twx_fatal_catched.R_IN_VAR )
+  twx_var_log ( twx_fatal_catched.R_IN_CONTEXT )
+  twx_var_assert_name ( "${twx_fatal_catched.R_IN_VAR}" )
+  if ( NOT twx.R_UNPARSED_ARGUMENTS STREQUAL "" )
+    set ( ${twx.R_IN_VAR} " Bad usage: ``${twx_fatal_catched.R_UNPARSED_ARGUMENTS}''." )
+    return ( PROPAGATE ${twx_fatal_catched.R_IN_VAR} ${twx_fatal_catched.R_IN_CONTEXT} )
   endif ()
-  if ( NOT .IN_VAR STREQUAL "IN_VAR" )
-    message ( FATAL_ERROR "Missing IN_VAR key: got ``${.IN_VAR}'' instead." )
-  endif ()
-  twx_assert_variable_name ( "${twx.R_VAR}" )
-  
-  if ( TARGET TwxFatalLib.cmake )
-    get_target_property (
-      ${twx.R_VAR}
-      TwxFatalLib.cmake
-      TWX_FATAL_MESSAGE
+  get_property (
+    ${twx_fatal_catched.R_IN_VAR}
+    GLOBAL
+    PROPERTY TWX_FATAL_MESSAGE
+  )
+  message ( " ${twx_fatal_catched.R_IN_VAR} => ``${${twx_fatal_catched.R_IN_VAR}}''" )
+  if ( twx_fatal_catched.R_IN_CONTEXT )
+    twx_var_assert_name ( "${twx_fatal_catched.R_IN_CONTEXT}" )
+    get_property (
+      ${twx_fatal_catched.R_IN_CONTEXT}
+      GLOBAL
+      PROPERTY TWX_FATAL_CONTEXT
     )
+    message ( " ${twx_fatal_catched.R_IN_CONTEXT} => ``${${twx_fatal_catched.R_IN_CONTEXT}}''" )
   endif ()
-  if ( ${twx.R_VAR} STREQUAL "${twx.R_VAR}-NOTFOUND")
-    set ( ${twx.R_VAR} "" )
-  endif ()
-  return ( PROPAGATE ${twx.R_VAR} )
-endfunction ()
+  return ( PROPAGATE ${twx_fatal_catched.R_IN_VAR} ${twx_fatal_catched.R_IN_CONTEXT} )
+endfunction ( twx_fatal_catched )
 
 # ANCHOR: twx_return_on_fatal
 #[=======[
@@ -232,18 +324,15 @@ twx_return_on_fatal () {}
 #]=======]
 macro ( twx_return_on_fatal )
   if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR "Bad usage: ``${ARGV}''." )
+    message ( FATAL_ERROR " Bad usage: ``${ARGV}''." )
   endif ()
-  if ( TARGET TwxFatalLib.cmake )
-    get_target_property(
-      twx_return_on_fatal.MESSAGE
-      TwxFatalLib.cmake
-      TWX_FATAL_MESSAGE
-    )
-    if ( NOT twx_return_on_fatal.MESSAGE STREQUAL "twx_return_on_fatal.MESSAGE-NOTFOUND$"
-    AND NOT twx_return_on_fatal.MESSAGE STREQUAL "" )
-      return ()
-    endif ()
+  get_property (
+    twx_return_on_fatal.MESSAGE
+    GLOBAL
+    TWX_FATAL_MESSAGE
+  )
+  if ( NOT "${twx_return_on_fatal.MESSAGE}" STREQUAL "" )
+    return ()
   endif ()
 endmacro ()
 

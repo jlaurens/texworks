@@ -32,7 +32,7 @@ twx_lib_will_load ()
 twx_hook_call(Id hook_id ...) {}
 /*#]=======]
 macro ( twx_hook_call .ID twx.R_ID )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_hook_call[${twx.R_ID}]" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_expect_equal_string ( "${.ID}" "ID" )
   twx_tree_get (
     TREE TWX_HOOK_COMMANDS
@@ -74,7 +74,7 @@ endmacro ()
 twx_hook_register(ID hook_id ...) {}
 /*#]=======]
 function ( twx_hook_register .ID twx.R_ID )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_hook_register[${twx.R_ID}]" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_expect_equal_string ( "${.ID}" "ID" )
   twx_tree_get (
     TREE TWX_HOOK_COMMANDS
@@ -104,7 +104,7 @@ endfunction ()
 twx_hook_unregister(ID hook_id ...) {}
 /*#]=======]
 function ( twx_hook_unregister .ID twx.R_ID )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_hook_register[${twx.R_ID}]" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_expect_equal_string ( "${.ID}" "ID" )
   twx_tree_get (
     TREE TWX_HOOK_COMMANDS

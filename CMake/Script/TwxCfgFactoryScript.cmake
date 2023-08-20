@@ -83,14 +83,14 @@ else ()
   include ( TwxInclude )
 endif ()
 
-twx_message ( VERBOSE "TwxCfgFactoryScript.cmake..." DEEPER )
-twx_message ( VERBOSE
+twx_message_log ( VERBOSE "TwxCfgFactoryScript.cmake..." DEEPER )
+twx_message_log ( VERBOSE
   "TWX_NAME        => ${TWX_NAME}"
   "TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
 )
 
 # Parse the ini contents
-twx_message ( VERBOSE "Parsing ``${TWX_FACTORY_INI}''" )
+twx_message_log ( VERBOSE "Parsing ``${TWX_FACTORY_INI}''" )
 twx_cfg_read ( "${TWX_FACTORY_INI}" )
 twx_cfg_write_begin ( ID "factory" )
 # verify the expectations

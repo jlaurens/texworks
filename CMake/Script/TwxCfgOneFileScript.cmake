@@ -42,7 +42,7 @@ twx_state_deserialize ()
 twx_assert_non_void ( TWX_INPUT )
 twx_assert_non_void ( TWX_OUTPUT )
 
-twx_message ( VERBOSE "TwxCfgOneFileScript: ${TWX_INPUT} -> ${TWX_OUTPUT}" DEEPER )
+twx_message_log ( VERBOSE "TwxCfgOneFileScript: ${TWX_INPUT} -> ${TWX_OUTPUT}" DEEPER )
 
 include ( TwxCfgLib )
 include ( TwxCfgFileLib )
@@ -73,7 +73,7 @@ if (  "${_ts_output}" GREATER "${_ts_input}"
   AND "${_ts_output}" GREATER "${TWX_TIMESTAMP_static_CFG}"
   AND "${_ts_output}" GREATER "${TWX_TIMESTAMP_git_CFG}"
 )
-twx_message ( VERBOSE "TwxCfgFileScript: ${TWX_INPUT} => ${TWX_OUTPUT}" )
+twx_message_log ( VERBOSE "TwxCfgFileScript: ${TWX_INPUT} => ${TWX_OUTPUT}" )
 configure_file (
   "${TWX_INPUT}"
   "${TWX_OUTPUT}"
@@ -81,6 +81,6 @@ configure_file (
   @ONLY
 )
 
-twx_message ( VERBOSE "TwxCfgOneFileScript... DONE" )
+twx_message_log ( VERBOSE "TwxCfgOneFileScript... DONE" )
 
 #*/

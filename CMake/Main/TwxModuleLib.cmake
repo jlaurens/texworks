@@ -70,11 +70,11 @@ function ( twx_module_guess )
     set ( module_name_ "${CMAKE_MATCH_1}" )
     set ( module_ "Twx${module_name_}" )
   else ()
-    twx_fatal ( "Bad usage: ${CMAKE_CURRENT_LIST_DIR}" )
+    twx_fatal ( " Bad usage: ${CMAKE_CURRENT_LIST_DIR}" )
     return ()
   endif ()
   if ( NOT "${twx.R_VAR_PREFIX}" STREQUAL "" )
-    twx_assert_variable_name ( "${twx.R_VAR_PREFIX}" )
+    twx_var_assert_name ( "${twx.R_VAR_PREFIX}" )
     set ( ${twx.R_VAR_PREFIX}_MODULE "${module_}" PARENT_SCOPE )
     set ( ${twx.R_VAR_PREFIX}_MODULE_NAME "${module_name_}" PARENT_SCOPE )
   endif ()
@@ -87,7 +87,7 @@ function ( twx_module_guess )
       set ( ${twx.R_VAR_PREFIX}_MODULE_NAME  "${module_name_}" PARENT_SCOPE )
     endif ()
   else ()
-    twx_assert_variable_name ( "${twx.R_IN_VAR_MODULE}" )
+    twx_var_assert_name ( "${twx.R_IN_VAR_MODULE}" )
     set ( ${twx.R_IN_VAR_MODULE} "${module_}" PARENT_SCOPE )
     if ( "${twx.R_VAR_PREFIX}" STREQUAL "" )
       set ( twx.R_MODULE       "${module_}"      PARENT_SCOPE )
@@ -121,7 +121,7 @@ function ( twx_module_dir )
     "REQUIRED;OPTIONAL" "IN_VAR;MODULE" ""
   )
   twx_arg_assert_parsed ()
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   if ( "${twx.R_MODULE}" STREQUAL "" )
     twx_module_guess ( IN_VAR_MODULE twx.R_MODULE )
   endif ()
@@ -347,7 +347,7 @@ function ( twx_module_setup )
   twx_cfg_setup ()
   foreach ( TWX_MODULE ${twx.R_UNPARSED_ARGUMENTS} )
     twx_module_complete ( "${TWX_MODULE}" )
-    twx_message ( VERBOSE "twx_module_setup: ${TWX_MODULE_NAME}" "-----------------")
+    twx_message_log ( VERBOSE "twx_module_setup: ${TWX_MODULE_NAME}" "-----------------")
     foreach ( p_ ${TWX_TARGET_PROPERTIES} )
       set ( ${TWX_MODULE}_${p_} )
     endforeach ()
@@ -420,7 +420,7 @@ function ( twx_module_setup )
     twx_export (
       CMAKE_MODULE_PATH
     )
-    twx_message ( VERBOSE "twx_module_setup: ${TWX_MODULE_NAME} DONE" "-----------------")
+    twx_message_log ( VERBOSE "twx_module_setup: ${TWX_MODULE_NAME} DONE" "-----------------")
   endforeach ( TWX_MODULE )
 endfunction ( twx_module_setup )
 
@@ -507,7 +507,7 @@ function ( twx_module_configure )
     "${TWX_PROJECT_BUILD_DIR}"
     "${TWX_PROJECT_BUILD_DATA_DIR}"
   )
-  twx_message ( VERBOSE "DEBUG: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}" )
   twx_module_guess ()
   twx_assert_non_void (
     "${TWX_MODULE}"
@@ -516,7 +516,7 @@ function ( twx_module_configure )
   if ( TARGET "${TWX_MODULE}" )
     return ()
   endif ()
-  twx_message ( VERBOSE "twx_module_configure: ${TWX_MODULE_NAME}" "---------------------" )
+  twx_message_log ( VERBOSE "twx_module_configure: ${TWX_MODULE_NAME}" "---------------------" )
   if ( DEFINED ${TWX_MODULE}__twx_module_configure )
     twx_fatal ( "Module ${TWX_MODULE_NAME} indirectly depends on itself." )
     return ()
@@ -530,11 +530,11 @@ function ( twx_module_configure )
     "${${TWX_MODULE}_CFG_INI_DIR"
     "${${TWX_MODULE}_FACTORY_INI"
   )
-  twx_message ( VERBOSE "DEBUG: ${TWX_MODULE}_DIR => ${${TWX_MODULE}_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: ${TWX_MODULE}_DIR => ${${TWX_MODULE}_DIR}" )
   set ( TWX_CFG_INI_DIR "${${TWX_MODULE}_CFG_INI_DIR}" )
   set ( TWX_FACTORY_INI "${${TWX_MODULE}_FACTORY_INI}" )
-  twx_message ( VERBOSE "DEBUG: 1: ${TWX_CFG_INI_DIR}" )
-  twx_message ( VERBOSE "DEBUG: 1: ${TWX_FACTORY_INI}" )
+  twx_message_log ( VERBOSE "DEBUG: 1: ${TWX_CFG_INI_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: 1: ${TWX_FACTORY_INI}" )
   add_library (
     ${TWX_MODULE}
     STATIC
@@ -572,7 +572,7 @@ function ( twx_module_configure )
     ${TWX_MODULE}_INCLUDE_DIR
     "${TWX_PROJECT_PRODUCT_DIR}include/"
   )
-  twx_message ( VERBOSE "DEBUG: ${TWX_MODULE}_DIR => ${${TWX_MODULE}_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: ${TWX_MODULE}_DIR => ${${TWX_MODULE}_DIR}" )
   twx_module_synchronize ( ${TWX_MODULE} )
   twx_cfg_files (
     MODULE 	${TWX_MODULE}
@@ -598,13 +598,13 @@ function ( twx_module_configure )
     add_library ( Twx::${TWX_MODULE_NAME} ALIAS ${TWX_MODULE} )
   endif ()
   # store the properties
-  twx_message ( VERBOSE "DEBUG: ${TWX_MODULE}_DIR => ${${TWX_MODULE}_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: ${TWX_MODULE}_DIR => ${${TWX_MODULE}_DIR}" )
   twx_export (
     CMAKE_MODULE_PATH
     TWX_CFG_INI_DIR
   )
-  twx_message ( VERBOSE "twx_module_configure: ${TWX_MODULE_NAME} DONE" "---------------------" )
-  twx_message ( VERBOSE "DEBUG: ${TWX_CFG_INI_DIR}" )
+  twx_message_log ( VERBOSE "twx_module_configure: ${TWX_MODULE_NAME} DONE" "---------------------" )
+  twx_message_log ( VERBOSE "DEBUG: ${TWX_CFG_INI_DIR}" )
 endfunction ( twx_module_configure )
 
 # ANCHOR: twx_module_synchronize
@@ -744,9 +744,9 @@ function ( twx_module_load twx.R_name )
     if ( NOT "${module_DIR_}" STREQUAL "" )
       if ( NOT already_ )
         set ( already_ ON )
-        twx_message ( VERBOSE "twx_module_load:" DEEPER )
+        twx_message_log ( VERBOSE "twx_module_load:" DEEPER )
       endif ()
-      twx_message ( VERBOSE "Loading ${TWX_MODULE_NAME}" )
+      twx_message_log ( VERBOSE "Loading ${TWX_MODULE_NAME}" )
       add_subdirectory ( "${module_DIR_}" "TwxModules/${TWX_MODULE}" )
       if ( NOT TARGET Twx::${TWX_MODULE_NAME} )
         twx_fatal ( "Failed to load module ${TWX_MODULE_NAME}" )
@@ -778,7 +778,7 @@ twx_module_include_dir( [MODULE module] IN_VAR dir [TEST]) {}
 function ( twx_module_include_dir )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "TEST" "IN_VAR;MODULE" "" )
   twx_arg_assert_parsed ()
-  twx_assert_variable_name ( "${twx.R_IN_VAR}")
+  twx_var_assert_name ( "${twx.R_IN_VAR}")
   if ( "${twx.R_MODULE}" STREQUAL "" )
     twx_module_guess ( IN_VAR_MODULE twx.R_MODULE )
   endif ()
@@ -902,7 +902,7 @@ function ( twx_module_includes )
         "${${module_}_IS_SETUP"
         "${${module_}_SRC_OUT_DIR"
       )
-      twx_message ( VERBOSE "twx_module_includes: ${target_} <= ${module_}" )
+      twx_message_log ( VERBOSE "twx_module_includes: ${target_} <= ${module_}" )
       add_dependencies ( ${target_} ${module_} )
       target_include_directories (
         ${target_}
@@ -940,7 +940,7 @@ twx_module_configure_main() {}
 /*#]=======]
 macro ( twx_module_configure_main )
   twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME )
-  twx_message ( VERBOSE "twx_module_configure_main: ${TWX_MODULE_NAME}" DEEPER )
+  twx_message_log ( VERBOSE "twx_module_configure_main: ${TWX_MODULE_NAME}" DEEPER )
   include ( TwxQTLib )
   twx_Qt_fresh ()
   twx_module_configure ()
@@ -960,7 +960,7 @@ twx_module_configure_test() {}
 /*#]=======]
 macro ( twx_module_configure_test )
   twx_assert_non_void ( TWX_MODULE TWX_MODULE_NAME TWX_MODULE_TEST )
-  twx_message ( VERBOSE "${TWX_MODULE} test suite:" DEEPER )
+  twx_message_log ( VERBOSE "${TWX_MODULE} test suite:" DEEPER )
   include ( TwxQTLib )
   include ( TwxModuleLib )
   set ( TWX_NO_TEST ON )
@@ -1048,7 +1048,7 @@ function ( twx_module_summary )
     set ( b_ "test suite" )
   endif ()
   message ( "" )
-  twx_message ( VERBOSE "DEBUG: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}" )
   include ( TwxSummaryLib )
   twx_summary_begin (
     BOLD_GREEN

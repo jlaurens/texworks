@@ -147,7 +147,7 @@ twx_translation_create_pro_file (
 	INPUT_FILES "${TWX_INPUT_FILES}"
 )
 
-twx_message ( VERBOSE "TwxTranslationCommand: ${pro_path_}" DEEPER )
+twx_message_log ( VERBOSE "TwxTranslationCommand: ${pro_path_}" DEEPER )
 
 message ( STATUS "TwxTranslationCommand: Running lupdate ${TWX_TARGET}.pro" )
 execute_process (

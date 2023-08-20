@@ -38,7 +38,7 @@ endif ()
 
 twx_state_deserialize ()
 
-twx_message ( VERBOSE "TwxCfgGitScript:" )
+twx_message_log ( VERBOSE "TwxCfgGitScript:" )
 
 list ( APPEND CMAKE_MESSAGE_CONTEXT "TwxCfgGitScript" )
 
@@ -120,14 +120,14 @@ if ( TWX_TEST )
   twx_cfg_set ( GIT_DATE=1978-07-06T05:04:03+02:01 )
   twx_cfg_set ( GIT_OK=${TWX_CPP_TRUTHY_CFG} )
   twx_cfg_write_end ()
-  twx_message ( DEBUG "TwxCfg_git: Git commit info updated (TEST)" )
+  twx_message_log ( DEBUG "TwxCfg_git: Git commit info updated (TEST)" )
 else ()
   twx_cfg_write_begin ( ID "git" )
   foreach ( key_ HASH DATE BRANCH OK )
     twx_cfg_set ( "GIT_${key_}=${new_${key_}}" )
   endforeach ()
   twx_cfg_write_end ()
-  twx_message ( DEBUG "TwxCfg_git: Git commit info updated" )
+  twx_message_log ( DEBUG "TwxCfg_git: Git commit info updated" )
 endif ()
 
 #*/

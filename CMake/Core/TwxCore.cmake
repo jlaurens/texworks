@@ -49,15 +49,15 @@ include ( "${CMAKE_CURRENT_LIST_DIR}/TwxLib.cmake" )
 
 twx_lib_will_load ()
 
-string(ASCII 01 TWX_CHAR_SOH )
-string(ASCII 02 TWX_CHAR_STX )
-string(ASCII 03 TWX_CHAR_ETX )
-string(ASCII 25 TWX_CHAR_EM )
-string(ASCII 26 TWX_CHAR_SUB )
-string(ASCII 28 TWX_CHAR_FS  )
-string(ASCII 29 TWX_CHAR_GS  )
-string(ASCII 30 TWX_CHAR_RS  )
-string(ASCII 31 TWX_CHAR_US  )
+string ( ASCII 01 TWX_CHAR_SOH )
+string ( ASCII 02 TWX_CHAR_STX )
+string ( ASCII 03 TWX_CHAR_ETX )
+string ( ASCII 25 TWX_CHAR_EM  )
+string ( ASCII 26 TWX_CHAR_SUB )
+string ( ASCII 28 TWX_CHAR_FS  )
+string ( ASCII 29 TWX_CHAR_GS  )
+string ( ASCII 30 TWX_CHAR_RS  )
+string ( ASCII 31 TWX_CHAR_US  )
 
 # ANCHOR: twx_set_if_defined
 #[=======[*/
@@ -71,8 +71,8 @@ string(ASCII 31 TWX_CHAR_US  )
 twx_set_if_defined( var from_var ) {}
 /*#]=======]
 function ( twx_set_if_defined twx_set_if_defined.var twx_set_if_defined.from )
-  twx_assert_variable_name ( "${twx_set_if_defined.var}" )
-  twx_assert_variable_name ( "${twx_set_if_defined.from}" )
+  twx_var_assert_name ( "${twx_set_if_defined.var}" )
+  twx_var_assert_name ( "${twx_set_if_defined.from}" )
   if ( DEFINED ${twx_set_if_defined.from} )
     set ( ${twx_set_if_defined.var} "${${twx_set_if_defined.from}}" PARENT_SCOPE )
   endif ()
@@ -112,54 +112,6 @@ else ()
   set ( TWX_OS_SWITCHER "os_other" )
 endif ()
 
-# ANCHOR: TWX_CORE_VARIABLE_RE
-#[=======[*/
-/** @brief Regular expression for variables
-  *
-  * Quoted CMake documentation:
-  *   > Literal variable references may consist of
-  *   > alphanumeric characters,
-  *   > the characters /_.+-,
-  *   > and Escape Sequences.
-  * where "An escape sequence is a \ followed by one character:"
-  *   > escape_sequence  ::=  escape_identity | escape_encoded | escape_semicolon
-  *   > escape_identity  ::=  '\' <match '[^A-Za-z0-9;]'>
-  *   > escape_encoded   ::=  '\t' | '\r' | '\n'
-  *   > escape_semicolon ::=  '\;'
-  */
-TWX_CORE_VARIABLE_RE;
-/*#]=======]
-set (
-  TWX_CORE_VARIABLE_RE
-  "^([a-zA-Z/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)([a-zA-Z0-9/_.+-]|\\[^a-zA-Z;]|\\[trn]|\\;)*$"
-)
-
-# ANCHOR: twx_assert_variable_name
-#[=======[*/
-/** @brief Raise when not a literal variable name.
-  *
-  * @param ..., non empty list of variables names to test.
-  * Support `$|` syntax (`$|<name>` is a shortcut to the more readable `"${<name>}"`)
-  */
-twx_assert_variable_name(...) {}
-/*#]=======]
-function ( twx_assert_variable_name .name )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_assert_variable_name )
-  set ( i 0 )
-  while ( TRUE )
-    set ( v "${ARGV${i}}" )
-    # message ( TR@CE "v => ``${v}''" )
-    if ( NOT v MATCHES "${TWX_CORE_VARIABLE_RE}" )
-      twx_fatal ( "Not a variable name: ``${v}''" )
-      return ()
-    endif ()
-    math ( EXPR i "${i}+1" )
-    if ( i GREATER_EQUAL ARGC )
-      break ()
-    endif ()
-  endwhile ()
-endfunction ( twx_assert_variable_name )
-
 # ANCHOR: twx_regex_escape ()
 #[=======[
 /** @brief Escape strings to be used in regular expression
@@ -173,13 +125,13 @@ twx_regex_escape(... IN_VAR var ) {}
 set ( twx_regex_escape_RE [=[[]()|?+*[\\.$^-]]=] )
 
 function ( twx_regex_escape .text .IN_VAR .var )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_regex_escape )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 1 twx.R "" "IN_VAR" "" )
   if ( NOT DEFINED twx.R_IN_VAR )
     twx_fatal ( "Missing IN_VAR argument.")
     return ()
   endif ()
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   set ( m )
   set ( i 0 )
   while ( TRUE )
@@ -230,10 +182,18 @@ TwxTestLib.cmake
 
 # The order of the library names hereafter almost reflects dependencies
 twx_lib_require (
+  "Var"
   "Fatal"
   "Assert"
   "Expect"
   "Dir"
+  "Format"
+  "Log"
+  "Increment"
+  "Arg"
+  "Math"
+  "Split"
+  "Export"
 )
 
 message ( VERBOSE "ROOT   DIR => ${TWX_DIR}" )

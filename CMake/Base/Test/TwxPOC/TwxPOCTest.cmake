@@ -211,9 +211,6 @@ if ( TRUE )
     TwxPOCScriptMsg ( "${type}" )
     twx_expect_matches ( "${twx.ERROR_VARIABLE}" "MSG: ${type}" )
     twx_expect ( twx.OUTPUT_VARIABLE "" )
-    message ( "twx.RESULT_VARIABLE => ``${twx.RESULT_VARIABLE}''" )
-    message ( "twx.OUTPUT_VARIABLE => ``${twx.OUTPUT_VARIABLE}''" )
-    message ( "twx.ERROR_VARIABLE  => ``${twx.ERROR_VARIABLE}''" )
   endforeach ()
   foreach ( type
     NOTICE

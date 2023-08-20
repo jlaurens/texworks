@@ -66,9 +66,9 @@ twx_cfg_file_name_out ( file_name IN_VAR var_out ) {}
 Beware of regular expression syntax.
 #]=======]
 function ( twx_cfg_file_name_out twx.R_FILE .IN_VAR twx.R_VAR )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_file_name_out" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_keyword ( .IN_VAR )
-  twx_assert_variable_name ( "${twx.R_VAR}" )
+  twx_var_assert_name ( "${twx.R_VAR}" )
   if ( twx.R_FILE MATCHES "^(.*)[.]in$" )
     set ( ${twx.R_VAR} "${CMAKE_MATCH_1}" )
   elseif ( twx.R_FILE MATCHES "^(.*)[.]in([.][^/]+)$" )
@@ -110,7 +110,7 @@ twx_cfg_file_begin ( ID id ) {}
 /*
 #]=======]
 function ( twx_cfg_file_begin )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_file_begin" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "" )
   twx_arg_assert_parsed ()
   twx_assert_non_void ( PROJECT_NAME twx.R_ID )
@@ -139,7 +139,7 @@ twx_cfg_file_add ( [ID id] FILES ... ) {}
 /*
 #]=======]
 function ( twx_cfg_file_add )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_file_add" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "FILES" )
   twx_arg_assert_parsed ()
   if ( NOT twx.R_ID )
@@ -217,7 +217,7 @@ twx_cfg_file_end ( [ID id] ) {}
 
 #]=======]
 function ( twx_cfg_file_end )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_file_end" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   twx_assert_non_void ( PROJECT_NAME )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
@@ -227,7 +227,7 @@ function ( twx_cfg_file_end )
   )
   twx_arg_assert_parsed ()
   twx_assert_non_void ( twx.R_IN_DIR twx.R_OUT_DIR )
-  twx_complete_dir_var ( twx.R_IN_DIR twx.R_OUT_DIR )
+  twx_dir_complete_var ( twx.R_IN_DIR twx.R_OUT_DIR )
   if ( NOT DEFINED "${twx.R_ID}" )
     twx_assert_non_void ( TWX_CFG_FILE__ID_CURRENT )
     set ( twx.R_ID "${TWX_CFG_FILE__ID_CURRENT}" )
@@ -278,10 +278,10 @@ function ( twx_cfg_file_end )
     if ( "${twx.R_IN_DIR}" STREQUAL "" )
       set ( twx.R_IN_DIR "${${twx.R_MODULE}_SRC_IN_DIR}" )
     else ()
-      twx_complete_dir_var ( twx.R_IN_DIR )
+      twx_dir_complete_var ( twx.R_IN_DIR )
     endif ()
     twx_assert_non_void ( twx.R_OUT_DIR )
-    twx_complete_dir_var ( twx.R_OUT_DIR )
+    twx_dir_complete_var ( twx.R_OUT_DIR )
     if ( IS_ABSOLUTE "${twx.R_OUT_DIR}" )
       set ( output_directory_ "${twx.R_OUT_DIR}" )
     else ()
@@ -321,12 +321,12 @@ function ( twx_cfg_file_end )
     twx_assert_undefined ( twx.R_MODULE )
     twx_target_expose ( ${twx.R_TARGET} )
     if ( DEFINED "${twx.R_IN_DIR}" )
-      twx_complete_dir_var ( twx.R_IN_DIR )
+      twx_dir_complete_var ( twx.R_IN_DIR )
     else ()
       set ( twx.R_IN_DIR "${${twx.R_TARGET}_SRC_IN_DIR}" )
     endif ()
     twx_assert_non_void ( twx.R_OUT_DIR )
-    twx_complete_dir_var ( twx.R_OUT_DIR )
+    twx_dir_complete_var ( twx.R_OUT_DIR )
     if ( IS_ABSOLUTE "${twx.R_OUT_DIR}" )
       set ( output_directory_ "${twx.R_OUT_DIR}" )
     else ()
@@ -509,7 +509,7 @@ twx_cfg_files ( [TYPE type] ... ) {}
 /*
 #]=======]
 function ( twx_cfg_files )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_cfg_files" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
       "ESCAPE_QUOTES;NO_PRIVATE"
@@ -541,11 +541,11 @@ function ( twx_cfg_files )
   endif ()
   twx_cfg_file_begin ( ID "${twx.R_ID}" )
   block ()
-  twx_message ( DEBUG
+  twx_message_log ( DEBUG
     "twx_cfg_files: ${TWX_CFG_FILE__ID_CURRENT} ->"
     DEEPER
   )
-  twx_message ( DEBUG
+  twx_message_log ( DEBUG
     ${twx.R_FILES}
   )
   endblock ()

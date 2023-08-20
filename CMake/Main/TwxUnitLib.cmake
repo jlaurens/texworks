@@ -46,7 +46,7 @@ twx_unit_case ( TARGET executable IN_VAR ans ) {}
 /*
 #]=======]
 function ( twx_unit_case )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_unit_case" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   # State
   twx_assert_exists ( "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory/" )
   twx_assert_non_void ( TWX_PROJECT_PRODUCT_DIR )
@@ -58,7 +58,7 @@ function ( twx_unit_case )
   )
   twx_arg_assert_parsed ()
   twx_assert_target ( "${twx.R_TARGET}" )
-  twx_assert_variable_name ( "${twx.R_IN_VAR}" )
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
   # Job
   set_target_properties (
     ${twx.R_TARGET}
