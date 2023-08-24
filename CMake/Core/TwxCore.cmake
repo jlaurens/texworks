@@ -49,16 +49,6 @@ include ( "${CMAKE_CURRENT_LIST_DIR}/TwxLib.cmake" )
 
 twx_lib_will_load ()
 
-string ( ASCII 01 TWX_CHAR_SOH )
-string ( ASCII 02 TWX_CHAR_STX )
-string ( ASCII 03 TWX_CHAR_ETX )
-string ( ASCII 25 TWX_CHAR_EM  )
-string ( ASCII 26 TWX_CHAR_SUB )
-string ( ASCII 28 TWX_CHAR_FS  )
-string ( ASCII 29 TWX_CHAR_GS  )
-string ( ASCII 30 TWX_CHAR_RS  )
-string ( ASCII 31 TWX_CHAR_US  )
-
 # ANCHOR: twx_set_if_defined
 #[=======[*/
 /** @brief Set or unset.

@@ -6,16 +6,28 @@ https://github.com/TeXworks/texworks
 /** @file
   * @brief Coloring messages.
   *
+  * Only 16 bits colors are supported.
   *
-  * Known formats:
-  *   `BOLD`, `RED`, `GREEN`, `YELLOW`, `BLUE`, `MAGENTA`, `CYAN`, `WHITE`,
-  *   `BOLD_RED`, `BOLD_GREEN`, `BOLD_YELLOW`, `BOLD_BLUE`, `BOLD_MAGENTA`, `BOLD_CYAN`, `BOLD_WHITE`
   */
 /** @brief Coloring
   *
-  * Turn this off to disable coloring, or switch to windows.
+  * Turn this off to disable coloring.
   */
 TWX_FORMAT_NO_COLOR;
+/** @brief Support 24 bits coloring
+  *
+  * This must be set once for all before any 24 bits format definitions.
+  * Turn this on to support 24 bits coloring.
+  * For the same ID, define 16 bits colors then 24 bits colors,
+  * such that when `TWX_FORMAT_24` is set we get 24 bits coloring
+  * otherwise we fall back to 16 bits coloring.
+  */
+TWX_FORMAT_24;
+/** @brief Coloring style
+  *
+  * Identifier used in format color definition.
+  */
+TWX_FORMAT_STYLE;
 /*
 Output:
 
@@ -56,12 +68,16 @@ set ( TWX_FORMAT_RESET  "${TWX_FORMAT_033}[0m" )
   *
   * Known color names: `BLACK`, `RED`, `GREEN`, `YELLOW`, `BLUE`, `MAGENTA`, `CYAN`, `WHITE`.
   * Optional modifier is "bright".
-
+  *
   * @param text_color, text color name or
+  *   <index> specification or
   *   <r>/<g>/<b> specification  where each component is
   *   a 0 to 255 integer.
   * @param output for key `APPEND_TO` is the list format variable holding the result
   * @param BACK, optional flag for the background color.
+  * @param REVERSE, optional flag.
+  * Set the color iff this flag and `TWX_FORMAT_REVERSE` have the same
+  * truthy value.
   *
   */
 twx_format_parse_color( color APPEND_TO format [BACK]) {}
@@ -71,58 +87,78 @@ function ( twx_format_parse_color )
   list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   # Avoid possible name conflicts
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx_format_parse_color.R
-    "BACK" "APPEND_TO" ""
+    PARSE_ARGV 0 twx.R
+    "BACK;REVERSE" "APPEND_TO" ""
   )
-  list ( POP_FRONT twx_format_parse_color.R_UNPARSED_ARGUMENTS twx_format_parse_color.R_COLOR )
-  if ( NOT twx_format_parse_color.R_UNPARSED_ARGUMENTS STREQUAL "" )
-    twx_fatal ( " Bad usage: ``${twx_format_parse_color.R_UNPARSED_ARGUMENTS}''" )
-    return ()
+  list ( POP_FRONT twx.R_UNPARSED_ARGUMENTS color_ )
+  if ( NOT twx.R_UNPARSED_ARGUMENTS STREQUAL "" )
+    message ( FATAL_ERROR " Bad usage: ``twx.R_UNPARSED_ARGUMENTS => ${twx.R_UNPARSED_ARGUMENTS}''" )
   endif ()
-  if ( NOT DEFINED twx_format_parse_color.R_APPEND_TO )
-    twx_fatal ( " Bad usage: Missing APPEND_TO" )
-    return ()
+  if ( NOT DEFINED twx.R_APPEND_TO )
+    message ( FATAL_ERROR " Bad usage: Missing APPEND_TO" )
   endif ()
-  twx_var_assert_name ( "${twx_format_parse_color.R_APPEND_TO}" )
-  set ( twx_format_parse_color.PREFIX )
-  string ( TOLOWER "${twx_format_parse_color.R_COLOR}" twx_format_parse_color.COLOR )
-  if ( "${twx_format_parse_color.COLOR}" MATCHES "^([0-9]+)/([0-9]+)/([0-9]+)$" )
-    if ( twx_format_parse_color.BACK )
-      list ( APPEND twx_format_parse_color.PREFIX "48" "5" )
+  twx_var_assert_name ( "${twx.R_APPEND_TO}" )
+  set ( prefix_ )
+  string ( TOLOWER "${color_}" color_ )
+  if ( "${color_}" MATCHES "^([0-9]+)/([0-9]+)/([0-9]+)$" )
+    # Under development
+    if ( NOT TWX_FORMAT_24 )
+      return ()
+    elseif ( twx.R_BACK )
+      list ( APPEND prefix_ "48" "2" )
     else ()
-      list ( APPEND twx_format_parse_color.PREFIX "38" "5" )
+      list ( APPEND prefix_ "38" "2" )
     endif ()
     foreach ( i 1 2 3 )
       set ( RGB_${i} "${CMAKE_MATCH_${i}}" )
       if ( RGB_${i} LESS "256" )
-        list ( APPEND twx_format_parse_color.PREFIX "${RGB_${i}}" )
+        list ( APPEND prefix_ "${RGB_${i}}" )
       else ()
-        twx_format_warning ( "Unsupported text color ``${twx_format_parse_color.R_COLOR}''" )
-        list ( APPEND twx_format_parse_color.PREFIX "255" )
+        twx_format_warning ( "Unsupported text color ``${color_}''" )
+        list ( APPEND prefix_ "255" )
       endif ()
     endforeach ()
+  elseif ( "${color_}" MATCHES "^([0-9]+)$" )
+    if ( twx.R_BACK )
+      list ( APPEND prefix_ "48" "5" )
+    else ()
+      list ( APPEND prefix_ "38" "5" )
+    endif ()
+    if ( CMAKE_MATCH_1 LESS "256" )
+      list ( APPEND prefix_ "${CMAKE_MATCH_1}" )
+    else ()
+      twx_format_warning ( "Unsupported text color ``${color_}''" )
+      list ( APPEND prefix_ "255" )
+    endif ()
   else ()
-    set ( twx_format_parse_color.COLORS black red green yellow blue magenta cyan white )
-    list ( FIND twx_format_parse_color.COLORS "${twx_format_parse_color.COLOR}" i )
+    if ( "${color_}" MATCHES "^bright (.*)$" )
+      set ( color_ "${CMAKE_MATCH_1}" )
+      set ( bright_ ON )
+    else ()
+      set ( bright_ OFF )
+    endif ()
+    set ( colors_ black red green yellow blue magenta cyan white )
+    list ( FIND colors_ "${color_}" i )
+    message ( DEBUG "i => ${i}" )
     if ( i LESS 0 )
-      twx_format_warning ( "Unsupported text color ``${twx_format_parse_color.R_COLOR}''" )
+      twx_format_warning ( "Unsupported text color ``${color_}''" )
       set ( i 1 )
     endif ()
-    if ( "${twx_format_parse_color.R_COLOR}" MATCHES "bright" )
-      if ( twx_format_parse_color.R_BACK )
-        math ( EXPR i "${i}+99")
+    if ( bright_ )
+      if ( twx.R_BACK )
+        math ( EXPR i "${i}+100")
       else ()
-        math ( EXPR i "${i}+89")
+        math ( EXPR i "${i}+90")
       endif ()
-    elseif ( twx_format_parse_color.R_BACK )
-      math ( EXPR i "${i}+39")
+    elseif ( twx.R_BACK )
+      math ( EXPR i "${i}+40")
     else ()
-      math ( EXPR i "${i}+29")
+      math ( EXPR i "${i}+30")
     endif ()
-    list ( APPEND twx_format_parse_color.PREFIX "${i}" )
+    list ( APPEND prefix_ "${i}" )
   endif ()
-  list ( APPEND ${twx_format_parse_color.R_APPEND_TO} "${twx_format_parse_color.PREFIX}" )
-  return ( PROPAGATE ${twx_format_parse_color.R_APPEND_TO} )
+  list ( APPEND ${twx.R_APPEND_TO} "${prefix_}" )
+  return ( PROPAGATE ${twx.R_APPEND_TO} )
 endfunction ( twx_format_parse_color )
 
 # ANCHOR: twx_format_define
@@ -132,20 +168,26 @@ endfunction ( twx_format_parse_color )
   * @brief Define a format
   *
   * Known color names: `BLACK`, `RED`, `GREEN`, `YELLOW`, `BLUE`, `MAGENTA`, `CYAN`, `WHITE`,
-
-  * @param BOLD, optional
-  * @param UNDERLINE, optional
-  * @param text_color for key TEXT_COLOR, text color name or
+  * This is based on `https://en.wikipedia.org/wiki/ANSI_escape_code`.
+  *
+  * @param BOLD, optional flag
+  * @param UNDERLINE, optional flag
+  * @param style for key `STYLE`, optional style name.
+  * When not provided, the default style name is the empty string.
+  * If the style is not exactly the global style defined by the
+  * `TWX_FORMAT_STYLE` variable, then this instruction is skipped.
+  * @param text_color for key `TEXT_COLOR`, text color name or
   *   <r>/<g>/<b> specification  where each component is
   *   a 0 to 255 integer.
-  * @param back_color for key BACK_COLOR, background color name or
+  * @param back_color for key `BACK_COLOR`, background color name or
   *   <r>/<g>/<b> specification  where each component is
   *   a 0 to 255 integer
   * @param id for key `ID`, the format identifier.
   *   The format will be exposed in the variable `TWX_FORMAT/<id>`.
-  * @param SCOPE, optional flag. The format is defined globally
-  *   whether this flag is set or not. When a format is defined globally,
-  *   it can be exposed in any scope with a call to `twx_format_expose ()`.
+  * @param SCOPE, optional flag. When set, the format is defined only
+  *   in the current scope, otherwise it is defined globally.
+  *   When a format is defined globally, it can be exposed in any scope
+  *   with a call to `twx_format_expose()`.
   */
 twx_format_define( ID id [SCOPE] [BOLD] [UNDERLINE] [TEXT_COLOR color] [BACK_COLOR bg_color] ) {}
 /*
@@ -154,8 +196,11 @@ function ( twx_format_define )
   list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
-    "BOLD;UNDERLINE;APPEND" "ID;TEXT_COLOR;BACK_COLOR" ""
+    "BOLD;UNDERLINE;APPEND;SCOPE" "ID;TEXT_COLOR;BACK_COLOR;TEXT_COLOR_24;BACK_COLOR_24;STYLE" ""
   )
+  if ( NOT "${twx.R_STYLE}" STREQUAL "${TWX_FORMAT_STYLE}" )
+    return ()
+  endif ()
   twx_var_assert_name ( "${twx.R_ID}" )
   set ( prefix_ )
   if ( twx.R_BOLD )
@@ -170,7 +215,13 @@ function ( twx_format_define )
   if ( DEFINED twx.R_BACK_COLOR )
     twx_format_parse_color ( "${twx.R_BACK_COLOR}" APPEND_TO prefix_ BACK )
   endif ()
-  set ( TWX_FORMAT/${twx.R_ID}  "${TWX_FORMAT_033}[${prefix_}m" )
+  if ( twx.R_APPEND )
+    if ( prefix_ )
+      string ( APPEND TWX_FORMAT/${twx.R_ID}  "${TWX_FORMAT_033}[${prefix_}m" )
+    endif ()
+  else ()
+    set ( TWX_FORMAT/${twx.R_ID}  "${TWX_FORMAT_033}[${prefix_}m" )
+  endif ()
   if ( NOT twx.R_SCOPE )
     set_property (
       GLOBAL
@@ -187,7 +238,7 @@ endfunction ()
   * @brief Expose a format
   *
   * @param id for key `ID`, the format identifier.
-  *   Set the variable `TWX_FORMAT[<id>]` to the format previously defined
+  *   Set the variable `TWX_FORMAT/<id>` to the format previously defined
   *   by a call to `twx_format_define()` with the same id.
   * @param OPTIONAL, optional flag. When unset, raise if the format id
   *   is not already defined. When set, does nothing.
@@ -198,27 +249,26 @@ twx_format_expose(ID id) {}
 function ( twx_format_expose .ID twx.R_ID )
   list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   if ( ARGC GREATER 2 )
-    twx_fatal ( " Bad usage: ``${ARGV}''" )
-    return ()
+    message ( FATAL_ERROR " Bad usage: ``ARGV => ${ARGV}''" )
   endif ()
   if ( NOT .ID STREQUAL "ID" )
-    twx_fatal ( "Unexpected: ``${.ID}''" )
-    return ()
+    message ( FATAL_ERROR "Unexpected: ``.ID => ${.ID}''" )
   endif ()
   twx_var_assert_name ( "${twx.R_ID}" )
-  get_property (
-    TWX_FORMAT/${twx.R_ID}
-    GLOBAL
-    PROPERTY TWX_FORMAT/${twx.R_ID}
-  )
-  if ( TWX_FORMAT/${twx.R_ID} MATCHES "NOTFOUND$" )
-    if ( NOT twx.R_OPTIONAL )
-      twx_fatal ( "Unknown format: ``${twx.R_ID}''" )
+  if ( NOT DEFINED TWX_FORMAT/${twx.R_ID} )
+    get_property (
+      TWX_FORMAT/${twx.R_ID}
+      GLOBAL
+      PROPERTY TWX_FORMAT/${twx.R_ID}
+    )
+    if ( TWX_FORMAT/${twx.R_ID} MATCHES "NOTFOUND$" )
+      if ( NOT twx.R_OPTIONAL )
+        message ( FATAL_ERROR "Unknown format: ``twx.R_ID => ${twx.R_ID}''" )
+      endif ()
       return ()
     endif ()
-    return ()
+    return ( PROPAGATE TWX_FORMAT/${twx.R_ID} )
   endif ()
-  return ( PROPAGATE TWX_FORMAT/${twx.R_ID} )
 endfunction ()
 
 # ANCHOR: twx_format_message
@@ -279,7 +329,7 @@ endfunction ()
 /**
   * @brief Message warner.
   *
-  * On theh first use only, display the warning message.
+  * On the first use only, display the warning message.
   *
   * @param ..., message to display.
   *
@@ -293,7 +343,7 @@ function ( twx_format_warning )
     GLOBAL
     PROPERTY TWX_FORMAT_NO_WARNING
   )
-  if ( no_warning_ MATCHES "NOTFOUND$" )
+  if ( NOT no_warning_ )
     set_property (
       GLOBAL
       PROPERTY TWX_FORMAT_NO_WARNING ON
@@ -301,6 +351,61 @@ function ( twx_format_warning )
     twx_format_message ( WARNING ${ARGV} )
   endif ()
 endfunction ()
+
+twx_lib_require ( "Var" )
+
+twx_format_define ( ID A UNDERLINE )
+message ( STATUS "${TWX_FORMAT/A}Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID A BOLD )
+message ( STATUS "${TWX_FORMAT/A}Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID A TEXT_COLOR RED )
+message ( STATUS "${TWX_FORMAT/A}RED Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID A TEXT_COLOR Green )
+message ( STATUS "${TWX_FORMAT/A}Green Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID A TEXT_COLOR "bright Green" )
+message ( STATUS "${TWX_FORMAT/A}bright Green Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID A BACK_COLOR "Green" )
+message ( STATUS "${TWX_FORMAT/A}bright Green Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID A TEXT_COLOR 100/20/40 )
+message ( STATUS "${TWX_FORMAT/A}A Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID B TEXT_COLOR 200/20/240 )
+message ( STATUS "${TWX_FORMAT_033}[38;2;200;20;255mB Hello Guys B${TWX_FORMAT_RESET}" )
+message ( STATUS "${TWX_FORMAT/B}B Hello Guys B${TWX_FORMAT_RESET}" )
+twx_format_define ( ID C TEXT_COLOR 117 )
+message ( STATUS "${TWX_FORMAT_033}[38;5;117mC Hello Guys${TWX_FORMAT_RESET}" )
+message ( STATUS "${TWX_FORMAT/C}C Hello Guys${TWX_FORMAT_RESET}" )
+
+message ( STATUS "${TWX_FORMAT_033}[38;2;10;5;100mHello Guys 38;2;10;5;100${TWX_FORMAT_RESET}" )
+# foreach ( i RANGE 0 255 )
+#   message ( STATUS "${TWX_FORMAT_033}[38;5;${i}mHello Guys ${i}${TWX_FORMAT_RESET}" )
+#   twx_format_define ( ID D SCOPE TEXT_COLOR ${i} )
+#   message ( STATUS "${TWX_FORMAT/D}Hello Guys ${i}${TWX_FORMAT_RESET}" )
+# endforeach ()
+message ( STATUS "${TWX_FORMAT_033}[31mHello Guys RED${TWX_FORMAT_RESET}" )
+message ( STATUS "${TWX_FORMAT_033}[32mHello Guys GREEN${TWX_FORMAT_RESET}" )
+
+message ( STATUS "${TWX_FORMAT_033}[38;2;30;40;50mHello Guys 38;2;30;40;50${TWX_FORMAT_RESET}" )
+
+twx_format_define ( ID D TEXT_COLOR 222 )
+message ( STATUS "${TWX_FORMAT/D}D Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID D TEXT_COLOR 111 STYLE Reversed )
+message ( STATUS "${TWX_FORMAT/D}D Hello Guys${TWX_FORMAT_RESET}" )
+block ()
+set ( TWX_FORMAT_STYLE Reversed )
+twx_format_define ( ID D TEXT_COLOR 111 STYLE Reversed )
+message ( STATUS "${TWX_FORMAT/D}D Hello Guys${TWX_FORMAT_RESET}" )
+endblock ()
+twx_format_define ( ID E TEXT_COLOR 91 )
+message ( STATUS "${TWX_FORMAT/E}E Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID E BOLD APPEND )
+message ( STATUS "${TWX_FORMAT/E}E Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID E TEXT_COLOR 58 APPEND )
+message ( STATUS "${TWX_FORMAT/E}E Hello Guys${TWX_FORMAT_RESET}" )
+twx_format_define ( ID E TEXT_COLOR 55/154/254 APPEND )
+message ( STATUS "${TWX_FORMAT/E}E Hello Guys${TWX_FORMAT_RESET}" )
+
+message ( FATAL_ERROR "${TWX_FORMAT_033}[31;1mHello ${TWX_FORMAT_033}[33;1mGuys${TWX_FORMAT_033}[0m\n" )
+
 
 twx_lib_did_load ()
 
