@@ -21,7 +21,7 @@ TWX_SUMMARY_NO_COLOR;
 /*
 Output:
 
-* `twx_format_log`
+* `twx_format_ter_log`
 * `twx_summary_log`
 * `twx_summary_log_kv`
 * `twx_summary_begin`
@@ -68,7 +68,7 @@ else ()
   )
 endif ()
 
-# ANCHOR: twx_format_message
+# ANCHOR: twx_format_ter_message
 #[=======[
 */
 /**
@@ -83,10 +83,10 @@ endif ()
   *   When not provided, the contents of *<output>* is used instead
   *
   */
-twx_format_message( [format] [TEXT msg ...] IN_VAR output ) {}
+twx_format_ter_message( [format] [TEXT msg ...] IN_VAR output ) {}
 /*
 #]=======]
-function ( twx_format_message )
+function ( twx_format_ter_message )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "" "IN_VAR" "TEXT"
@@ -116,7 +116,7 @@ function ( twx_format_message )
   )
 endfunction ()
 
-# ANCHOR: twx_format_log
+# ANCHOR: twx_format_ter_log
 #[=======[
 */
 /** @brief Print a message depending on a level.
@@ -127,7 +127,7 @@ endfunction ()
   * @param level is the log level, 0 to allways log, `+∞` to never log.
   *   `TWX_SUMMARY_LOG_LEVEL_CURRENT` is the maximum value for display.
   */
-twx_format_log ( [format] message ... [LEVEL level] ) {}
+twx_format_ter_log ( [format] message ... [LEVEL level] ) {}
 /** @brief maximum value for display
   *
   * Nothing is displayed if the given level is more than
@@ -195,8 +195,8 @@ function ( twx_summary__set_format twx.R_FORMAT .IN_VAR twx.R_IN_VAR )
   endif ()
 endfunction ( twx_summary__set_format )
 
-# ANCHOR: twx_format_log
-function ( twx_format_log )
+# ANCHOR: twx_format_ter_log
+function ( twx_format_ter_log )
   if ( ${ARGC} EQUAL "0" )
     return ()
   endif ()
@@ -207,12 +207,12 @@ function ( twx_format_log )
     return ()
   endif ()
   if ( DEFINED twx.R_FORMAT )
-    twx_format_message ( "${twx.R_FORMAT}" TEXT "${twx.R_UNPARSED_ARGUMENTS}" IN_VAR msg_ )
+    twx_format_ter_message ( "${twx.R_FORMAT}" TEXT "${twx.R_UNPARSED_ARGUMENTS}" IN_VAR msg_ )
   else ()
     set ( msg_ "[TWX]:${twx.R_UNPARSED_ARGUMENTS}" )
   endif ()
   message ( "${msg_}" )
-endfunction ( twx_format_log )
+endfunction ( twx_format_ter_log )
 
 # ANCHOR: twx_summary_log
 #[=======[ `twx_summary_log`
@@ -245,7 +245,7 @@ function ( twx_summary_log )
     return ()
   endif ()
   if ( NOT DEFINED value_ )
-    twx_format_message( ${twx.R_FORMAT} IN_VAR msg_ )
+    twx_format_ter_message( ${twx.R_FORMAT} IN_VAR msg_ )
     message ( "${TWX_SUMMARY_indentation}${msg_}" )
     return ()
   endif ()
@@ -267,7 +267,7 @@ function ( twx_summary_log )
   # for the next lines obtained by hard wrapping
   # this will be a blank string with the same length.
   string ( LENGTH "${prefix_}" length_ )
-  twx_format_message( ${twx.R_FORMAT} IN_VAR prefix_ )
+  twx_format_ter_message( ${twx.R_FORMAT} IN_VAR prefix_ )
   set ( blanks_ )
   foreach ( _i RANGE 1 ${length_} )
     set ( blanks_ " ${blanks_}" )
@@ -278,7 +278,7 @@ function ( twx_summary_log )
     string ( APPEND line_ " ${item}" )
     string ( LENGTH "${line_}" length_ )
     if ( "${length_}" GREATER "50" )
-      twx_format_message( ${twx.R_FORMAT} IN_VAR line_ )
+      twx_format_ter_message( ${twx.R_FORMAT} IN_VAR line_ )
       message ( "${prefix_}${line_}" )
       set ( prefix_ "${blanks_}" )
       # `msg_` and `line_` have been consumed,
@@ -289,7 +289,7 @@ function ( twx_summary_log )
   # Everything consumed?
   if ( NOT "${prefix_}" STREQUAL "" OR NOT "${line_}" STREQUAL "" )
     if ( NOT "${line_}" STREQUAL "" )
-      twx_format_message( ${twx.R_FORMAT} IN_VAR line_ )
+      twx_format_ter_message( ${twx.R_FORMAT} IN_VAR line_ )
     endif ()
     message ( "${prefix_}${line_}" )
   endif ()
@@ -401,7 +401,7 @@ function ( twx_summary_begin )
   if ( NOT TWX_SUMMARY_section_hidden_l )
     block ()
     set ( m "${TWX_SUMMARY_indentation}${twx.R_TITLE}" )
-    twx_format_message ( ${twx.R_FORMAT} IN_VAR m )
+    twx_format_ter_message ( ${twx.R_FORMAT} IN_VAR m )
     message ( "${m}" )
     endblock ()
   endif ()
@@ -465,7 +465,7 @@ function ( twx_summary_end )
   endif ()
   block ()
   list ( LENGTH TWX_SUMMARY_stack l )
-  twx_format_log( ">>> HIDDEN: ${TWX_SUMMARY_section_hidden_l}, DEPTH: ${l}" TRACE )
+  twx_format_ter_log( ">>> HIDDEN: ${TWX_SUMMARY_section_hidden_l}, DEPTH: ${l}" TRACE )
   endblock ()
   twx_export (
     TWX_SUMMARY_stack

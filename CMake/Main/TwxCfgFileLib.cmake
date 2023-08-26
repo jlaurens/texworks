@@ -66,7 +66,7 @@ twx_cfg_file_name_out ( file_name IN_VAR var_out ) {}
 Beware of regular expression syntax.
 #]=======]
 function ( twx_cfg_file_name_out twx.R_FILE .IN_VAR twx.R_VAR )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_keyword ( .IN_VAR )
   twx_var_assert_name ( "${twx.R_VAR}" )
   if ( twx.R_FILE MATCHES "^(.*)[.]in$" )
@@ -110,7 +110,7 @@ twx_cfg_file_begin ( ID id ) {}
 /*
 #]=======]
 function ( twx_cfg_file_begin )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "" )
   twx_arg_assert_parsed ()
   twx_assert_non_void ( PROJECT_NAME twx.R_ID )
@@ -139,7 +139,7 @@ twx_cfg_file_add ( [ID id] FILES ... ) {}
 /*
 #]=======]
 function ( twx_cfg_file_add )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "FILES" )
   twx_arg_assert_parsed ()
   if ( NOT twx.R_ID )
@@ -217,7 +217,7 @@ twx_cfg_file_end ( [ID id] ) {}
 
 #]=======]
 function ( twx_cfg_file_end )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_assert_non_void ( PROJECT_NAME )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
@@ -509,7 +509,7 @@ twx_cfg_files ( [TYPE type] ... ) {}
 /*
 #]=======]
 function ( twx_cfg_files )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
       "ESCAPE_QUOTES;NO_PRIVATE"

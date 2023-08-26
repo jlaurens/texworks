@@ -78,7 +78,7 @@ The argument are IO variable names, such that we must name local variables with 
 otherwise there might be a conflict.
 #]=======]
 function ( twx_dir_complete_var twx_dir_complete_var.var )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   set ( twx_dir_complete_var.i 0 )
   while ( TRUE )
     set ( twx_dir_complete_var.v "${ARGV${twx_dir_complete_var.i}}" )
@@ -123,7 +123,7 @@ message ( DEBUG "CMAKE_MODULE_PATH setup DONE" )
 twx_base_after_project() {}
 /*#]=======]
 macro ( twx_dir_after_project )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_expect_compare ( ${ARGC} == 1 )
   twx_expect_unequal_string ( "${PROJECT_NAME}" "" )
   # This has already been included
@@ -308,7 +308,7 @@ macro (
   .VAR_PREFIX
   twx.R_VAR_PREFIX
 )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_expect_equal_string ( "${.BINARY_DIR}" "BINARY_DIR" )
   twx_expect_equal_string ( "${.VAR_PREFIX}" "VAR_PREFIX" )
   twx_expect_unequal_string ( "${twx.R_BINARY_DIR}" "/" )

@@ -52,7 +52,7 @@ twx_global_save(TREE tree) {}
 /*
 #]=======]
 function ( twx_global_save .TREE twx.R_TREE )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 2 )
   twx_arg_assert_keyword ( .TREE )
   twx_tree_assert ( "${twx.R_TREE}" )
@@ -77,7 +77,7 @@ twx_global_clear() {}
 /*
 #]=======]
 function ( twx_global_clear )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 0 )
   twx_tree_init ( tree/ )
   set_target_properties (
@@ -103,7 +103,7 @@ twx_global_restore(IN_TREE tree) {}
 /*
 #]=======]
 function ( twx_global_restore .IN_TREE twx.R_IN_TREE )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 2 )
   twx_arg_assert_keyword ( .IN_TREE )
   twx_var_assert_name ( "${twx.R_IN_TREE}" )
@@ -135,7 +135,7 @@ twx_global_get(IN_TREE tree KEY key) {}
 /*
 #]=======]
 function ( twx_global_get .IN_TREE twx.R_IN_TREE .KEY twx.R_KEY )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 4 )
   twx_global_restore ( "${.IN_TREE}" "${twx.R_IN_TREE}" )
   # twx_tree_prettify ( "${${twx.R_IN_TREE}}" IN_VAR m )
@@ -167,7 +167,7 @@ twx_global_set(...) {}
 /*
 #]=======]
 function ( twx_global_set .kv )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_global_restore ( IN_TREE tree/ )
   set ( i 0 )
   while ( TRUE )
@@ -195,7 +195,7 @@ twx_global_remove(... ) {}
 /*
 #]=======]
 function ( twx_global_remove .key )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_global_restore ( IN_TREE tree/ )
   twx_tree_remove ( TREE tree/ KEY ${ARGV} )
   twx_global_save ( TREE tree/ )
@@ -216,7 +216,7 @@ twx_global_expose() {}
 /*
 #]=======]
 macro ( twx_global_expose .IN_TREE twx.R_IN_TREE )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 2 )
   twx_global_restore ( "${.IN_TREE}" "${twx.R_IN_TREE}" )
   twx_tree_expose ( TREE "${twx.R_IN_TREE}" )
@@ -259,7 +259,7 @@ twx_tree_prettify(message IN_VAR var) {}
 /*
 #]=======]
 function ( twx_global_prettify .IN_VAR twx.R_IN_VAR )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 2 )
   twx_arg_assert_keyword ( .IN_VAR )
   twx_var_assert_name ( "${twx.R_IN_VAR}" )

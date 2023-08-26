@@ -60,7 +60,7 @@ twx_export(... [VAR_PREFIX prefix] [EMPTY] [UNSET]){}
 /*
 #]=======]
 macro ( twx_export twx_export.kv. )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # message ( TR@CE "ARGC => ${ARGC}" )
   if ( twx_export.DURING )
     twx_fatal ( "twx_export is not reentrant.")

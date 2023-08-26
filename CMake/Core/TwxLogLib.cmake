@@ -197,7 +197,7 @@ twx_log_parse_color( color APPEND_TO format [BACK]) {}
 /*
 #]=======]
 function ( twx_log_parse_color )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # Avoid possible name conflicts
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_log_parse_color.R
@@ -288,7 +288,7 @@ twx_log_parse_format( [BOLD] [UNDERLINE] [TEXT_COLOR color] [BACK_COLOR bg_color
 /*
 #]=======]
 function ( twx_log_parse_format )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_log_parse_format.R
     "BOLD;UNDERLINE;APPEND" "IN_VAR;TEXT_COLOR;BACK_COLOR" ""
@@ -346,7 +346,7 @@ twx_log([STATUS|VERBOSE|DEBUG|TRACE] MSG message [VALUE value] [EOL]) {}
 /*
 #]=======]
 function ( twx_log )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
   if ( TWX_LOG.section_hidden OR ${ARGC} EQUAL "0" )
     return ()

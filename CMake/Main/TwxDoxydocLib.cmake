@@ -63,7 +63,7 @@ endif ()
 void twx_doxydoc() {}
 /*#]=======]
 function ( twx_doxydoc )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # set input and output files
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R

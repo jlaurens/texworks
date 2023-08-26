@@ -109,7 +109,7 @@ endfunction ()
 twx_state_serialize([IN_VAR var]) {}
 /*#]=======]
 function ( twx_state_serialize )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "" "IN_VAR" ""
@@ -140,7 +140,7 @@ endfunction ()
 twx_state_deserialize([state]) {}
 /*#]=======]
 macro ( twx_state_deserialize )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # Argument may be a variable name: avoid collision
   if ( ${ARGC} EQUAL "1" )
     set ( twx_state_deserialize.x "${ARGV0}" )
@@ -160,7 +160,7 @@ twx_lib_require ( "Core" "Tree" "Hook" "Arg" )
 
 twx_state_key_add (
   TWX_TEST_DOMAIN_NAME
-  TWX_TEST_SUITE_LIST
+  TWX_TEST_SUITE_STACK
   TWX_TEST_UNIT_NAME
   CMAKE_MESSAGE_INDENT
   CMAKE_MESSAGE_LOG_LEVEL

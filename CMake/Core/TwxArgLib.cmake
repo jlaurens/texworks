@@ -35,7 +35,7 @@ twx_lib_will_load ()
 twx_arg_assert(name ... ) {}
 /*#]=======]
 function ( twx_arg_assert name_ )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_arg_assert_parsed
     "" "PREFIX" ""
@@ -72,7 +72,7 @@ endfunction ( twx_arg_assert )
 twx_arg_assert_count(argc op right) {}
 /*#]=======]
 function ( twx_arg_assert_count argc_ op_ right_ )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # message ( TR@CE "${argc_} ${op_} ${right_}" )
   if ( ARGC GREATER 3 )
     twx_fatal ( "Too many arguments(${ARGC}>3)\nARGV => ``${ARGV}''" )
@@ -135,7 +135,7 @@ endfunction ( twx_arg_assert_count )
 twx_arg_pass_option( ... [PREFIX prefix]) {}
 /*#]=======]
 function ( twx_arg_pass_option option_ )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   while ( TRUE )
     set ( o "${ARGV${i}}" )
@@ -160,7 +160,7 @@ endfunction ()
 twx_arg_expect_keyword( actual_var expected_value ) {}
 /*#]=======]
 function ( twx_arg_expect_keyword twx_arg_expect_keyword.ACTUAL twx_arg_expect_keyword.EXPECTED )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 2 )
   if ( NOT "${${twx_arg_expect_keyword.ACTUAL}}" STREQUAL "${twx_arg_expect_keyword.EXPECTED}" )
     twx_fatal ( "Missing keyword: ${${twx_arg_expect_keyword.ACTUAL}} \
@@ -180,7 +180,7 @@ endfunction ( twx_arg_expect_keyword )
 twx_arg_assert_keyword( ... ) {}
 /*#]=======]
 function ( twx_arg_assert_keyword twx_arg_assert_keyword.ACTUAL )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   foreach ( twx_arg_assert_keyword.ACTUAL ${ARGV} )
     if ( twx_arg_assert_keyword.ACTUAL MATCHES "[A-Z][A-Z]([A-Z_]*[A-Z][A-Z]|[A-Z]*)" )
       twx_arg_expect_keyword ( "${twx_arg_assert_keyword.ACTUAL}" "${CMAKE_MATCH_0}" )
@@ -201,7 +201,7 @@ endfunction ( twx_arg_assert_keyword )
 twx_arg_assert_parsed([PREFIX prefix] [UNEXPECTED ...]) {}
 /*#]=======]
 macro ( twx_arg_assert_parsed )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     twx_arg_assert_parsed.R
     "" "PREFIX" "UNEXPECTED"

@@ -41,7 +41,7 @@ twx_split_assign(kv [IN_VAR var|IN_KEY key IN_VALUE value]) {}
 /*
 #]=======]
 function ( twx_split_assign )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # One of the arguments may be a variable name: avoid collisions
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_split_assign.R
@@ -113,7 +113,7 @@ twx_split_compare(comparison IN_LEFT left IN_OP op IN_RIGHT right IN_NEGATE nega
 /*
 #]=======]
 function ( twx_split_compare twx.R_COMPARISON )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} = 9 )
   cmake_parse_arguments (
     PARSE_ARGV 1 twx.R
@@ -176,7 +176,7 @@ twx_split_append(...) {}
 /*
 #]=======]
 function ( twx_split_append .kv )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   set ( ARGV${ARGC} )
   while ( DEFINED ARGV${i} )
@@ -208,7 +208,7 @@ twx_split_prepend(...) {}
 /*
 #]=======]
 function ( twx_split_prepend .kv )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   set ( ARGV${ARGC} )
   while ( DEFINED ARGV${i} )

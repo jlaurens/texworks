@@ -46,16 +46,13 @@ twx_fatal(...){}
 /*
 #]=======]
 macro ( twx_fatal )
-  # list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
+  # NO: list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
   set ( twx_fatal.FILE "${CMAKE_CURRENT_LIST_FILE}" )
   set ( twx_fatal.LINE "${CMAKE_CURRENT_LIST_LINE}" )
   if ( TWX_FATAL_CATCH )
     twx_fatal_get ( IN_VAR twx_fatal.MSG )
-    message ( STATUS "twx_fatal.MSG => ``${twx_fatal.MSG}''" )
     if ( DEFINED twx_fatal.MSG )
-      string ( APPEND twx_fatal.MSG "\n " )
-    else ()
-      set ( twx_fatal.MSG " " )
+      string ( APPEND twx_fatal.MSG "\n" )
     endif ()
   else ()
     set ( twx_fatal.MSG )
@@ -63,25 +60,22 @@ macro ( twx_fatal )
   cmake_parse_arguments (
     twx_fatal.R "RETURN;BREAK" "VAR" "" ${ARGV}
   )
-  message ( STATUS "twx_fatal.MSG => ``${twx_fatal.MSG}''" )
-  foreach ( twx_fatal.m twx_fatal.R_UNPARSED_ARGUMENTS )
+  foreach ( twx_fatal.m ${twx_fatal.R_UNPARSED_ARGUMENTS} )
     if ( "${twx_fatal.m}" MATCHES "(^|[^\\])(\\\\)*\\$" )
-      list ( APPEND twx_fatal.MSG "${twx_fatal.m}\\" )
+      list ( APPEND twx_fatal.MSG " ${twx_fatal.m}\\" )
     else ()
-      list ( APPEND twx_fatal.MSG "${twx_fatal.m}" )
+      list ( APPEND twx_fatal.MSG " ${twx_fatal.m}" )
     endif ()
   endforeach ()
-  message ( STATUS "twx_fatal.MSG => ``${twx_fatal.MSG}''" )
   if ( DEFINED twx_fatal.R_VAR )
     if ( v MATCHES "${TWX_CORE_VARIABLE_RE}" )
       string ( APPEND twx_fatal.MSG ": ${twx_fatal.R_VAR} => ``${${twx_fatal.R_VAR}}''" )
     else ()
-      set ( twx_fatal.MSG "Not a variable name: ``${twx_fatal.R_VAR}''" )
+      set ( twx_fatal.MSG " Not a variable name: ``${twx_fatal.R_VAR}''" )
       set ( twx_fatal.FILE "${CMAKE_CURRENT_FUNCTION_FILE}" )
       set ( twx_fatal.LINE "${CMAKE_CURRENT_FUNCTION_LINE}" )
     endif ()
   endif ()
-  message ( STATUS "twx_fatal.MSG => ``${twx_fatal.MSG}''" )
   if ( TWX_FATAL_CATCH )
     set_property (
       GLOBAL
@@ -112,46 +106,61 @@ macro ( twx_fatal )
       PROPERTY TWX_FATAL_WHERE "${twx_fatal.WHERE}"
     )
     string ( REPLACE ";" "->" twx_fatal.CONTEXT "${CMAKE_MESSAGE_CONTEXT}" )
-    twx_var_log ( twx_fatal.CONTEXT )
     set_property (
       GLOBAL
       PROPERTY TWX_FATAL_CONTEXT "${twx_fatal.CONTEXT}"
     )
     if ( TWX_TEST )
-      twx_var_log ( twx_fatal.MSG MSG "TWX_TEST" )
-      message ( CHECK_START "${CMAKE_MESSAGE_CONTEXT}/TWX_FATAL_MESSAGE" )
+      block ()
       get_property (
-        twx_fatal.MSG_saved
+        test_done_
         GLOBAL
-        PROPERTY TWX_FATAL_MESSAGE
+        PROPERTY TWX_FATAL_TEST_DONE
       )
-      if ( NOT twx_fatal.MSG_saved STREQUAL twx_fatal.MSG )
-        message ( CHECK_FAIL "Internal inconsistency 1" )
+      if ( NOT test_done_ )
+        set_property (
+          GLOBAL
+          PROPERTY TWX_FATAL_TEST_DONE ON
+        )
+        twx_var_log ( DEBUG twx_fatal.MSG MSG "TWX_TEST" )
+        message ( CHECK_START "TWX_FATAL_MESSAGE" )
+        get_property (
+          twx_fatal.MSG_saved
+          GLOBAL
+          PROPERTY TWX_FATAL_MESSAGE
+        )
+        if ( twx_fatal.MSG_saved STREQUAL twx_fatal.MSG )
+          message ( CHECK_PASS "${TWX_FORMAT/Test/PASS}PASSED${TWX_FORMAT_RESET}" )
+        else ()
+          message ( CHECK_FAIL "${TWX_FORMAT/Test/FAIL}Internal inconsistency 1${TWX_FORMAT_RESET}" )
+        endif ()
+        message ( CHECK_START "TWX_FATAL_WHERE" )
+        get_property (
+          twx_fatal.WHERE_saved
+          GLOBAL
+          PROPERTY TWX_FATAL_WHERE
+        )
+        if ( twx_fatal.WHERE_saved STREQUAL twx_fatal.WHERE )
+          message ( CHECK_PASS "${TWX_FORMAT/Test/PASS}PASSED${TWX_FORMAT_RESET}" )
+        else ()
+          twx_var_log ( twx_fatal.WHERE_saved )
+          message ( CHECK_FAIL "${TWX_FORMAT/Test/FAIL}Internal inconsistency 2${TWX_FORMAT_RESET}" )
+        endif ()
+        message ( CHECK_START "TWX_FATAL_CONTEXT" )
+        get_property (
+          twx_fatal.CONTEXT_saved
+          GLOBAL
+          PROPERTY TWX_FATAL_CONTEXT
+        )
+        if ( twx_fatal.CONTEXT_saved STREQUAL twx_fatal.CONTEXT )
+          message ( CHECK_PASS "${TWX_FORMAT/Test/PASS}PASSED${TWX_FORMAT_RESET}" )
+        else ()
+          twx_var_log ( twx_fatal.CONTEXT )
+          twx_var_log ( twx_fatal.CONTEXT_saved )
+          message ( CHECK_FAIL "${TWX_FORMAT/Test/FAIL}Internal inconsistency 3${TWX_FORMAT_RESET}" )
+        endif ()
       endif ()
-      message ( CHECK_START "${CMAKE_MESSAGE_CONTEXT}/TWX_FATAL_WHERE" )
-      get_property (
-        twx_fatal.WHERE_saved
-        GLOBAL
-        PROPERTY TWX_FATAL_WHERE
-      )
-      if ( twx_fatal.WHERE_saved STREQUAL twx_fatal.WHERE )
-        message ( CHECK_PASS "OK" )
-      else ()
-        twx_var_log ( twx_fatal.WHERE_saved )
-        message ( CHECK_FAIL "Internal inconsistency 2" )
-      endif ()
-      message ( CHECK_START "${CMAKE_MESSAGE_CONTEXT}/TWX_FATAL_CONTEXT" )
-      get_property (
-        twx_fatal.CONTEXT_saved
-        GLOBAL
-        PROPERTY TWX_FATAL_MESSAGE
-      )
-      if ( twx_fatal.CONTEXT_saved STREQUAL twx_fatal.CONTEXT )
-        message ( CHECK_PASS "OK" )
-      else ()
-        twx_var_log ( twx_fatal.CONTEXT_saved )
-        message ( CHECK_FAIL "Internal inconsistency 3" )
-      endif ()
+      endblock ()
     endif ()
     if ( twx_fatal.R_RETURN )
       return ()
@@ -181,23 +190,24 @@ twx_fatal_get(IN_VAR var){}
 /*
 #]=======]
 function ( twx_fatal_get )
-  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_get" )
+  # Avoid name conflicts
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx.R
+    PARSE_ARGV 0 ${TWX_CMD}.R
     "" "IN_VAR" ""
   )
-  if ( DEFINED twx.R_UNPARSED_ARGUMENTS )
+  if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
     message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  if ( NOT "${twx.R_IN_VAR}" MATCHES "${TWX_CORE_VARIABLE_RE}" )
+  if ( NOT "${${TWX_CMD}.R_IN_VAR}" MATCHES "${TWX_CORE_VARIABLE_RE}" )
     message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''" )
   endif ()
   get_property (
-    ${twx.R_IN_VAR}
+    ${${TWX_CMD}.R_IN_VAR}
     GLOBAL
     PROPERTY TWX_FATAL_MESSAGE
   )
-  return ( PROPAGATE ${twx.R_IN_VAR} )
+  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
 endfunction ()
 
 # ANCHOR: twx_fatal_set
@@ -213,23 +223,22 @@ twx_fatal_get(VAR var){}
 /*
 #]=======]
 function ( twx_fatal_set )
-  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_set" )
+  twx_cmd_begin ( "${CMAKE_CURRENT_FUNCTION}" )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx.R
+    PARSE_ARGV 0 ${TWX_CMD}.R
     "" "VAR" ""
   )
-  if ( DEFINED twx.R_UNPARSED_ARGUMENTS )
+  if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
     message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  if ( NOT "${twx.R_VAR}" MATCHES "${TWX_CORE_VARIABLE_RE}" )
+  if ( NOT "${${TWX_CMD}.R_VAR}" MATCHES "${TWX_CORE_VARIABLE_RE}" )
     message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''" )
   endif ()
   set_property (
-    ${twx.R_IN_VAR}
     GLOBAL
-    PROPERTY TWX_FATAL_MESSAGE "${twx.R_VAR}"
+    PROPERTY TWX_FATAL_MESSAGE "${${TWX_CMD}.R_VAR}"
   )
-endfunction ()
+endfunction ( twx_fatal_set )
 
 # ANCHOR: twx_fatal_clear
 #[=======[
@@ -243,7 +252,7 @@ twx_fatal_clear (){}
 /*
 #]=======]
 function ( twx_fatal_clear )
-  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_clear" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_clear" )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR "Too many arguments: ${ARGC} instead of 0." )
   endif ()
@@ -266,7 +275,7 @@ twx_fatal_test () {}
 /*
 #]=======]
 function ( twx_fatal_test )
-  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_test" )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_test" )
   if ( NOT DEFINED twx_fatal_test.CATCH_SAVED )
     set ( twx_fatal_test.CATCH_SAVED "${TWX_FATAL_CATCH}" PARENT_SCOPE )
   endif ()
@@ -277,50 +286,107 @@ function ( twx_fatal_test )
   twx_fatal_clear ()
 endfunction ()
 
-# ANCHOR: twx_fatal_assert_passed
+# ANCHOR: twx_fatal_assert_pass
 #[=======[
 */
 /** @brief Raise when a test unexpectedly raised.
   *
   * This is not extremely strong but does the job in most situations.
+  *
+  * @param CHECK, optional flag to indicate that it closes a `CHECK_START`.
+  * @param MESSAGE_CONTEXT_HIDE, optional flag to not show the message context.
+  *   When not provided, the current state applies.
   */
-twx_fatal_assert_passed () {}
+twx_fatal_assert_pass ([CHECK] [MESSAGE_CONTEXT_HIDE]) {}
 /*
 #]=======]
-function ( twx_fatal_assert_passed )
-  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_assert_passed" )
-  if ( ${ARGC} GREATER "0" )
-    message ( FATAL_ERROR "Too many arguments" )
+function ( twx_fatal_assert_pass )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "CHECK;MESSAGE_CONTEXT_HIDE" "" ""
+  )
+  twx_fatal_catched ( IN_VAR ${TWX_CMD}.v )
+  if ( ${TWX_CMD}.R_MESSAGE_CONTEXT_HIDE )
+    set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
   endif ()
-  twx_fatal_catched ( IN_VAR twx_fatal_assert_passed.v )
-  if ( twx_fatal_assert_passed.v AND NOT twx_fatal_assert_passed.v STREQUAL "" )
-    message ( FATAL_ERROR "${twx_fatal_assert_passed.v}" )
+  if ( ${TWX_CMD}.v AND NOT ${TWX_CMD}.v STREQUAL "" )
+    set ( ${TWX_CMD}.CHECK FAIL )
+    set ( ${TWX_CMD}.BANNER "${${TWX_CMD}.v}" )
+  else ()
+    set ( ${TWX_CMD}.CHECK PASS )
+    set ( ${TWX_CMD}.BANNER "${${TWX_CMD}.CHECK}" )
   endif ()
+  string ( PREPEND ${TWX_CMD}.BANNER "${TWX_FORMAT/Test/${${TWX_CMD}.CHECK}}" )
+  if ( ${TWX_CMD}.R_CHECK )
+    set ( ${TWX_CMD}.MODE "CHECK_${${TWX_CMD}.CHECK}" )
+  else ()
+    set ( ${TWX_CMD}.MODE STATUS )
+    if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
+      list ( POP_FRONT ${TWX_CMD}.R_UNPARSED_ARGUMENTS ${TWX_CMD}.MODE )
+      set ( ${TWX_CMD}.MODES VERBOSE DEBUG TRACE ) 
+      if ( NOT ${TWX_CMD}.MODE IN_LIST ${TWX_CMD}.MODES )
+        list ( PREPEND ${TWX_CMD}.R_UNPARSED_ARGUMENTS ${TWX_CMD}.MODE )
+        set ( ${TWX_CMD}.MODE STATUS )
+      endif ()
+      string ( PREPEND ${TWX_CMD}.BANNER "${${TWX_CMD}.R_UNPARSED_ARGUMENTS} - " )
+    endif ()
+  endif ()
+  message ( ${${TWX_CMD}.MODE} "${${TWX_CMD}.BANNER}${TWX_FORMAT_RESET}" )
   twx_fatal_clear ()
   if ( DEFINED twx_fatal_test.CATCH_SAVED )
     set ( TWX_FATAL_CATCH "${twx_fatal_test.CATCH_SAVED}" PARENT_SCOPE )
   endif ()
 endfunction ()
 
-# ANCHOR: twx_fatal_assert_failed
+# ANCHOR: twx_fatal_assert_fail
 #[=======[
 */
 /** @brief Raise when a test did not expectedly raised.
   *
   * This is not extremely strong but does the job in most situations.
+  *
+  * @param CHECK, optional flag to indicate that it closes a `CHECK_START`.
+  * @param MESSAGE_CONTEXT_HIDE, optional flag to not show the message context.
+  *   When not provided, the current state applies.
+  *
   */
-twx_fatal_assert_failed () {}
+twx_fatal_assert_fail () {}
 /*
 #]=======]
-function ( twx_fatal_assert_failed )
-  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_assert_failed" )
-  if ( ${ARGC} GREATER "0" )
-    message ( FATAL_ERROR "Too many arguments" )
+function ( twx_fatal_assert_fail )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "CHECK;MESSAGE_CONTEXT_HIDE" "" ""
+  )
+  twx_fatal_catched ( IN_VAR ${TWX_CMD}.v )
+  if ( ${TWX_CMD}.R_MESSAGE_CONTEXT_HIDE )
+    set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
   endif ()
-  twx_fatal_catched ( IN_VAR twx_fatal_assert_failed.v )
-  if ( NOT twx_fatal_assert_failed.v OR twx_fatal_assert_failed.v STREQUAL "" )
-    message ( FATAL_ERROR "FAILURE" )
+  if ( NOT ${TWX_CMD}.v OR ${TWX_CMD}.v STREQUAL "" )
+    set ( ${TWX_CMD}.CHECK FAIL )
+    set ( ${TWX_CMD}.BANNER "${${TWX_CMD}.v}" )
+  else ()
+    set ( ${TWX_CMD}.CHECK PASS )
+    set ( ${TWX_CMD}.BANNER "${${TWX_CMD}.CHECK}" )
   endif ()
+  string ( PREPEND ${TWX_CMD}.BANNER "${TWX_FORMAT/Test/${${TWX_CMD}.CHECK}}" )
+  if ( ${TWX_CMD}.R_CHECK )
+    set ( ${TWX_CMD}.MODE "CHECK_${${TWX_CMD}.CHECK}" )
+  else ()
+    set ( ${TWX_CMD}.MODE STATUS )
+    if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
+      list ( POP_FRONT ${TWX_CMD}.R_UNPARSED_ARGUMENTS ${TWX_CMD}.MODE )
+      set ( ${TWX_CMD}.MODES VERBOSE DEBUG TRACE ) 
+      if ( NOT ${TWX_CMD}.MODE IN_LIST ${TWX_CMD}.MODES )
+        list ( PREPEND ${TWX_CMD}.R_UNPARSED_ARGUMENTS ${TWX_CMD}.MODE )
+        set ( ${TWX_CMD}.MODE STATUS )
+      endif ()
+      string ( PREPEND ${TWX_CMD}.BANNER "${${TWX_CMD}.R_UNPARSED_ARGUMENTS} - " )
+    endif ()
+  endif ()
+  message ( ${${TWX_CMD}.MODE} "${${TWX_CMD}.BANNER}${TWX_FORMAT_RESET}" )
   twx_fatal_clear ()
   if ( DEFINED twx_fatal_test.CATCH_SAVED )
     set ( TWX_FATAL_CATCH "${twx_fatal_test.CATCH_SAVED}" PARENT_SCOPE )
@@ -343,30 +409,28 @@ twx_fatal_catched (IN_VAR var [IN_CONTEXT context]){}
 /*
 #]=======]
 function ( twx_fatal_catched )
-  list (  APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal_catched" )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx_fatal_catched.R
+    PARSE_ARGV 0 ${TWX_CMD}.R
     "" "IN_VAR;IN_CONTEXT" ""
   )
-  twx_var_log ( twx_fatal_catched.R_IN_VAR )
-  twx_var_log ( twx_fatal_catched.R_IN_CONTEXT )
-  twx_var_assert_name ( "${twx_fatal_catched.R_IN_VAR}" )
-  if ( NOT twx.R_UNPARSED_ARGUMENTS STREQUAL "" )
-    set ( ${twx.R_IN_VAR} " Bad usage: ``${twx_fatal_catched.R_UNPARSED_ARGUMENTS}''." )
-    return ( PROPAGATE ${twx_fatal_catched.R_IN_VAR} ${twx_fatal_catched.R_IN_CONTEXT} )
+  twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+  if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
+    set ( ${${TWX_CMD}.R_IN_VAR} " Bad usage: ``${${TWX_CMD}.R_UNPARSED_ARGUMENTS}''." )
+    return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} ${${TWX_CMD}.R_IN_CONTEXT} )
   endif ()
-  twx_fatal_get ( IN_VAR ${twx_fatal_catched.R_IN_VAR} )
-  message ( " ${twx_fatal_catched.R_IN_VAR} => ``${${twx_fatal_catched.R_IN_VAR}}''" )
-  if ( twx_fatal_catched.R_IN_CONTEXT )
-    twx_var_assert_name ( "${twx_fatal_catched.R_IN_CONTEXT}" )
+  twx_fatal_get ( IN_VAR ${${TWX_CMD}.R_IN_VAR} )
+  # message ( TRACE " ${${TWX_CMD}.R_IN_VAR} => ``${${${TWX_CMD}.R_IN_VAR}}''" )
+  if ( ${TWX_CMD}.R_IN_CONTEXT )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_CONTEXT}" )
     get_property (
-      ${twx_fatal_catched.R_IN_CONTEXT}
+      ${${TWX_CMD}.R_IN_CONTEXT}
       GLOBAL
       PROPERTY TWX_FATAL_CONTEXT
     )
-    message ( " ${twx_fatal_catched.R_IN_CONTEXT} => ``${${twx_fatal_catched.R_IN_CONTEXT}}''" )
+    # message ( TRACE " ${${TWX_CMD}.R_IN_CONTEXT} => ``${${${TWX_CMD}.R_IN_CONTEXT}}''" )
   endif ()
-  return ( PROPAGATE ${twx_fatal_catched.R_IN_VAR} ${twx_fatal_catched.R_IN_CONTEXT} )
+  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} ${${TWX_CMD}.R_IN_CONTEXT} )
 endfunction ( twx_fatal_catched )
 
 # ANCHOR: twx_return_on_fatal

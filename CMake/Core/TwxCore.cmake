@@ -115,7 +115,7 @@ twx_regex_escape(... IN_VAR var ) {}
 set ( twx_regex_escape_RE [=[[]()|?+*[\\.$^-]]=] )
 
 function ( twx_regex_escape .text .IN_VAR .var )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 1 twx.R "" "IN_VAR" "" )
   if ( NOT DEFINED twx.R_IN_VAR )
     twx_fatal ( "Missing IN_VAR argument.")

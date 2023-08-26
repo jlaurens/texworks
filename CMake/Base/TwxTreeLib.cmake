@@ -59,7 +59,7 @@ twx_tree_assert([tree]) {}
 /*
 #]=======]
 function ( twx_tree_assert )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # Argument can be a variable name: avoid collision
   if ( ${ARGC} EQUAL 0 )
     set ( twx_tree_assert.x "TWX_TREE" )
@@ -88,7 +88,7 @@ twx_tree_init([tree]) {}
 /*
 #]=======]
 function ( twx_tree_init )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # Argument can be a variable name: avoid collision
   if ( ${ARGC} EQUAL 0 )
     set ( twx_tree_init.x TWX_TREE )
@@ -137,7 +137,7 @@ twx_tree_assert_key(key ...) {}
 /*
 #]=======]
 function ( twx_tree_assert_key .key )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   while ( TRUE )
     set ( k "${ARGV${i}}" )
@@ -233,7 +233,7 @@ twx_tree_get([TREE tree] KEY key [IN_VAR var]) {}
 /*
 #]=======]
 function ( twx_tree_get .KEY .key )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
 # TODO: More list ( APPEND CMAKE_MESSAGE_CONTEXT ... )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TREE;KEY;IN_VAR" "" )
   twx_arg_assert_parsed ()
@@ -319,7 +319,7 @@ twx_tree_set([TREE tree] ... ) {}
 /*
 #]=======]
 function ( twx_tree_set )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TREE" "" )
   # message ( TR@CE "Parsed: twx.R_TREE => ``${twx.R_TREE}''")
   if ( DEFINED "twx.R_TREE" )
@@ -410,7 +410,7 @@ twx_tree_remove(TREE tree KEY ...) {}
 /*
 #]=======]
 function ( twx_tree_remove )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TREE" "KEY" )
   twx_arg_assert_parsed ()
   if ( "${twx.R_TREE}" STREQUAL "" )
@@ -524,7 +524,7 @@ twx_tree_expose(TREE tree [PREFIX prefix]) {}
 /*
 #]=======]
 function ( twx_tree_expose )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "TREE;PREFIX" "" )
   twx_arg_assert_parsed ()
   if ( NOT DEFINED  twx.R_TREE )
@@ -597,7 +597,7 @@ twx_tree_log(tree) {}
 /*
 #]=======]
 function ( twx_tree_log )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "NO_BANNER" "TREE" "" )
   twx_arg_assert_parsed ()
   if ( "${twx.R_TREE}" STREQUAL "" )
@@ -643,7 +643,7 @@ twx_tree_prettify(message IN_VAR var) {}
 /*
 #]=======]
 function ( twx_tree_prettify twx.R_MSG .IN_VAR twx.R_IN_VAR )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_count ( ${ARGC} == 3 )
   twx_arg_assert_keyword ( .IN_VAR )
   twx_var_assert_name ( "${twx.R_IN_VAR}" )

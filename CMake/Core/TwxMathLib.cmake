@@ -37,7 +37,7 @@ endif ()
 twx_math_compare( expression IN_VAR var ) {}
 /*#]=======]
 function ( twx_math_compare expression_ .IN_VAR twx.R_IN_VAR )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   if ( ${ARGC} GREATER "3" )
     twx_fatal ( "Too many arguments." )
   endif ()
@@ -198,7 +198,7 @@ endfunction ( twx_math_evaluate )
 twx_math(EXPR ans expression [OUTPUT_FORMAT format]) {}
 /*#]=======]
 function ( twx_math .EXPR twx.R_IN_VAR expression_ )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   twx_arg_assert_keyword ( .EXPR )
   twx_var_assert_name ( "${twx.R_IN_VAR}" )
   while ( expression_ MATCHES "^(.*[^!-]|)(!*)(-)?\\(([^)]+)\\)(.*)$" )

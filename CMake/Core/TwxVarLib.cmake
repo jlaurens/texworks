@@ -55,7 +55,7 @@ set (
 twx_var_assert_name(...) {}
 /*#]=======]
 function ( twx_var_assert_name .name )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )
@@ -85,36 +85,34 @@ endfunction ( twx_var_assert_name )
   */
 twx_var_log( [MODE] [MSG msg] var ) {}
 /*#]=======]
-function ( twx_var_log )
+macro ( twx_var_log )
   # Possible name conflicts
+  set ( twx_var_log.ARGV ${ARGV} )
   string ( FIND ";FATAL_ERROR;SEND_ERROR;WARNING;AUTHOR_WARNING;DEPRECATION;NOTICE;STATUS;VERBOSE;DEBUG;TRACE;CHECK_START;CHECK_PASS;CHECK_FAIL;CONFIGURE_LOG;" ";${ARGV0};" twx_var_log.WHERE )
   if ( twx_var_log.WHERE LESS 0 )
     set ( twx_var_log.MODE )
-    set ( twx_var_log.I 0 )
   else ()
-    set ( twx_var_log.MODE "${ARGV0}" )
-    set ( twx_var_log.I 1 )
+    list ( POP_FRONT twx_var_log.ARGV twx_var_log.MODE )
   endif ()
   # message ( "*************** twx_var_log.I => ``${twx_var_log.I}''")
   cmake_parse_arguments (
-    PARSE_ARGV "${twx_var_log.I}" twx_var_log.R
-    "" "MSG" ""
+    twx_var_log.R "" "MSG" "" ${twx_var_log.ARGV}
   )
-  if ( twx_var_log.R_MSG )
+  if ( DEFINED twx_var_log.R_MSG )
     set ( twx_var_log.R_MSG " ${twx_var_log.R_MSG}: " )
   else ()
-    set ( twx_var_log.R_MSG " " )
+    set ( twx_var_log.R_MSG "" )
   endif ()
   # message ( "*************** twx_var_log.R_UNPARSED_ARGUMENTS => ``${twx_var_log.R_UNPARSED_ARGUMENTS}''")
   # message ( "*************** ARGV => ``${ARGV}''")
   foreach ( twx_var_log.VAR ${twx_var_log.R_UNPARSED_ARGUMENTS} )
     if ( DEFINED "${twx_var_log.VAR}" )
-      message ( ${} "${twx_var_log.R_MSG}${twx_var_log.VAR} => ``${${twx_var_log.VAR}}''" )
+      message ( ${twx_var_log.MODE} "${twx_var_log.R_MSG}${TWX_FORMAT/Var}${twx_var_log.VAR} => ``${${twx_var_log.VAR}}''${TWX_FORMAT_RESET}" )
     else ()
-      message ( ${} "${twx_var_log.R_MSG}${twx_var_log.VAR} -> UNDEFINED")
+      message ( ${twx_var_log.MODE} "${twx_var_log.R_MSG}${TWX_FORMAT/Var}${twx_var_log.VAR} -> UNDEFINED${TWX_FORMAT_RESET}")
     endif ()
   endforeach ()
-endfunction ( twx_var_log )
+endmacro ( twx_var_log )
 
 twx_lib_did_load ()
 
