@@ -130,7 +130,7 @@ endfunction ()
 twx_expect(actual_var expected_value [NUMBER] ) {}
 /*
 #]=======]
-function ( twx_expect twx_expect.ACTUAL twx_expect.EXPECTED )
+function ( twx_expect twx.R_ACTUAL_VAR twx.R_EXPECTED )
   cmake_parse_arguments (
     PARSE_ARGV 2 twx.R
     "NUMBER" "" ""
@@ -139,18 +139,18 @@ function ( twx_expect twx_expect.ACTUAL twx_expect.EXPECTED )
     twx_fatal ( "Wrong arguments\nARGV => ${ARGV}" )
     return ()
   endif ()
-  if ( NOT DEFINED "${twx_expect.ACTUAL}" )
-    twx_fatal ( "Unexpected undefined ``${twx_expect.ACTUAL}''")
+  if ( NOT DEFINED "${twx.R_ACTUAL_VAR}" )
+    twx_fatal ( "Unexpected undefined ``${twx.R_ACTUAL_VAR}''")
     return ()
   endif ()
   if ( twx.R_NUMBER )
-    if ( NOT "${${twx_expect.ACTUAL}}" EQUAL "${twx_expect.EXPECTED}" )
-      twx_fatal ( "Unexpected value ``${${twx_expect.ACTUAL}}'' of ``${twx_expect.ACTUAL}'' instead of ``${twx_expect.EXPECTED}''")
+    if ( NOT "${${twx.R_ACTUAL_VAR}}" EQUAL "${twx.R_EXPECTED}" )
+      twx_fatal ( "Unexpected value ``${${twx.R_ACTUAL_VAR}}'' of ``${twx.R_ACTUAL_VAR}'' instead of ``${twx.R_EXPECTED}''")
       return ()
     endif ()
   else ()
-    if ( NOT "${${twx_expect.ACTUAL}}" STREQUAL "${twx_expect.EXPECTED}" )
-      twx_fatal ( "Unexpected value ``${${twx_expect.ACTUAL}}'' of ``${twx_expect.ACTUAL}'' instead of ``${twx_expect.EXPECTED}''")
+    if ( NOT "${${twx.R_ACTUAL_VAR}}" STREQUAL "${twx.R_EXPECTED}" )
+      twx_fatal ( "Unexpected value ``${${twx.R_ACTUAL_VAR}}'' of ``${twx.R_ACTUAL_VAR}'' instead of ``${twx.R_EXPECTED}''")
       return ()
     endif ()
   endif ()
@@ -170,7 +170,7 @@ endfunction ()
 twx_unexpect(actual_var expected_value [NUMBER] ) {}
 /*
 #]=======]
-function ( twx_unexpect twx_unexpect.ACTUAL twx_unexpect.EXPECTED )
+function ( twx_unexpect twx.R_ACTUAL_VAR twx.R_EXPECTED )
   cmake_parse_arguments (
     PARSE_ARGV 2 twx.R
     "NUMBER" "" ""
@@ -178,18 +178,18 @@ function ( twx_unexpect twx_unexpect.ACTUAL twx_unexpect.EXPECTED )
   if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
     twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
   endif ()
-  if ( NOT DEFINED "${twx_unexpect.ACTUAL}" )
-    twx_fatal ( "Unexpected undefined ``${twx_unexpect.ACTUAL}''")
+  if ( NOT DEFINED "${twx.R_ACTUAL_VAR}" )
+    twx_fatal ( "Unexpected undefined ``${twx.R_ACTUAL_VAR}''")
     return ()
   endif ()
   if ( twx.R_NUMBER )
-    if ( "${${twx_unexpect.ACTUAL}}" EQUAL "${twx_unexpect.EXPECTED}" )
-      twx_fatal ( "Unexpected value ``${${twx_unexpect.ACTUAL}}'' of ``${twx_unexpect.ACTUAL}'' instead of ``${twx_expect_unequal_string.EXPECTED}''")
+    if ( "${${twx.R_ACTUAL_VAR}}" EQUAL "${twx.R_EXPECTED}" )
+      twx_fatal ( "Unexpected value ``${${twx.R_ACTUAL_VAR}}'' of ``${twx.R_ACTUAL_VAR}'' instead of ``${twx_expect_unequal_string.EXPECTED}''")
       return ()
     endif ()
   else ()
-    if ( "${${twx_unexpect.ACTUAL}}" STREQUAL "${twx_unexpect.EXPECTED}" )
-      twx_fatal ( "Unexpected value ``${${twx_unexpect.ACTUAL}}'' of ``${twx_unexpect.ACTUAL}'' instead of ``${twx_expect_unequal_string.EXPECTED}''")
+    if ( "${${twx.R_ACTUAL_VAR}}" STREQUAL "${twx.R_EXPECTED}" )
+      twx_fatal ( "Unexpected value ``${${twx.R_ACTUAL_VAR}}'' of ``${twx.R_ACTUAL_VAR}'' instead of ``${twx_expect_unequal_string.EXPECTED}''")
       return ()
     endif ()
   endif ()
@@ -207,12 +207,12 @@ endfunction ()
   */
 twx_expect_matches( actual expected ) {}
 /*#]=======]
-macro ( twx_expect_matches twx_expect_matches.actual twx_expect_matches.expected )
+macro ( twx_expect_matches twx_expect_matches.R_ACTUAL twx_expect_matches.R_EXPECTED )
   if ( NOT ${ARGC} EQUAL 2 )
     twx_fatal ( "Wrong arguments:\nARGV => ``${ARGV}''" )
   endif ()
-  if ( NOT "${twx_expect_matches.actual}" MATCHES "${twx_expect_matches.expected}" )
-    twx_fatal ( "Failure: ${twx_expect_matches.actual} should match ${twx_expect_matches.expected}" )
+  if ( NOT "${twx_expect_matches.R_ACTUAL}" MATCHES "${twx_expect_matches.R_EXPECTED}" )
+    twx_fatal ( "Failure: ${twx_expect_matches.R_ACTUAL} should match ${twx_expect_matches.R_EXPECTED}" )
   endif ()
 endmacro ( twx_expect_matches )
 

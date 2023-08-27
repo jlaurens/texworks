@@ -56,8 +56,8 @@ function ( twx_global_append )
         list ( APPEND list_ "${item_}" )
       endif ()
     endforeach ()
-  else ()
-    list ( list_ ${twx.R_UNPARSED_ARGUMENTS} )
+  elseif ( DEFINED twx.R_UNPARSED_ARGUMENTS )
+    list ( APPEND list_ ${twx.R_UNPARSED_ARGUMENTS} )
   endif ()
   set_property (
     GLOBAL
@@ -65,17 +65,60 @@ function ( twx_global_append )
   )
 endfunction ( twx_global_append )
 
+# ANCHOR: twx_global_get_back
+#[=======[
+*/
+/** @brief Get the last value of a global list.
+  *
+  * @param id for key `ID`, identifier of the list to modify.
+  * @param var for key `IN_VAR`, identifier of the var that will contain the result on return.
+  * @param REQUIRED, optional flag, raises when set and the property does not exist.
+  *
+  */
+twx_global_get_back(IN_VAR var ID id [REQUIRED]){}
+/*
+#]=======]
+function ( twx_global_get_back )
+  twx_cmd_begin ( ${CMAKE_FUNCTION_NAME} )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "REQUIRED" "ID;IN_VAR" ""
+  )
+  if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS => ``${${TWX_CMD}.R_UNPARSED_ARGUMENTS}''" )
+  endif ()
+  twx_var_assert_name ( "${${TWX_CMD}.R_ID}" )
+  get_property (
+    ${TWX_CMD}.LIST
+    GLOBAL
+    PROPERTY "${${TWX_CMD}.R_ID}"
+  )
+  if ( "${${TWX_CMD}.LIST}" STREQUAL "" )
+    if ( ${TWX_CMD}.R_REQUIRED )
+      message ( FATAL_ERROR "Missing global ``${${TWX_CMD}.R_ID}''" )
+    endif ()
+    if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+      twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+      set ( ${${TWX_CMD}.R_IN_VAR} )
+    endif ()
+  elseif ( DEFINED ${TWX_CMD}.R_IN_VAR )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    list ( GET ${TWX_CMD}.LIST -1 ${${TWX_CMD}.R_IN_VAR} )
+  endif ()
+  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
+endfunction ( twx_global_get_back )
+
 # ANCHOR: twx_global_pop_back
 #[=======[
 */
 /** @brief Pop the last value of a global list.
   *
   * @param id for key `ID`, identifier of the list to modify.
-  * @param REQUIRED, optional flag, raises when set and the property does not exist.
   * @param var for key `IN_VAR`, identifier of the var that will contain the result on return.
+  * @param REQUIRED, optional flag, raises when set and the property does not exist.
   *
   */
-twx_global_pop_back(... ID id []){}
+twx_global_pop_back(IN_VAR var ID id [REQUIRED]){}
 /*
 #]=======]
 function ( twx_global_pop_back )
@@ -93,13 +136,18 @@ function ( twx_global_pop_back )
     GLOBAL
     PROPERTY "${${TWX_CMD}.R_ID}"
   )
-  if ( ${TWX_CMD}.R_REQUIRED AND NOT DEFINED ${TWX_CMD}.LIST )
-    message ( FATAL_ERROR "Missing global ``${${TWX_CMD}.R_ID}''" )
-  endif ()
-  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+  if ( "${${TWX_CMD}.LIST}" STREQUAL "" )
+    if ( ${TWX_CMD}.R_REQUIRED )
+      message ( FATAL_ERROR "Missing global ``${${TWX_CMD}.R_ID}''" )
+    endif ()
+    if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+      twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+      set ( ${${TWX_CMD}.R_IN_VAR} )
+    endif ()
+  elseif ( DEFINED ${TWX_CMD}.R_IN_VAR )
     twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    list ( POP_BACK ${TWX_CMD}.LIST ${${TWX_CMD}.R_IN_VAR} )
   endif ()
-  list ( POP_BACK ${TWX_CMD}.LIST ${TWX_CMD}.R_IN_VAR )
   set_property (
     GLOBAL
     PROPERTY "${${TWX_CMD}.R_ID}" "${${TWX_CMD}.LIST}"

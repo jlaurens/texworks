@@ -55,10 +55,10 @@ or a sub code unit. The same holds for `CMAKE_SOURCE_DIR`.
 `TWX_DIR` is always "at the top" because it is defined
 relative to this included file.
 #]=======]
-get_filename_component (
-  TWX_DIR
+file (
+  REAL_PATH
   "${CMAKE_CURRENT_LIST_DIR}/../../"
-  REALPATH
+  TWX_DIR
 )
 
 # ANCHOR: twx_dir_complete_var

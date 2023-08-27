@@ -162,7 +162,7 @@ set ( TWX_FATAL_CATCH OFF )
 */
 /** @brief Guess the domain, suite and tested library
   *
-  * When this function is called from a file location matching
+  * When the path argument is matching
   * `<source>/CMake/<domain>/Test/Twx<core>.cmake` file,
   * return the `<domain>` path component as domain name,
   * `<core>`  as core suite name and `Twx<core>` as suite name.
@@ -178,53 +178,86 @@ set ( TWX_FATAL_CATCH OFF )
   *
   * When this function is not called from a proper file, raises.
   *
+  * @param path, optional path from which we guess the information.
+  *   Defaults to the conbtents of CMAKE_CURRENT_LIST_FILE.
   * @param domain for key `IN_DOMAIN`, optional, will hold the domain name on return.
-  * @param core for key `IN_CORE_SUITE`, optional, will hold the core suite name on return.
+  * @param core for key `IN_SUITE_CORE`, optional, will hold the core suite name on return.
   * @param suite for key `IN_SUITE`, optional, will hold the suite name on return.
   * @param lib for key `IN_LIB`, optional, will hold the tested library name on return.
+  * @param run for key `IN_RUN`, optional, will hold the run status on return.
   *
   */
-twx_test_guess ([IN_DOMAIN domain] [IN_CORE_SUITE core] [IN_SUITE suite] [IN_LIB lib]) {}
+twx_test_guess ([IN_DOMAIN domain] [IN_SUITE_CORE core] [IN_SUITE suite] [IN_LIB lib] [IN_RUN run]) {}
 /*
 #]=======]
 function ( twx_test_guess )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_test_guess.R
-    "" "IN_DOMAIN;IN_SUITE;IN_LIB" ""
+    "" "IN_DOMAIN;IN_SUITE_CORE;IN_SUITE;IN_LIB;IN_RUN" ""
   )
-  if ( DEFINED twx_test_guess.R_UNPARSED_ARGUMENTS )
-    twx_fatal ( "Bad usage: unexpected ``${twx_test_guess.R_UNPARSED_ARGUMENTS}''" RETURN )
+  if ( NOT DEFINED twx_test_guess.R_UNPARSED_ARGUMENTS )
+    if ( EXISTS "${CMAKE_CURRENT_LIST_FILE}" )
+      set ( twx_test_guess.R_UNPARSED_ARGUMENTS "${CMAKE_CURRENT_LIST_FILE}" )
+    else ()
+      message ( FATAL_ERROR "Bad usage: CMAKE_CURRENT_LIST_FILE => ``${CMAKE_CURRENT_LIST_FILE}''" )
+    endif ()
   endif ()
-  if ( "${CMAKE_CURRENT_LIST_FILE}" MATCHES "/CMake/([^/]+)/Test/(Twx([^/]+))/" )
+  cmake_path (
+    GET
+    twx_test_guess.R_UNPARSED_ARGUMENTS
+    PARENT_PATH
+    twx_test_guess.PARENT
+  )
+  if ( "${twx_test_guess.R_UNPARSED_ARGUMENTS}" MATCHES "/CMake/([^/]+)/Test/(Twx([^/]+))/" )
     set ( twx_test_guess.DOMAIN     "${CMAKE_MATCH_1}" )
     set ( twx_test_guess.SUITE      "${CMAKE_MATCH_2}" )
-    set ( twx_test_guess.CORE_SUITE "${CMAKE_MATCH_3}" )
-  elseif ( "${CMAKE_CURRENT_LIST_FILE}" MATCHES "/CMake/([^/]+)/Test/" )
+    set ( twx_test_guess.SUITE_CORE "${CMAKE_MATCH_3}" )
+  elseif ( "${twx_test_guess.R_UNPARSED_ARGUMENTS}" MATCHES "/CMake/([^/]+)/Test/" )
     set ( twx_test_guess.DOMAIN "${CMAKE_MATCH_1}" )
     set ( twx_test_guess.SUITE )
-    set ( twx_test_guess.CORE_SUITE )
+    set ( twx_test_guess.SUITE_CORE )
   else ()
-    twx_fatal ( "Bad usage" VAR CMAKE_CURRENT_LIST_FILE RETURN )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS => ``${twx_test_guess.R_UNPARSED_ARGUMENTS}''" )
+  endif ()
+  if ( DEFINED twx_test_guess.SUITE )
+    if ( DEFINED TWX_TEST/${twx_test_guess.DOMAIN}/${twx_test_guess.SUITE_CORE}.RUN )
+      set ( twx_test_guess.RUN "${TWX_TEST/${twx_test_guess.DOMAIN}/${twx_test_guess.SUITE_CORE}.RUN}" )
+    else ()
+      set ( twx_test_guess.RUN ON )
+      if ( TWX_TEST_SUITE_RE_YES AND NOT TWX_TEST_SUITE_NAME MATCHES "${TWX_TEST_SUITE_RE_YES}" )
+        set ( twx_test_guess.RUN OFF )
+      elseif ( TWX_TEST/${twx_test_guess.DOMAIN}/SUITE_RE_YES AND NOT TWX_TEST_SUITE_NAME MATCHES "${TWX_TEST/${twx_test_guess.DOMAIN}/SUITE_RE_YES}" )
+        set ( twx_test_guess.RUN OFF )
+      elseif ( TWX_TEST_SUITE_RE_NO AND TWX_TEST_SUITE_NAME MATCHES "${TWX_TEST_SUITE_RE_NO}")
+        set ( twx_test_guess.RUN OFF )
+      elseif ( TWX_TEST/${twx_test_guess.DOMAIN}/SUITE_RE_NO AND TWX_TEST_SUITE_NAME MATCHES "${TWX_TEST/${twx_test_guess.DOMAIN}/SUITE_RE_YES}" )
+        set ( twx_test_guess.RUN OFF )
+      endif ()
+    endif ()
+  else ()
+    set ( twx_test_guess.RUN )
   endif ()
   if ( DEFINED twx_test_guess.SUITE )
     set (
       twx_test_guess.LIB
-      "${CMAKE_CURRENT_LIST_DIR}/../../${twx_test_guess.SUITE}.cmake"
+      "${twx_test_guess.PARENT}/../../${twx_test_guess.SUITE}.cmake"
     )
+    cmake_path ( NORMAL_PATH twx_test_guess.LIB )
     if ( NOT EXISTS "${twx_test_guess.LIB}" )
       string ( APPEND twx_test_guess.SUITE Lib )
       set (
         twx_test_guess.LIB
-        "${CMAKE_CURRENT_LIST_DIR}/../../${twx_test_guess.SUITE}.cmake"
+        "${twx_test_guess.PARENT}/../../${twx_test_guess.SUITE}.cmake"
       )
+      cmake_path ( NORMAL_PATH twx_test_guess.LIB )
       if ( NOT EXISTS "${twx_test_guess.LIB}" )
-        message ( FATAL_ERROR "No library to test" )
+        message ( FATAL_ERROR "No library to test: ``${twx_test_guess.LIB}''" )
       endif ()
     endif ()
   else ()
     set ( twx_test_guess.LIB )
   endif ()
-  if (DEFINED twx_test_guess.R_IN_DOMAIN )
+  if ( DEFINED twx_test_guess.R_IN_DOMAIN )
     twx_var_assert_name ( "${twx_test_guess.R_IN_DOMAIN}" )
     set ( "${twx_test_guess.R_IN_DOMAIN}" ${twx_test_guess.DOMAIN} )
   endif ()
@@ -232,19 +265,25 @@ function ( twx_test_guess )
     twx_var_assert_name ( "${twx_test_guess.R_IN_SUITE}" )
     set ( "${twx_test_guess.R_IN_SUITE}" ${twx_test_guess.SUITE} )
   endif ()
-  if ( DEFINED twx_test_guess.R_IN_CORE_SUITE )
-    twx_var_assert_name ( "${twx_test_guess.R_IN_CORE_SUITE}" )
-    set ( "${twx_test_guess.R_IN_CORE_SUITE}" ${twx_test_guess.CORE_SUITE} )
+  if ( DEFINED twx_test_guess.R_IN_SUITE_CORE )
+    twx_var_assert_name ( "${twx_test_guess.R_IN_SUITE_CORE}" )
+    set ( "${twx_test_guess.R_IN_SUITE_CORE}" ${twx_test_guess.SUITE_CORE} )
   endif ()
   if ( DEFINED twx_test_guess.R_IN_LIB )
     twx_var_assert_name ( "${twx_test_guess.R_IN_LIB}" )
     set ( "${twx_test_guess.R_IN_LIB}" ${twx_test_guess.LIB} )
   endif ()
+  if ( DEFINED twx_test_guess.R_IN_RUN )
+    twx_var_assert_name ( "${twx_test_guess.R_IN_RUN}" )
+    set ( "${twx_test_guess.R_IN_RUN}" ${twx_test_guess.RUN} )
+  endif ()
   return (
     PROPAGATE
     ${twx_test_guess.R_IN_DOMAIN}
+    ${twx_test_guess.R_IN_SUITE_CORE}
     ${twx_test_guess.R_IN_SUITE}
     ${twx_test_guess.R_IN_LIB}
+    ${twx_test_guess.R_IN_RUN}
   )
 endfunction ()
 
@@ -351,60 +390,19 @@ macro ( twx_test_suite_will_begin )
   elseif ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  get_property (
-    twx_test_suite_will_begin.SUITE_CORE_LIST
-    GLOBAL
-    PROPERTY TWX_TEST_SUITE_CORE_LIST
+  twx_global_append (
+    "${CMAKE_CURRENT_LIST_FILE}"
+    ID TWX_TEST_CURRENT_LIST_FILE_STACK
   )
-  list ( APPEND twx_test_suite_will_begin.SUITE_CORE_LIST "${TWX_TEST_SUITE_CORE_NAME}" )
-  set_property (
-    GLOBAL
-    PROPERTY TWX_TEST_SUITE_CORE_LIST "${twx_test_suite_will_begin.SUITE_CORE_LIST}"
-  )
-  get_property (
-    twx_test_suite_will_begin.DOMAIN_LIST
-    GLOBAL
-    PROPERTY TWX_TEST_DOMAIN_STACK
-  )
-  list ( APPEND twx_test_suite_will_begin.DOMAIN_LIST "${TWX_TEST_DOMAIN_NAME}" )
-  set_property (
-    GLOBAL
-    PROPERTY TWX_TEST_DOMAIN_STACK "${twx_test_suite_will_begin.DOMAIN_LIST}"
-  )
-  list ( APPEND TwxTestLib.SUITE_CORE_NAME "${TWX_TEST_SUITE_CORE_NAME}" )
   # Get the name of the test suite
   twx_test_guess (
+    "${CMAKE_CURRENT_LIST_FILE}"
     IN_DOMAIN TWX_TEST_DOMAIN_NAME
+    IN_SUITE_CORE TWX_TEST_SUITE_CORE
     IN_SUITE TWX_TEST_SUITE_NAME
-    IN_CORE_SUITE TWX_TEST_SUITE_CORE_NAME
-    IN_LIB twx_test_suite_will_begin.LIB
+    IN_LIB TWX_TEST_LIB
+    IN_RUN TWX_TEST_SUITE_RUN
   )
-  set (
-    twx_test_suite_will_begin.LIB
-    "${CMAKE_CURRENT_LIST_DIR}/../../${TWX_TEST_SUITE_NAME}.cmake"
-  )
-  # At this point, we are OK to run
-  # Store the name of the test suite
-  twx_global_append (
-    "${TWX_TEST_SUITE_CORE_NAME}"
-    ID TWX_TEST_SUITE_STACK
-  )
-  # Whether the suite should run
-  if ( DEFINED TWX_TEST/${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_CORE_NAME}.RUN )
-    set ( TWX_TEST_SUITE_RUN "${TWX_TEST/${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_CORE_NAME}.RUN}" )
-  else ()
-    set ( TWX_TEST_SUITE_RUN ON )
-    if ( TWX_TEST_SUITE_RE_YES AND NOT TWX_TEST_SUITE_NAME MATCHES "${TWX_TEST_SUITE_RE_YES}" )
-      set ( TWX_TEST_SUITE_RUN OFF )
-    elseif ( TWX_TEST/${TWX_TEST_DOMAIN_NAME}/SUITE_RE_YES AND NOT TWX_TEST_SUITE_NAME MATCHES "${TWX_TEST/${TWX_TEST_DOMAIN_NAME}/SUITE_RE_YES}" )
-      set ( TWX_TEST_SUITE_RUN OFF )
-    elseif ( TWX_TEST_SUITE_RE_NO AND TWX_TEST_SUITE_NAME MATCHES "${TWX_TEST_SUITE_RE_NO}")
-      set ( TWX_TEST_SUITE_RUN OFF )
-    elseif ( TWX_TEST/${TWX_TEST_DOMAIN_NAME}/SUITE_RE_NO AND TWX_TEST_SUITE_NAME MATCHES "${TWX_TEST/${TWX_TEST_DOMAIN_NAME}/SUITE_RE_YES}" )
-      set ( TWX_TEST_SUITE_RUN OFF )
-    endif ()
-    set ( TWX_TEST/${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_CORE_NAME}.RUN "${TWX_TEST_SUITE_RUN}" )
-  endif ()
   set ( TWX_FATAL_CATCH ON )
   set ( twx_test_suite_will_begin.banner "Test suite ${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}...")
   if ( TWX_TEST_SUITE_RUN )
@@ -412,17 +410,22 @@ macro ( twx_test_suite_will_begin )
       set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
       twx_format_message ( STATUS "${twx_test_suite_will_begin.banner}" ID Test/Suite )
     endblock ()
-    list ( APPEND CMAKE_MESSAGE_CONTEXT "${TWX_TEST_SUITE_CORE_NAME}" )
+    list ( APPEND CMAKE_MESSAGE_CONTEXT "${TWX_TEST_SUITE_CORE}" )
   else ()
     block ()
       set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
       twx_format_message ( VERBOSE "${twx_test_suite_will_begin.banner} skipped" ID Test/Suite )
     endblock ()
   endif ()
-  include ( "${twx_test_suite_will_begin.LIB}" )
+  include ( "${TWX_TEST_LIB}" )
   set ( twx_test_suite_will_begin.length )
   set ( twx_test_suite_will_begin.banner )
   set ( twx_test_suite_will_begin.underline )
+  twx_var_log ( DEBUG TWX_TEST_DOMAIN_NAME )
+  twx_var_log ( DEBUG TWX_TEST_SUITE_CORE )
+  twx_var_log ( DEBUG TWX_TEST_SUITE_NAME )
+  twx_var_log ( DEBUG TWX_TEST_LIB )
+  twx_var_log ( DEBUG TWX_TEST_SUITE_RUN )
 endmacro ( twx_test_suite_will_begin )
 
 # ANCHOR: twx_test_suite_did_end
@@ -440,47 +443,24 @@ function ( twx_test_suite_did_end )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage (ARGV => ``${ARGV}'')" )
   endif ()
-  get_property (
-    list_
-    GLOBAL
-    PROPERTY TWX_TEST_SUITE_STACK
+  twx_global_pop_back (
+    ID TWX_TEST_CURRENT_LIST_FILE_STACK
+    IN_VAR file_
+    REQUIRED
   )
-  if ( NOT DEFINED list_ )
-    message ( FATAL_ERROR "Internal inconsistency, please report." )
-  endif ()
-  list ( POP_BACK list_ TWX_TEST_SUITE_CORE_NAME )
-  set_property (
-    GLOBAL
-    PROPERTY TWX_TEST_SUITE_STACK "${list_}"
+  twx_test_guess (
+    "${file_}"
+    IN_DOMAIN TWX_TEST_DOMAIN_NAME
+    IN_SUITE_CORE TWX_TEST_SUITE_CORE
+    IN_SUITE TWX_TEST_SUITE_NAME
+    IN_LIB TWX_TEST_LIB
+    IN_RUN TWX_TEST_SUITE_RUN
   )
-  # Get the tested library
-  set ( TWX_TEST_SUITE_NAME "Twx${TWX_TEST_SUITE_CORE_NAME}" )
-  set (
-    lib_
-    "${CMAKE_CURRENT_LIST_DIR}/../../${TWX_TEST_SUITE_NAME}.cmake"
-  )
-  if ( NOT EXISTS "${lib_}" )
-    set ( TWX_TEST_SUITE_NAME "Twx${TWX_TEST_SUITE_CORE_NAME}Lib" )
-    set (
-      lib_
-      "${CMAKE_CURRENT_LIST_DIR}/../../${TWX_TEST_SUITE_NAME}.cmake"
-    )
-    if ( NOT EXISTS "${twx_test_suite_will_begin.lib}" )
-      message ( FATAL_ERROR "No library to test" )
-    endif ()
-  endif ()
-  if ()
-    set ( TWX_TEST_SUITE_NAME )
-  else ()
-  endif ()
-  list ( POP_BACK TwxTestLib.DOMAIN_NAME TWX_TEST_DOMAIN_NAME )
-  list ( POP_BACK TwxTestLib.SUITE_CORE_NAME TWX_TEST_SUITE_CORE_NAME )
-  set ( TWX_TEST_SUITE_RUN ${${TWX_TEST/${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_CORE_NAME}.RUN}} )
   list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
   list ( POP_BACK twx_test_suite_will_begin.CMAKE_MESSAGE_LOG_LEVEL CMAKE_MESSAGE_LOG_LEVEL )
 
   set ( banner_ "Test suite ${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}... ")
-  if ( TWX_TEST/${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_CORE_NAME}.RUN )
+  if ( TWX_TEST_SUITE_RUN )
     set ( mode_ STATUS )
     string ( APPEND banner_ "DONE")
   else ()
@@ -491,11 +471,37 @@ function ( twx_test_suite_did_end )
     set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
     twx_format_message ( ${mode_} "${banner_}" ID Test/Suite )
   endblock ()
+  twx_global_get_back (
+    ID TWX_TEST_CURRENT_LIST_FILE_STACK
+    IN_VAR file_
+  )
+  if ( DEFINED file_ )
+    twx_test_guess (
+      "${file_}"
+      IN_DOMAIN TWX_TEST_DOMAIN_NAME
+      IN_SUITE_CORE TWX_TEST_SUITE_CORE
+      IN_SUITE TWX_TEST_SUITE_NAME
+      IN_LIB TWX_TEST_LIB
+      IN_RUN TWX_TEST_SUITE_RUN
+    )
+  else ()
+    set ( TWX_TEST_DOMAIN_NAME )
+    set ( TWX_TEST_SUITE_CORE )
+    set ( TWX_TEST_SUITE_NAME )
+    set ( TWX_TEST_LIB )
+    set ( TWX_TEST_SUITE_RUN )
+  endif ()
+  twx_var_log ( DEBUG TWX_TEST_DOMAIN_NAME )
+  twx_var_log ( DEBUG TWX_TEST_SUITE_CORE )
+  twx_var_log ( DEBUG TWX_TEST_SUITE_NAME )
+  twx_var_log ( DEBUG TWX_TEST_LIB )
+  twx_var_log ( DEBUG TWX_TEST_SUITE_RUN )
   return ( PROPAGATE
     TWX_TEST_DOMAIN_NAME
-    TWX_TEST_SUITE_CORE_NAME
+    TWX_TEST_SUITE_CORE
+    TWX_TEST_SUITE_NAME
     TWX_TEST_SUITE_RUN
-    TWX_TEST_SUITE_CORE_NAME
+    TWX_TEST_LIB
     CMAKE_MESSAGE_CONTEXT
     CMAKE_MESSAGE_LOG_LEVEL
     CMAKE_MESSAGE_INDENT
@@ -540,8 +546,8 @@ endmacro ( twx_test_include )
   * @param name for key `NAME`, unique unit identifier within a test suite.
   *   Must not evaluate to false in boolean context.
   *   When not provided, the <id> must be provided and the name is therefore
-  *   `twx_<TWX_TEST_SUITE_CORE_NAME:lower>_<id>`.
-  *   Goodies: TWX_TEST_SUITE_CORE_NAME is possibly splitted into 2 words
+  *   `twx_<TWX_TEST_SUITE_CORE:lower>_<id>`.
+  *   Goodies: TWX_TEST_SUITE_CORE is possibly splitted into 2 words
   *   separated by a `_` character.
   * @param id for key `ID`, short identifier for the message context.
   *   Must not evaluate to false in boolean context.
@@ -561,7 +567,7 @@ macro ( twx_test_unit_will_begin )
     message ( FATAL_ERROR "Bad usage: ``${twx_test_unit_will_begin.R_UNPARSED_ARGUMENTS}''" )
   endif ()
   #
-  string ( REGEX REPLACE "([^A-Z])([A-Z])" "\\1_\\2" twx_test_unit_will_begin.CORE "${TWX_TEST_SUITE_CORE_NAME}" )
+  string ( REGEX REPLACE "([^A-Z])([A-Z])" "\\1_\\2" twx_test_unit_will_begin.CORE "${TWX_TEST_SUITE_CORE}" )
   string ( TOLOWER "${twx_test_unit_will_begin.CORE}" twx_test_unit_will_begin.CORE )
   if ( "${twx_test_unit_will_begin.R_NAME}" STREQUAL "" )
     if ( "${twx_test_unit_will_begin.R_ID}" STREQUAL "" )
@@ -604,7 +610,7 @@ macro ( twx_test_unit_will_begin )
   if ( TWX_TEST_SUITE_RUN )
     block ()
       set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-      twx_format_message ( CHECK_START "Test unit ${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}/${TWX_TEST_UNIT_NAME}" ID Test/Unit )
+      twx_format_message ( CHECK_START "Test unit  ${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}/${TWX_TEST_UNIT_NAME}" ID Test/Unit )
     endblock ()
     list ( APPEND CMAKE_MESSAGE_CONTEXT "${twx_test_unit_will_begin.R_ID}" )
     set ( twx_test_unit_will_begin.CMAKE_MESSAGE_INDENT "${CMAKE_MESSAGE_INDENT}" )
@@ -630,7 +636,7 @@ macro ( twx_test_unit_will_begin )
   else ()
     block ()
       set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-      twx_format_message ( VERBOSE "Test unit ${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}/${TWX_TEST_UNIT_NAME} skipped" ID Test/Unit )
+      twx_format_message ( VERBOSE "Test unit  ${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}/${TWX_TEST_UNIT_NAME} skipped" ID Test/Unit )
     endblock()
     set ( TWX_TEST_UNIT_RUN OFF )
   endif ()
@@ -745,14 +751,14 @@ if ( TWX_FORMAT_NIGHT_SHIFT )
   twx_format_define ( ID Test/Domain UNDERLINE BOLD BACK_COLOR 94 )
   twx_format_define ( ID Test/Suite UNDERLINE BOLD BACK_COLOR 22 )
   twx_format_define ( ID Test/Unit UNDERLINE BOLD BACK_COLOR 19 )
-  twx_format_define ( ID Test/PASS BOLD TEXT_COLOR 28 )
-  twx_format_define ( ID Test/FAIL BOLD TEXT_COLOR 160 )
+  twx_format_define ( ID Test/PASS BOLD TEXT_COLOR 118 )
+  twx_format_define ( ID Test/FAIL BOLD TEXT_COLOR 208 )
 else ()
   twx_format_define ( ID Test/Domain UNDERLINE BOLD BACK_COLOR 229 )
   twx_format_define ( ID Test/Suite UNDERLINE BOLD BACK_COLOR 193 )
   twx_format_define ( ID Test/Unit UNDERLINE BOLD BACK_COLOR 195 )
-  twx_format_define ( ID Test/PASS BOLD TEXT_COLOR 82 )
-  twx_format_define ( ID Test/FAIL BOLD TEXT_COLOR 208 )
+  twx_format_define ( ID Test/PASS BOLD TEXT_COLOR 28 )
+  twx_format_define ( ID Test/FAIL BOLD TEXT_COLOR 160 )
 endif ()
 
 twx_lib_did_load ()

@@ -136,18 +136,24 @@ twx_arg_pass_option( ... [PREFIX prefix]) {}
 /*#]=======]
 function ( twx_arg_pass_option option_ )
   twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  set ( i 0 )
-  while ( TRUE )
-    set ( o "${ARGV${i}}" )
-    if ( twx.R_${o} )
-      set ( twx.R_${o} ${o} PARENT_SCOPE )
-      set ( TWX-D_${o} "-DTWX_${o}=${o}" PARENT_SCOPE )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "PREFIX" ""
+  )
+  if ( DEFINED ${TWX_CMD}.R_PREFIX )
+    set ( ${TWX_CMD}.PREFIX ${${TWX_CMD}.R_PREFIX} )
+  else ()
+    set ( ${TWX_CMD}.PREFIX twx.R )
+  endif ()
+  foreach ( ${TWX_CMD}.OPTION ${twx_arg_pass_option.R_UNPARSED_ARGUMENTS} )
+    if ( ${${TWX_CMD}.PREFIX}_${${TWX_CMD}.OPTION} )
+      set ( ${${TWX_CMD}.PREFIX}_${${TWX_CMD}.OPTION} ${${TWX_CMD}.OPTION} PARENT_SCOPE )
+      set ( TWX-D_${${TWX_CMD}.OPTION} "-DTWX_${${TWX_CMD}.OPTION}=${${TWX_CMD}.OPTION}" PARENT_SCOPE )
     else ()
-      set ( twx.R_${o} PARENT_SCOPE )
-      set ( TWX-D_${o} PARENT_SCOPE )
+      set ( ${${TWX_CMD}.PREFIX}_${${TWX_CMD}.OPTION} PARENT_SCOPE )
+      set ( TWX-D_${${TWX_CMD}.OPTION} PARENT_SCOPE )
     endif ()
-    twx_increment_and_break_if ( VAR i >= ${ARGC} )
-  endwhile ()
+  endforeach ()
 endfunction ()
 
 # ANCHOR: twx_arg_expect_keyword
@@ -181,11 +187,24 @@ twx_arg_assert_keyword( ... ) {}
 /*#]=======]
 function ( twx_arg_assert_keyword twx_arg_assert_keyword.ACTUAL )
   twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  foreach ( twx_arg_assert_keyword.ACTUAL ${ARGV} )
-    if ( twx_arg_assert_keyword.ACTUAL MATCHES "[A-Z][A-Z]([A-Z_]*[A-Z][A-Z]|[A-Z]*)" )
-      twx_arg_expect_keyword ( "${twx_arg_assert_keyword.ACTUAL}" "${CMAKE_MATCH_0}" )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "PREFIX" ""
+  )
+  foreach ( ${TWX_CMD}.ACTUAL ${${TWX_CMD}.R_UNPARSED_ARGUMENTS} )
+    if ( DEFINED ${TWX_CMD}.R_PREFIX )
+      string ( PREPEND ${TWX_CMD}.ACTUAL "${${TWX_CMD}.R_PREFIX}_" )
+    endif ()
+    if ( ${TWX_CMD}.ACTUAL MATCHES "^[A-Z][A-Z]_([A-Z_]+[A-Z][A-Z])" )
+      twx_arg_expect_keyword ( "${${TWX_CMD}.ACTUAL}" "${CMAKE_MATCH_1}" )
+    elseif ( ${TWX_CMD}.ACTUAL MATCHES "[A-Z][A-Z][A-Z_]*[A-Z][A-Z]" )
+      twx_arg_expect_keyword ( "${${TWX_CMD}.ACTUAL}" "${CMAKE_MATCH_0}" )
+    elseif ( ${TWX_CMD}.ACTUAL MATCHES "[^A_Z][A-Z][A-Z]_+([A-Z][A-Z]+)" )
+      twx_arg_expect_keyword ( "${${TWX_CMD}.ACTUAL}" "${CMAKE_MATCH_1}" )
+    elseif ( ${TWX_CMD}.ACTUAL MATCHES "[A-Z][A-Z]+" )
+      twx_arg_expect_keyword ( "${${TWX_CMD}.ACTUAL}" "${CMAKE_MATCH_0}" )
     else ()
-      twx_fatal ( "Unsatisfied argument ``${twx_arg_assert_keyword.ACTUAL}''" )
+      twx_fatal ( "Unsatisfied argument ``${${TWX_CMD}.ACTUAL}''" )
       return ()
     endif ()
   endforeach ()
@@ -201,7 +220,7 @@ endfunction ( twx_arg_assert_keyword )
 twx_arg_assert_parsed([PREFIX prefix] [UNEXPECTED ...]) {}
 /*#]=======]
 macro ( twx_arg_assert_parsed )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
   cmake_parse_arguments (
     twx_arg_assert_parsed.R
     "" "PREFIX" "UNEXPECTED"
@@ -221,8 +240,6 @@ macro ( twx_arg_assert_parsed )
     else ()
       twx_fatal ( "Unparsed arguments ``${${twx_arg_assert_parsed.R_PREFIX}_UNPARSED_ARGUMENTS}''" )
     endif ()
-    list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
-    return ()
   endif ()
   list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
 endmacro ()

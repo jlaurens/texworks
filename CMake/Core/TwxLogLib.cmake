@@ -355,7 +355,7 @@ function ( twx_log )
     PARSE_ARGV 0 twx.R
     "STATUS;VERBOSE;DEBUG;TRACE;EOL" "MSG;VALUE" ""
   )
-  twx_arg_pass_option ( twx.R_STATUS twx.R_VERBOSE twx.R_DEBUG twx.R_TRACE )
+  twx_arg_pass_option ( STATUS VERBOSE DEBUG TRACE )
   set ( level_ ${twx.R_STATUS} ${twx.R_VERBOSE} ${twx.R_DEBUG} ${twx.R_TRACE} )
   if ( "${level_}" MATCHES ";" )
     message ( FATAL_ERROR " Bad usage: ``${level_}''" )
@@ -604,6 +604,8 @@ function ( twx_log_end )
     TWX_LOG.section_hidden
   )
 endfunction ( twx_log_end )
+
+twx_lib_require ( Math )
 
 twx_lib_did_load ()
 
