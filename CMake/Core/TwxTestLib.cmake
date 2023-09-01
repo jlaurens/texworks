@@ -740,11 +740,28 @@ macro ( twx_test_suite_pop )
   list ( POP_BACK twx_test_suite_push.CMAKE_MESSAGE_LOG_LEVEL CMAKE_MESSAGE_LOG_LEVEL )
   set (
     twx_test_suite_pop.BANNER
-    "Test suite ${TWX_TEST_DOMAIN.NAME}/${TWX_TEST_SUITE.NAME}... "
+    "Test suite ${TWX_TEST_SUITE.ID}... "
   )
   if ( TWX_TEST_SUITE.RUN )
     set ( twx_test_suite_pop.MODE STATUS )
-    string ( APPEND twx_test_suite_pop.BANNER "DONE")
+    if ( COMMAND twx_fatal_catched )
+      twx_fatal_catched ( IN_VAR v )
+      if ( v AND NOT v STREQUAL "" )
+        twx_test_suite_count ( KEY ALL  STEP 1 )
+        twx_test_suite_count ( KEY FAIL STEP 1 )
+        twx_fatal_clear ()
+      endif ()
+      block ( PROPAGATE twx_test_suite_pop.BANNER )
+      twx_test_suite_count ( KEY ALL  IN_VAR all_  )
+      twx_test_suite_count ( KEY PASS IN_VAR pass_ )
+      twx_test_suite_count ( KEY FAIL IN_VAR fail_ )
+      if ( fail_ GREATER 0 )
+        string ( APPEND twx_test_suite_pop.BANNER "FAIL: ${fail_} out of ${all_} test units" )
+      else ()
+        string ( APPEND twx_test_suite_pop.BANNER "PASS: all ${all_} test units" )
+      endif ()
+      endblock ()
+    endif ()
   else ()
     set ( twx_test_suite_pop.MODE VERBOSE )
     string ( APPEND twx_test_suite_pop.BANNER "SKIPPED")
@@ -754,7 +771,7 @@ macro ( twx_test_suite_pop )
     twx_format_message (
       ${twx_test_suite_pop.MODE}
       "${twx_test_suite_pop.BANNER}"
-      NAME Test/Suite
+      ID Test/Suite
     )
   endblock ()
   twx_global_get_back (
@@ -779,25 +796,57 @@ macro ( twx_test_suite_pop )
   set ( twx_test_suite_pop.MODE )
 endmacro ( twx_test_suite_pop )
 
-# ANCHOR: twx_test_suite_increment
+# ANCHOR: twx_test_suite_count
 #[=======[
 */
-/** @brief Private callback
+/** @brief Private suite count manager.
+  *
+  * @param key for key `KEY`, required key identifier.
+  * @param unit for key `SUITE`, optional suite name.
+  *   Defaults to `TWX_TEST_SUITE`.
+  * @param step for key `STEP`, optional value.
+  * @param value for key `SET`, optional value.
+  * @param var for key `IN_VAR`, optional variable name.
+  *   On return, contains the value of the counter with the given key,
+  *   once all changes are performed.
   */
-twx_test_suite_increment ( key ) {}
+twx_test_suite_count ( KEY key [SET|STEP value] [IN_VAR var] [SUITE suite]) {}
 /*
 #]=======]
-function ( twx_test_suite_increment key_ )
-  if ( NOT ${ARGC} EQUAL 1 )
-    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
+function ( twx_test_suite_count )
+  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "KEY;STEP;SET;IN_VAR;SUITE" ""
+  )
+  if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${${TWX_CMD}.R_UNPARSED_ARGUMENTS}''")
   endif ()
-  if ( DEFINED TWX_TEST_UNIT.NAME )
-    set ( id_
-      "TWX_TEST/${TWX_TEST_DOMAIN_CORE}/${key_}.VALUE"
-    )
-    twx_global_increment ( NAME ${id_} )
-
+  if ( NOT DEFINED ${TWX_CMD}.R_KEY )
+    message ( FATAL_ERROR "Missing `KEY' keyword")
   endif ()
+  if ( NOT DEFINED ${TWX_CMD}.R_SUITE )
+    set ( ${TWX_CMD}.R_SUITE TWX_TEST_SUITE )
+  endif ()
+  if ( NOT DEFINED ${${TWX_CMD}.R_SUITE}.ID )
+    message ( FATAL_ERROR "Not a test suite: ${TWX_CMD}.R_SUITE => ``${${TWX_CMD}.R_SUITE}''" )
+  endif ()
+  set ( ${TWX_CMD}.KEY "${${${TWX_CMD}.R_SUITE}.ID}/${${TWX_CMD}.R_KEY}.VALUE" )
+  if ( DEFINED ${TWX_CMD}.R_SET )
+    math ( EXPR ${TWX_CMD}.R_SET "${${TWX_CMD}.R_SET}" )
+    twx_global_set ( "${${TWX_CMD}.R_SET}" KEY "${${TWX_CMD}.KEY}" )
+  elseif ( DEFINED ${TWX_CMD}.R_STEP )
+    twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR ${TWX_CMD}.VALUE )
+    math ( EXPR ${TWX_CMD}.VALUE "${${TWX_CMD}.VALUE}+(${${TWX_CMD}.R_STEP})" )
+    twx_global_set ( "${${TWX_CMD}.VALUE}" KEY "${${TWX_CMD}.KEY}" )
+  endif ()
+  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+    twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR ${${TWX_CMD}.R_IN_VAR} )
+    if ( NOT DEFINED ${${TWX_CMD}.R_IN_VAR} )
+      set ( ${${TWX_CMD}.R_IN_VAR} 0 )
+    endif ()
+  endif ()
+  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
 endfunction ()
 
 # ANCHOR: twx_test_suite_on_pass
@@ -812,8 +861,8 @@ function ( twx_test_suite_on_pass )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  twx_test_suite_increment ( COUNT )
-  twx_test_suite_increment ( PASS )
+  twx_test_suite_count ( KEY ALL  STEP 1 )
+  twx_test_suite_count ( KEY PASS STEP 1 )
 endfunction ()
 
 # ANCHOR: twx_test_suite_on_fail
@@ -828,8 +877,8 @@ function ( twx_test_suite_on_fail )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  twx_test_suite_increment ( COUNT )
-  twx_test_suite_increment ( FAIL )
+  twx_test_suite_count ( KEY ALL  STEP 1 )
+  twx_test_suite_count ( KEY FAIL STEP 1 )
 endfunction ()
 
 function ( TwxTestLib_state_prepare )
@@ -960,8 +1009,8 @@ macro ( twx_test_unit_push )
     "${twx_test_unit_push.NAME}"
     KEY twx_test_unit_push.NAME
   )
-  set ( twx_test_unit_push.PATH "${${twx_test_unit_push.R_SUITE}.PATH}/${twx_test_unit_push.R_NAME}" )
-  set ( twx_test_unit_push.ID "${${twx_test_unit_push.R_SUITE}.ID}/${twx_test_unit_push.R_NAME}" )
+  set ( twx_test_unit_push.PATH "${${twx_test_unit_push.R_SUITE}.PATH}/${twx_test_unit_push.R_CORE}" )
+  set ( twx_test_unit_push.ID "${${twx_test_unit_push.R_SUITE}.ID}/${twx_test_unit_push.R_CORE}" )
   # Serious things start here
   if ( ${twx_test_unit_push.R_SUITE}.RUN )
     set ( twx_test_unit_push.RUN ON )
@@ -1044,6 +1093,12 @@ function ( twx_test_unit_pop )
     twx_test_unit_count ( KEY ALL  IN_VAR twx.ALL.VALUE  )
     twx_test_unit_count ( KEY PASS IN_VAR twx.PASS.VALUE )
     twx_test_unit_count ( KEY FAIL IN_VAR twx.FAIL.VALUE )
+    twx_test_suite_count ( KEY ALL  STEP 1 )
+    if ( twx.FAIL.VALUE GREATER 0 )
+      twx_test_suite_count ( KEY FAIL STEP 1 )
+    else ()
+      twx_test_suite_count ( KEY PASS STEP 1 )
+    endif ()
     twx_fatal_assert_pass (
       CHECK MESSAGE_CONTEXT_HIDE
       MSG_PASS "PASS: all ${twx.ALL.VALUE} tests"
@@ -1105,6 +1160,9 @@ function ( twx_test_unit_count )
   endif ()
   if ( DEFINED ${TWX_CMD}.R_IN_VAR )
     twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR ${${TWX_CMD}.R_IN_VAR} )
+    if ( NOT DEFINED ${${TWX_CMD}.R_IN_VAR} )
+      set ( ${${TWX_CMD}.R_IN_VAR} 0 )
+    endif ()
   endif ()
   return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
 endfunction ()

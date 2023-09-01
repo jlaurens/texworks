@@ -130,7 +130,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: twx_math[1]
-twx_test_unit_push ( NAME "twx_math[1]" CORE twx_math[1] )
+twx_test_unit_push ( NAME "twx_math[1]" CORE twx_math-1 )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   foreach ( xpr ${twx_math_not_DATA_expect_0} )
@@ -150,7 +150,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: twx_math[2]
-twx_test_unit_push ( NAME "twx_math[2]" CORE twx_math[2] )
+twx_test_unit_push ( NAME "twx_math[2]" CORE twx_math-2 )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_math ( EXPR ans "2+2" )
