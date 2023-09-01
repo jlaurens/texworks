@@ -58,7 +58,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: pass_option_2
-twx_test_unit_push ( NAME "twx_arg_pass_option(2)" ID pass_option_2 )
+twx_test_unit_push ( NAME "twx_arg_pass_option(2)" CORE pass_option_2 )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   function ( TwxArgTest_pass_option_2 CHI FOO )
