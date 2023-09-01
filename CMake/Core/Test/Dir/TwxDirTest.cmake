@@ -14,7 +14,7 @@ include_guard ( GLOBAL )
 twx_test_suite_push ()
 block ()
 
-twx_test_unit_push ( NAME "twx_dir_configure" ID configure )
+twx_test_unit_push ( NAME "twx_dir_configure" CORE configure )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   foreach (
