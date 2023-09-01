@@ -916,7 +916,7 @@ endfunction ( twx_test_unit_log )
   *   Must not evaluate to false in boolean context.
   *   When not provided, guessed from the requires <id>.
   */
-twx_test_unit_push ([SUITE suite] [IN_UNIT unit] NAME name|ID id) {}
+twx_test_unit_push ([SUITE suite] [IN_UNIT unit] NAME name|CORE id) {}
 /*
 #]=======]
 macro ( twx_test_unit_push )
