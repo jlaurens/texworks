@@ -46,7 +46,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: compare_yes
-twx_test_unit_push ( NAME "twx_assert_compare(yes)" ID compare_yes )
+twx_test_unit_push ( NAME "twx_assert_compare(yes)" CORE compare_yes )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   macro ( twx_test_one_shot )
@@ -70,7 +70,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: compare_no
-twx_test_unit_push ( NAME "twx_assert_compare(no)" ID compare_no )
+twx_test_unit_push ( NAME "twx_assert_compare(no)" CORE compare_no )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   macro ( twx_test_one_shot )
@@ -90,7 +90,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: compare_pipe_yes
-twx_test_unit_push ( NAME "twx_assert_compare(pipe/yes)" ID compare_pipe_yes )
+twx_test_unit_push ( NAME "twx_assert_compare(pipe/yes)" CORE compare_pipe_yes )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   macro ( twx_test_one_shot )
@@ -106,7 +106,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: compare_pipe_no
-twx_test_unit_push ( NAME "twx_assert_compare(pipe/no)" ID compare_pipe_no )
+twx_test_unit_push ( NAME "twx_assert_compare(pipe/no)" CORE compare_pipe_no )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   macro ( twx_test_one_shot )
