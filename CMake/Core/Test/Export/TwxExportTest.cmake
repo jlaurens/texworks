@@ -93,7 +93,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: twx_export
-twx_test_unit_push ( NAME "twx_export" ID twx_export )
+twx_test_unit_push ( NAME "twx_export" CORE twx_export )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   function ( TwxExportTest_twx_export )
@@ -134,7 +134,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: twx_export(multi)
-twx_test_unit_push ( NAME "twx_export(multi)" ID "twx_export(multi)" )
+twx_test_unit_push ( NAME "twx_export(multi)" CORE "twx_export(multi)" )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   function ( TwxExportTest_twx_export_multi )
