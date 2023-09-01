@@ -31,7 +31,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: TWX_TREE_KEY_RE
-twx_test_unit_push ( NAME "TWX_TREE_KEY_RE" ID KEY_RE )
+twx_test_unit_push ( NAME "TWX_TREE_KEY_RE" CORE KEY_RE )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_fatal_test ()
@@ -613,7 +613,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: subtrees
-twx_test_unit_push ( NAME "Trees inside trees" ID subtrees )
+twx_test_unit_push ( NAME "Trees inside trees" CORE subtrees )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_tree_init ( A/ )
@@ -655,7 +655,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: TWX_TREE
-twx_test_unit_push ( NAME "Tree with default tyree" ID TWX_TREE )
+twx_test_unit_push ( NAME "Tree with default tyree" CORE TWX_TREE )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_tree_init ()
@@ -714,7 +714,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: list
-twx_test_unit_push ( NAME "list support" ID list )
+twx_test_unit_push ( NAME "list support" CORE list )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_tree_set ( "k=a;b" )
