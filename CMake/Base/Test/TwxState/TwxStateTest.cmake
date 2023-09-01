@@ -136,7 +136,7 @@ endif ()
 twx_test_unit_pop ()
 
 # ANCHOR: preparation_register
-twx_test_unit_push ( NAME "twx_state_will_serialize_register" ID "preparation_register" )
+twx_test_unit_push ( NAME "twx_state_will_serialize_register" CORE "preparation_register" )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_state_will_serialize_register ( TwxStateTest.preparation_register )
