@@ -41,10 +41,13 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
+include_guard ( GLOBAL )
+
 include (
   "${CMAKE_CURRENT_LIST_DIR}/TwxCorePolicy.cmake"
   NO_POLICY_SCOPE
 )
+
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxLib.cmake" )
 
 twx_lib_will_load ()
@@ -186,9 +189,7 @@ twx_lib_require (
   "Export"
 )
 
-message ( VERBOSE "ROOT   DIR => ${TWX_DIR}" )
-message ( VERBOSE "SOURCE DIR => ${CMAKE_SOURCE_DIR}" )
-message ( VERBOSE "BINARY DIR => ${CMAKE_BINARY_DIR}" )
+twx_var_log ( VERBOSE TWX_DIR CMAKE_SOURCE_DIR CMAKE_BINARY_DIR )
 
 twx_lib_did_load ()
 

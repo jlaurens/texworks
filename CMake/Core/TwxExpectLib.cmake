@@ -263,7 +263,7 @@ twx_expect_in_list( actual expected ) {}
 /*#]=======]
 function ( twx_expect_in_list actual_ expected_ )
   if ( NOT ARGC EQUAL 2 )
-    twx_fatal ( " Bad usage (ARGN => ``${ARGN}'')" )
+    twx_fatal ( " Bad usage (ARGV => ``${ARGV}'')" )
     return ()
   endif ()
   if ( NOT "${actual_}" IN_LIST "${expected_}" )
@@ -282,7 +282,7 @@ twx_expect_not_in_list( actual expected ) {}
 /*#]=======]
 function ( twx_expect_not_in_list actual_ expected_ )
   if ( NOT ARGC EQUAL 2 )
-    twx_fatal ( " Bad usage (ARGN => ``${ARGN}'')" )
+    twx_fatal ( " Bad usage (ARGV => ``${ARGV}'')" )
     return ()
   endif ()
   if ( "${actual_}" IN_LIST "${expected_}" )

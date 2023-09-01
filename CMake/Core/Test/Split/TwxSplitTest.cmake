@@ -11,7 +11,7 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
 # message ( STATUS "ARGC" )
@@ -36,8 +36,8 @@ block ()
 # endblock()
 
 # ANCHOR: assign(0)
-twx_test_unit_will_begin ( ID "assign(0)" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE "assign(0)" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_test_simple_start ( "Too many arguments" )
   twx_split_assign ( a b c d e f ) # `twx_split_assign ( 1 2 3 4 5 6 )` has side effects
@@ -111,11 +111,11 @@ if ( TWX_TEST_UNIT_RUN )
 
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: assign(1)
-twx_test_unit_will_begin ( ID "assign(1)" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE "assign(1)" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_test_simple_start ( "Too many arguments" )
   twx_split_assign ( a b c d e f ) # `twx_split_assign ( 1 2 3 4 5 6 )` has side effects
@@ -158,11 +158,11 @@ if ( TWX_TEST_UNIT_RUN )
 
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: assign(2)
-twx_test_unit_will_begin ( ID "assign(2)" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE "assign(2)" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_test_simple_start ( "key1=value1" )
   set ( kv.key )
@@ -177,11 +177,11 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect ( kv.value value1 )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: compare
-twx_test_unit_will_begin ( ID compare )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE compare )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_test_simple_start ( "Too few arguments" )
   twx_split_compare ( a b c d e f g h )
@@ -297,11 +297,11 @@ if ( TWX_TEST_UNIT_RUN )
 
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: append
-twx_test_unit_will_begin ( ID append )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE append )
+if ( TWX_TEST_UNIT.RUN )
   block ()
 
   twx_test_simple_start ( "Void string" )
@@ -324,11 +324,11 @@ if ( TWX_TEST_UNIT_RUN )
 
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: prepend
-twx_test_unit_will_begin ( ID prepend )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE prepend )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_test_simple_start ( "Void string" )
   twx_split_prepend ( "" )
@@ -350,9 +350,9 @@ if ( TWX_TEST_UNIT_RUN )
 
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #*/

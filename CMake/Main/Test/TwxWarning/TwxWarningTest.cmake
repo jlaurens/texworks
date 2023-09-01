@@ -11,7 +11,7 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
 add_library (
@@ -19,8 +19,8 @@ add_library (
   "${CMAKE_CURRENT_LIST_DIR}/SOURCES/main.c"
 )
 
-twx_test_unit_will_begin ( ID contains )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE contains )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( ans_ FALSE )
   twx_warning_contains ( IN_VAR ans_ )
@@ -41,10 +41,10 @@ if ( TWX_TEST_UNIT_RUN )
   twx_fatal_assert_pass ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
-twx_test_unit_will_begin ( ID add/remove )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE add/remove )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( ans_ TRUE )
   twx_warning_contains ( "-WTWX_DUMMY_WARNING" IN_VAR ans_ )
@@ -69,10 +69,10 @@ if ( TWX_TEST_UNIT_RUN )
   twx_assert_false ( ans_ )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
-twx_test_unit_will_begin ( ID add-target )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE add-target )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( ans_ TRUE )
   twx_warning_contains ( "-WTWX_DUMMY_WARNING" TARGET TwxWarningTest.cmake IN_VAR ans_ )
@@ -83,9 +83,9 @@ if ( TWX_TEST_UNIT_RUN )
   twx_assert_true ( ans_ )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #*/

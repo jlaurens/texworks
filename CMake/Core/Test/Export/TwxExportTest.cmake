@@ -11,13 +11,13 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
 # ANCHOR: POC
 # Sucess: normal call
-twx_test_unit_will_begin ( NAME "POC" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "POC" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( TwxExportTest.key1a )
   set ( TwxExportTest.key2a )
@@ -48,11 +48,11 @@ if ( TWX_TEST_UNIT_RUN )
   twx_assert_undefined ( TwxExportTest.key5 )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: POC2
-twx_test_unit_will_begin ( NAME "POC2" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "POC2" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   macro ( TwxExportTest_POC2_a )
     set ( TwxExportTest.key1a "value" PARENT_SCOPE )
@@ -90,11 +90,11 @@ if ( TWX_TEST_UNIT_RUN )
   twx_assert_undefined ( TwxExportTest.key5 )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: twx_export
-twx_test_unit_will_begin ( NAME "twx_export" ID twx_export )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_export" ID twx_export )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   function ( TwxExportTest_twx_export )
     twx_export ( "TwxExportTest.key1a=value1a" )
@@ -131,11 +131,11 @@ if ( TWX_TEST_UNIT_RUN )
   twx_assert_undefined ( TwxExportTest.key4b )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: twx_export(multi)
-twx_test_unit_will_begin ( NAME "twx_export(multi)" ID "twx_export(multi)" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_export(multi)" ID "twx_export(multi)" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   function ( TwxExportTest_twx_export_multi )
     twx_export (
@@ -159,9 +159,9 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect ( TwxExportTest.key2b "DUMMY2b")
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #*/

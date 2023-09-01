@@ -11,7 +11,7 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
 add_executable (
@@ -19,8 +19,8 @@ add_executable (
   "${CMAKE_CURRENT_LIST_DIR}/SOURCES/main.c"
 )
   
-twx_test_unit_will_begin ( ID case )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE case )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_unit_case ( IN_VAR twx_WorkingDirectory TARGET test_TwxUnitTest.cmake )
   twx_fatal_assert_pass ()
@@ -36,9 +36,9 @@ if ( TWX_TEST_UNIT_RUN )
   message ( STATUS "To terminate the test run\nmake test_TwxUnitTest.cmake" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #*/

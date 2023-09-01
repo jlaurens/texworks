@@ -11,18 +11,20 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
+
 block ()
 
-twx_test_unit_will_begin ( )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "..." )
+if ( TWX_TEST_UNIT.RUN )
   block ()
-  message ( "NO DEDICATED TEST" )
+  message ( VERBOSE "NO DEDICATED TEST" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+
+twx_test_suite_pop ()
 
 #*/

@@ -11,12 +11,12 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
 # ANCHOR: compare
-twx_test_unit_will_begin ( ID compare )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE compare )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_test_simple_start ( "2+2" )
   twx_math_compare ( "2+2" IN_VAR ans )
@@ -54,7 +54,7 @@ if ( TWX_TEST_UNIT_RUN )
   TwxMathTest_compare ( "3>2"  "true" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 set (
   twx_math_not_DATA_expect_0
@@ -110,8 +110,8 @@ set (
   !-0x0
 )
 # ANCHOR: not
-twx_test_unit_will_begin ( ID not )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE not )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   foreach ( xpr ${twx_math_not_DATA_expect_0} )
     twx_test_simple_start ( "${xpr}" )
@@ -127,11 +127,11 @@ if ( TWX_TEST_UNIT_RUN )
   endforeach ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: twx_math[1]
-twx_test_unit_will_begin ( NAME "twx_math[1]" ID twx_math[1] )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_math[1]" ID twx_math[1] )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   foreach ( xpr ${twx_math_not_DATA_expect_0} )
     twx_test_simple_start ( "${xpr}" )
@@ -147,11 +147,11 @@ if ( TWX_TEST_UNIT_RUN )
   endforeach ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: twx_math[2]
-twx_test_unit_will_begin ( NAME "twx_math[2]" ID twx_math[2] )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_math[2]" ID twx_math[2] )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_math ( EXPR ans "2+2" )
   twx_expect_equal_number ( "${ans}" "4" )
@@ -199,9 +199,9 @@ if ( TWX_TEST_UNIT_RUN )
   endforeach ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #/*

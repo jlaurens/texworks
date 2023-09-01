@@ -11,14 +11,14 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
 # ANCHOR: POC
-twx_test_unit_will_begin ( NAME POC )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME POC )
+if ( TWX_TEST_UNIT.RUN )
   block ()
-  function ( twx_test_unit_will_begin_POC )
+  function ( twx_test_unit_push_POC )
     cmake_parse_arguments (
       PARSE_ARGV 0 twx.R
       "" "A;B" ""
@@ -28,16 +28,16 @@ if ( TWX_TEST_UNIT_RUN )
   endfunction ()
   set ( A foo )
   set ( B bar )
-  twx_test_unit_will_begin_POC ( A B )
+  twx_test_unit_push_POC ( A B )
   twx_assert_undefined ( A )
   twx_assert_undefined ( B )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: name_out
-twx_test_unit_will_begin ( ID name_out )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE name_out )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( x )
   twx_cfg_file_name_out ( "a/b.in" IN_VAR x )
@@ -53,41 +53,41 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect ( x "a/b.inner" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: Balance
-twx_test_unit_will_begin ( ID begin_1 )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE begin_1 )
+if ( TWX_TEST_UNIT.RUN )
   block ()
-  twx_cfg_file_begin ( ID twx_test_unit_will_begin.foo )
-  twx_cfg_file_begin ( ID twx_test_unit_will_begin.foo )
+  twx_cfg_file_begin ( ID twx_test_unit_push.foo )
+  twx_cfg_file_begin ( ID twx_test_unit_push.foo )
   twx_fatal_assert_fail ()
-  twx_cfg_file_end ( ID twx_test_unit_will_begin.bar )
+  twx_cfg_file_end ( ID twx_test_unit_push.bar )
   twx_fatal_assert_fail ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: Normal usage
-twx_test_unit_will_begin ( NAME Normal )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME Normal )
+if ( TWX_TEST_UNIT.RUN )
   block ()
-  twx_cfg_file_begin ( ID twx_test_unit_will_begin.foo )
-  twx_cfg_file_begin ( ID twx_test_unit_will_begin.foo )
+  twx_cfg_file_begin ( ID twx_test_unit_push.foo )
+  twx_cfg_file_begin ( ID twx_test_unit_push.foo )
   twx_fatal_assert_fail ()
-  twx_cfg_file_end ( ID twx_test_unit_will_begin.bar )
+  twx_cfg_file_end ( ID twx_test_unit_push.bar )
   twx_fatal_assert_fail ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: add
-twx_test_unit_will_begin ( ID add )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE add )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_cfg_file_add ()
   twx_fatal_assert_fail ()
-  twx_cfg_file_begin ( ID twx_test_unit_will_begin.baz )
+  twx_cfg_file_begin ( ID twx_test_unit_push.baz )
   twx_cfg_file_add ( FILES FILE.in FILE.in.txt FILE.private.in )
   twx_cfg_file_end (
     IN_DIR "TEST_IN_DIR"
@@ -101,7 +101,7 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect_list ( TWX_TEST_out FILE FILE.txt FILE.private )
   twx_fatal_assert_pass ()
 
-  twx_cfg_file_begin ( ID twx_test_unit_will_begin.chi )
+  twx_cfg_file_begin ( ID twx_test_unit_push.chi )
   twx_cfg_file_add ( FILES FILE.in FILE.in.txt FILE.private.in )
   twx_cfg_file_end (
     NO_PRIVATE
@@ -118,11 +118,11 @@ if ( TWX_TEST_UNIT_RUN )
   # twx_ans_log ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: Files
-twx_test_unit_will_begin ( NAME Files )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME Files )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_cfg_files (
     TYPE		    TEST_TYPE
@@ -140,20 +140,19 @@ if ( TWX_TEST_UNIT_RUN )
   )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: POCbuild
-twx_test_unit_will_begin ( NAME POCbuild )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME POCbuild )
+if ( TWX_TEST_UNIT.RUN )
   block ()
-  set ( component "TwxTest/${TWX_TEST_DOMAIN_NAME}/${TWX_TEST_SUITE_NAME}/${TWX_TEST_UNIT_NAME}" )
-  if ( "${CMAKE_BINARY_DIR}" MATCHES "/${component}" )
+  if ( "${CMAKE_BINARY_DIR}" MATCHES "/${TWX_TEST_UNIT.FULL}" )
     # reentrant call
     message ( "CMAKE_SOURCE_DIR => ``${CMAKE_SOURCE_DIR}''")
     message ( "CMAKE_BINARY_DIR => ``${CMAKE_BINARY_DIR}''")
     message ( FATAL_ERROR "**********" )
   else ()
-    set ( pwd "${CMAKE_BINARY_DIR}/${component}" )
+    set ( pwd "${CMAKE_BINARY_DIR}/${TWX_TEST_UNIT.FULL}" )
     file ( MAKE_DIRECTORY "${pwd}" )
     twx_state_serialize ()
     execute_process (
@@ -170,10 +169,10 @@ if ( TWX_TEST_UNIT_RUN )
   message ( FATAL_ERROR "**********" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 message ( FATAL_ERROR "**********" )
 #*/

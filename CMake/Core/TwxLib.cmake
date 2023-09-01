@@ -29,7 +29,6 @@ string ( ASCII 29 TWX_CHAR_GS  )
 string ( ASCII 30 TWX_CHAR_RS  )
 string ( ASCII 31 TWX_CHAR_US  )
 
-
 # ANCHOR: twx_lib_will_load ()
 #[=======[
 */
@@ -87,9 +86,12 @@ twx_lib_did_load ([NAME name]) {}
 /*
 #]=======]
 function ( twx_lib_did_load )
-  cmake_parse_arguments ( twx.R "NO_SCRIPT" "NAME" "" ${ARGV} )
-  if ( NOT "${twx_lib_will_load.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "NO_SCRIPT" "NAME" ""
+  )
+  if ( DEFINED twx.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR " Bad usage: UNPARSED_ARGUMENTS -> ``${twx.R_UNPARSED_ARGUMENTS}''" )
   endif ()
   if ( CMAKE_CURRENT_LIST_FILE MATCHES "(Twx[^/]+Lib)[.]cmake" )
     set ( name_ "${CMAKE_MATCH_1}" )
@@ -105,7 +107,7 @@ function ( twx_lib_did_load )
   else ()
     message ( VERBOSE "Loading ${name_}... DONE" )
   endif ()
-endfunction ()
+endfunction ( twx_lib_did_load )
 
 # ANCHOR: twx_lib_require
 #[=======[

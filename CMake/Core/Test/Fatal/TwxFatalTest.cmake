@@ -12,20 +12,21 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
+
 block ()
 
-twx_test_unit_will_begin ( ID "get/set" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE "get/set" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_fatal_get ( IN_VAR var )
   twx_assert_undefined ( var )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
-twx_test_unit_will_begin ( ID "catch" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE "catch" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( TWX_FATAL_CATCH ON )
   twx_expect_equal_string ( "${twx_fatal.MSG}" "" )
@@ -42,9 +43,9 @@ if ( TWX_TEST_UNIT_RUN )
   endif ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #*/

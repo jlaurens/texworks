@@ -11,11 +11,11 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
-twx_test_unit_will_begin ( NAME "twx_dir_configure" ID configure )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_dir_configure" ID configure )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   foreach (
     p_
@@ -34,9 +34,9 @@ if ( TWX_TEST_UNIT_RUN )
   endforeach ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #/*

@@ -12,34 +12,39 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-message ( STATUS "Proof of concept test...")
+twx_test_suite_push ()
 
 block ()
 
 set ( CMAKE_MESSAGE_LOG_LEVEL DEBUG )
 
-message ( STATUS "ARGV${ARGC}" )
-# depending on the context, ARGV${ARGC} is defined or not
-block ()
-function ( TwxBase_argv_argc_1 )
-  if ( NOT DEFINED ARGV${ARGC} )
-    message ( FATAL_ERROR "IS DEFINED ARGV${ARGC}" )
-  endif ()
-endfunction ()
-function ( TwxBase_argv_argc_2 x )
-  TwxBase_argv_argc_1 ( ${ARGN} )
-endfunction ()
-TwxBase_argv_argc_2 ( a b c )
-function ( TwxBase_argv_argc_3 )
-  if ( DEFINED ARGV${ARGC} )
-    message ( FATAL_ERROR "IS UNDEFINED ARGV${ARGC}" )
-  endif ()
-endfunction ()
-function ( TwxBase_argv_argc_4 )
-  TwxBase_argv_argc_3 ( ${ARGV} x )
-endfunction ()
-TwxBase_argv_argc_4 ( a b c )
-endblock ()
+twx_test_unit_push ( CORE "ARGV\${ARGC}" )
+if ( TWX_TEST_UNIT.RUN )
+  # depending on the context, ARGV${ARGC} is defined or not
+  block ()
+  function ( TwxBase_argv_argc_1 )
+    if ( NOT DEFINED ARGV${ARGC} )
+      message ( FATAL_ERROR "IS DEFINED ARGV${ARGC}" )
+    endif ()
+  endfunction ()
+  function ( TwxBase_argv_argc_2 x )
+    TwxBase_argv_argc_1 ( ${ARGN} )
+  endfunction ()
+  TwxBase_argv_argc_2 ( a b c )
+  function ( TwxBase_argv_argc_3 )
+    if ( DEFINED ARGV${ARGC} )
+      message ( FATAL_ERROR "IS UNDEFINED ARGV${ARGC}" )
+    endif ()
+  endfunction ()
+  function ( TwxBase_argv_argc_4 )
+    TwxBase_argv_argc_3 ( ${ARGV} x )
+  endfunction ()
+  TwxBase_argv_argc_4 ( a b c )
+  endblock ()
+endif ()
+twx_test_unit_pop ()
+
+message ( FATAL_ERROR "*****" )
 
 message ( STATUS "Always OR" )
 block ()
@@ -234,6 +239,6 @@ endblock ()
 
 endblock ()
 
-message ( STATUS "Proof of concept test... DONE")
+twx_test_suite_pop ()
 
 #*/

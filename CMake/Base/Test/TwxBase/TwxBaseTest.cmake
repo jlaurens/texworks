@@ -11,11 +11,11 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
-twx_test_unit_will_begin ( NAME "twx_set_if_defined" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_set_if_defined" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( foo )
   set ( bar "baz" )
@@ -26,17 +26,17 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect ( foo "baz" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
-twx_test_unit_will_begin ( NAME "twx_base_prettifier" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_base_prettifier" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
 
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #/*

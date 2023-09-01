@@ -11,11 +11,11 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
-twx_test_unit_will_begin ( NAME "twx_increment" ID increment )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_increment" ID increment )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( i 123 )
   twx_assert_compare ( ${i} == 123 )
@@ -53,10 +53,10 @@ if ( TWX_TEST_UNIT_RUN )
   twx_fatal_clear ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
-twx_test_unit_will_begin ( NAME "twx_break_if" ID break_if )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_break_if" ID break_if )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_test_simple_start ( "i=100" )
   set ( i 100 )
@@ -108,9 +108,9 @@ if ( TWX_TEST_UNIT_RUN )
   twx_test_simple_assert_pass ()
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #/*

@@ -662,8 +662,6 @@ add_subdirectory ( "${TWX_DIR}Package" )
 # Summary
 # =======
 
-message ( "" )
-
 include ( TwxSummaryLib )
 
 twx_summary_begin (

@@ -16,21 +16,21 @@ file (
   DESTINATION "${TWX_BUILD_DATA_DIR}"
 )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
 twx_cfg_update_factory ()
 twx_cfg_update_git ()
 
-twx_test_unit_will_begin ( )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE ... )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   message ( "NO TEST YET" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #*/

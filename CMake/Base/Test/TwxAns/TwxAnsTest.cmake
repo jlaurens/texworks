@@ -11,14 +11,14 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
 twx_tree_init ( empty/ )
 
 # ANCHOR: *
-twx_test_unit_will_begin ( ID * )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE * )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_ans_clear ()
   twx_ans_assert_key ( "abc" )
@@ -32,22 +32,22 @@ if ( TWX_TEST_UNIT_RUN )
   twx_ans_prettify ( IN_VAR pretty )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: clear
-twx_test_unit_will_begin ( ID clear )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE clear )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_ans_clear ()
   twx_tree_assert ( TWX_ANS )
   twx_expect ( TWX_ANS "${empty/}" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: get_keys
-twx_test_unit_will_begin ( ID get_keys )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE get_keys )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_ans_clear ()
   set ( keys "dummy" )
@@ -59,11 +59,11 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect_list ( keys "k" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: set/get/remove
-twx_test_unit_will_begin ( ID set/get/remove )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE set/get/remove )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_ans_clear ()
   set ( TWX_ANS/k "dummy" )
@@ -77,11 +77,11 @@ if ( TWX_TEST_UNIT_RUN )
   twx_assert_undefined ( TWX_ANS/k )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 # ANCHOR: expose
-twx_test_unit_will_begin ( ID expose )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( CORE expose )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   twx_ans_clear ()
   twx_ans_set ( key=value )
@@ -93,9 +93,9 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect ( TWX_ANS/key "value" )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #*/

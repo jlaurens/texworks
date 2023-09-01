@@ -12,11 +12,11 @@ https://github.com/TeXworks/texworks
 
 include_guard ( GLOBAL )
 
-twx_test_suite_will_begin ()
+twx_test_suite_push ()
 block ()
 
-twx_test_unit_will_begin ( NAME "twx_hook_*" ID "*" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_hook_*" ID "*" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   macro ( TwxHookTest_hooked counter step )
     math ( EXPR "${counter}" "${${counter}}+(${step})" )
@@ -35,10 +35,10 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect_equal_number ( ${i} 123 )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
-twx_test_unit_will_begin ( NAME "twx_hook_*/ordering" ID "ordering" )
-if ( TWX_TEST_UNIT_RUN )
+twx_test_unit_push ( NAME "twx_hook_*/ordering" ID "ordering" )
+if ( TWX_TEST_UNIT.RUN )
   block ()
   macro ( TwxHookTest_hooked_plus counter step )
     message ( TRACE "TwxHookTest_hooked_plus: ${counter} => ``${${counter}}''" )
@@ -71,9 +71,9 @@ if ( TWX_TEST_UNIT_RUN )
   twx_expect_equal_number ( ${i} 1 )
   endblock ()
 endif ()
-twx_test_unit_did_end ()
+twx_test_unit_pop ()
 
 endblock ()
-twx_test_suite_did_end ()
+twx_test_suite_pop ()
 
 #*/

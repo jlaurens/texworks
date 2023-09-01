@@ -117,8 +117,6 @@ unset ( twx_WorkingDirectory )
 # ANCHOR - Summary
 # =======
 
-message ( "" )
-
 include ( TwxSummaryLib )
 
 twx_summary_begin (

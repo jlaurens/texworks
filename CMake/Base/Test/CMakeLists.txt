@@ -27,17 +27,17 @@ project ( TwxCMakeBaseTest )
 
 set ( CMAKE_MESSAGE_CONTEXT_SHOW ON )
 
-twx_test_domain_will_begin ()
-if ( TWX_TEST_DOMAIN_RUN )
-include ( "${CMAKE_CURRENT_LIST_DIR}/TwxPOC/TwxPOCTest.cmake" )
-include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxBase.cmake" )
+twx_test_domain_push ()
+if ( TWX_TEST_DOMAIN.RUN )
+  include ( "${CMAKE_CURRENT_LIST_DIR}/TwxPOC/TwxPOCTest.cmake" )
+  include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxBase.cmake" )
 
-# All the test that we did not list in `TwxBase.cmake`.
-file ( GLOB_RECURSE tests "${CMAKE_CURRENT_LIST_DIR}/*Test.cmake" )
-foreach ( t ${tests} )
-  include ( ${t} )
-endforeach ()
+  # All the test that we did not list in `TwxBase.cmake`.
+  file ( GLOB_RECURSE tests "${CMAKE_CURRENT_LIST_DIR}/*Test.cmake" )
+  foreach ( t ${tests} )
+    include ( ${t} )
+  endforeach ()
 endif ()
-twx_test_domain_did_end ()
+twx_test_domain_pop ()
 
 #*/

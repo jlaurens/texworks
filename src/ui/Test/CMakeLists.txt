@@ -114,8 +114,6 @@ unset ( twx_WorkingDirectory )
 
 if ( TwxUI_TEST_IS_ROOT )
 
-	message ( "" )
-
 	include ( TwxSummaryLib )
 
 	twx_summary_begin (

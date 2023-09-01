@@ -19,6 +19,8 @@ https://github.com/TeXworks/texworks
   *//*
 #]===============================================]
 
+OBSOLETE
+
 include_guard ( GLOBAL )
 twx_lib_will_load ()
 

@@ -47,8 +47,6 @@ twx_module_test ()
 # ANCHOR - Summary
 # =======
 
-message ( "" )
-
 include ( TwxSummaryLib )
 
 twx_summary_begin (
