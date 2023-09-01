@@ -39,7 +39,7 @@ if ( TWX_TEST_UNIT.RUN )
 endif ()
 twx_test_unit_pop ()
 
-twx_test_unit_push ( NAME "twx_dir_complete_var" ID complete_dir_var )
+twx_test_unit_push ( NAME "twx_dir_complete_var" CORE complete_dir_var )
 if ( TWX_TEST_UNIT.RUN )
   block ()
   set ( TwxUtiTest.VAR )
