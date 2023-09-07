@@ -16,7 +16,7 @@ https://github.com/TeXworks/texworks
 	* Output:
 	* - `TwxBuildData/<project_name>_paths.ini`, will be automatically read by
 	*   the `configure_file` related commands. In that case, will be defined
-	* - `TWX_CFG_FACTORY_PATH`
+	* - `/TWX/CFG/FACTORY_PATH`
 	*
 	* Any subsequent try to include this script in the same project
 	* is a noop.

@@ -16,7 +16,7 @@ See https://github.com/TeXworks/texworks
   * The later needs to be updated each time. It is associate to a target.
   * This target is the very first one created by a call to `twx_cfg_setup`.
   * Its name is `twx_cfg_target`. It also holds the shared location of all the
-  * cfg ini data files as property `TWX_CFG_INI_DIR`.
+  * cfg ini data files as property `/TWX/CFG/INI/DIR`.
   * 
   * Usage:
   * ```
@@ -79,7 +79,7 @@ twx_cfg_path ( ID id IN_VAR var [STAMPED] ) {}
 /*
 #]=======]
 function ( twx_cfg_path .ID .id .IN_VAR .var )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "STAMPED" "ID;IN_VAR" ""
@@ -90,7 +90,7 @@ function ( twx_cfg_path .ID .id .IN_VAR .var )
     twx_export ( "${twx.R_IN_VAR}=${twx.R_ID}" )
     return ()
   endif ()
-  twx_assert_exists ( "${TWX_CFG_INI_DIR}" )
+  twx_assert_exists ( "${/TWX/CFG/INI/DIR}" )
   twx_assert_non_void ( twx.R_ID )
   if ( twx.R_STAMPED )
     set ( extension "stamped" )
@@ -98,20 +98,20 @@ function ( twx_cfg_path .ID .id .IN_VAR .var )
     set ( extension "ini" )
   endif ()
   twx_export (
-    "${twx.R_IN_VAR}=${TWX_CFG_INI_DIR}TwxCfg_${twx.R_ID}.${extension}"
+    "${twx.R_IN_VAR}=${/TWX/CFG/INI/DIR}TwxCfg_${twx.R_ID}.${extension}"
   )
 endfunction ( twx_cfg_path )
 
-# ANCHOR: TWX_CFG_INI_REQUIRED_KEYS
+# ANCHOR: /TWX/CFG/INI/REQUIRED_KEYS
 #[=======[*/
 /* UNEXPOSED *  @brief List of required keys
   *
   * Exposed for testing purposes only.
   */
-TWX_CFG_INI_REQUIRED_KEYS;
+/TWX/CFG/INI/REQUIRED_KEYS;
 /*#]=======]
 set (
-  TWX_CFG_INI_REQUIRED_KEYS
+  /TWX/CFG/INI/REQUIRED_KEYS
     # VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK
     # COPYRIGHT_YEARS COPYRIGHT_HOLDERS AUTHORS
     # ORGANIZATION_DOMAIN ORGANIZATION_NAME ORGANIZATION_SHORT_NAME
@@ -120,40 +120,124 @@ set (
     # URL_HOME URL_HOME_DEV URL_ISSUES URL_GPL MAIL_ADDRESS
 )
 
-# ANCHOR: twx_cfg_ini_required_key_add
+# SECTION: twx_cfg_ini_keys_...
+# ANCHOR: twx_cfg_ini_keys_get
 #[=======[
 */
 /** @brief Add required keys to INI files
   *
   * @param ... non empty list of keys.
+  * @param var for key `IN_VAR`, optional name of a variable
+  *   that will hold the result on return.
   */
-twx_cfg_ini_required_key_add (...) {}
+twx_cfg_ini_keys_get (IN_VAR var) {}
 /*
 #]=======]
-function ( twx_cfg_ini_required_key_add .k )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_message_log ( DEBUG "ARGV => ``${ARGV}''" )
-  list ( APPEND TWX_CFG_INI_REQUIRED_KEYS ${ARGV} )
-  list ( REMOVE_DUPLICATES TWX_CFG_INI_REQUIRED_KEYS )
-  twx_export ( TWX_CFG_INI_REQUIRED_KEYS )
-endfunction ()
+function ( twx_cfg_ini_keys_get )
+  twx_function_begin ()
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "IN_VAR" ""
+  )
+  twx_arg_assert_parsed ()
+  twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+  twx_global_get__ (
+    KEY /TWX/CFG/INI/REQUIRED_KEYS
+    IN_VAR ${TWX_CMD}.V
+  )
+  twx_export ( ${${TWX_CMD}.R_IN_VAR} )
+endfunction ( twx_cfg_ini_keys_get )
 
-# ANCHOR: twx_cfg_ini_required_key_remove
+# ANCHOR: twx_cfg_ini_keys_add
 #[=======[
 */
-/** @brief Remove required keys to INI files
+/** @brief Add required keys to INI files
   *
   * @param ... non empty list of keys.
+  * @param var for key `IN_VAR`, optional name of a variable
+  *   that will hold the result on return.
   */
-twx_cfg_ini_required_key_remove (...) {}
+twx_cfg_ini_keys_add (... [IN_VAR var]) {}
 /*
 #]=======]
-function ( twx_cfg_ini_required_key_remove .k )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_message_log ( DEBUG "ARGV => ``${ARGV}''" )
-  list ( REMOVE_ITEM TWX_CFG_INI_REQUIRED_KEYS ${ARGV} )
-  twx_export ( TWX_CFG_INI_REQUIRED_KEYS )
+function ( twx_cfg_ini_keys_add )
+  twx_function_begin ()
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "IN_VAR" ""
+  )
+  twx_arg_assert_parsed ()
+  twx_global_append (
+    ${TWX_CMD}.R_UNPARSED_ARGUMENTS
+    KEY /TWX/CFG/INI/REQUIRED_KEYS
+    IN_VAR ${TWX_CMD}.V
+  )
+  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    set ( ${${TWX_CMD}.R_IN_VAR} ${${TWX_CMD}.V} PARENT_SCOPE )
+  endif ()
 endfunction ()
+
+# ANCHOR: twx_cfg_ini_keys_remove
+#[=======[
+*/
+/** @brief Remove INI files required keys
+  *
+  * @param ... non empty list of keys.
+  * @param var for key `IN_VAR`, optional name of a variable
+  *   that will hold the result on return.
+  */
+twx_cfg_ini_keys_remove (... [IN_VAR var]) {}
+/*
+#]=======]
+function ( twx_cfg_ini_keys_remove )
+  twx_function_begin ()
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "IN_VAR" ""
+  )
+  twx_arg_assert_parsed ()
+  twx_global_remove (
+    ${TWX_CMD}.R_UNPARSED_ARGUMENTS
+    KEY /TWX/CFG/INI/REQUIRED_KEYS
+    IN_VAR ${TWX_CMD}.V
+  )
+  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    set ( ${${TWX_CMD}.R_IN_VAR} ${${TWX_CMD}.V} PARENT_SCOPE )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_cfg_ini_keys_clear
+#[=======[
+*/
+/** @brief Remove all the keys required to INI files
+  *
+  * @param var for key `IN_VAR`, optional name of a variable
+  *   that will hold the result on return.
+  */
+twx_cfg_ini_keys_clear ([IN_VAR var]) {}
+/*
+#]=======]
+function ( twx_cfg_ini_keys_clear )
+  twx_function_begin ()
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "IN_VAR" ""
+  )
+  twx_arg_assert_parsed ()
+  twx_global_set__ (
+    KEY /TWX/CFG/INI/REQUIRED_KEYS
+    IN_VAR ${TWX_CMD}.V
+  )
+  twx_var_log ( ${TWX_CMD}.V )
+  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    set ( ${${TWX_CMD}.R_IN_VAR} ${${TWX_CMD}.V} PARENT_SCOPE )
+  endif ()
+endfunction ()
+
+# !SECTION
 
 # ANCHOR: twx_cfg_register_hooked
 #[=======[
@@ -167,7 +251,7 @@ twx_cfg_register_hooked (...) {}
 /*
 #]=======]
 function ( twx_cfg_register_hooked .k )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_hook_register ( ID TwxCfgLib ${ARGV} )
   twx_hook_export ()
 endfunction ()
@@ -183,17 +267,17 @@ twx_cfg_update_factory() {}
 /*
 #]=======]
 macro ( twx_cfg_update_factory )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_message_log ( VERBOSE
     "twx_cfg_update_factory: ${TWX_FACTORY_INI}"
   )
-  twx_assert_exists ( "${TWX_CFG_INI_DIR}" )
+  twx_assert_exists ( "${/TWX/CFG/INI/DIR}" )
   twx_state_serialize ()
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_NAME=${TWX_NAME}"
       "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
-      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+      "-D/TWX/CFG/INI/DIR=${/TWX/CFG/INI/DIR}"
       "${-DTWX_STATE}"
       -P "${TWX_DIR}CMake/Script/TwxCfgFactoryScript.cmake"
     RESULT_VARIABLE twx_cfg_update_factory.result
@@ -213,11 +297,11 @@ twx_cfg_update_git ( ) {}
 /*
 #]=======]
 macro ( twx_cfg_update_git )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_state_serialize ()
   execute_process (
     COMMAND "${CMAKE_COMMAND}"
-      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+      "-D/TWX/CFG/INI/DIR=${/TWX/CFG/INI/DIR}"
       "${-DTWX_STATE}"
       -P "${TWX_DIR}CMake/Script/TwxCfgGitScript.cmake"
     COMMAND_ERROR_IS_FATAL ANY
@@ -239,7 +323,7 @@ twx_cfg_target ( ID id IN_VAR var ) {}
 /*
 #]=======]
 function ( twx_cfg_target )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID;IN_VAR" "" )
   twx_arg_assert_parsed ()
   twx_assert_non_void ( twx.R_ID )
@@ -264,14 +348,14 @@ endfunction ()
   * Then "factory" and "git" Cfg metadata files are always updated
   * with `twx_cfg_update_factory ()` and `twx_cfg_update_git ()`
   * such that their contents is available in the current variable scope.
-  * Finally `TWX_FACTORY_INI` and `TWX_CFG_INI_DIR`
+  * Finally `TWX_FACTORY_INI` and `/TWX/CFG/INI/DIR`
   * are exported just before the function returns.
   * 
   * Used at least once per project that needs `configuration_file`.
   * 
   * See twx_cfg_read().
   * 
-  * The `TWX_TEST`, `CMAKE_MESSAGE_LOG_LEVEL` and `TWX_DEV` variables are propagated
+  * The `/TWX/TESTING`, `CMAKE_MESSAGE_LOG_LEVEL` and `/TWX/DEV` variables are propagated
   * to the command.
   */
 twx_cfg_setup () {}
@@ -287,15 +371,15 @@ twx_cfg_setup () {}
   * subdirectory. The value is then the absolute location of
   * a `TeXworks-test.ini` file.
   *
-  * See `ref(TWX_CFG_INI_DIR)`.
+  * See `ref(/TWX/CFG/INI/DIR)`.
   */
 TWX_FACTORY_INI;
 /*
 #]=======]
 function ( twx_cfg_setup )
   twx_assert_non_void ( PROJECT_NAME TWX_PROJECT_BUILD_DATA_DIR )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  set ( TWX_CFG_INI_DIR "${TWX_PROJECT_BUILD_DATA_DIR}" )
+  twx_function_begin ()
+  set ( /TWX/CFG/INI/DIR "${TWX_PROJECT_BUILD_DATA_DIR}" )
   if ( "${TWX_FACTORY_INI}" STREQUAL "" )
     set (
       TWX_FACTORY_INI
@@ -313,12 +397,12 @@ function ( twx_cfg_setup )
   )
   twx_message_log ( VERBOSE
     "TWX_FACTORY_INI => ${TWX_FACTORY_INI}"
-    "TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
+    "/TWX/CFG/INI/DIR => ${/TWX/CFG/INI/DIR}"
   )
   if ( TARGET "${target_twx}" OR NOT "${CMAKE_SCRIPT_MODE_FILE}" STREQUAL "" )
     twx_cfg_update_factory ()
     twx_cfg_update_git ()
-    twx_export ( TWX_FACTORY_INI TWX_CFG_INI_DIR )
+    twx_export ( TWX_FACTORY_INI /TWX/CFG/INI/DIR )
     return ()
   endif ()
   set_property (
@@ -334,7 +418,7 @@ function ( twx_cfg_setup )
     COMMAND "${CMAKE_COMMAND}"
       "-DTWX_NAME=${TWX_NAME}"
       "-DTWX_FACTORY_INI=${TWX_FACTORY_INI}"
-      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+      "-D/TWX/CFG/INI/DIR=${/TWX/CFG/INI/DIR}"
       "${-DTWX_STATE}"
       -P "${TWX_DIR}CMake/Script/TwxCfgFactoryScript.cmake"
     DEPENDS
@@ -347,7 +431,7 @@ function ( twx_cfg_setup )
   add_custom_command (
     OUTPUT ${path_git_twx}
     COMMAND "${CMAKE_COMMAND}"
-      "-DTWX_CFG_INI_DIR=${TWX_CFG_INI_DIR}"
+      "-D/TWX/CFG/INI/DIR=${/TWX/CFG/INI/DIR}"
       "${-DTWX_STATE}"
       -P "${TWX_DIR}CMake/Script/TwxCfgGitScript.cmake"
     DEPENDS
@@ -361,7 +445,7 @@ function ( twx_cfg_setup )
   )
   twx_cfg_update_factory ()
   twx_cfg_update_git ()
-  twx_export ( TWX_FACTORY_INI TWX_CFG_INI_DIR )
+  twx_export ( TWX_FACTORY_INI /TWX/CFG/INI/DIR )
 endfunction ( twx_cfg_setup )
 
 # SECTION: Cfg ini file
@@ -382,7 +466,7 @@ twx_cfg_write_end ( ID foo )
 
 @param id is a unique identifier. In practice, one of
   "static", "git", "paths"... It is stored in
-  `TWX_CFG_ID_CURRENT` to be used by forthcoming `twx_cfg_set`
+  `/TWX/CFG/ID_CURRENT` to be used by forthcoming `twx_cfg_set`
   and `twx_cfg_end`.
 
 @note
@@ -400,7 +484,7 @@ function ( twx_cfg_write_begin .ID twx.R_ID )
   twx_arg_assert_count ( ${ARGC} == 2 )
   twx_arg_assert_keyword ( .ID )
   twx_var_assert_name ( "${twx.R_ID}" )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   if ( DEFINED TwxCfg_kv.${twx.R_ID} )
     twx_fatal ( "Missing `twx_cfg_write_end( ID ${twx.R_ID} )`" )
     return ()
@@ -408,7 +492,7 @@ function ( twx_cfg_write_begin .ID twx.R_ID )
 
   twx_export (
     TwxCfg_kv.${twx.R_ID}
-    "TWX_CFG_ID_CURRENT=${twx.R_ID}"
+    "/TWX/CFG/ID_CURRENT=${twx.R_ID}"
     UNSET
   )
 endfunction ()
@@ -419,7 +503,7 @@ endfunction ()
 /** @brief Set a cfg <key>=<value> assignment
   *
   * @param id is the id of a `twx_cfg_write_begin` previous command.
-  *   When not provided it defaults to the value of `TWX_CFG_ID_CURRENT`.
+  *   When not provided it defaults to the value of `/TWX/CFG/ID_CURRENT`.
   * @param key a spaceless key, usually uppercase
   * @param ... a non empty list of `<key>=<value>` arguments
   */
@@ -428,22 +512,22 @@ twx_cfg_set ( [ID id] key, ... ) {}
 Feed `TwxCfg_kv.<id_>` with `<key>=<value>`.
 #]=======]
 set (
-  TWX_CFG_SEMICOLON_PLACEHOLDER
-  "${TWX_CHAR_STX}semicolon${TWX_CHAR_ETX}"
+  /TWX/CFG/SEMICOLON_PLACEHOLDER
+  "${/TWX/CHAR/STX}semicolon${/TWX/CHAR/ETX}"
 )
 function ( twx_cfg_set ID_ )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   if ( "${ID_}" STREQUAL "ID")
     twx_arg_assert_count ( ${ARGC} > 2 )
     set ( id_ "${ARGV1}" )
     set ( i 2 )
   else ()
     set ( i 0 )
-    set ( id_ "${TWX_CFG_ID_CURRENT}" )
+    set ( id_ "${/TWX/CFG/ID_CURRENT}" )
   endif ()
   while ( TRUE )
     set ( kv "${ARGV${i}}" )
-    string ( REPLACE ";" "${TWX_CFG_SEMICOLON_PLACEHOLDER}" kv "${kv}" )
+    string ( REPLACE ";" "${/TWX/CFG/SEMICOLON_PLACEHOLDER}" kv "${kv}" )
     list ( APPEND TwxCfg_kv.${id_} "${kv}" )
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
@@ -462,16 +546,16 @@ twx_cfg_write_end ( [ID id] ) {}
 /*
 #]=======]
 function ( twx_cfg_write_end )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "ID" "" )
   twx_arg_assert_parsed ()
   if ( "${twx.R_ID}" STREQUAL "" )
-    set ( twx.R_ID "${TWX_CFG_ID_CURRENT}" )
+    set ( twx.R_ID "${/TWX/CFG/ID_CURRENT}" )
   endif ()
   twx_expect_unequal_string ( "${twx.R_ID}" "_private" )
   twx_cfg_path ( ID "${twx.R_ID}" IN_VAR path_ )
-  if ( NOT "${path_}" IN_LIST ${PROJECT_NAME}_TWX_CFG_IDS )
-    list ( APPEND ${PROJECT_NAME}_TWX_CFG_IDS ${path_})
+  if ( NOT "${path_}" IN_LIST ${PROJECT_NAME}_/TWX/CFG/IDS )
+    list ( APPEND ${PROJECT_NAME}_/TWX/CFG/IDS ${path_})
   endif()
   set_property (
     DIRECTORY
@@ -492,7 +576,7 @@ function ( twx_cfg_write_end )
   set ( keys_ )
   message ( DEBUG "TwxCfg_kv.${twx.R_ID} => ``${TwxCfg_kv.${twx.R_ID}}''" )
   foreach ( kv ${TwxCfg_kv.${twx.R_ID}} )
-    string ( REPLACE "${TWX_CFG_SEMICOLON_PLACEHOLDER}" ";" kv "${kv}" )
+    string ( REPLACE "${/TWX/CFG/SEMICOLON_PLACEHOLDER}" ";" kv "${kv}" )
     twx_split_assign ( kv )
     twx_assert_defined ( kv.key )
     string ( LENGTH "${kv.key}" l )
@@ -560,10 +644,10 @@ endfunction ()
   * Set `twx_cfg_<key>` to `<value>`.
   * 
   * @param ... optional list of id or full path.
-  *   When not provided, the `<PROJECT_NAME>_TWX_CFG_IDS` is used instead.
+  *   When not provided, the `<PROJECT_NAME>_/TWX/CFG/IDS` is used instead.
   *   When this list is empty, all available Cfg data files are read,
   *   from the older to the newer. Each file is encoded in UTF-8
-  * @param `QUIET` optional key, no error is raised when provided but `TWX_CFG_READ_FAILED` is set when the read failed and no more than one file is read.
+  * @param `QUIET` optional key, no error is raised when provided but `/TWX/CFG/READ_FAILED` is set when the read failed and no more than one file is read.
   * @param `ONLY_CONFIGURE` optional key, no `TWX_<project_name>_<key>`
   * is set when provided
   * @param `NO_PRIVATE` optional key, private `...cfg.ini` files are ignored.
@@ -572,8 +656,8 @@ twx_cfg_read ( ... [QUIET] [ONLY_CONFIGURE]) {}
 /*
 #]=======]
 function ( twx_cfg_read )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  set ( TWX_CFG_READ_FAILED OFF )
+  twx_function_begin ()
+  set ( /TWX/CFG/READ_FAILED OFF )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "QUIET;ONLY_CONFIGURE;NO_PRIVATE" "" ""
@@ -583,9 +667,9 @@ function ( twx_cfg_read )
   if ( "${cfg_ini_mixed_}" STREQUAL "" )
     # No file path or name provided:
     # take it all, declared or not
-    twx_assert_non_void ( TWX_CFG_INI_DIR )
+    twx_assert_non_void ( /TWX/CFG/INI/DIR )
     if ( NOT PROJECT_NAME STREQUAL "" )
-      set ( cfg_ini_mixed_ "${${PROJECT_NAME}_TWX_CFG_IDS}" )
+      set ( cfg_ini_mixed_ "${${PROJECT_NAME}_/TWX/CFG/IDS}" )
     endif ()
     if ( "${cfg_ini_mixed_}" STREQUAL "" )
       twx_cfg_path ( ID "*" IN_VAR glob_ )
@@ -603,7 +687,7 @@ function ( twx_cfg_read )
     twx_cfg_path ( ID "${id_}" IN_VAR p_ )
     if ( NOT EXISTS "${p_}" )
       if ( twx.R_QUIET )
-        set ( TWX_CFG_READ_FAILED ON PARENT_SCOPE )
+        set ( /TWX/CFG/READ_FAILED ON PARENT_SCOPE )
         return ()
       else ()
         twx_fatal ( "No file at ${p_}")
@@ -645,15 +729,15 @@ function ( twx_cfg_read )
     foreach ( l ${lines} )
       if ( l MATCHES "^[ ]*([^ =]+)[ ]*=(.*)$" )
         string ( STRIP "${CMAKE_MATCH_2}" CMAKE_MATCH_2 )
-        twx_message_log ( DEBUG "TWX_CFG_${CMAKE_MATCH_1} => ``${CMAKE_MATCH_2}''" )
+        twx_message_log ( DEBUG "/TWX/CFG/${CMAKE_MATCH_1} => ``${CMAKE_MATCH_2}''" )
         set (
-          TWX_CFG_${CMAKE_MATCH_1}
+          /TWX/CFG/${CMAKE_MATCH_1}
           "${CMAKE_MATCH_2}"
           PARENT_SCOPE
         )
         if ( NOT name_ STREQUAL "" AND NOT twx.R_ONLY_CONFIGURE )
           set (
-            TWX_${PROJECT_NAME}_CFG_${CMAKE_MATCH_1}
+            /TWX.${PROJECT_NAME}/CFG/${CMAKE_MATCH_1}
             "${CMAKE_MATCH_2}"
             PARENT_SCOPE
           )
@@ -700,7 +784,7 @@ twx_cfg_target_dependent ( ... ID ... ) {}
 /*
 #]=======]
 function (twx_cfg_target_dependent )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "" "" "ID"
@@ -710,7 +794,7 @@ function (twx_cfg_target_dependent )
     twx_cfg_path ( ID ${id_} IN_VAR v )
     list ( APPEND path_ "${v}" )
   endforeach ()
-  foreach ( target_ ${twx.R_UNPARSED_ARGUMENTS} )
+  foreach ( target_ IN LISTS twx.R_UNPARSED_ARGUMENTS )
     set_property (
       TARGET ${target_}
       APPEND
@@ -745,7 +829,7 @@ set ( twx.lib )
 
 twx_lib_require ( "Fatal" "Assert" "Expect" "Export" "Arg" "Increment" "State" )
 
-twx_state_key_add ( TWX_CFG_INI_REQUIRED_KEYS )
+twx_state_key_add ( /TWX/CFG/INI/REQUIRED_KEYS )
 
 twx_lib_did_load ()
 

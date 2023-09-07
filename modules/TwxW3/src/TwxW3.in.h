@@ -29,7 +29,7 @@
 class QUrl;
 
 namespace Twx {
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 /** \brief Utility class
  	*
 	* All methods are static
@@ -88,8 +88,8 @@ private:
   void operator=(const W3&) = delete;
   void operator=(const W3&&) = delete;
 
-@TWX_CFG_include_TwxW3_private_h@
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxW3_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Twx

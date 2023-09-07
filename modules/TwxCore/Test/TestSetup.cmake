@@ -45,7 +45,7 @@ include ( TwxWarningLib )
 twx_warning_target ( test_${TWX_MODULE}_macOS )
 target_compile_definitions (
 	test_${TWX_MODULE}_macOS
-	PRIVATE TWX_TEST ${TWX_MODULE}_TEST TwxAssets_TEST
+	PRIVATE /TWX/TESTING ${TWX_MODULE}_TEST TwxAssets_TEST
 )
 
 target_link_libraries (

@@ -17,7 +17,7 @@ block ()
 # ANCHOR: POC
 # Sucess: normal call
 twx_test_unit_push ( NAME "POC" )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   set ( TwxExportTest.key1a )
   set ( TwxExportTest.key2a )
@@ -52,7 +52,7 @@ twx_test_unit_pop ()
 
 # ANCHOR: POC2
 twx_test_unit_push ( NAME "POC2" )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   macro ( TwxExportTest_POC2_a )
     set ( TwxExportTest.key1a "value" PARENT_SCOPE )
@@ -94,7 +94,7 @@ twx_test_unit_pop ()
 
 # ANCHOR: twx_export
 twx_test_unit_push ( NAME "twx_export" CORE twx_export )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   function ( TwxExportTest_twx_export )
     twx_export ( "TwxExportTest.key1a=value1a" )
@@ -135,7 +135,7 @@ twx_test_unit_pop ()
 
 # ANCHOR: twx_export(multi)
 twx_test_unit_push ( NAME "twx_export(multi)" CORE "twx_export-multi" )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   function ( TwxExportTest_twx_export_multi )
     twx_export (

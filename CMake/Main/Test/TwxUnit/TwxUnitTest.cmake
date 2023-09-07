@@ -20,7 +20,7 @@ add_executable (
 )
   
 twx_test_unit_push ( CORE case )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   twx_unit_case ( IN_VAR twx_WorkingDirectory TARGET test_TwxUnitTest.cmake )
   twx_fatal_assert_pass ()

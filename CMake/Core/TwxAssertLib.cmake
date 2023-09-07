@@ -183,7 +183,7 @@ endfunction ( twx_assert_non_void )
 twx_assert_0( ... ) {}
 /*#]=======]
 function ( twx_assert_0 v )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   set ( i 0 )
   while ( TRUE )
     set ( v "${ARGV${i}}" )

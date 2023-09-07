@@ -50,7 +50,7 @@ twx_warning_add ( ... [TARGET target]) {}
 /*
 #]=======]
 function ( twx_warning_add )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "" "TARGET" ""
@@ -106,7 +106,7 @@ twx_warning_remove ( ... ) {}
 /*
 #]=======]
 function ( twx_warning_remove )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   if ( ARGN STREQUAL "" )
     set ( TWX_WARNING_OPTIONS )
   else ()
@@ -134,7 +134,7 @@ twx_warning_contains(warning [TARGET target] IN_VAR var) {}
 /*
 #]=======]
 function ( twx_warning_contains )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
     "" "TARGET;IN_VAR" ""
@@ -149,7 +149,7 @@ function ( twx_warning_contains )
   endif ()
   set ( ${twx.R_IN_VAR} TRUE PARENT_SCOPE )
   if ( NOT "${twx.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    foreach ( option_ ${twx.R_UNPARSED_ARGUMENTS} )
+    foreach ( option_ IN LISTS twx.R_UNPARSED_ARGUMENTS )
       if ( NOT option_ IN_LIST TWX_WARNING_OPTIONS )
         set ( ${twx.R_IN_VAR} FALSE PARENT_SCOPE )
         return ()
@@ -169,7 +169,7 @@ twx_warning_target(target) {}
 /*
 #]=======]
 function ( twx_warning_target target_ )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_assert_target ( "${target_}" )
   target_compile_options (
     ${target_}

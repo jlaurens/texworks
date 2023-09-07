@@ -33,7 +33,7 @@ namespace Twx {
 namespace Core {
 
 class Settings;
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 
 /** \brief Assets manager and location lookup
  	*
@@ -99,8 +99,8 @@ private:
   void operator=(const Assets & ) = delete;
   void operator=(const Assets &&) = delete;
 
-@TWX_CFG_include_TwxAssets_private_h@
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxAssets_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Core

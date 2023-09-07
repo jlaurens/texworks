@@ -27,7 +27,7 @@ QT_DEFAULT_MAJOR_VERSION;
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
   message ( FATAL_ERROR "TwxBase not included" )
 endif ()
 
@@ -38,7 +38,7 @@ if ( COMMAND twx_Qt_find )
 	if ( "${QT_VERSION_MAJOR}" EQUAL "6" )
 		twx_Qt_find ( REQUIRED Core5Compat )
 	endif ()
-	if ( WITH_TEST OR TWX_TEST )
+	if ( WITH_TEST OR /TWX/TESTING )
 		twx_Qt_find ( REQUIRED Test )
 	endif ()
   return ()
@@ -66,7 +66,7 @@ add_definitions (
 	*
 	* The list of `Qt` related libraries for some targets.
 	* This is reset to basic values each time the script is included:
-	* `Qt::Core`, `Qt::QTest` if `TWX_TEST` is set,
+	* `Qt::Core`, `Qt::QTest` if `/TWX/TESTING` is set,
 	* `Qt::Core5Compat` for `Qt6`.
 	*/
 QT_LIBRARIES;
@@ -204,7 +204,7 @@ endfunction ()
 	* 	will hold on return the list of found components at its end.
 	* 	When no variable name is provided, the found components are collected
 	* 	in list variable `QT_LIBRARIES`.
-	* @param `TEST` optional key, when provided and `TWX_TEST` is not set
+	* @param `TEST` optional key, when provided and `/TWX/TESTING` is not set
 	*   raise an error.
 	*/
 twx_Qt_fresh ( [IN_VAR found] [TEST] ) {}
@@ -221,14 +221,14 @@ macro ( twx_Qt_fresh )
 	if ( "${QT_VERSION_MAJOR}" EQUAL "6" )
 		twx_Qt_find ( REQUIRED Core5Compat IN_VAR ${twx_Qt_fresh_IN_VAR} )
 	endif ()
-	if ( WITH_TESTS OR TWX_TEST OR ${twx_Qt_fresh_TEST} )
+	if ( WITH_TESTS OR /TWX/TESTING OR ${twx_Qt_fresh_TEST} )
 		twx_Qt_find ( OPTIONAL Test IN_VAR ${twx_Qt_fresh_IN_VAR} )
 		if ( NOT ${QtMAJOR}Test_FOUND )
 			set ( WITH_TESTS OFF )
-			set ( TWX_TEST OFF )
+			set ( /TWX/TESTING OFF )
 		endif ()
 	endif ()
-	if ( ${twx_Qt_fresh_TEST} AND NOT WITH_TESTS AND NOT TWX_TEST )
+	if ( ${twx_Qt_fresh_TEST} AND NOT WITH_TESTS AND NOT /TWX/TESTING )
 		twx_fatal ( "QTest is not available" )
 	endif ()
 	twx_Qt_find ( ${twx_Qt_fresh_UNPARSED_ARGUMENTS} IN_VAR ${twx_Qt_fresh_IN_VAR} )
@@ -266,7 +266,7 @@ function ( twx_Qt_link_libraries target_ )
 		twx_assert_false ( twx.R_PRIVATE )
 		set ( TYPE_ INTEFACE )
 	endif ()
-  foreach ( target_ ${twx.R_UNPARSED_ARGUMENTS} )
+  foreach ( target_ IN LISTS twx.R_UNPARSED_ARGUMENTS )
 	  twx_assert_target ( "${target_}" )
 		target_link_libraries (
 			"${target_}"

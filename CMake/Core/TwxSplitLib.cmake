@@ -41,7 +41,7 @@ twx_split_assign(kv [IN_VAR var|IN_KEY key IN_VALUE value]) {}
 /*
 #]=======]
 function ( twx_split_assign )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   # One of the arguments may be a variable name: avoid collisions
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_split_assign.R
@@ -75,7 +75,11 @@ function ( twx_split_assign )
     # message ( TR@CE "${twx_split_assign.R_IN_KEY} => ``${CMAKE_MATCH_1}''" )
     # message ( TR@CE "${twx_split_assign.R_IN_VALUE} => ``${CMAKE_MATCH_2}''" )
   elseif ( twx_split_assign.R_KV MATCHES "^=" )
-    twx_fatal ( "Unexpected argument: ${twx_split_assign.R_KV}" )
+    twx_fatal ( "Forbidden void key: KV => ${twx_split_assign.R_KV}" )
+    # twx_test_suite_log ( SUITE /TWX/TEST/SUITE )
+    # if ( /TWX/TEST/SUITE.NAME STREQUAL Cfg )
+    #   message ( FATAL_ERROR "*****" )
+    # endif ()
     return ()
   else ()
     set ( ${twx_split_assign.R_IN_KEY} "${twx_split_assign.R_KV}" PARENT_SCOPE )
@@ -113,7 +117,7 @@ twx_split_compare(comparison IN_LEFT left IN_OP op IN_RIGHT right IN_NEGATE nega
 /*
 #]=======]
 function ( twx_split_compare twx.R_COMPARISON )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_arg_assert_count ( ${ARGC} = 9 )
   cmake_parse_arguments (
     PARSE_ARGV 1 twx.R
@@ -176,15 +180,15 @@ twx_split_append(...) {}
 /*
 #]=======]
 function ( twx_split_append .kv )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   set ( i 0 )
   set ( ARGV${ARGC} )
   while ( DEFINED ARGV${i} )
     if ( "${ARGV${i}}" MATCHES "^([^=]+)=<<(.*)$" )
-    list ( APPEND "${CMAKE_MATCH_1}" "${CMAKE_MATCH_2}" )
+      list ( APPEND "${CMAKE_MATCH_1}" "${CMAKE_MATCH_2}" )
       set ( "${CMAKE_MATCH_1}" "${${CMAKE_MATCH_1}}" PARENT_SCOPE )
     else ()
-      twx_fatal ( "Unexpected argument: ${twx.R_KV}" )
+      twx_fatal ( "Bad append argument: KV => ${twx.R_KV}" )
       return ()
     endif ()
     twx_increment ( VAR i )
@@ -207,7 +211,7 @@ twx_split_prepend(...) {}
 /*
 #]=======]
 function ( twx_split_prepend .kv )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   set ( i 0 )
   set ( ARGV${ARGC} )
   while ( DEFINED ARGV${i} )
@@ -215,7 +219,7 @@ function ( twx_split_prepend .kv )
       list ( PREPEND "${CMAKE_MATCH_1}" "${CMAKE_MATCH_2}" )
       set ( "${CMAKE_MATCH_1}" "${${CMAKE_MATCH_1}}" PARENT_SCOPE )
     else ()
-      twx_fatal ( "Unexpected argument: ${twx.R_KV}" )
+      twx_fatal ( "Bad prepend argument: KV => ${twx.R_KV}" )
       return ()
     endif ()
     twx_increment ( VAR i )

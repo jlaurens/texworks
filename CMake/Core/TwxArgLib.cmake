@@ -35,13 +35,22 @@ twx_lib_will_load ()
 twx_arg_assert(name ... ) {}
 /*#]=======]
 function ( twx_arg_assert name_ )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  # NO: twx_function_begin ()
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx_arg_assert_parsed
+    PARSE_ARGV 0 twx_arg_assert
     "" "PREFIX" ""
   )
-  if ( NOT DEFINED twx.R_PREFIX )
-    set ( twx.R_PREFIX twx.R )
+  if ( NOT DEFINED twx_arg_assert.R_PREFIX )
+    cmake_parse_arguments (
+      twx_arg_assert.R
+      "PREFIX" "" ""
+      ${ARGV}
+    )
+    if ( twx_arg_assert.R_PREFIX AND DEFINED TWX_CMD )
+      set ( twx_arg_assert.R_PREFIX ${TWX_CMD}.R )
+    else ()
+      set ( twx_arg_assert.R_PREFIX twx.R )
+    endif ()
   endif ()
   set ( i 0 )
   while ( TRUE )
@@ -54,7 +63,7 @@ function ( twx_arg_assert name_ )
       endif ()
     endif ()
     if ( "${${twx.R_PREFIX}_${v}}" STREQUAL "" )
-      twx_fatal ( "Missing argument of key ${v}" )
+      twx_fatal ( "Missing argument for key ${v}" )
       return ()
     endif ()
     twx_increment_and_break_if ( i >= ${ARGC} )
@@ -72,48 +81,38 @@ endfunction ( twx_arg_assert )
 twx_arg_assert_count(argc op right) {}
 /*#]=======]
 function ( twx_arg_assert_count argc_ op_ right_ )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   # message ( TR@CE "${argc_} ${op_} ${right_}" )
   if ( ARGC GREATER 3 )
-    twx_fatal ( "Too many arguments(${ARGC}>3)\nARGV => ``${ARGV}''" )
-    return ()
+    twx_fatal ( "Too many arguments(${ARGC}>3)\nARGV => ``${ARGV}''" RETURN )
   elseif ( ARGC LESS 3 )
-    twx_fatal ( "Too few arguments" ) # Unreachable code, CMake breaks before
-    return ()
-  endif ()
-  if ( op_ STREQUAL "<" )
+    twx_fatal ( "Too few arguments" RETURN ) # Unreachable code, CMake breaks before
+  elseif ( op_ STREQUAL "<" )
     if ( NOT "${argc_}" LESS "${right_}" )
-      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" )
-      return ()
+      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" RETURN )
     endif ()
   elseif ( op_ STREQUAL "<=" )
     if ( NOT "${argc_}" LESS_EQUAL "${right_}" )
-      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" )
-      return ()
+      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" RETURN )
     endif ()
   elseif ( op_ STREQUAL "==" OR op_ STREQUAL "=" )
     if ( NOT "${argc_}" EQUAL "${right_}" )
-      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" )
-      return ()
+      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" RETURN )
     endif ()
   elseif ( op_ STREQUAL "!=" OR op_ STREQUAL "<>" )
     if ( "${argc_}" EQUAL "${right_}" )
-      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" )
-      return ()
+      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" RETURN )
     endif ()
   elseif ( op_ STREQUAL ">=" )
     if ( NOT "${argc_}" GREATER_EQUAL "${right_}" )
-      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" )
-      return ()
+      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" RETURN )
     endif ()
   elseif ( op_ STREQUAL ">" )
     if ( NOT "${argc_}" GREATER "${right_}" )
-      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" )
-      return ()
+      twx_fatal ( "Unsatisfied ARGC(${argc_}) ${op_} ${right_}" RETURN )
     endif ()
   else ()
-    twx_fatal ( "Missing comparison binary operator (1), got ``${op_}'' instead" )
-    return ()
+    twx_fatal ( "Missing comparison binary operator (1), got ``${op_}'' instead" RETURN )
   endif ()
 endfunction ( twx_arg_assert_count )
 
@@ -135,7 +134,7 @@ endfunction ( twx_arg_assert_count )
 twx_arg_pass_option( ... [PREFIX prefix]) {}
 /*#]=======]
 function ( twx_arg_pass_option option_ )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 ${TWX_CMD}.R
     "" "PREFIX" ""
@@ -145,7 +144,7 @@ function ( twx_arg_pass_option option_ )
   else ()
     set ( ${TWX_CMD}.PREFIX twx.R )
   endif ()
-  foreach ( ${TWX_CMD}.OPTION ${twx_arg_pass_option.R_UNPARSED_ARGUMENTS} )
+  foreach ( ${TWX_CMD}.OPTION IN LISTS twx_arg_pass_option.R_UNPARSED_ARGUMENTS )
     if ( ${${TWX_CMD}.PREFIX}_${${TWX_CMD}.OPTION} )
       set ( ${${TWX_CMD}.PREFIX}_${${TWX_CMD}.OPTION} ${${TWX_CMD}.OPTION} PARENT_SCOPE )
       set ( TWX-D_${${TWX_CMD}.OPTION} "-DTWX_${${TWX_CMD}.OPTION}=${${TWX_CMD}.OPTION}" PARENT_SCOPE )
@@ -166,7 +165,7 @@ endfunction ()
 twx_arg_expect_keyword( actual_var expected_value ) {}
 /*#]=======]
 function ( twx_arg_expect_keyword twx_arg_expect_keyword.ACTUAL twx_arg_expect_keyword.EXPECTED )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_arg_assert_count ( ${ARGC} == 2 )
   if ( NOT "${${twx_arg_expect_keyword.ACTUAL}}" STREQUAL "${twx_arg_expect_keyword.EXPECTED}" )
     twx_fatal ( "Missing keyword: ${${twx_arg_expect_keyword.ACTUAL}} \
@@ -186,12 +185,12 @@ endfunction ( twx_arg_expect_keyword )
 twx_arg_assert_keyword( ... ) {}
 /*#]=======]
 function ( twx_arg_assert_keyword twx_arg_assert_keyword.ACTUAL )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 ${TWX_CMD}.R
     "" "PREFIX" ""
   )
-  foreach ( ${TWX_CMD}.ACTUAL ${${TWX_CMD}.R_UNPARSED_ARGUMENTS} )
+  foreach ( ${TWX_CMD}.ACTUAL IN LISTS ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
     if ( DEFINED ${TWX_CMD}.R_PREFIX )
       string ( PREPEND ${TWX_CMD}.ACTUAL "${${TWX_CMD}.R_PREFIX}_" )
     endif ()
@@ -216,33 +215,48 @@ endfunction ( twx_arg_assert_keyword )
   *
   * @param prefix for key `PREFIX`, optional variable name prefix defaults to `twx.R`.
   * @param ... for key `UNEXPECTED`, unexpected extra arguments.
+  * @param PREFIX, optional flag. When provided this is
+  *   equivalent to `PREFIX ${TWX_CMD}.R` or `PREFIX twx.R`.
   */
-twx_arg_assert_parsed([PREFIX prefix] [UNEXPECTED ...]) {}
+twx_arg_assert_parsed([PREFIX [prefix]] [UNEXPECTED ...]) {}
 /*#]=======]
 macro ( twx_arg_assert_parsed )
-  list ( APPEND CMAKE_MESSAGE_CONTEXT ${CMAKE_CURRENT_FUNCTION} )
+  # NO: twx_function_begin
+  list ( APPEND CMAKE_MESSAGE_CONTEXT twx_arg_assert_parsed )
   cmake_parse_arguments (
     twx_arg_assert_parsed.R
     "" "PREFIX" "UNEXPECTED"
     ${ARGV}
   )
-  if ( DEFINED twx_arg_assert_parsed.R_PREFIX )
-    twx_arg_assert_count ( ${ARGC} == 2 )
-  else ()
-    twx_arg_assert_count ( ${ARGC} == 0 )
-    set ( twx_arg_assert_parsed.R_PREFIX twx.R )
+  if ( DEFINED twx_arg_assert_parsed.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx_arg_assert_parsed.R_UNPARSED_ARGUMENTS}''" )
+  endif ()
+  if ( NOT DEFINED twx_arg_assert_parsed.R_PREFIX )
+    cmake_parse_arguments (
+      twx_arg_assert_parsed.R
+      "PREFIX" "" ""
+      ${ARGV}
+    )
+    if ( twx_arg_assert_parsed.R_PREFIX AND DEFINED TWX_CMD )
+      set ( twx_arg_assert_parsed.R_PREFIX ${TWX_CMD}.R )
+    else ()
+      set ( twx_arg_assert_parsed.R_PREFIX twx.R )
+    endif ()
   endif ()
   twx_assert_non_void ( twx_arg_assert_parsed.R_PREFIX )
   # NB remember that arguments in functions and macros are not the same
   if ( NOT "${${twx_arg_assert_parsed.R_PREFIX}_UNPARSED_ARGUMENTS}" STREQUAL "" )
-    if ( twx_arg_assert_parsed.R_UNEXPECTED )
+    if ( DEFINED twx_arg_assert_parsed.R_UNEXPECTED )
       twx_fatal ( "Unparsed arguments ``${twx_arg_assert_parsed.R_UNEXPECTED}''" )
     else ()
       twx_fatal ( "Unparsed arguments ``${${twx_arg_assert_parsed.R_PREFIX}_UNPARSED_ARGUMENTS}''" )
     endif ()
   endif ()
   list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
-endmacro ()
+  foreach ( X R_PREFIX R_UNEXPECTED R_UNPARSED_ARGUMENTS R_KEYWORDS_MISSING_VALUES )
+    set ( twx_arg_assert_parsed.${X} )
+  endforeach ()
+endmacro ( twx_arg_assert_parsed )
 
 twx_lib_did_load ()
 

@@ -11,7 +11,7 @@ Make a build folder and use cmake ... && cmake --build ...
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}../Base/TwxBase.cmake"
     NO_POLICY_SCOPE
@@ -46,10 +46,10 @@ function ( twx_poppler_data_setup )
   include ( TwxCfgLib )
   twx_cfg_setup ()
   twx_cfg_read ( NO_PRIVATE ONLY_CONFIGURE )
-  twx_assert_non_void ( TWX_CFG_POPPLER_DATA_URL )
-  twx_assert_non_void ( TWX_CFG_POPPLER_DATA_SHA256 )
+  twx_assert_non_void ( /TWX/CFG/POPPLER_DATA_URL )
+  twx_assert_non_void ( /TWX/CFG/POPPLER_DATA_SHA256 )
 
-  set ( TWX_POPPLER_DATA_URL "${TWX_CFG_POPPLER_DATA_URL}" )
+  set ( TWX_POPPLER_DATA_URL "${/TWX/CFG/POPPLER_DATA_URL}" )
   if ( NOT "${TWX_POPPLER_DATA_URL}" MATCHES "/(([^/]+)[.]tar[.]gz$)" )
     twx_fatal ( "Unexpected URL ${TWX_POPPLER_DATA_URL}" )
     return ()
@@ -62,7 +62,7 @@ function ( twx_poppler_data_setup )
     TWX_POPPLER_DATA_BASE
     "${TWX_EXTERNAL_DIR}${CMAKE_MATCH_2}/texworks-help"
   )
-  set ( TWX_POPPLER_DATA_SHA256 "${TWX_CFG_POPPLER_DATA_SHA256}" )
+  set ( TWX_POPPLER_DATA_SHA256 "${/TWX/CFG/POPPLER_DATA_SHA256}" )
   twx_export (
     URL SHA256 ARCHIVE BASE
     VAR_PREFIX TWX_POPPLER_DATA

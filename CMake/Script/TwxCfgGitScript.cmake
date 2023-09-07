@@ -12,8 +12,8 @@ cmake ... -P .../CMake/Script/TwxCfgGitScript.cmake
 
 Expected input state:
 
-- `TWX_CFG_INI_DIR`
-- `TWX_TEST` optional
+- `/TWX/CFG/INI/DIR`
+- `/TWX/TESTING` optional
 
 Expected side effects:
 
@@ -29,7 +29,7 @@ Expected side effects:
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}/../Base/TwxBase.cmake"
     NO_POLICY_SCOPE
@@ -48,7 +48,7 @@ twx_cfg_read ( "factory" ONLY_CONFIGURE )
 twx_cfg_read ( "git" QUIET ONLY_CONFIGURE )
 
 foreach ( key HASH DATE OK )
-  set ( new_${key} "${TWX_CFG_GIT_${key}}" )  
+  set ( new_${key} "${/TWX/CFG/GIT_${key}}" )  
 endforeach ()
 
 set ( Unavailable "<Unavailable>" )
@@ -112,7 +112,7 @@ Would show the date and time UTC.
   endif ()
 endif ( GIT_FOUND )
 
-if ( TWX_TEST )
+if ( /TWX/TESTING )
   twx_cfg_write_begin ( ID "git" )
   foreach (key_ HASH BRANCH)
     twx_cfg_set ( "GIT_${key_}=TEST(${key_}):${new_${key_}}" )

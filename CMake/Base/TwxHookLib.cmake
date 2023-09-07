@@ -32,7 +32,7 @@ twx_lib_will_load ()
 twx_hook_call(Id hook_id ...) {}
 /*#]=======]
 macro ( twx_hook_call .ID twx.R_ID )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_expect_equal_string ( "${.ID}" "ID" )
   twx_tree_get (
     TREE TWX_HOOK_COMMANDS
@@ -71,10 +71,10 @@ endmacro ()
   *   a second time will place the command at the end of the list.
   * @param ..., non empty list of command names. These are called by `twx_hook_call()`.
   */
-twx_hook_register(ID hook_id ...) {}
+twx_hook_register(ID hook_id ... ) {}
 /*#]=======]
 function ( twx_hook_register .ID twx.R_ID )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_expect_equal_string ( "${.ID}" "ID" )
   twx_tree_get (
     TREE TWX_HOOK_COMMANDS
@@ -104,7 +104,7 @@ endfunction ()
 twx_hook_unregister(ID hook_id ...) {}
 /*#]=======]
 function ( twx_hook_unregister .ID twx.R_ID )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_expect_equal_string ( "${.ID}" "ID" )
   twx_tree_get (
     TREE TWX_HOOK_COMMANDS
@@ -129,7 +129,7 @@ endfunction ()
 twx_lib_require ( "Fatal" "Tree" "Expect" "Export" )
 
 # ANCHOR: TWX_HOOK_COMMANDS
-twx_tree_init ( TWX_HOOK_COMMANDS )
+twx_tree_init ( TREE TWX_HOOK_COMMANDS )
 
 twx_lib_did_load ()
 

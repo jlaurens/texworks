@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014-2023 Stefan Löffler <st.loeffler@gmail.com> -->
 <component type="desktop-application">
-	<id>$TWX_CFG_APPLICATION_ID@.desktop</id>
+	<id>$/TWX/CFG/APPLICATION_ID@.desktop</id>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-2.0+</project_license>
-	<name>@TWX_CFG_NAME@</name>
-	<name xml:lang="de">@TWX_CFG_NAME@</name>
+	<name>@/TWX/CFG/NAME@</name>
+	<name xml:lang="de">@/TWX/CFG/NAME@</name>
 	<summary>A simple environment for editing, typesetting, and previewing TeX documents</summary>
 	<summary xml:lang="af">'n Eenvoudige omgewing vir redigering, letterset, en vooraflees van TeX dokumente</summary>
 	<summary xml:lang="ar">بيئة بسيطة لتحرير وصف ومعاينة مستندات تخ</summary>
@@ -22,148 +22,148 @@
 	<summary xml:lang="nl">Een eenvoudige omgeving voor het aanpassen, typesetten, en vertonen van TeX documenten</summary>
 	<summary xml:lang="nn">Eit enkelt miljø for redigering, sideombrekking og vising av TeX-dokument</summary>
 	<summary xml:lang="pl">Proste środowisko do edycji, składu oraz przeglądania dokumentów w TeXu</summary>
-	<summary xml:lang="pt_BR">@TWX_CFG_NAME@ é um ambiente simples para editar, compilar e prever documentos TeX</summary>
+	<summary xml:lang="pt_BR">@/TWX/CFG/NAME@ é um ambiente simples para editar, compilar e prever documentos TeX</summary>
 	<summary xml:lang="ru">Простая программа для редактирования, вёрстки и просмотра документов TeX</summary>
 	<summary xml:lang="sl">Okolje za enostavno urejanje, stavljenje in predogled TeX-ovih dokumentov</summary>
-	<summary xml:lang="tr">@TWX_CFG_NAME@, TeX belgelerini düzenleme, dizme ve önizleme için basit bir ortamdır</summary>
+	<summary xml:lang="tr">@/TWX/CFG/NAME@, TeX belgelerini düzenleme, dizme ve önizleme için basit bir ortamdır</summary>
 	<summary xml:lang="zh_CN">一个用于编辑、排版和预览 TeX 文档的简洁集成环境</summary>
 
 	<description>
 		<p>
-			@TWX_CFG_NAME@ is an environment for authoring TeX (LaTeX, ConTeXt, etc) documents, with a
+			@/TWX/CFG/NAME@ is an environment for authoring TeX (LaTeX, ConTeXt, etc) documents, with a
 			Unicode-based, TeX-aware editor, integrated PDF viewer, and a clean, simple
 			interface accessible to casual and non-technical users.
 		</p>
 		<p>
-			@TWX_CFG_NAME@ is inspired by Dick Koch's award-winning TeXShop program for Mac OS X,
+			@/TWX/CFG/NAME@ is inspired by Dick Koch's award-winning TeXShop program for Mac OS X,
 			which has made quality typesetting through TeX accessible to a wider community
-			of users, without a technical or intimidating face. The goal of @TWX_CFG_NAME@ is to
+			of users, without a technical or intimidating face. The goal of @/TWX/CFG/NAME@ is to
 			deliver a similarly integrated, easy-to-use environment for users on other
 			platforms, especially GNU/Linux and Windows.
 		</p>
 		<p>
-			Among other things, @TWX_CFG_NAME@ features an integrated PDF previewer, synchronization
+			Among other things, @/TWX/CFG/NAME@ features an integrated PDF previewer, synchronization
 			between the TeX files and the PDF output, and an extensible scripting interface.
 		</p>
 		<p xml:lang="af">
-			@TWX_CFG_NAME@ is 'n omgewing vir die skep van TeX (LaTeX, ConTeXt, ens.) dokumente, met 'n
+			@/TWX/CFG/NAME@ is 'n omgewing vir die skep van TeX (LaTeX, ConTeXt, ens.) dokumente, met 'n
 			Unicode-gebaseerde, TeX-bewuste redigeerder, geïntegreerde PDF besigtiger, en 'n skoon,
 			eenvoudige koppelvlak wat vir toevallige en nie-tegniese gebruikers toeganklik is.
 		</p>
 		<p xml:lang="af">
-			@TWX_CFG_NAME@ is geïnspireer deur Dick Koch se bekroonde TeXShop program vir Mac OS X,
+			@/TWX/CFG/NAME@ is geïnspireer deur Dick Koch se bekroonde TeXShop program vir Mac OS X,
 			wat, sonder 'n tegniese of intimiderende voorkoms, kwaliteit lettersetting deur TeX
-			toeganklik gemaak het vir 'n wyer gebruikersgemeenskap. Die doel van @TWX_CFG_NAME@ is om 'n
+			toeganklik gemaak het vir 'n wyer gebruikersgemeenskap. Die doel van @/TWX/CFG/NAME@ is om 'n
 			'n soortgelyk geïntegreerde en vriendelike omgewing te skep vir gebruikers van ander
 			platvorms, veral GNU/Linux en Windows.
 		</p>
 		<p xml:lang="af">
-			Behalwe ander funksies, vertoon @TWX_CFG_NAME@ 'n geïntegreerde PDF besigtiger, sinkronisasie
+			Behalwe ander funksies, vertoon @/TWX/CFG/NAME@ 'n geïntegreerde PDF besigtiger, sinkronisasie
 			tussen TeX lêers en PDF uitset, en 'n uitbreibare skrip-koppelvlak.
 		</p>
 		<p xml:lang="ca">
-			@TWX_CFG_NAME@ és un entorn per a l'edició de documents TeX (LaTeX, ConTeXt, etc). L'editor
+			@/TWX/CFG/NAME@ és un entorn per a l'edició de documents TeX (LaTeX, ConTeXt, etc). L'editor
 			és compatible amb l'estàndar Unicode, conté un visualitzador de PDF integrat i una interfície
 			simple i comprensible per a tot tipus d'usuaris.
 		</p>
 		<p xml:lang="ca">
-			@TWX_CFG_NAME@ està inspirat en el premiat programa TeXShop per a Mac OS X de Dick Koch, el qual ha
+			@/TWX/CFG/NAME@ està inspirat en el premiat programa TeXShop per a Mac OS X de Dick Koch, el qual ha
 			fet accessible la composició de qualitat a través de TeX a una gran comunitat d'usuaris gràcies a
-			eliminar la seva cara tècnica i intimidatòria. L'objectiu de @TWX_CFG_NAME@ és oferir un entorn
+			eliminar la seva cara tècnica i intimidatòria. L'objectiu de @/TWX/CFG/NAME@ és oferir un entorn
 			igualment integrat i d'ús senzill per usuaris d'altres plataformes, especialment GNU/Linux i Windows.
 		</p>
 		<p xml:lang="ca">
-			Entre altres coses, @TWX_CFG_NAME@ presenta un previsualitzador de PDF integrat, sincronització
+			Entre altres coses, @/TWX/CFG/NAME@ presenta un previsualitzador de PDF integrat, sincronització
 			entre el fitxer TeX i la sortida PDF, i una interfície d'scripts extensible.
 		</p>
 		<p xml:lang="de">
-			@TWX_CFG_NAME@ ist ein Programm, um TeX (LaTeX, ConTeXt, etc) Dokumente zu erstellen
+			@/TWX/CFG/NAME@ ist ein Programm, um TeX (LaTeX, ConTeXt, etc) Dokumente zu erstellen
 			und zu bearbeiten. Es besitzt einen eingebauten Unicode-basierten TeX-Editor,
 			eine integrierte PDF Anzeige und eine aufgeräumte, einfach zu verwendende
 			Benutzeroberfläche die für gelegentliche und nicht-technische Nutzer leicht
 			zu bedienen ist.
 		</p>
 		<p xml:lang="de">
-			@TWX_CFG_NAME@ wurde von Dick Kochs preisgekröntem Programm TeXShop für Mac OS X
+			@/TWX/CFG/NAME@ wurde von Dick Kochs preisgekröntem Programm TeXShop für Mac OS X
 			inspiriert, das hochqualitativen Schriftsatz mittels TeX ohne einschüchternde
 			technische Details einer breiten Nutzerbasis zugänglich gemacht hat. Das Ziel
-			von @TWX_CFG_NAME@ ist es, ein gleichermaßen integriertes, einfach zu verwendendes
+			von @/TWX/CFG/NAME@ ist es, ein gleichermaßen integriertes, einfach zu verwendendes
 			Programm auch Nutzern anderer Platformen, insbesondere GNU/Linux und Windows,
 			zur Verfügung zu stellen.
 		</p>
 		<p xml:lang="de">
-			@TWX_CFG_NAME@ zeichnet sich unter anderem durch eine integrierte PDF Vorschau,
+			@/TWX/CFG/NAME@ zeichnet sich unter anderem durch eine integrierte PDF Vorschau,
 			Synchronisation zwischen TeX- und PDF-Dateien sowie ein erweiterbares
 			Skripting-Interface aus.
 		</p>
 		<p xml:lang="es">
-			@TWX_CFG_NAME@ es un programa para crear, editar y compilar documentos TeX (LaTeX, ConTeXt
+			@/TWX/CFG/NAME@ es un programa para crear, editar y compilar documentos TeX (LaTeX, ConTeXt
 			y otros). Dispone de un editor con Unicode incorporado y de un previsualizador PDF
 			integrado; cuenta con sincronización entre el archivo TeX y su salida PDF, así como
 			una interfaz de scripts extensible.
 		</p>
 		<p xml:lang="es">
-			@TWX_CFG_NAME@ se ha inspirado en TeXShop, el afamado programa de Dick Koch para Mac OS X, el cual
+			@/TWX/CFG/NAME@ se ha inspirado en TeXShop, el afamado programa de Dick Koch para Mac OS X, el cual
 			ha facilitado que la composición tipográfica con TeX se haya vuelto accesible para
 			una base más grande de usuarios, que no necesariamente cuentan con una amplia formación
-			técnica. La meta de @TWX_CFG_NAME@ es ofrecer un entorno igualmente integrado y fácil de usar
+			técnica. La meta de @/TWX/CFG/NAME@ es ofrecer un entorno igualmente integrado y fácil de usar
 			para los usuarios de otros plataformas, especialmente GNU/Linux y Windows.
 		</p>
 		<p xml:lang="es">
-			Entre otras cosas, @TWX_CFG_NAME@ cuenta con un visualizador integrado de archivos PDF, es capaz de
+			Entre otras cosas, @/TWX/CFG/NAME@ cuenta con un visualizador integrado de archivos PDF, es capaz de
 			permitir la sincronización entre los archivos TeX y su salida compilada en PDF, y brinda una
 			interfaz de scripts que es extensible.
 		</p>
 		<p xml:lang="fo">
-			@TWX_CFG_NAME@ er eitt umhvørvi til at skriva TeX-skjøl, t.e LaTeX, ConTeXt o.s.fr., við.
+			@/TWX/CFG/NAME@ er eitt umhvørvi til at skriva TeX-skjøl, t.e LaTeX, ConTeXt o.s.fr., við.
 			Tað kemur við einum Unicode-grundaðum ritli, sum kennir til TeX, einum innbygdum
 			PDF-vísara og einum reinum og einføldum markamóti, sum brúkarar við lítlum tøkniligum 
 			innliti kunnu brúka.
 		</p>
 		<p xml:lang="fo">
-			@TWX_CFG_NAME@ er gjørt við íblástri frá tí virðislønta TeXShop-forritinum, sum Dick Koch
+			@/TWX/CFG/NAME@ er gjørt við íblástri frá tí virðislønta TeXShop-forritinum, sum Dick Koch
 			gjørdi til Mac OS X. TeXShop hevur givið einum størri skara av brúkarum atgongd til
 			dygdarseting við TeX uttan at skula møta tøkniligum og ræðandi avbjóðingum. Endamálið
-			við @TWX_CFG_NAME@ er at veita eitt líknandi heildarumhvørvi, sum er lætt at brúka hjá brúkarum
+			við @/TWX/CFG/NAME@ er at veita eitt líknandi heildarumhvørvi, sum er lætt at brúka hjá brúkarum
 			av øðrum skipanum, serliga GNU/Linux og Windows.
 		</p>
 		<p xml:lang="fo">
-			@TWX_CFG_NAME@ kemur við m.a. einum innbygdum PDF-vísara, synkronisering millum TeX-fílur
+			@/TWX/CFG/NAME@ kemur við m.a. einum innbygdum PDF-vísara, synkronisering millum TeX-fílur
 			og PDF-úrslitið, umframt eitt skriptmarkamót, ið kann víðkast.
 		</p>
 		<p xml:lang="fr">
-			@TWX_CFG_NAME@ est un environnement de création de documents TeX (LaTeX, ConTeXt, etc)
+			@/TWX/CFG/NAME@ est un environnement de création de documents TeX (LaTeX, ConTeXt, etc)
 			avec un éditeur Unicode orienté TeX, une visionneuse PDF intégrée et une interface
 			claire et simple, accessible à l'utilisateur occasionnel ou sans bagage technique.
 		</p>
 		<p xml:lang="fr">
-			@TWX_CFG_NAME@ est inspiré du programme primé de Dick Koch TeXShop pour le Mac OS X,
+			@/TWX/CFG/NAME@ est inspiré du programme primé de Dick Koch TeXShop pour le Mac OS X,
 			qui a rendu la composition typographique de qualité accessible par TeX à une
 			large communauté d’utilisateurs, sans aspect technique ou intimidant. Le but
-			de @TWX_CFG_NAME@ est de fournir de la même façon un environnement intégré et facile
+			de @/TWX/CFG/NAME@ est de fournir de la même façon un environnement intégré et facile
 			d’utilisation pour des utilisateurs sur d’autres plateformes, en particulier
 			sous GNU/Linux et Windows.
 		</p>
 		<p xml:lang="fr">
-			Parmi d’autres choses, @TWX_CFG_NAME@ inclut une visionneuse PDF intégrée, la
+			Parmi d’autres choses, @/TWX/CFG/NAME@ inclut une visionneuse PDF intégrée, la
 			synchronisation entre les fichiers TeX et la sortie PDF, et une interface de
 			scripts extensible.
 		</p>
 		<p xml:lang="it">
-			@TWX_CFG_NAME@ è un ambiente completo per la creazione, la gestione e la manipolazione di
+			@/TWX/CFG/NAME@ è un ambiente completo per la creazione, la gestione e la manipolazione di
 			di documenti basati su TeX e derivati (LaTex, ConTeXt, etc). E'  dotato di un proprio
 			editor compatibile con lo standard Unicode, di un visualizzatore di PDF integrato e di
 			una interfaccia semplice e comprensibile, accessibile a ogni tipologia di utente.
 		</p>
 		<p xml:lang="it">
-			@TWX_CFG_NAME@ è ispirato a TeXShop, il celebrato programma di Dick Koch per Mac OS X, che ha
+			@/TWX/CFG/NAME@ è ispirato a TeXShop, il celebrato programma di Dick Koch per Mac OS X, che ha
 			consentito a una vasta comunità di utenti di cimentarsi con la qualità di composizione
 			tipografica offerta da TeX senza farsi impressionare dai suoi aspetti più ostici.
-			Lo scopo di @TWX_CFG_NAME@ è offrire agli utenti di altri sistemi operativi, GNU/Linux e
+			Lo scopo di @/TWX/CFG/NAME@ è offrire agli utenti di altri sistemi operativi, GNU/Linux e
 			Windows in primis, lo stesso tipo di approccioi amichevole.
 		</p>
 		<p xml:lang="it">
-			Tra le caratteristiche principali di @TWX_CFG_NAME@ spiccano il visualizzatore integrato di file PDF,
+			Tra le caratteristiche principali di @/TWX/CFG/NAME@ spiccano il visualizzatore integrato di file PDF,
 			la sincronizzazone tra file di TeX e il PDF generato e un linguaggio di scripting estensibile.
 		</p>
 		<p xml:lang="ja">
@@ -197,75 +197,75 @@
 			확장가능한 스크립트 활용 인터페이스 등의 특징을 가지고 있습니다.  
 		</p>
 		<p xml:lang="nl">
-			@TWX_CFG_NAME@ ist een omgeving om documenten voor TeX (LaTeX, ConTeXt, enzovoort)
+			@/TWX/CFG/NAME@ ist een omgeving om documenten voor TeX (LaTeX, ConTeXt, enzovoort)
 			op te stellen en te bewerken. Het bevat een op Unicode gebaseerde TeX-editor,
 			een geïntegreerde PDF-viewer en een eenvoudige, opgeruimde interface die ook
 			voor incidentele gebruikers en niet-professionals gemakkelijk te gebruiken is.
 		</p>
 		<p xml:lang="nl">
-			Het ontwerp van @TWX_CFG_NAME@ is geïnspireerd op het gelauwerde programma TeXShop
+			Het ontwerp van @/TWX/CFG/NAME@ is geïnspireerd op het gelauwerde programma TeXShop
 			dat door Dick Koch is gemaakt voor Mac OS X en dat kwaliteitszetwerk mogelijk
 			heeft gemaakt voor een grote gemeenschap van gebruikers, zonder technisch of
-			intimiderend over te komen. Het doel van @TWX_CFG_NAME@ is om net zo'n geïntegreerde
+			intimiderend over te komen. Het doel van @/TWX/CFG/NAME@ is om net zo'n geïntegreerde
 			en gemakkelijk te gebruiken omgeving te bieden voor gebruikers van andere
 			besturingssystemen, in het bijzonder GNU/Linux en Windows.
 		</p>
 		<p xml:lang="nl">
-			@TWX_CFG_NAME@ munt onder andere uit door een geïntegreerde PDF-viewer, synchronisatie
+			@/TWX/CFG/NAME@ munt onder andere uit door een geïntegreerde PDF-viewer, synchronisatie
 			tussen de TeX-bestanden en het resultaat in PDF-formaat, en een functionaliteit
 			die is uit te breiden door middel van scripts.
 		</p>
 		<p xml:lang="nn">
-			@TWX_CFG_NAME@ er eit miljø for redigering av TeX-dokument (LaTeX, ConTeXt, …),
+			@/TWX/CFG/NAME@ er eit miljø for redigering av TeX-dokument (LaTeX, ConTeXt, …),
 			med eit Unicode-basert skriveprogram, integrert PDF-visar og eit oversiktleg
 			brukargrensesnitt, som høver for vanlege, ikkje-tekniske brukarar.
 		</p>
 		<p xml:lang="nn">
-			@TWX_CFG_NAME@ er inspirert av Dick Koch sitt prisvinnande og brukarvennlege program TeXShop
+			@/TWX/CFG/NAME@ er inspirert av Dick Koch sitt prisvinnande og brukarvennlege program TeXShop
 			for Mac OS X, som har gjort typografisk avansert sideombrekking via TeX tilgjengeleg for
-			eit større publikum. Målet med @TWX_CFG_NAME@ er eit liknande integrert skrivemiljø for
+			eit større publikum. Målet med @/TWX/CFG/NAME@ er eit liknande integrert skrivemiljø for
 			brukarar på andre plattformer, spesielt GNU/Linux og Windows.
 		</p>
 		<p xml:lang="nn">
-			@TWX_CFG_NAME@ støttar blant anna innebygd PDF-vising, synkronisering mellom TeX-filer
+			@/TWX/CFG/NAME@ støttar blant anna innebygd PDF-vising, synkronisering mellom TeX-filer
 			og PDF-resultat og moglegheit for utvidingar via eit eige skriptgrensesnitt.
 		</p>
 		<p xml:lang="pl">
-			@TWX_CFG_NAME@ to środowisko do tworzenia dokumentów opartych na TeXu (LaTeX, ConTeXt,
+			@/TWX/CFG/NAME@ to środowisko do tworzenia dokumentów opartych na TeXu (LaTeX, ConTeXt,
 			itp) wyposażone w edytor zgodny z TeXem, używający kodowania Unicode,
 			zintegrowany z przeglądarką PDF, z prostym i jasnym interfejsem przyjaznym
 			zwłaszcza dla  przypadkowych i nie-technicznych użytkowników.
 		</p>
 		<p xml:lang="pl">
-			@TWX_CFG_NAME@ jest inspirowany wielokrotnie nagradzanym programem TeXShop Dicka Kocha
+			@/TWX/CFG/NAME@ jest inspirowany wielokrotnie nagradzanym programem TeXShop Dicka Kocha
 			dla systemu Mac OS X, który sprawił, że wysokiej jakości skład tekstów z
 			wykorzystaniem TeXa stał się dostępny dla szerszej społeczności użytkowników,
-			bez technicznego doświadczenia.. Celem @TWX_CFG_NAME@ jest dostarczenie podobnie
+			bez technicznego doświadczenia.. Celem @/TWX/CFG/NAME@ jest dostarczenie podobnie
 			zintegrowanego, łatwego w użyciu środowiska dla użytkowników na innych
 			platformach, zwłaszcza GNU/Linux i Windows.
 		</p>
 		<p xml:lang="pl">
-			@TWX_CFG_NAME@ oferuje, między innymi, zintegrowany podgląd PDF, synchronizację między
+			@/TWX/CFG/NAME@ oferuje, między innymi, zintegrowany podgląd PDF, synchronizację między
 			plikami TeX a wyjściem PDF oraz rozszerzalny interfejs skryptów.
 		</p>
 		<p xml:lang="ru">
-			@TWX_CFG_NAME@ — это среда для подготовки документов в TeX (LaTeX, ConTeXt и др.) формате,
+			@/TWX/CFG/NAME@ — это среда для подготовки документов в TeX (LaTeX, ConTeXt и др.) формате,
 			состоящая из редактора, поддерживающего Unicode и встроенного просмотра PDF документов
 			соединённые в простом и понятном интерфейсе.
 		</p>
 		<p xml:lang="ru">
-			На создание @TWX_CFG_NAME@ сподвигла популярная на Mac OS X программа TeXShop, созданная
+			На создание @/TWX/CFG/NAME@ сподвигла популярная на Mac OS X программа TeXShop, созданная
 			Диком Кохом, позволившая большому числу пользователей без лишних усилий получать
-			высококлассные документы используя TeX. Цель @TWX_CFG_NAME@ — предоставить те же
+			высококлассные документы используя TeX. Цель @/TWX/CFG/NAME@ — предоставить те же
 			возможности интегрированного и простого в использовании окружения для пользователей
 			других платформ, в особенности GNU/Linux и Windows.
 		</p>
 		<p xml:lang="ru">
-			Среди прочего в @TWX_CFG_NAME@ есть встроенный просмотр PDF, синхронизация между исходными
+			Среди прочего в @/TWX/CFG/NAME@ есть встроенный просмотр PDF, синхронизация между исходными
 			TeX файлами и PDF выводом, и возможности расширения функциональности с помощью сценариев.
 		</p>
 		<p xml:lang="sl">
-			@TWX_CFG_NAME@ je program za pripravo TeX-ovih dokumentov (vključno z LaTeX-om, ConTeXt-om, itd.).
+			@/TWX/CFG/NAME@ je program za pripravo TeX-ovih dokumentov (vključno z LaTeX-om, ConTeXt-om, itd.).
 			Vključuje urejevalnik besedila (s podporo Unicode-u in barvanju TeX-ove sintakse)
 			ter integriran pregledovalnik PDF-jev. Ponuja preprost uporabniški vmesnik,
 			primeren tudi za manj tehnično podkovane uporabnike.
@@ -278,7 +278,7 @@
 			Linuxašem in uporabnikom Oken – približati podobno uporabniško izkušnjo.
 		</p>
 		<p xml:lang="sl">
-			@TWX_CFG_NAME@ med ostalim ponuja vgrajen pregledovalnik PDF-jev, sinhronizacijo med
+			@/TWX/CFG/NAME@ med ostalim ponuja vgrajen pregledovalnik PDF-jev, sinhronizacijo med
 			izvorno kodo in PDF-jem ter razširljivost s skriptami.
 		</p>
 	</description>
@@ -293,8 +293,8 @@
 
 	<screenshots>
 		<screenshot type="default">
-			<image width="1280" height="800">https://www.tug.org/texworks/img/@TWX_CFG_NAME@-linux.png</image>
-			<caption>The @TWX_CFG_NAME@ source and preview windows</caption>
+			<image width="1280" height="800">https://www.tug.org/texworks/img/@/TWX/CFG/NAME@-linux.png</image>
+			<caption>The @/TWX/CFG/NAME@ source and preview windows</caption>
 		</screenshot>
 	</screenshots>
 	<url type="homepage">https://www.tug.org/texworks/</url>
@@ -304,7 +304,7 @@
 	<update_contact>texworks@tug.org</update_contact>
 
 	<provides>
-		<binary>@TWX_CFG_COMMAND@</binary>
+		<binary>@/TWX/CFG/COMMAND@</binary>
 	</provides>
 	<launchable type="desktop-id">@command@.desktop</launchable>
 	<content_rating type="oars-1.0" />

@@ -78,10 +78,10 @@ TWX_DECLARE_EPONYM(TW_LIBPATH);
 namespace Path {
 	const QString dot = QStringLiteral(".");
 	TWX_DECLARE_EPONYM(bin);
-  const QString applicationImage    = QStringLiteral("@TWX_CFG_APPLICATION_IMAGE_128@");
-  const QString applicationImage128 = QStringLiteral("@TWX_CFG_APPLICATION_IMAGE@");
+  const QString applicationImage    = QStringLiteral("@/TWX/CFG/APPLICATION_IMAGE_128@");
+  const QString applicationImage128 = QStringLiteral("@/TWX/CFG/APPLICATION_IMAGE@");
 
-	const QString setup_ini           = QStringLiteral("@TWX_CFG_NAME_LOWER@-setup.ini");
+	const QString setup_ini           = QStringLiteral("@/TWX/CFG/NAME_LOWER@-setup.ini");
 } // namespace Path
 
 namespace PropertyKey {

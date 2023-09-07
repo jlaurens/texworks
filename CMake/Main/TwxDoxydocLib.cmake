@@ -63,7 +63,7 @@ endif ()
 void twx_doxydoc() {}
 /*#]=======]
 function ( twx_doxydoc )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   # set input and output files
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
@@ -94,7 +94,7 @@ function ( twx_doxydoc )
   twx_message_log ( DEBUG "configure_file: ``${twx_in}'' -> ``${twx_out}''" )
   # Complete state for configuration:
   set (
-    TWX_CFG_DOXYGEN_OUTPUT_DIRECTORY
+    /TWX/CFG/DOXYGEN_OUTPUT_DIRECTORY
     "${TWX_PROJECT_DOXYDOC_DIR}"
   )
   configure_file ( "${twx_in}" "${twx_out}" @ONLY )
@@ -105,7 +105,7 @@ function ( twx_doxydoc )
     COMMENT "Generating ${PROJECT_NAME} developer documentation with Doxygen"
     VERBATIM
   )
-  if ( TWX_PROJECT_IS_ROOT )
+  if ( TWX/PROJECT_IS_ROOT )
     if ( TARGET doxydoc )
       twx_fatal ( "``twx_doxydoc()'' already called on root project" )
       return ()

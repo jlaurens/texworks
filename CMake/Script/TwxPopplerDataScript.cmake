@@ -40,8 +40,8 @@ twx_poppler_data_prepare (
   ARCHIVE "${TWX_ARCHIVE}"
   BASE    "${TWX_BASE}"
   SHA256  "${TWX_SHA256}"
-  DEV     "${TWX_DEV}"
-  TEST    "${TWX_TEST}"
+  DEV     "${/TWX/DEV}"
+  TEST    "${/TWX/TESTING}"
   CMAKE_MESSAGE_LOG_LEVEL "${CMAKE_MESSAGE_LOG_LEVEL}"
 )
 #*/

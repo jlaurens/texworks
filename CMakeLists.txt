@@ -504,7 +504,7 @@ add_custom_command (
   TARGET TeXworks
   POST_BUILD
   COMMAND ${CMAKE_COMMAND}
-    "-DTWX_CONTENTS=${TWX_CFG_VERSION}"
+    "-DTWX_CONTENTS=${/TWX/CFG/VERSION}"
     "-DTWX_OUTPUT=${PROJECT_BINARY_DIR}/TwxVersion.txt"
     "${-DTWX_STATE}"
     -P "${TWX_DIR}CMake/Script/TwxWriteScript.cmake"
@@ -567,8 +567,8 @@ IF ( UNIX AND NOT APPLE )
   install(
     CODE "
       set (
-        TWX_CFG_INI_DIR
-        ``${TWX_CFG_INI_DIR}''
+        /TWX/CFG/INI/DIR
+        ``${/TWX/CFG/INI/DIR}''
       )
       include ( ``${TWX_DIR}CMake/Base/TwxBase.cmake'' )
       include ( ``${TWX_DIR}CMake/Include/TwxCfgLib.cmake'' )
@@ -633,10 +633,10 @@ endforeach()
 add_subdirectory ( "${TWX_DIR}Package" )
 
 # # Set CPack variables.
-# SET(CPACK_PACKAGE_VERSION_MAJOR ${TWX_CFG_VERSION_MAJOR})
-# SET(CPACK_PACKAGE_VERSION_MINOR ${TWX_CFG_VERSION_MINOR})
-# SET(CPACK_PACKAGE_VERSION_PATCH ${TWX_CFG_VERSION_PATCH})
-# SET(CPACK_PACKAGE_VERSION ${TWX_CFG_VERSION})
+# SET(CPACK_PACKAGE_VERSION_MAJOR ${/TWX/CFG/VERSION_MAJOR})
+# SET(CPACK_PACKAGE_VERSION_MINOR ${/TWX/CFG/VERSION_MINOR})
+# SET(CPACK_PACKAGE_VERSION_PATCH ${/TWX/CFG/VERSION_PATCH})
+# SET(CPACK_PACKAGE_VERSION ${/TWX/CFG/VERSION})
 
 # SET(CPACK_PACKAGE_NAME ${TWX_NAME})
 
@@ -678,7 +678,7 @@ twx_summary_begin (
 )
 twx_summary_log_kv (
   "${PROJECT_NAME}"
-  "${TWX_CFG_VERSION} (${TWX_CFG_GIT_HASH}, ${TWX_CFG_GIT_DATE})"
+  "${/TWX/CFG/VERSION} (${/TWX/CFG/GIT_HASH}, ${/TWX/CFG/GIT_DATE})"
 )
 # Hunspell does not have a reliable way to determine its version
 twx_summary_log_kv (

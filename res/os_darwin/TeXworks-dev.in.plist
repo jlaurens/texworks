@@ -51,13 +51,13 @@
 	<key>CFBundleIconFile</key>
 	<string>TeXworks.icns</string>
 	<key>CFBundleGetInfoString</key>
-	<string>@TWX_CFG_PROJECT_NAME@ developer version @TWX_CFG_VERSION@ (r.@TWX_CFG_GIT_HASH@)
-	(C) @TWX_CFG_COPYRIGHT_YEARS@ @TWX_CFG_COPYRIGHT_HOLDERS@
+	<string>@/TWX/CFG/PROJECT_NAME@ developer version @/TWX/CFG/VERSION@ (r.@/TWX/CFG/GIT_HASH@)
+	(C) @/TWX/CFG/COPYRIGHT_YEARS@ @/TWX/CFG/COPYRIGHT_HOLDERS@
 	Released under GPL (v2.0 or later)</string>
 	<key>CFBundleExecutable</key>
-	<string>@TWX_CFG_PROJECT_NAME@</string>
+	<string>@/TWX/CFG/PROJECT_NAME@</string>
 	<key>CFBundleIdentifier</key>
-	<string>@TWX_CFG_ORGANIZATION_DOMAIN@</string>
+	<string>@/TWX/CFG/ORGANIZATION_DOMAIN@</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -65,9 +65,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@TWX_CFG_VERSION@ (developer)</string>
+	<string>@/TWX/CFG/VERSION@ (developer)</string>
 	<key>CFBundleVersion</key>
-	<string>@TWX_CFG_VERSION@ (developer: r.@TWX_CFG_GIT_HASH@)</string>
+	<string>@/TWX/CFG/VERSION@ (developer: r.@/TWX/CFG/GIT_HASH@)</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>NSPrincipalClass</key>

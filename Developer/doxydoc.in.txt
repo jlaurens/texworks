@@ -72,7 +72,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = @TWX_CFG_DOXYGEN_OUTPUT_DIRECTORY@
+OUTPUT_DIRECTORY       = @/TWX/CFG/DOXYGEN_OUTPUT_DIRECTORY@
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create up to 4096
 # sub-directories (in 2 levels) under the output directory of each output format
@@ -1045,7 +1045,7 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = @TWX_CFG_DOXYGEN_EXCLUDE_PATTERNS@ \
+EXCLUDE_PATTERNS       = @/TWX/CFG/DOXYGEN_EXCLUDE_PATTERNS@ \
                          *.in.*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names

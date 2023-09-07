@@ -16,6 +16,7 @@ Actual policy version: 3.25
 - CMP0071: Let AUTOMOC and AUTOUIC process GENERATED files.
 - CMP0072: Prefer newer OpenGL libraries over legacy ones
 - CMP0077: Silence warning about option() treating variables differently on the first run
+- CMP0124: CMake 3.21: When this policy is set to NEW, the scope of loop variables defined by the foreach() command is restricted to the loop only. They will be unset at the end of the loop.
 - CMP0135: CMake 3.24 and above prefers to set the timestamps of all extracted contents to the time of the extraction.
 - CMP0140: CMake 3.25: the return() command checks its parameters.
 
@@ -67,6 +68,12 @@ endif ()
 # Silence warning about option() treating variables differently on the first run
 if ( POLICY CMP0077 )
   cmake_policy ( SET CMP0077 NEW )
+endif ()
+
+# CMake 3.21: When this policy is set to NEW, the scope of loop variables defined by the foreach() command is restricted to the loop only. They will be unset at the end of the loop.
+# !!!: Unlike many policies, CMake version 3.27.4 does not warn when the policy is not set and simply uses OLD behavior.
+if ( POLICY CMP0124 )
+  cmake_policy ( SET CMP0124 NEW )
 endif ()
 
 # CMake 3.24 and above prefers to set the timestamps of all extracted contents to the time of the extraction.

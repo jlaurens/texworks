@@ -60,7 +60,6 @@ twx_export(... [VAR_PREFIX prefix] [EMPTY] [UNSET]){}
 /*
 #]=======]
 macro ( twx_export twx_export.kv. )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
   # message ( TR@CE "ARGC => ${ARGC}" )
   if ( twx_export.DURING )
     twx_fatal ( "twx_export is not reentrant.")
@@ -242,26 +241,11 @@ macro ( twx_export twx_export.kv. )
     set ( twx_export.kv "${twx_export.${twx_export.i}}" )
     # message ( TR@CE "10) twx_export.kv => ``${twx_export.kv}''" )
   endwhile ()
-  set ( twx_export.i )
-  set ( twx_export.kv )
-  set ( twx_export.IN_KEY )
-  set ( twx_export.IN_VALUE )
-  set ( twx_export.DONE )
-  set ( twx_export.R_EMPTY )
-  set ( twx_export.R_UNSET )
-  set ( twx_export.R_VAR_PREFIX )
-  set ( twx_export.0 )
-  set ( twx_export.1 )
-  set ( twx_export.2 )
-  set ( twx_export.3 )
-  set ( twx_export.4 )
-  set ( twx_export.5 )
-  set ( twx_export.6 )
-  set ( twx_export.7 )
-  set ( twx_export.8 )
-  set ( twx_export.9 )
-  set ( twx_export.DURING )
-  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
+  twx_var_unset (
+    i kv IN_KEY IN_VALUE DONE R_EMPTY R_UNSET R_VAR_PREFIX
+    0 1 2 3 4 5 6 7 8 9 DURING KEYS
+    VAR_PREFIX twx_export.
+  )
 endmacro ()
 
 twx_lib_require ( "Fatal" "Core" "Arg" "Increment" "Split" )

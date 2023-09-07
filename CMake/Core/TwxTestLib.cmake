@@ -6,19 +6,31 @@ https://github.com/TeXworks/texworks
 /** @file
   * @brief Testing facilities.
   *
+  * Test are organized in collections
+  *
+  * - simple tests contain only few instructions
+  * - test units are collections of simple tests
+  * - test suites are collections of test units gathered in one file
+  * - test domains are collections of test suites included from one file
+  *
+  * There is a global stack of file paths.
+  * Test domains are tied to a `<root>/CMake/<domain>/Test/CMakeList.txt` file.
+  * Test suites are tied to a `<root>/CMake/<domain>/Test/<suite>/Twx<suite>Test.cmake` file.
+  * A file is pushed when entering a test domain or a test suite and poped when leaving.
+
   * A test file should start reading:
   *
   *   include_guard ( GLOBAL )
   *
   *   twx_test_suite_push ()
-  *   if ( TWX_TEST_SUITE.RUN )
+  *   if ( /TWX/TEST/SUITE.RUN )
   *   block ()
   *
   * followed by any number of units
   *
   *   # ANCHOR: <name>
   *   twx_test_unit_push ( NAME <name> NAME <id>)
-  *   if ( TWX_TEST_UNIT.RUN )
+  *   if ( /TWX/TEST/UNIT.RUN )
   *     block ()
   *     ...
   *     endblock ()
@@ -39,7 +51,7 @@ include_guard ( GLOBAL )
 
 include ( "${CMAKE_CURRENT_LIST_DIR}/TwxLib.cmake" )
 
-set ( TWX_TEST ON )
+set ( /TWX/TESTING ON )
 
 # ANCHOR: twx_test_during
 #[=======[
@@ -66,42 +78,42 @@ function ( twx_test_during )
   twx_var_assert_name ( "${twx.R_IN_VAR}" )
   twx_test_guess ( FILE "/FOO/BAR/" )
   get_property (
-    TWX_TEST_DOMAIN_CORE
+    /TWX/TEST/DOMAIN_CORE
     GLOBAL
-    PROPERTY TWX_TEST_DOMAIN_CORE
+    PROPERTY /TWX/TEST/DOMAIN_CORE
   )
   get_property (
-    TWX_TEST_SUITE_STACK
+    /TWX/TEST/SUITE_STACK
     GLOBAL
-    PROPERTY TWX_TEST_SUITE_STACK
+    PROPERTY /TWX/TEST/SUITE_STACK
   )
   get_property (
-    TWX_TEST_UNIT.NAME
+    /TWX/TEST/UNIT.NAME
     GLOBAL
-    PROPERTY TWX_TEST_UNIT.NAME
+    PROPERTY /TWX/TEST/UNIT.NAME
   )
   set ( "${twx.R_IN_VAR}" OFF PARENT_SCOPE )
   if ( twx.R_DOMAIN )
     if ( twx.R_RE )
-      if ( TWX_TEST_DOMAIN_CORE MATCHES "${twx.R_DOMAIN}" )
+      if ( /TWX/TEST/DOMAIN_CORE MATCHES "${twx.R_DOMAIN}" )
         set ( "${twx.R_IN_VAR}" ON PARENT_SCOPE )
         return ()
       endif ()
-    elseif ( TWX_TEST_DOMAIN_CORE STREQUAL "${twx.R_DOMAIN}" )
+    elseif ( /TWX/TEST/DOMAIN_CORE STREQUAL "${twx.R_DOMAIN}" )
       set ( "${twx.R_IN_VAR}" ON PARENT_SCOPE )
       return ()
     endif ()
   endif ()
   if ( DEFINED twx.R_SUITE )
     if ( twx.R_RE )
-      foreach ( s ${TWX_TEST_SUITE_STACK} )
+      foreach ( s ${/TWX/TEST/SUITE_STACK} )
         if ( s MATCHES "${twx.R_SUITE}" )
           set ( "${twx.R_IN_VAR}" ON PARENT_SCOPE )
           return ()
         endif ()
       endforeach ()
     else ()
-      foreach ( s ${TWX_TEST_SUITE_STACK} )
+      foreach ( s ${/TWX/TEST/SUITE_STACK} )
         if ( s STREQUAL "${twx.R_SUITE}" )
           set ( "${twx.R_IN_VAR}" ON PARENT_SCOPE )
           return ()
@@ -111,19 +123,19 @@ function ( twx_test_during )
   endif ()
   if ( twx.R_UNIT )
     if ( twx.R_RE )
-      if ( TWX_TEST_UNIT.NAME MATCHES "${twx.R_UNIT}" )
+      if ( /TWX/TEST/UNIT.NAME MATCHES "${twx.R_UNIT}" )
         set ( "${twx.R_IN_VAR}" ON PARENT_SCOPE )
         return ()
       endif ()
-    elseif ( TWX_TEST_UNIT.NAME STREQUAL "${twx.R_UNIT}" )
+    elseif ( /TWX/TEST/UNIT.NAME STREQUAL "${twx.R_UNIT}" )
       set ( "${twx.R_IN_VAR}" ON PARENT_SCOPE )
       return ()
     endif ()
   endif ()
   if ( twx.R_FULL )
-    list ( POP_BACK TWX_TEST_SUITE_STACK full_ )
-    string ( PREPEND full_ "${TWX_TEST_DOMAIN_CORE}/" )
-    string ( APPEND full_ "/${TWX_TEST_UNIT.NAME}" )
+    list ( POP_BACK /TWX/TEST/SUITE_STACK full_ )
+    string ( PREPEND full_ "${/TWX/TEST/DOMAIN_CORE}/" )
+    string ( APPEND full_ "/${/TWX/TEST/UNIT.NAME}" )
     if ( twx.R_RE )
       if ( full_ MATCHES "${twx.R_FULL}" )
         set ( "${twx.R_IN_VAR}" ON PARENT_SCOPE )
@@ -138,7 +150,7 @@ endfunction ( twx_test_during )
 
 twx_lib_will_load ( NO_SCRIPT )
 
-set ( TWX_FATAL_CATCH OFF )
+set ( /TWX/FATAL/CATCH OFF )
 
 # ANCHOR: twx_test_guess
 #[=======[
@@ -214,10 +226,6 @@ macro ( twx_test_guess )
           IN_SUITE ${twx_test_guess.R_IN_SUITE}
         )
       endif ()
-      twx_test_domain_setup (
-        IN_DOMAIN twx_test_guess.DOMAIN
-        BUILD
-      )
     elseif ( "${twx_test_guess.R_FILE}" MATCHES "^(.*/CMake/[^/]+/)Test/" )
       set ( twx_test_guess.DOMAIN.DIR "${CMAKE_MATCH_1}" )
       if ( DEFINED twx_test_guess.R_IN_DOMAIN )
@@ -227,12 +235,269 @@ macro ( twx_test_guess )
           IN_DOMAIN ${twx_test_guess.R_IN_DOMAIN}
           BUILD
         )
-      endif ()  
+      endif ()
+      if ( DEFINED twx_test_guess.R_IN_SUITE )
+        twx_test_suite_setup (
+          IN_SUITE ${twx_test_guess.R_IN_SUITE}
+        )
+      endif ()      
     else ()
       message ( FATAL_ERROR "Bad usage: FILE -> ``${twx_test_guess.R_FILE}''" )
     endif ()
   endif ()
+  twx_var_unset (
+    UNSET FILE IN_DOMAIN DOMAIN IN_SUITE
+    VAR_PREFIX twx_test_guess.R_
+  )
+  twx_var_unset (
+    DOMAIN.DIR SUITE.NAME
+    VAR_PREFIX twx_test_guess.
+  )
 endmacro ()
+
+# ANCHOR: twx_test_count
+#[=======[
+*/
+/** @brief Test count manager.
+  *
+  * @param domain for key `DOMAIN`, optional domain name.
+  *   When `<domain>` is not explicitly provided after the keyword,
+  *   it defaults to `/TWX/TEST/DOMAIN`.
+  * @param suite for key `SUITE`, optional suite name.
+  *   When the `SUITE` keyword is given, `<domain>` is ignored.
+  *   When `<suite>` is not explicitly provided after the keyword,
+  *   it defaults to `/TWX/TEST/SUITE`.
+  * @param unit for key `UNIT`, optional unit name.
+  *   When the `UNIT` keyword is given, <domain> and <suite> are ignored.
+  *   When `<unit>` is not explicitly provided after the keyword,
+  *   it defaults to `/TWX/TEST/UNIT`.
+  * @param key for key `KEY`, required key identifier.
+  * @param unit for key `UNIT`, optional unit name.
+  *   Defaults to `/TWX/TEST/UNIT`.
+  * @param step for key `STEP`, optional value.
+  * @param value for key `SET`, optional value.
+  * @param var for key `IN_VAR`, optional variable name.
+  *   On return, contains the value of the counter with the given key,
+  *   once all changes are performed.
+  */
+twx_test_count ( DOMAIN|SUITE|UNIT [name] KEY key [SET|STEP value] [IN_VAR var]) {}
+/*
+#]=======]
+function ( twx_test_count )
+  twx_function_begin ()
+  block ( PROPAGATE ${TWX_CMD}.KEY ${TWX_CMD}.R_IN_VAR )
+    set ( list_ DOMAIN SUITE UNIT )
+    if ( NOT ARGV0 IN_LIST list_ )
+      message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''")
+    endif ()
+    cmake_parse_arguments (
+      PARSE_ARGV 1 ${TWX_CMD}.R
+      "DOMAIN;SUITE;UNIT" "" ""
+    )
+    if ( ${TWX_CMD}.R_DOMAIN OR ${TWX_CMD}.R_SUITE OR ${TWX_CMD}.R_UNIT )
+      message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''")  
+    endif ()
+    cmake_parse_arguments (
+      PARSE_ARGV 0 twx.R
+      "" "KEY;STEP;SET;IN_VAR;DOMAIN;SUITE;UNIT" ""
+    )
+    if ( DEFINED twx.R_UNPARSED_ARGUMENTS )
+      message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx.R_UNPARSED_ARGUMENTS}''")
+    endif ()
+    if ( NOT DEFINED twx.R_KEY )
+      message ( FATAL_ERROR "Missing `KEY' keyword")
+    endif ()
+    set ( type_ ${ARGV0} )
+    if ( NOT DEFINED twx.R_${type_} )
+      set ( twx.R_${type_} "/TWX/TEST/${type_}" )
+    endif ()
+    if ( DEFINED twx.R_UNIT AND NOT DEFINED ${twx.R_UNIT}.ID )
+      message ( FATAL_ERROR "Not a test unit: `${twx.R_UNIT}''" )
+    elseif ( DEFINED twx.R_SUITE AND NOT DEFINED ${twx.R_SUITE}.ID )
+      message ( FATAL_ERROR "Not a test suite: ``${twx.R_SUITE}''" )
+    elseif ( DEFINED twx.R_DOMAIN AND NOT DEFINED ${twx.R_DOMAIN}.ID )
+      message ( FATAL_ERROR "Not a test domain: ``${twx.R_DOMAIN}''" )
+    endif ()
+    set ( key_ "${${twx.R_${type_}}.ID}/${twx.R_KEY}.VALUE" )
+    if ( DEFINED twx.R_SET )
+      math ( EXPR twx.R_SET "${twx.R_SET}" )
+      twx_global_set ( "${twx.R_SET}" KEY "${key_}" )
+    elseif ( DEFINED twx.R_STEP )
+      twx_global_get ( KEY "${key_}" IN_VAR twx.VALUE )
+      math ( EXPR twx.VALUE "${twx.VALUE}+(${twx.R_STEP})" )
+      twx_global_set ( "${twx.VALUE}" KEY "${key_}" )
+    endif ()
+    set ( ${TWX_CMD}.KEY ${key_} )
+    set ( ${TWX_CMD}.R_IN_VAR ${twx.R_IN_VAR} )
+  endblock ()
+  # twx_var_log ( ${TWX_CMD}.KEY MSG ${CMAKE_CURRENT_FUNCTION} )
+  # twx_var_log ( ${TWX_CMD}.R_IN_VAR MSG ${CMAKE_CURRENT_FUNCTION} )
+  # twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR X )
+  # twx_var_log ( X MSG ${CMAKE_CURRENT_FUNCTION} )
+  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR ${${TWX_CMD}.R_IN_VAR} )
+    if ( NOT DEFINED ${${TWX_CMD}.R_IN_VAR} )
+      set ( ${${TWX_CMD}.R_IN_VAR} 0 )
+    endif ()
+    twx_var_log ( DEBUG ${${TWX_CMD}.R_IN_VAR} MSG "${${TWX_CMD}.KEY}" )
+    return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
+  else ()
+    twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR twx.VALUE )
+    twx_var_log ( DEBUG twx.VALUE MSG "${${TWX_CMD}.KEY}" )
+  endif ()
+endfunction ( twx_test_count )
+
+# ANCHOR: twx_test_on
+#[=======[
+*/
+/** @brief Private callback
+  *
+  * @param event for key `EVENT`, one of `PASS` or `FAIL`.
+  * @param domain for key `DOMAIN`, optional domain name.
+  *   When `<domain>` is not explicitly provided after the keyword,
+  *   it defaults to `/TWX/TEST/DOMAIN`.
+  * @param suite for key `SUITE`, optional suite name.
+  *   When `<suite>` is not explicitly provided after the keyword,
+  *   it defaults to `/TWX/TEST/SUITE`.
+  * @param unit for key `UNIT`, optional unit name.
+  *   When `<unit>` is not explicitly provided after the keyword,
+  *   it defaults to `/TWX/TEST/UNIT`.
+  */
+twx_test_on (EVENT event DOMAIN|SUITE|UNIT [name]) {}
+/*
+#]=======]
+function ( twx_test_on .EVENT .twx.R_EVENT twx.R_TYPE )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "EVENT" ""
+  )
+  set ( list_ PASS FAIL )
+  if ( NOT twx.R_EVENT IN_LIST list_ )
+    message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''")
+  endif ()
+  if ( twx.R_EVENT STREQUAL "FAIL" AND /TWX/TEST/STOP_ON_FAIL )
+    twx_global_set__ ( ON KEY /TWX/TEST/EMERGENCY_STOP )
+  endif ()
+  set ( list_ DOMAIN SUITE UNIT )
+  if ( NOT twx.R_TYPE IN_LIST list_ )
+    message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''")
+  endif ()
+  if ( ARGC GREATER 4 )
+    message ( FATAL_ERROR "Bad usage: ARGV => ``${ARGV}''")  
+  endif ()
+  if ( ARGC EQUAL 4 )
+    set ( name_ "${ARGV3}" )
+  else ()
+    set ( name_ /TWX/TEST/${twx.R_TYPE} )
+  endif ()
+  if ( NOT DEFINED ${name_}.ID )
+    string ( TOLOWER "${twx.R_TYPE}" type_ )
+    message ( FATAL_ERROR "Not a test ${type_}: ``${name_}''" )
+  endif ()
+  twx_test_count ( ${twx.R_TYPE} ${name_} KEY ALL  STEP 1 )
+  twx_test_count ( ${twx.R_TYPE} ${name_} KEY ${twx.R_EVENT} STEP 1 )
+endfunction ( twx_test_on )
+
+# SECTION: File
+
+# ANCHOR: twx_test_file_push
+#[=======[
+*/
+/** @brief Push a file path on the global stack
+  *
+  * @param file for key FILE, push the given element on the stack.
+  *   An element must not be pushed twice.
+  *   The file must exist.
+  * @param msg for key NO_DUPLICATE_MSG, required error message .
+  */
+twx_test_file_push (FILE file [NO_DUPLICATE_MSG msg]) {}
+/*
+#]=======]
+function ( twx_test_file_push )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "FILE;NO_DUPLICATE_MSG" ""
+  )
+  # Not yet: twx_arg_assert_parsed ()
+  twx_assert_undefined ( twx.R_UNPARSED_ARGUMENTS )
+  twx_assert_exists ( "${twx.R_FILE}" )
+  twx_assert_defined ( twx.R_NO_DUPLICATE_MSG )
+  twx_global_append (
+    "${twx.R_FILE}"
+    KEY /TWX/TEST/CURRENT_LIST_FILE_STACK
+    NO_DUPLICATE 
+    ERROR_MSG "${twx.R_NO_DUPLICATE_MSG}"
+  )
+endfunction ()
+
+# ANCHOR: twx_test_file_pop
+#[=======[
+*/
+/** @brief Pop a file path from the global stack
+  *
+  * This must follow a `twx_test_file_pop` in the program flow.
+  * LIFO stack.
+  *
+  * @param var for key IN_VAR, optional, holds the result on return.
+  */
+twx_test_file_pop (IN_VAR var) {}
+/*
+#]=======]
+function ( twx_test_file_pop )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "IN_VAR" ""
+  )
+  if ( DEFINED twx.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx.R_UNPARSED_ARGUMENTS}''")
+  endif ()
+  if ( DEFINED twx.R_IN_VAR )
+    twx_var_assert_name ( "${twx.R_IN_VAR}" )
+    twx_global_pop_back (
+      IN_VAR ${twx.R_IN_VAR}
+      KEY /TWX/TEST/CURRENT_LIST_FILE_STACK
+      REQUIRED
+    )
+    return ( PROPAGATE ${twx.R_IN_VAR} )
+  else ()
+    twx_global_pop_back (
+      KEY /TWX/TEST/CURRENT_LIST_FILE_STACK
+      REQUIRED
+    )
+  endif ()
+endfunction ()
+
+# ANCHOR: twx_test_file_get
+#[=======[
+*/
+/** @brief Get the last pushed file path from the global stack
+  *
+  * If it does not follow `twx_test_file_pop` in the program flow,
+  * the resulting variable is undefined.
+  *
+  * @param var for key IN_VAR, holds the result on return or is undefined.
+  */
+twx_test_file_pop (IN_VAR var) {}
+/*
+#]=======]
+function ( twx_test_file_get )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "IN_VAR" ""
+  )
+  if ( DEFINED twx.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx.R_UNPARSED_ARGUMENTS}''")
+  endif ()
+  twx_var_assert_name ( "${twx.R_IN_VAR}" )
+  twx_global_get_back (
+    IN_VAR twx_test_domain_pop.FILE
+    KEY /TWX/TEST/CURRENT_LIST_FILE_STACK
+  )
+  return ( PROPAGATE ${twx.R_IN_VAR} )
+endfunction ()
+
+# !SECTION
 
 # SECTION: Domain
 # ANCHOR: twx_test_domain_log
@@ -247,8 +512,7 @@ twx_test_domain_log ([mode] DOMAIN domain) {}
 /*
 #]=======]
 function ( twx_test_domain_log )
-  set ( l "STATUS;VERBOSE;DEBUG;TRACE" )
-  if ( "${ARGV0}" IN_LIST l )
+  if ( "${ARGV0}" IN_LIST /TWX/CONST/MESSAGE/MODES )
     set ( i 1 )
     set ( mode_ "${ARGV0}" )
   else ()
@@ -263,7 +527,7 @@ function ( twx_test_domain_log )
     message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx.R_UNPARSED_ARGUMENTS}''" )
   endif ()
   twx_var_assert_name ( "${twx.R_DOMAIN}" )
-  foreach ( X NAME PATH ID RUN DIR )
+  foreach ( X NAME PATH ID RUN SKIP DIR )
     twx_var_log (
       DEBUG
       ${twx.R_DOMAIN}.${X}
@@ -277,7 +541,7 @@ endfunction ( twx_test_domain_log )
 /** @brief Setup test domain
   *
   * @param name for key `NAME`, optional domain core name.
-  *   When not provided, unset all tyhe variables.
+  *   When not provided, unset all the variables.
   * @param domain for key `IN_DOMAIN`. On return,
   *   `<domain>.NAME` will hold the domain core name `<name>`,
   *   `<domain>.PATH` will hold the domain path,
@@ -296,93 +560,157 @@ twx_test_domain_setup ([NAME id] IN_DOMAIN domain [BUILD] [PARENT_SCOPE]) {}
 /*
 #]=======]
 macro ( twx_test_domain_setup )
-cmake_parse_arguments (
-  twx_test_domain_setup.R
-  "BUILD;PARENT_SCOPE" "DIR;IN_DOMAIN" ""
-  ${ARGV}
-)
-if ( DEFINED twx_test_domain_setup.R_UNPARSED_ARGUMENTS )
-  message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx_test_domain_setup.R_UNPARSED_ARGUMENTS}''" )
-endif ()
-twx_var_assert_name ( "${twx_test_domain_setup.R_IN_DOMAIN}" )
-if ( DEFINED twx_test_domain_setup.R_DIR )
-  set ( twx_test_domain_setup.DIR    "${twx_test_domain_setup.R_DIR}" )
-  if ( twx_test_domain_setup.R_DIR MATCHES "/CMake/([^/]+)/" )
-    set ( twx_test_domain_setup.NAME "${CMAKE_MATCH_1}")
-  else ()
-    message ( FATAL_ERROR " Bad usage: DIR -> ``${twx_test_domain_setup.R_DIR}''")
-  endif ()
-  if ( twx_test_domain_setup.R_BUILD )
-    set ( twx_test_domain_setup.BUILD BUILD/ )
-  else ()
-    set ( twx_test_domain_setup.BUILD )
-  endif ()
-  set ( twx_test_domain_setup.PATH  "${twx_test_domain_setup.BUILD}${twx_test_domain_setup.NAME}" )
-  set (
-    twx_test_domain_setup.ID
-    "TWX_TEST/${twx_test_domain_setup.PATH}"
+  cmake_parse_arguments (
+    twx_test_domain_setup.R
+    "BUILD;PARENT_SCOPE" "DIR;IN_DOMAIN" ""
+    ${ARGV}
   )
-  if ( DEFINED ${twx_test_domain_setup.ID}.RUN )
+  if ( DEFINED twx_test_domain_setup.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx_test_domain_setup.R_UNPARSED_ARGUMENTS}''" )
+  endif ()
+  twx_var_assert_name ( "${twx_test_domain_setup.R_IN_DOMAIN}" )
+  if ( twx_test_domain_setup.R_DIR MATCHES "CMake/.*/CMake" )
+    message ( FATAL_ERROR "*****" )
+  endif ()
+  if ( DEFINED twx_test_domain_setup.R_DIR )
+    set ( twx_test_domain_setup.DOMAIN.DIR    "${twx_test_domain_setup.R_DIR}" )
+    if ( twx_test_domain_setup.R_DIR MATCHES "/CMake/([^/]+)/" )
+      set ( twx_test_domain_setup.DOMAIN.NAME "${CMAKE_MATCH_1}")
+    else ()
+      message ( FATAL_ERROR " Bad usage: DIR -> ``${twx_test_domain_setup.R_DIR}''")
+    endif ()
+    if ( twx_test_domain_setup.R_BUILD )
+      set ( twx_test_domain_setup.BUILD BUILD/ )
+    else ()
+      set ( twx_test_domain_setup.BUILD )
+    endif ()
     set (
-      twx_test_domain_setup.RUN
-      "${${twx_test_domain_setup.ID}.RUN}"
+      twx_test_domain_setup.DOMAIN.PATH
+      "${twx_test_domain_setup.BUILD}${twx_test_domain_setup.DOMAIN.NAME}"
     )
+    set (
+      twx_test_domain_setup.DOMAIN.ID
+      "/TWX/TEST/${twx_test_domain_setup.DOMAIN.PATH}"
+    )
+    twx_test_domain_skip ( INIT DOMAIN twx_test_domain_setup.DOMAIN )
+    if ( DEFINED ${twx_test_domain_setup.DOMAIN.ID}.RUN )
+      set (
+        twx_test_domain_setup.DOMAIN.RUN
+        "${${twx_test_domain_setup.DOMAIN.ID}.RUN}"
+      )
+    else ()
+      set ( twx_test_domain_setup.DOMAIN.RUN ON )
+      block ( PROPAGATE twx_test_domain_setup.DOMAIN.RUN )
+        set ( filter_ /TWX/TEST/${twx_test_domain_setup.BUILD}DOMAIN/FILTER/NO )
+        if ( DEFINED ${filter_} AND twx_test_domain_setup.DOMAIN.NAME MATCHES "${${filter_}}" )
+          set ( twx_test_domain_setup.DOMAIN.RUN OFF )
+        endif ()
+        if ( NOT twx_test_domain_setup.DOMAIN.RUN )
+          set ( filter_ /TWX/TEST/${twx_test_domain_setup.BUILD}DOMAIN/FILTER/YES )
+          if ( DEFINED ${filter_} AND twx_test_domain_setup.DOMAIN.NAME MATCHES "${${filter_}}" )
+            set ( twx_test_domain_setup.DOMAIN.RUN ON )
+          endif ()
+        endif ()
+        if ( twx_test_domain_setup.DOMAIN.RUN )
+          set ( filter_ ${twx_test_domain_setup.DOMAIN.ID}/FILTER/NO )
+          if ( DEFINED ${filter_} AND twx_test_domain_setup.DOMAIN.NAME MATCHES "${${filter_}}" )
+            set ( twx_test_domain_setup.DOMAIN.RUN OFF )
+          endif ()
+        endif ()
+        if ( NOT twx_test_domain_setup.DOMAIN.RUN )
+          set ( filter_ /TWX/TEST/${twx_test_domain_setup.BUILD}DOMAIN/FILTER/NO )
+          if ( DEFINED ${filter_} AND twx_test_domain_setup.DOMAIN.NAME MATCHES "${${filter_}}" )
+            set ( twx_test_domain_setup.DOMAIN.RUN OFF )
+          endif ()
+        endif ()
+      endblock ()
+    endif ()
   else ()
-    set ( twx_test_domain_setup.RUN ON )
-    block ( PROPAGATE twx_test_domain_setup.RUN )
-      set ( filter_ TWX_TEST/${twx_test_domain_setup.BUILD}DOMAIN/FILTER/NO )
-      if ( DEFINED ${filter_} AND twx_test_domain_setup.NAME MATCHES "${${filter_}}" )
-        set ( twx_test_domain_setup.RUN OFF )
-      endif ()
-      if ( NOT twx_test_domain_setup.RUN )
-        set ( filter_ TWX_TEST/${twx_test_domain_setup.BUILD}DOMAIN/FILTER/YES )
-        if ( DEFINED ${filter_} AND twx_test_domain_setup.NAME MATCHES "${${filter_}}" )
-          set ( twx_test_domain_setup.RUN ON )
-        endif ()
-      endif ()
-      if ( twx_test_domain_setup.RUN )
-        set ( filter_ ${twx_test_domain_setup.ID}/FILTER/NO )
-        if ( DEFINED ${filter_} AND twx_test_domain_setup.NAME MATCHES "${${filter_}}" )
-          set ( twx_test_domain_setup.RUN OFF )
-        endif ()
-      endif ()
-      if ( NOT twx_test_domain_setup.RUN )
-        set ( filter_ TWX_TEST/${twx_test_domain_setup.BUILD}DOMAIN/FILTER/NO )
-        if ( DEFINED ${filter_} AND twx_test_domain_setup.NAME MATCHES "${${filter_}}" )
-          set ( twx_test_domain_setup.RUN OFF )
-        endif ()
-      endif ()
-    endblock ()
+    foreach ( x NAME PATH ID RUN SKIP )
+      set ( twx_test_domain_setup.DOMAIN.${x} )
+    endforeach ()
   endif ()
-else ()
-  foreach ( x NAME PATH ID RUN )
-    set ( twx_test_domain_setup.${x} )
+  if ( twx_test_domain_setup.R_PARENT_SCOPE )
+    set ( twx_test_domain_setup.SCOPE PARENT_SCOPE )
+  else ()
+    set ( twx_test_domain_setup.SCOPE )
+  endif ()
+  foreach ( X NAME PATH ID RUN DIR SKIP )
+    set (
+      ${twx_test_domain_setup.R_IN_DOMAIN}.${X}
+      "${twx_test_domain_setup.DOMAIN.${X}}"
+      ${twx_test_domain_setup.SCOPE}
+    )
+    set (
+      twx_test_domain_setup.DOMAIN.${X}
+      ${twx_test_domain_setup.SCOPE}
+    )
   endforeach ()
-endif ()
-if ( twx_test_domain_setup.R_PARENT_SCOPE )
-  set ( twx_test_domain_setup.SCOPE PARENT_SCOPE )
-else ()
-  set ( twx_test_domain_setup.SCOPE )
-endif ()
-foreach ( twx_test_domain_setup.X NAME PATH ID RUN DIR )
-  set (
-    ${twx_test_domain_setup.R_IN_DOMAIN}.${twx_test_domain_setup.X}
-    "${twx_test_domain_setup.${twx_test_domain_setup.X}}"
-    ${twx_test_domain_setup.SCOPE}
-  )
-endforeach ()
-foreach ( twx_test_domain_setup.X BUILD PARENT_SCOPE NAME IN_DOMAIN )
-  set (
-    twx_test_domain_setup.R_${twx_test_domain_setup.X}
-  )
-endforeach ()
-foreach ( twx_test_domain_setup.X SCOPE BUILD RUN )
-  set (
-    twx_test_domain_setup.${twx_test_domain_setup.X}
-  )
-endforeach ()
-set ( twx_test_domain_setup.X )
+  foreach ( X R_BUILD R_PARENT_SCOPE R_NAME R_IN_DOMAIN SCOPE BUILD RUN )
+    set ( twx_test_domain_setup.${X} )
+  endforeach ()
 endmacro ( twx_test_domain_setup )
+
+# ANCHOR: twx_test_domain_skip
+#[=======[
+*/
+/** @brief Mark the test domain as ignored
+  *
+  * In `INIT` mode 
+  *   `<domain>.SKIP` is set to the boolean value of
+  *   `/TWX/TEST/.SKIP/<<domain>.PATH>`.
+  * When `ON` is set
+  *   `<domain>.SKIP` is set to true as well as
+  *   `/TWX/TEST/.SKIP/<<domain>.PATH>`.
+  * When `ON` is not set
+  *   `<domain>.SKIP` is set to false as well as
+  *   `/TWX/TEST/.SKIP/<<domain>.PATH>`.
+  *  
+  * @param domain for key `DOMAIN`.
+  * @param INIT, optional. ON is ignored.
+  * @param ON, optional. Ignored when INIT is set.
+  * @param PARENT_SCOPE, optional flag to specify whether the assignments
+  *   are made in the caller scope or the caller's parent scope.
+  */
+twx_test_domain_skip (DOMAIN domain [PARENT_SCOPE]) {}
+/*
+#]=======]
+macro ( twx_test_domain_skip )
+  cmake_parse_arguments (
+    twx_test_domain_skip.R
+    "INIT;ON;PARENT_SCOPE" "DOMAIN" ""
+    ${ARGV}
+  )
+  if ( DEFINED twx_test_domain_skip.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx_test_domain_skip.R_UNPARSED_ARGUMENTS}''" )
+  endif ()
+  twx_var_assert_name ( "${twx_test_domain_skip.R_DOMAIN}" )
+  if ( twx_test_domain_skip.R_PARENT_SCOPE )
+    set ( twx_test_domain_skip.SCOPE PARENT_SCOPE )
+  else ()
+    set ( twx_test_domain_skip.SCOPE )
+  endif ()
+  if ( ${twx_test_domain_skip.R_INIT} )
+    set (
+      twx_test_domain_skip.R_ON
+      "${/TWX/TEST/.SKIP/${${twx_test_domain_skip.R_DOMAIN}.PATH}}"
+    )
+  endif ()
+  set (
+    ${twx_test_domain_skip.R_DOMAIN}.SKIP
+    ${twx_test_domain_skip.R_ON}
+    ${twx_test_domain_skip.SCOPE}
+  )
+  set (
+    /TWX/TEST/.SKIP/${${twx_test_domain_skip.R_DOMAIN}.PATH}
+    ${twx_test_domain_skip.R_ON}
+    ${twx_test_domain_skip.SCOPE}
+  )
+  twx_var_unset (
+    SCOPE R_ON R_INIT R_DOMAIN R_PARENT_SCOPE
+    VAR_PREFIX twx_test_domain_skip.
+  )
+endmacro ( twx_test_domain_skip )
 
 # ANCHOR: twx_test_domain_push
 #[=======[
@@ -390,7 +718,7 @@ endmacro ( twx_test_domain_setup )
 /** @brief Before the test domain runs
   *
   * Must be balanced by a `twx_test_domain_pop()`.
-  * set `TWX_TEST_DOMAIN`.
+  * set `/TWX/TEST/DOMAIN`.
   *
   */
 twx_test_domain_push () {}
@@ -400,21 +728,33 @@ macro ( twx_test_domain_push )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  twx_global_append (
-    "${CMAKE_CURRENT_LIST_FILE}"
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-    DUPLICATE "Circular domain: ``${TWX_TEST_DOMAIN.NAME}''"
-  )
   twx_test_guess (
     FILE "${CMAKE_CURRENT_LIST_FILE}"
-    IN_DOMAIN TWX_TEST_DOMAIN
+    IN_DOMAIN /TWX/TEST/DOMAIN
   )
-  twx_test_domain_log ( DEBUG DOMAIN TWX_TEST_DOMAIN )
-  block ()
-    set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-    twx_format_message ( CHECK_START "Test domain ${TWX_TEST_DOMAIN.NAME}..." ID Test/Domain )
-  endblock ()
-  list ( APPEND CMAKE_MESSAGE_CONTEXT "${TWX_TEST_DOMAIN.NAME}" )
+  twx_test_file_push (
+    FILE "${CMAKE_CURRENT_LIST_FILE}"
+    NO_DUPLICATE_MSG "Circular domain: ``${/TWX/TEST/DOMAIN.PATH}''"
+  )
+  twx_test_domain_log ( DEBUG DOMAIN /TWX/TEST/DOMAIN )
+  if ( ${/TWX/TEST/.SKIP/${/TWX/TEST/DOMAIN.PATH}} )
+    block ()
+      set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+      twx_format_message ( DEBUG "Test domain ${/TWX/TEST/DOMAIN.PATH}... Ignored" ID Test/Domain )
+    endblock ()
+    # Do nothing
+  elseif ( /TWX/TEST/DOMAIN.RUN )
+    block ()
+      set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+      twx_format_message ( CHECK_START "Test domain ${/TWX/TEST/DOMAIN.PATH}..." ID Test/Domain )
+    endblock ()
+    list ( APPEND CMAKE_MESSAGE_CONTEXT "${/TWX/TEST/DOMAIN.NAME}" )
+  else ()
+    block ()
+      set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+      twx_format_message ( STATUS "Test domain ${/TWX/TEST/DOMAIN.PATH}... skipped" ID Test/Domain )
+    endblock ()
+  endif ()
 endmacro ()
 
 # ANCHOR: twx_test_domain_pop
@@ -432,57 +772,68 @@ macro ( twx_test_domain_pop )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  if ( COMMAND twx_fatal_assert_pass )
-    twx_fatal_assert_pass ()
-  endif ()
-  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
-  if ( TWX_TEST_DOMAIN.RUN )
-    set ( status_ "DONE" )
+  twx_test_file_pop ()
+  if ( ${/TWX/TEST/.SKIP/${/TWX/TEST/DOMAIN.PATH}} )
+    set ( /TWX/TEST/DOMAIN.SKIP ON )
   else ()
-    set ( status_ "SKIPPED" )
+    set ( /TWX/TEST/.SKIP/${/TWX/TEST/DOMAIN.PATH} ON )
+    set ( /TWX/TEST/DOMAIN.SKIP ON )
+    if ( /TWX/TEST/DOMAIN.RUN )
+      list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
+      set (
+        twx_test_domain_pop.BANNER
+        "Test domain ${/TWX/TEST/DOMAIN.PATH}... "
+      )
+      if ( COMMAND twx_fatal_assert_pass )
+        twx_fatal_assert_pass ()
+      endif ()
+      if ( COMMAND twx_fatal_catched )
+        twx_fatal_catched ( IN_VAR v )
+        if ( v AND NOT v STREQUAL "" )
+          twx_test_count ( DOMAIN KEY ALL  STEP 1 )
+          twx_test_count ( DOMAIN KEY FAIL STEP 1 )
+          twx_fatal_clear ()
+        endif ()
+        block ( PROPAGATE twx_test_domain_pop.BANNER )
+          twx_test_count ( DOMAIN KEY ALL  IN_VAR all_  )
+          twx_test_count ( DOMAIN KEY PASS IN_VAR pass_ )
+          twx_test_count ( DOMAIN KEY FAIL IN_VAR fail_ )
+          if ( fail_ GREATER 0 )
+            string ( APPEND twx_test_domain_pop.BANNER "FAIL: ${fail_} out of ${all_} test suites" )
+            twx_test_count ( DOMAIN KEY FAIL STEP 1 )
+          else ()
+            string ( APPEND twx_test_domain_pop.BANNER "PASS: all ${all_} test suites" )
+            twx_test_count ( DOMAIN KEY PASS STEP 1 )
+          endif ()
+        endblock ()
+      endif ()
+      block ()
+        set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+        twx_format_message ( STATUS "${twx_test_domain_pop.BANNER}" ID Test/Domain )
+      endblock ()
+      twx_test_file_get ( IN_VAR twx_test_domain_pop.FILE )
+      if ( DEFINED twx_test_domain_pop.FILE )
+        twx_test_guess (
+          FILE "${twx_test_domain_pop.FILE}"
+          IN_DOMAIN /TWX/TEST/DOMAIN
+        )
+        block ()
+          set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+          twx_format_message ( CHECK_START "... Test domain ${/TWX/TEST/DOMAIN.NAME}..." ID Test/Domain )
+        endblock ()
+        list ( APPEND CMAKE_MESSAGE_CONTEXT "${/TWX/TEST/DOMAIN.NAME}" )
+      else ()
+        twx_test_guess (
+          IN_DOMAIN /TWX/TEST/DOMAIN
+        )
+      endif ()
+      twx_var_unset (
+        BANNER FILE
+        VAR_PREFIX twx_test_domain_pop.
+      )
+    endif ()
   endif ()
-  block ()
-    set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-    twx_format_message ( STATUS "Test domain ${TWX_TEST_DOMAIN.NAME}... ${status_}" ID Test/Domain )
-  endblock ()
-  twx_global_get (
-    IN_VAR twx_test_domain_pop.FILE
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-  )
-  twx_global_pop_back (
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-    REQUIRED
-  )
-  twx_global_get (
-    IN_VAR twx_test_domain_pop.FILE
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-  )
-  twx_global_get (
-    IN_VAR twx_test_domain_pop.FILE
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-  )
-  twx_global_get_back (
-    IN_VAR twx_test_domain_pop.FILE
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-  )
-  if ( DEFINED twx_test_domain_pop.FILE )
-    twx_test_guess (
-      FILE "${twx_test_domain_pop.FILE}"
-      IN_DOMAIN TWX_TEST_DOMAIN
-    )
-    block ()
-      set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-      twx_format_message ( CHECK_START "... Test domain ${TWX_TEST_DOMAIN.NAME}..." ID Test/Domain )
-    endblock ()
-    list ( APPEND CMAKE_MESSAGE_CONTEXT "${TWX_TEST_DOMAIN.NAME}" )
-  else ()
-    twx_test_guess (
-      IN_DOMAIN TWX_TEST_DOMAIN
-    )
-  endif ()
-  foreach ( twx_test_domain_pop.x FILE )
-    set ( twx_test_domain_pop.${twx_test_domain_pop.x} )
-  endforeach ()
+  twx_var_log ( DEBUG /TWX/TEST/.SKIP/${/TWX/TEST/DOMAIN.PATH} )
 endmacro ( twx_test_domain_pop )
 
 # !SECTION
@@ -499,8 +850,7 @@ twx_test_suite_log ([mode] SUITE suite) {}
 /*
 #]=======]
 function ( twx_test_suite_log )
-  set ( l "STATUS;VERBOSE;DEBUG;TRACE" )
-  if ( "${ARGV0}" IN_LIST l )
+  if ( "${ARGV0}" IN_LIST /TWX/CONST/MESSAGE/MODES )
     set ( i 1 )
     set ( mode_ "${ARGV0}" )
   else ()
@@ -515,9 +865,13 @@ function ( twx_test_suite_log )
     message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx.R_UNPARSED_ARGUMENTS}''" )
   endif ()
   twx_var_assert_name ( "${twx.R_SUITE}" )
-  foreach ( X DOMAIN NAME PATH ID RUN LIB )
+  twx_var_log (
+    ${mode_}
+    ${${twx.R_SUITE}.DOMAIN}.NAME
+  )
+  foreach ( X NAME PATH ID RUN SKIP DIR LIB )
     twx_var_log (
-      DEBUG
+      ${mode_}
       ${twx.R_SUITE}.${X}
     )
   endforeach ()
@@ -560,10 +914,15 @@ macro ( twx_test_suite_setup )
       message ( FATAL_ERROR "Not a domain: ``${twx_test_suite_setup.R_DOMAIN}''" )
     endif ()
     set ( twx_test_suite_setup.SUITE.DOMAIN "${twx_test_suite_setup.R_DOMAIN}" )
-    set ( twx_test_suite_setup.SUITE.NAME  "${twx_test_suite_setup.R_NAME}" )
-    set ( twx_test_suite_setup.SUITE.PATH  "${${twx_test_suite_setup.R_DOMAIN}.PATH}/${twx_test_suite_setup.SUITE.NAME}" )
-    set ( twx_test_suite_setup.SUITE.ID    "${${twx_test_suite_setup.R_DOMAIN}.ID}/${twx_test_suite_setup.SUITE.NAME}" )
-    if ( NOT ${twx_test_suite_setup.R_DOMAIN}.RUN )
+    set ( twx_test_suite_setup.SUITE.NAME   "${twx_test_suite_setup.R_NAME}" )
+    set ( twx_test_suite_setup.SUITE.PATH   "${${twx_test_suite_setup.R_DOMAIN}.PATH}/${twx_test_suite_setup.SUITE.NAME}" )
+    set ( twx_test_suite_setup.SUITE.ID     "${${twx_test_suite_setup.R_DOMAIN}.ID}/${twx_test_suite_setup.SUITE.NAME}" )
+    set ( twx_test_suite_setup.SUITE.DIR    "${${twx_test_suite_setup.R_DOMAIN}.DIR}Test/${twx_test_suite_setup.SUITE.NAME}/Twx${twx_test_suite_setup.SUITE.NAME}Test.cmake" )
+    twx_assert_exists ( "${twx_test_suite_setup.SUITE.DIR}" )
+    twx_test_suite_skip ( INIT SUITE twx_test_suite_setup.SUITE )
+    if ( ${twx_test_suite_setup.R_DOMAIN}.SKIP )
+      set (twx_test_suite_setup.SUITE.RUN OFF )
+    elseif ( NOT ${twx_test_suite_setup.R_DOMAIN}.RUN )
       set (twx_test_suite_setup.SUITE.RUN OFF )
     elseif ( DEFINED ${twx_test_suite_setup.ID}.RUN )
       set (
@@ -571,35 +930,30 @@ macro ( twx_test_suite_setup )
         "${${twx_test_suite_setup.ID}.RUN}"
       )
     else ()
-      set ( twx_test_suite_setup.SUITE.RUN ON )
       block ( PROPAGATE twx_test_suite_setup.SUITE.RUN )
         if ( ${twx_test_suite_setup.R_DOMAIN}.ID MATCHES "/BUILD/" )
           set ( build_ BUILD/ )
         else ()
           set ( build_ )
         endif ()
-        set ( filter_ TWX_TEST/${build_}SUITE/FILTER/NO )
+        set ( run_ ON )
+        set ( filter_ /TWX/TEST/${build_}SUITE/FILTER/NO )
         if ( DEFINED ${filter_} AND twx_test_suite_setup.SUITE.NAME MATCHES "${${filter_}}" )
-          set ( twx_test_suite_setup.SUITE.RUN OFF )
+          set ( run_ OFF )
         endif ()
-        if ( NOT twx_test_suite_setup.SUITE.RUN )
-          set ( filter_ TWX_TEST/${build_}SUITE/FILTER/YES )
-          if ( DEFINED ${filter_} AND twx_test_suite_setup.SUITE.NAME MATCHES "${${filter_}}" )
-            set ( twx_test_suite_setup.SUITE.RUN ON )
-          endif ()
+        set ( filter_ /TWX/TEST/${build_}SUITE/FILTER/YES )
+        if ( NOT run_ AND DEFINED ${filter_} AND twx_test_suite_setup.SUITE.NAME MATCHES "${${filter_}}" )
+          set ( run_ ON )
         endif ()
-        if ( twx_test_suite_setup.SUITE.RUN )
-          set ( filter_ ${twx_test_suite_setup.SUITE.ID}/FILTER/NO )
-          if ( DEFINED ${filter_} AND twx_test_suite_setup.SUITE.NAME MATCHES "${${filter_}}" )
-            set ( twx_test_suite_setup.SUITE.RUN OFF )
-          endif ()
+        set ( filter_ ${twx_test_suite_setup.SUITE.ID}/FILTER/NO )
+        if ( run_ AND DEFINED ${filter_} AND twx_test_suite_setup.SUITE.NAME MATCHES "${${filter_}}" )
+          set ( run_ OFF )
         endif ()
-        if ( NOT twx_test_suite_setup.SUITE.RUN )
-          set ( filter_ ${twx_test_suite_setup.SUITE.ID}/FILTER/YES )
-          if ( DEFINED ${filter_} AND NOT twx_test_suite_setup.SUITE.NAME MATCHES "${${filter_}}" )
-            set ( twx_test_suite_setup.SUITE.RUN ON )
-          endif ()
+        set ( filter_ ${twx_test_suite_setup.SUITE.ID}/FILTER/YES )
+        if ( NOT run_ AND DEFINED ${filter_} AND NOT twx_test_suite_setup.SUITE.NAME MATCHES "${${filter_}}" )
+          set ( run_ ON )
         endif ()
+        set ( twx_test_suite_setup.SUITE.RUN ${run_} )
       endblock ()
     endif ()
     if ( DEFINED ${twx_test_suite_setup.R_DOMAIN}.DIR AND NOT twx_test_suite_setup.SUITE.NAME STREQUAL "POC" )
@@ -609,10 +963,9 @@ macro ( twx_test_suite_setup )
       )
       cmake_path ( NORMAL_PATH twx_test_suite_setup.SUITE.LIB )
       if ( NOT EXISTS "${twx_test_suite_setup.SUITE.LIB}" )
-        string ( APPEND twx_test_suite_setup.SUITE.NAME Lib )
         set (
           twx_test_suite_setup.SUITE.LIB
-          "${${twx_test_suite_setup.R_DOMAIN}.DIR}Twx${twx_test_suite_setup.SUITE.NAME}.cmake"
+          "${${twx_test_suite_setup.R_DOMAIN}.DIR}Twx${twx_test_suite_setup.SUITE.NAME}Lib.cmake"
         )
         cmake_path ( NORMAL_PATH twx_test_suite_setup.SUITE.LIB )
         if ( NOT EXISTS "${twx_test_suite_setup.SUITE.LIB}" )
@@ -623,7 +976,7 @@ macro ( twx_test_suite_setup )
       set ( twx_test_suite_setup.SUITE.LIB )
     endif ()
   else ()
-    foreach ( x NAME PATH ID RUN LIB )
+    foreach ( x NAME PATH ID SKIP RUN DIR LIB )
       set ( twx_test_suite_setup.SUITE.${x} )
     endforeach ()
   endif ()
@@ -632,26 +985,87 @@ macro ( twx_test_suite_setup )
   else ()
     set ( twx_test_suite_setup.SCOPE )
   endif ()
-  foreach ( twx_test_suite_setup.X DOMAIN NAME PATH ID RUN LIB )
+  foreach ( twx_test_suite_setup.X DOMAIN NAME PATH ID SKIP RUN DIR LIB )
     set (
       ${twx_test_suite_setup.R_IN_SUITE}.${twx_test_suite_setup.X}
-      "${twx_test_suite_setup.SUITE.${twx_test_suite_setup.X}}"
+      ${twx_test_suite_setup.SUITE.${twx_test_suite_setup.X}}
       ${twx_test_suite_setup.SCOPE}
     )
     set ( twx_test_suite_setup.SUITE.${twx_test_suite_setup.X} )
   endforeach ()
-  foreach ( twx_test_suite_setup.X PARENT_SCOPE DOMAIN NAME IN_SUITE )
-    set (
-      twx_test_suite_setup.R_${twx_test_suite_setup.X}
-    )
-  endforeach ()
-  foreach ( twx_test_suite_setup.X SCOPE )
-    set (
-      twx_test_suite_setup.${twx_test_suite_setup.X}
-    )
-  endforeach ()
-  set ( twx_test_suite_setup.X )
+  twx_var_unset (
+    X SCOPE R_PARENT_SCOPE R_DOMAIN R_NAME R_IN_SUITE
+    VAR_PREFIX twx_test_suite_setup.
+  )
 endmacro ( twx_test_suite_setup )
+
+# ANCHOR: twx_test_suite_skip
+#[=======[
+*/
+/** @brief Mark the test suite as ignored
+  *
+  * In `INIT` mode
+  *   `<suite>.SKIP` is set to the boolean value of
+  *   `/TWX/TEST/.SKIP/<<suite>.PATH>`.
+  * When `ON` is set
+  *   `<suite>.SKIP` is set to true as well as
+  *   `/TWX/TEST/.SKIP/<<suite>.PATH>`.
+  * When `ON` is not set
+  *   `<suite>.SKIP` is set to false as well as
+  *   `/TWX/TEST/.SKIP/<<suite>.PATH>`.
+  *  
+  * @param suite for key `SUITE`.
+  * @param INIT, optional. ON is ignored.
+  * @param ON, optional. Ignored when INIT is set.
+  * @param PARENT_SCOPE, optional flag to specify whether the assignments
+  *   are made in the caller scope or the caller's parent scope.
+  */
+twx_test_suite_skip (SUITE suite [PARENT_SCOPE]) {}
+/*
+#]=======]
+macro ( twx_test_suite_skip )
+  cmake_parse_arguments (
+    twx_test_suite_skip.R
+    "INIT;ON;PARENT_SCOPE" "SUITE" ""
+    ${ARGV}
+  )
+  if ( DEFINED twx_test_suite_skip.R_UNPARSED_ARGUMENTS )
+    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx_test_suite_skip.R_UNPARSED_ARGUMENTS}''" )
+  endif ()
+  twx_var_assert_name ( "${twx_test_suite_skip.R_SUITE}" )
+  if ( twx_test_suite_skip.R_INIT )
+    if ( /TWX/TEST/.SKIP/${${${twx_test_suite_skip.R_SUITE}.DOMAIN}.PATH} )
+      set (
+        twx_test_suite_skip.R_ON
+        ON
+      )
+    else ()
+      set (
+        twx_test_suite_skip.R_ON
+        ${/TWX/TEST/.SKIP/${${twx_test_suite_skip.R_SUITE}.PATH}}
+      )
+    endif ()
+  endif ()
+  if ( twx_test_suite_skip.R_PARENT_SCOPE )
+    set ( twx_test_suite_skip.SCOPE PARENT_SCOPE )
+  else ()
+    set ( twx_test_suite_skip.SCOPE )
+  endif ()
+  set (
+    ${twx_test_suite_skip.R_SUITE}.SKIP
+    ${twx_test_suite_skip.R_ON}
+    ${twx_test_suite_skip.SCOPE}
+  )
+  set (
+    /TWX/TEST/.SKIP/${${twx_test_suite_skip.R_SUITE}.PATH}
+    ${${twx_test_suite_skip.R_SUITE}.SKIP}
+    ${twx_test_suite_skip.SCOPE}
+  )
+  twx_var_unset (
+    SCOPE R_ON R_SUITE R_PARENT_SCOPE
+    VAR_PREFIX twx_test_suite_skip.
+  )
+endmacro ( twx_test_suite_skip )
 
 # ANCHOR: twx_test_suite_push
 #[=======[
@@ -662,54 +1076,57 @@ endmacro ( twx_test_suite_setup )
   * Loads the associate library retrieved from the path of the current list file.
   * A `block()` instruction should follow.
   *
-  * @param level for key LOG_LEVEL, optional log level.
   */
-twx_test_suite_push ([LOG_LEVEL level]) {}
+twx_test_suite_push () {}
 /*
 #]=======]
 macro ( twx_test_suite_push )
-  list ( APPEND twx_test_suite_push.CMAKE_MESSAGE_LOG_LEVEL "${CMAKE_MESSAGE_LOG_LEVEL}" )
   # API guards
-  if ( ${ARGC} EQUAL 2 )
-    if ( NOT ARGV0 STREQUAL "LOG_LEVEL" )
-      message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
-    endif ()
-    set ( CMAKE_MESSAGE_LOG_LEVEL ${ARGV1} )
-  elseif ( NOT ${ARGC} EQUAL 0 )
+  if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  twx_global_append (
-    "${CMAKE_CURRENT_LIST_FILE}"
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-    DUPLICATE "Circular suite: ``${TWX_TEST_SUITE.NAME}''"
-  )
   twx_test_guess (
     FILE "${CMAKE_CURRENT_LIST_FILE}"
-    IN_DOMAIN TWX_TEST_DOMAIN
-    IN_SUITE  TWX_TEST_SUITE
+    IN_DOMAIN /TWX/TEST/DOMAIN
+    IN_SUITE  /TWX/TEST/SUITE
   )
-  twx_test_suite_log ( DEBUG SUITE TWX_TEST_SUITE )
-  set ( TWX_FATAL_CATCH ON )
-  set ( twx_test_suite_push.BANNER "Test suite ${TWX_TEST_SUITE.PATH}...")
-  if ( TWX_TEST_SUITE.RUN )
+  twx_test_file_push (
+    FILE "${CMAKE_CURRENT_LIST_FILE}"
+    NO_DUPLICATE_MSG "Circular suite: ``${/TWX/TEST/SUITE.NAME}''"
+  )
+  set ( /TWX/FATAL/CATCH ON )
+  if ( ${/TWX/TEST/.SKIP/${/TWX/TEST/DOMAIN.PATH}} )
+    set ( ${/TWX/TEST/.SKIP/${/TWX/TEST/SUITE.PATH}} ON )
+  endif ()
+  set ( twx_test_suite_push.BANNER "Test suite ${/TWX/TEST/SUITE.PATH}...")
+  if ( ${/TWX/TEST/.SKIP/${/TWX/TEST/SUITE.PATH}} )
     block ()
       set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-      twx_format_message ( STATUS "${twx_test_suite_push.BANNER}" ID Test/Suite )
+      twx_format_message ( DEBUG "${twx_test_suite_push.BANNER} ignored" ID Test/Suite )
     endblock ()
-    list ( APPEND CMAKE_MESSAGE_CONTEXT "${TWX_TEST_SUITE.NAME}" )
   else ()
-    block ()
-      set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-      twx_format_message ( VERBOSE "${twx_test_suite_push.BANNER} skipped" ID Test/Suite )
-    endblock ()
+    if ( /TWX/TEST/SUITE.RUN )
+      block ()
+        set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+        twx_format_message ( STATUS "${twx_test_suite_push.BANNER}" ID Test/Suite )
+      endblock ()
+      list ( APPEND CMAKE_MESSAGE_CONTEXT "${/TWX/TEST/SUITE.NAME}" )
+    else ()
+      block ()
+        set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+        twx_format_message ( VERBOSE "${twx_test_suite_push.BANNER} skipped" ID Test/Suite )
+      endblock ()
+    endif ()
   endif ()
-  if ( DEFINED TWX_TEST_SUITE.LIB )
-    include ( "${TWX_TEST_SUITE.LIB}" )
+  if ( DEFINED /TWX/TEST/SUITE.LIB )
+    include ( "${/TWX/TEST/SUITE.LIB}" )
+    # twx_lib_require ( "${/TWX/TEST/SUITE.LIB}" )
   endif ()
-  foreach ( twx_test_suite_push.X BANNER )
-    set ( twx_test_suite_push.${twx_test_suite_push.X} )
-  endforeach ()
-endmacro ( twx_test_suite_push TWX_TEST_SUITE )
+  twx_var_unset (
+    BANNER
+    VAR_PREFIX twx_test_suite_push.
+  )
+endmacro ( twx_test_suite_push )
 
 # ANCHOR: twx_test_suite_pop
 #[=======[
@@ -726,185 +1143,110 @@ macro ( twx_test_suite_pop )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  twx_global_pop_back (
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-    IN_VAR twx_test_suite_pop.FILE
-    REQUIRED
-  )
+  twx_test_file_pop ( IN_VAR twx_test_suite_pop.FILE )
+  if ( "${twx_test_suite_pop.FILE}" MATCHES "/CMake/.*/CMake/" )
+    twx_var_log ( twx_test_suite_pop.FILE )
+    message ( FATAL_ERROR "*****" )
+  endif ()
   twx_test_guess (
     FILE "${twx_test_suite_pop.FILE}"
-    IN_DOMAIN TWX_TEST_DOMAIN
-    IN_SUITE TWX_TEST_SUITE
+    IN_DOMAIN /TWX/TEST/DOMAIN
+    IN_SUITE /TWX/TEST/SUITE
   )
-  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
-  list ( POP_BACK twx_test_suite_push.CMAKE_MESSAGE_LOG_LEVEL CMAKE_MESSAGE_LOG_LEVEL )
-  set (
-    twx_test_suite_pop.BANNER
-    "Test suite ${TWX_TEST_SUITE.ID}... "
-  )
-  if ( TWX_TEST_SUITE.RUN )
+  if ( ${/TWX/TEST/.SKIP/${/TWX/TEST/SUITE.PATH}} )
+  elseif ( /TWX/TEST/SUITE.RUN )
+    list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
+    twx_format_message (
+      "Test suite ${/TWX/TEST/SUITE.PATH}..."
+      ID Test/Suite
+      IN_VAR twx_test_suite_pop.BANNER
+    )
+    string ( APPEND twx_test_suite_pop.BANNER " - " )
     set ( twx_test_suite_pop.MODE STATUS )
     if ( COMMAND twx_fatal_catched )
       twx_fatal_catched ( IN_VAR v )
       if ( v AND NOT v STREQUAL "" )
-        twx_test_suite_count ( KEY ALL  STEP 1 )
-        twx_test_suite_count ( KEY FAIL STEP 1 )
+        twx_test_count ( SUITE KEY ALL  STEP 1 )
+        twx_test_count ( SUITE KEY FAIL STEP 1 )
         twx_fatal_clear ()
       endif ()
       block ( PROPAGATE twx_test_suite_pop.BANNER )
-      twx_test_suite_count ( KEY ALL  IN_VAR all_  )
-      twx_test_suite_count ( KEY PASS IN_VAR pass_ )
-      twx_test_suite_count ( KEY FAIL IN_VAR fail_ )
-      if ( fail_ GREATER 0 )
-        string ( APPEND twx_test_suite_pop.BANNER "FAIL: ${fail_} out of ${all_} test units" )
-      else ()
-        string ( APPEND twx_test_suite_pop.BANNER "PASS: all ${all_} test units" )
-      endif ()
+        twx_test_count ( SUITE KEY ALL  IN_VAR all_  )
+        twx_test_count ( SUITE KEY PASS IN_VAR pass_ )
+        twx_test_count ( SUITE KEY FAIL IN_VAR fail_ )
+        twx_test_count ( DOMAIN KEY ALL  STEP 1 )
+        if ( fail_ GREATER 0 )
+          twx_format_message (
+            "FAIL: ${fail_} out of ${all_} test units"
+            ID Test/FAIL
+            APPEND_TO twx_test_suite_pop.BANNER
+          )
+          twx_test_count ( DOMAIN KEY FAIL STEP 1 )
+        else ()
+          twx_format_message (
+            "PASS: all ${all_} test units"
+            ID Test/PASS
+            APPEND_TO twx_test_suite_pop.BANNER
+          )
+          twx_test_count ( DOMAIN KEY PASS STEP 1 )
+        endif ()
       endblock ()
     endif ()
-  else ()
-    set ( twx_test_suite_pop.MODE VERBOSE )
-    string ( APPEND twx_test_suite_pop.BANNER "SKIPPED")
+    block ()
+      set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
+      message (
+        ${twx_test_suite_pop.MODE}
+        "${twx_test_suite_pop.BANNER}"
+      )
+    endblock ()
   endif ()
-  block ()
-    set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-    twx_format_message (
-      ${twx_test_suite_pop.MODE}
-      "${twx_test_suite_pop.BANNER}"
-      ID Test/Suite
-    )
-  endblock ()
-  twx_global_get_back (
-    KEY TWX_TEST_CURRENT_LIST_FILE_STACK
-    IN_VAR twx_test_suite_pop.FILE
+  set (
+    ${/TWX/TEST/.SKIP/${/TWX/TEST/SUITE.PATH}}
+    ON
   )
+  twx_test_file_get ( IN_VAR twx_test_suite_pop.FILE )
   if ( DEFINED twx_test_suite_pop.FILE )
     twx_test_guess (
       FILE "${twx_test_suite_pop.FILE}"
-      IN_DOMAIN TWX_TEST_DOMAIN
-      IN_SUITE  TWX_TEST_SUITE
+      IN_DOMAIN /TWX/TEST/DOMAIN
+      IN_SUITE  /TWX/TEST/SUITE
     )
   else ()
     twx_test_guess (
       UNSET
-      IN_DOMAIN TWX_TEST_DOMAIN
-      IN_SUITE  TWX_TEST_SUITE
+      IN_DOMAIN /TWX/TEST/DOMAIN
+      IN_SUITE  /TWX/TEST/SUITE
     )
   endif ()
-  set ( twx_test_suite_pop.FILE )
-  set ( twx_test_suite_pop.BANNER )
-  set ( twx_test_suite_pop.MODE )
-endmacro ( twx_test_suite_pop )
-
-# ANCHOR: twx_test_suite_count
-#[=======[
-*/
-/** @brief Private suite count manager.
-  *
-  * @param key for key `KEY`, required key identifier.
-  * @param unit for key `SUITE`, optional suite name.
-  *   Defaults to `TWX_TEST_SUITE`.
-  * @param step for key `STEP`, optional value.
-  * @param value for key `SET`, optional value.
-  * @param var for key `IN_VAR`, optional variable name.
-  *   On return, contains the value of the counter with the given key,
-  *   once all changes are performed.
-  */
-twx_test_suite_count ( KEY key [SET|STEP value] [IN_VAR var] [SUITE suite]) {}
-/*
-#]=======]
-function ( twx_test_suite_count )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  cmake_parse_arguments (
-    PARSE_ARGV 0 ${TWX_CMD}.R
-    "" "KEY;STEP;SET;IN_VAR;SUITE" ""
+  twx_var_unset (
+    FILE BANNER MODE
+    VAR_PREFIX twx_test_suite_pop.
   )
-  if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
-    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${${TWX_CMD}.R_UNPARSED_ARGUMENTS}''")
-  endif ()
-  if ( NOT DEFINED ${TWX_CMD}.R_KEY )
-    message ( FATAL_ERROR "Missing `KEY' keyword")
-  endif ()
-  if ( NOT DEFINED ${TWX_CMD}.R_SUITE )
-    set ( ${TWX_CMD}.R_SUITE TWX_TEST_SUITE )
-  endif ()
-  if ( NOT DEFINED ${${TWX_CMD}.R_SUITE}.ID )
-    message ( FATAL_ERROR "Not a test suite: ${TWX_CMD}.R_SUITE => ``${${TWX_CMD}.R_SUITE}''" )
-  endif ()
-  set ( ${TWX_CMD}.KEY "${${${TWX_CMD}.R_SUITE}.ID}/${${TWX_CMD}.R_KEY}.VALUE" )
-  if ( DEFINED ${TWX_CMD}.R_SET )
-    math ( EXPR ${TWX_CMD}.R_SET "${${TWX_CMD}.R_SET}" )
-    twx_global_set ( "${${TWX_CMD}.R_SET}" KEY "${${TWX_CMD}.KEY}" )
-  elseif ( DEFINED ${TWX_CMD}.R_STEP )
-    twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR ${TWX_CMD}.VALUE )
-    math ( EXPR ${TWX_CMD}.VALUE "${${TWX_CMD}.VALUE}+(${${TWX_CMD}.R_STEP})" )
-    twx_global_set ( "${${TWX_CMD}.VALUE}" KEY "${${TWX_CMD}.KEY}" )
-  endif ()
-  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
-    twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR ${${TWX_CMD}.R_IN_VAR} )
-    if ( NOT DEFINED ${${TWX_CMD}.R_IN_VAR} )
-      set ( ${${TWX_CMD}.R_IN_VAR} 0 )
-    endif ()
-  endif ()
-  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
-endfunction ()
-
-# ANCHOR: twx_test_suite_on_pass
-#[=======[
-*/
-/** @brief Private callback
-  */
-twx_test_suite_on_pass () {}
-/*
-#]=======]
-function ( twx_test_suite_on_pass )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
-  endif ()
-  twx_test_suite_count ( KEY ALL  STEP 1 )
-  twx_test_suite_count ( KEY PASS STEP 1 )
-endfunction ()
-
-# ANCHOR: twx_test_suite_on_fail
-#[=======[
-*/
-/** @brief Private callback
-  */
-twx_test_suite_on_fail () {}
-/*
-#]=======]
-function ( twx_test_suite_on_fail )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
-  endif ()
-  twx_test_suite_count ( KEY ALL  STEP 1 )
-  twx_test_suite_count ( KEY FAIL STEP 1 )
-endfunction ()
+endmacro ( twx_test_suite_pop )
 
 function ( TwxTestLib_state_prepare )
   get_property (
-    TWX_TEST_SUITE_STACK
+    /TWX/TEST/SUITE_STACK
     GLOBAL
-    TWX_TEST_SUITE_STACK
+    /TWX/TEST/SUITE_STACK
   )
-  return ( PPROPAGATE TWX_TEST_SUITE_STACK )
+  return ( PPROPAGATE /TWX/TEST/SUITE_STACK )
 endfunction ()
 
 macro ( twx_test_include )
-  foreach ( twx_include_test.n ${ARGV} )
+  foreach ( n ${ARGV} )
     set (
       twx_include_test.p
-      "${CMAKE_CURRENT_LIST_DIR}/Twx${twx_include_test.n}/Twx${twx_include_test.n}Test.cmake"
+      "${CMAKE_CURRENT_LIST_DIR}/Twx${n}/Twx${n}Test.cmake"
     )
     if ( EXISTS "${twx_include_test.p}" )
       include ( "${twx_include_test.p}" )
     else ()
       include (
-        "${CMAKE_CURRENT_LIST_DIR}/../Twx${twx_include_test.n}/Twx${twx_include_test.n}Test.cmake"
+        "${CMAKE_CURRENT_LIST_DIR}/../Twx${n}/Twx${n}Test.cmake"
       )
     endif ()
   endforeach ()
-  set ( twx_include_test.n )
   set ( twx_include_test.p )
 endmacro ( twx_test_include )
 
@@ -922,8 +1264,7 @@ twx_test_unit_log ([mode] UNIT unit) {}
 /*
 #]=======]
 function ( twx_test_unit_log )
-  set ( l "STATUS;VERBOSE;DEBUG;TRACE" )
-  if ( "${ARGV0}" IN_LIST l )
+  if ( "${ARGV0}" IN_LIST /TWX/CONST/MESSAGE/MODES )
     set ( i 1 )
     set ( mode_ "${ARGV0}" )
   else ()
@@ -938,11 +1279,8 @@ function ( twx_test_unit_log )
     message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx.R_UNPARSED_ARGUMENTS}''" )
   endif ()
   twx_var_assert_name ( "${twx.R_UNIT}" )
-  foreach ( X SUITE NAME PATH ID RUN )
-    twx_var_log (
-      DEBUG
-      ${twx.R_UNIT}.${X}
-    )
+  foreach ( X DOMAIN SUITE NAME PATH ID SKIP RUN )
+    twx_var_log ( DEBUG ${twx.R_UNIT}.${X} )
   endforeach ()
 endfunction ( twx_test_unit_log )
 
@@ -955,9 +1293,9 @@ endfunction ( twx_test_unit_log )
   * One of the two optional `ID` or `NAME` arguments must be provided.
   *
   * @param suite for key `SUITE`, optional suite.
-  *   Defaults to `TWX_TEST_SUITE`.
+  *   Defaults to `/TWX/TEST/SUITE`.
   * @param unit for key `IN_UNIT`, optional unit.
-  *   Defaults to `TWX_TEST_UNIT`.
+  *   Defaults to `/TWX/TEST/UNIT`.
   * @param id for key `ID`, short identifier for the message context.
   *   Must not evaluate to false in boolean context.
   *   When not provided, guessed from the requires <name>.
@@ -980,17 +1318,17 @@ macro ( twx_test_unit_push )
   endif ()
   #
   if ( NOT DEFINED twx_test_unit_push.R_SUITE )
-    set ( twx_test_unit_push.R_SUITE TWX_TEST_SUITE )
+    set ( twx_test_unit_push.R_SUITE /TWX/TEST/SUITE )
   endif ()
   if ( DEFINED twx_test_unit_push.R_IN_UNIT )
     twx_var_assert_name ( "${twx_test_unit_push.R_IN_UNIT}" )
   else ()
-    set ( twx_test_unit_push.R_IN_UNIT TWX_TEST_UNIT )
+    set ( twx_test_unit_push.R_IN_UNIT /TWX/TEST/UNIT )
   endif ()
   # Flow guard
-  twx_global_get ( KEY twx_test_unit_push.NAME )
-  if ( DEFINED twx_test_unit_push.NAME )
-    message ( FATAL_ERROR "Test units must not be nested" )
+  twx_global_get ( KEY twx_test_unit_push.UNIT.NAME )
+  if ( DEFINED twx_test_unit_push.UNIT.NAME )
+    message ( FATAL_ERROR "Unterminated test unit ``${twx_test_unit_push.UNIT.NAME}''" )
   endif ()
   if ( "${twx_test_unit_push.R_NAME}" STREQUAL "" )
     if ( "${twx_test_unit_push.R_CORE}" STREQUAL "" )
@@ -1004,37 +1342,67 @@ macro ( twx_test_unit_push )
   elseif ( "${twx_test_unit_push.R_CORE}" STREQUAL "" )
     set ( twx_test_unit_push.R_CORE "${twx_test_unit_push.R_NAME}" )
   endif ()
-  set ( twx_test_unit_push.NAME "${twx_test_unit_push.R_NAME}" )
+  set ( twx_test_unit_push.UNIT.NAME "${twx_test_unit_push.R_NAME}" )
   twx_global_set (
-    "${twx_test_unit_push.NAME}"
-    KEY twx_test_unit_push.NAME
+    "${twx_test_unit_push.UNIT.NAME}"
+    KEY twx_test_unit_push.UNIT.NAME
   )
-  set ( twx_test_unit_push.PATH "${${twx_test_unit_push.R_SUITE}.PATH}/${twx_test_unit_push.R_CORE}" )
-  set ( twx_test_unit_push.ID "${${twx_test_unit_push.R_SUITE}.ID}/${twx_test_unit_push.R_CORE}" )
-  # Serious things start here
-  if ( ${twx_test_unit_push.R_SUITE}.RUN )
-    set ( twx_test_unit_push.RUN ON )
-    if ( twx_test_unit_push.RUN AND DEFINED TWX/TEST/UNIT/${twx_test_unit_push.R_IN_UNIT}/FILTER/YES AND NOT twx_test_unit_push.CORE MATCHES "${TWX/TEST/UNIT/${twx_test_unit_push.R_IN_UNIT}/FILTER/YES}" )
-      set ( twx_test_unit_push.RUN OFF )
-    endif ()
-    if ( twx_test_unit_push.RUN AND DEFINED TWX/TEST/UNIT/${twx_test_unit_push.R_IN_UNIT}/FILTER/NO AND twx_test_unit_push.CORE MATCHES "${TWX/TEST/UNIT/${twx_test_unit_push.R_IN_UNIT}/FILTER/NO}")
-      set ( twx_test_unit_push.RUN OFF )
-    endif ()
-    if ( twx_test_unit_push.RUN AND DEFINED TWX/TEST/UNIT/FILTER/YES AND NOT twx_test_unit_push.CORE MATCHES "${TWX/TEST/UNIT/FILTER/YES}" )
-      set ( twx_test_unit_push.RUN OFF )
-    endif ()
-    if ( twx_test_unit_push.RUN AND DEFINED TWX_TEST_SUITE_UNIT/FILTER/NO AND twx_test_unit_push.CORE MATCHES "${TWX/TEST/UNIT/FILTER/NO}" )
-      set ( twx_test_unit_push.RUN OFF )
-    endif ()
+  set (
+    twx_test_unit_push.UNIT.PATH
+    "${${twx_test_unit_push.R_SUITE}.PATH}/${twx_test_unit_push.R_CORE}"
+  )
+  set (
+    twx_test_unit_push.UNIT.ID
+    "${${twx_test_unit_push.R_SUITE}.ID}/${twx_test_unit_push.R_CORE}"
+  )
+  set (
+    twx_test_unit_push.UNIT.SUITE
+    "${${twx_test_unit_push.R_SUITE}.NAME}"
+  )
+  set (
+    twx_test_unit_push.UNIT.DOMAIN
+    "${${${twx_test_unit_push.R_SUITE}.DOMAIN}.NAME}"
+  )
+  if ( ${twx_test_unit_push.R_SUITE}.SKIP OR /TWX/TEST/.SKIP/${twx_test_unit_push.UNIT.PATH} )
+    set ( twx_test_unit_push.UNIT.SKIP ON )
   else ()
-    set ( twx_test_unit_push.RUN OFF )
+    set ( twx_test_unit_push.UNIT.SKIP OFF )
   endif ()
-  if ( twx_test_unit_push.RUN )
+
+  # Serious things start here
+  block ( PROPAGATE twx_test_unit_push.UNIT.RUN )
+    set ( run_ ON )
+    if ( twx_test_unit_push.UNIT.SKIP )
+      set ( run_ OFF )
+    elseif ( ${twx_test_unit_push.R_SUITE}.RUN )
+      set ( filter_ TWX/TEST/UNIT/FILTER/NO )
+      if ( run_ AND DEFINED ${filter_} AND twx_test_unit_push.R_CORE MATCHES "${${filter_}}" )
+        set ( twx_test_unit_push.UNIT.RUN OFF )
+      endif ()
+      set ( filter_ TWX/TEST/UNIT/FILTER/YES )
+      if ( run_ AND DEFINED ${filter_} AND NOT twx_test_unit_push.R_CORE MATCHES "${${filter_}}" )
+        set ( twx_test_unit_push.UNIT.RUN OFF )
+      endif ()
+      set ( filter_ TWX/TEST/UNIT/${twx_test_unit_push.R_IN_UNIT}/FILTER/NO )
+      if ( run_ AND DEFINED ${filter_} AND twx_test_unit_push.R_CORE MATCHES "${${filter_}}" )
+        set ( run_ OFF )
+      endif ()
+      set ( filter_ TWX/TEST/UNIT/${twx_test_unit_push.R_IN_UNIT}/FILTER/YES )
+      if ( run_ AND DEFINED ${filter_} AND NOT twx_test_unit_push.R_CORE MATCHES "${${filter_}}" )
+        set ( run_ OFF )
+      endif ()
+    else ()
+      set ( run_ OFF )
+    endif ()
+    set ( twx_test_unit_push.UNIT.RUN ${run_} )
+  endblock ()
+  if ( twx_test_unit_push.UNIT.SKIP )
+  elseif ( twx_test_unit_push.UNIT.RUN )
     block ()
       set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-      twx_format_message ( CHECK_START "Test unit  ${twx_test_unit_push.PATH}" ID Test/Unit )
+      twx_format_message ( CHECK_START "Test unit  ${twx_test_unit_push.UNIT.PATH}" ID Test/Unit )
     endblock ()
-    list ( APPEND CMAKE_MESSAGE_CONTEXT "${twx_test_unit_push.CORE}" )
+    list ( APPEND CMAKE_MESSAGE_CONTEXT "${twx_test_unit_push.UNIT.CORE}" )
     set ( twx_test_unit_push.CMAKE_MESSAGE_INDENT "${CMAKE_MESSAGE_INDENT}" )
     if ( NOT CMAKE_MESSAGE_CONTEXT_SHOW )
       string ( APPEND CMAKE_MESSAGE_INDENT "  " )
@@ -1042,7 +1410,7 @@ macro ( twx_test_unit_push )
   else ()
     block ()
       set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
-      twx_format_message ( VERBOSE "Test unit  ${twx_test_unit_push.PATH} skipped" ID Test/Unit )
+      twx_format_message ( VERBOSE "Test unit  ${twx_test_unit_push.UNIT.PATH} skipped" ID Test/Unit )
     endblock()
   endif ()
   if ( twx_test_unit_push.R_PARENT_SCOPE )
@@ -1050,21 +1418,23 @@ macro ( twx_test_unit_push )
   else ()
     set ( twx_test_unit_push.SCOPE )
   endif ()
-  foreach ( twx_test_unit_push.X NAME PATH ID RUN )
+  set (
+    /TWX/TEST/.SKIP/${twx_test_unit_push.UNIT.PATH}
+    ${twx_test_unit_push.UNIT.SKIP}
+    ${twx_test_unit_push.SCOPE}
+  )
+  foreach ( X NAME PATH ID SKIP RUN )
     set (
-      ${twx_test_unit_push.R_IN_UNIT}.${twx_test_unit_push.X}
-      "${twx_test_unit_push.${twx_test_unit_push.X}}"
+      ${twx_test_unit_push.R_IN_UNIT}.${X}
+      "${twx_test_unit_push.UNIT.${X}}"
       ${twx_test_unit_push.SCOPE}
     )
-    set ( twx_test_unit_push.${twx_test_unit_push.X} )
+    set ( twx_test_unit_push.UNIT.${X} )
   endforeach ()
-  set ( twx_test_unit_push.SCOPE )
-  foreach ( twx_test_unit_push.X
-    NAME CORE SUITE IN_UNIT UNPARSED_ARGUMENTS KEYWORDS_MISSING_VALUES
+  twx_var_unset (
+    UNIT.NAME SCOPE R_PARENT_SCOPE R_NAME R_CORE R_SUITE R_IN_UNIT R_UNPARSED_ARGUMENTS R_KEYWORDS_MISSING_VALUES
+    VAR_PREFIX twx_test_unit_push.
   )
-    set ( twx_test_unit_push.R_${twx_test_unit_push.X} )
-  endforeach ()
-  set ( twx_test_unit_push.X )
 endmacro ( twx_test_unit_push )
 
 # ANCHOR: twx_test_unit_pop
@@ -1078,130 +1448,49 @@ endmacro ( twx_test_unit_push )
 twx_test_unit_pop () {}
 /*
 #]=======]
-function ( twx_test_unit_pop )
+macro ( twx_test_unit_pop )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
-  list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
-  set ( CMAKE_MESSAGE_INDENT ${twx_test_unit_push.CMAKE_MESSAGE_INDENT} )
-  if ( COMMAND twx_fatal_catched )
-    twx_fatal_catched ( IN_VAR v )
-    if ( v AND NOT v STREQUAL "" )
-      twx_test_simple_on_fail ()
+  if ( /TWX/TEST/UNIT.RUN )
+    list ( POP_BACK CMAKE_MESSAGE_CONTEXT )
+    set ( CMAKE_MESSAGE_INDENT ${twx_test_unit_push.CMAKE_MESSAGE_INDENT} )
+    if ( COMMAND twx_fatal_catched )
+      twx_fatal_catched ( IN_VAR v )
+      if ( v AND NOT v STREQUAL "" )
+        twx_test_on ( EVENT FAIL UNIT )
+      endif ()
+      twx_fatal_clear ()
+      twx_test_count ( UNIT  KEY ALL  IN_VAR twx.ALL.VALUE  )
+      twx_test_count ( UNIT  KEY PASS IN_VAR twx.PASS.VALUE )
+      twx_test_count ( UNIT  KEY FAIL IN_VAR twx.FAIL.VALUE )
+      twx_test_count ( SUITE KEY ALL  STEP 1 )
+      if ( twx.FAIL.VALUE GREATER 0 )
+        twx_test_count ( SUITE KEY FAIL STEP 1 )
+        if ( /TWX/TEST/STOP_ON_FAIL )
+          message ( FATAL_ERROR "FAILURE" )
+        else ()
+          twx_fatal ( "FAILURE" )
+        endif ()
+      else ()
+        twx_test_count ( SUITE KEY PASS STEP 1 )
+      endif ()
+      twx_fatal_assert_pass (
+        CHECK MESSAGE_CONTEXT_HIDE
+        MSG_PASS "PASS: all ${twx.ALL.VALUE} tests"
+        MSG_FAIL "FAIL: ${twx.FAIL.VALUE} out of ${twx.COUNT.VALUE} tests"
+      )
     endif ()
-    twx_fatal_clear ()
-    twx_test_unit_count ( KEY ALL  IN_VAR twx.ALL.VALUE  )
-    twx_test_unit_count ( KEY PASS IN_VAR twx.PASS.VALUE )
-    twx_test_unit_count ( KEY FAIL IN_VAR twx.FAIL.VALUE )
-    twx_test_suite_count ( KEY ALL  STEP 1 )
-    if ( twx.FAIL.VALUE GREATER 0 )
-      twx_test_suite_count ( KEY FAIL STEP 1 )
-    else ()
-      twx_test_suite_count ( KEY PASS STEP 1 )
-    endif ()
-    twx_fatal_assert_pass (
-      CHECK MESSAGE_CONTEXT_HIDE
-      MSG_PASS "PASS: all ${twx.ALL.VALUE} tests"
-      MSG_FAIL "FAIL: ${twx.FAIL.VALUE} out of ${twx.COUNT.VALUE} tests"
-    )
   endif ()
   twx_global_set (
-    KEY twx_test_unit_push.NAME
+    KEY twx_test_unit_push.UNIT.NAME
   )
-  set ( TWX_TEST_UNIT.RUN )
-  return ( PROPAGATE
-    CMAKE_MESSAGE_CONTEXT
-  )
-endfunction ( twx_test_unit_pop )
-
-# ANCHOR: twx_test_unit_count
-#[=======[
-*/
-/** @brief Private unit count manager.
-  *
-  * @param key for key `KEY`, required key identifier.
-  * @param unit for key `UNIT`, optional unit name.
-  *   Defaults to `TWX_TEST_UNIT`.
-  * @param step for key `STEP`, optional value.
-  * @param value for key `SET`, optional value.
-  * @param var for key `IN_VAR`, optional variable name.
-  *   On return, contains the value of the counter with the given key,
-  *   once all changes are performed.
-  */
-twx_test_unit_count ( KEY key [SET|STEP value] [IN_VAR var] [UNIT unit]) {}
-/*
-#]=======]
-function ( twx_test_unit_count )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  cmake_parse_arguments (
-    PARSE_ARGV 0 ${TWX_CMD}.R
-    "" "KEY;STEP;SET;IN_VAR;UNIT" ""
-  )
-  if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
-    message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${${TWX_CMD}.R_UNPARSED_ARGUMENTS}''")
-  endif ()
-  if ( NOT DEFINED ${TWX_CMD}.R_KEY )
-    message ( FATAL_ERROR "Missing `KEY' keyword")
-  endif ()
-  if ( NOT DEFINED ${TWX_CMD}.R_UNIT )
-    set ( ${TWX_CMD}.R_UNIT TWX_TEST_UNIT )
-  endif ()
-  if ( NOT DEFINED ${${TWX_CMD}.R_UNIT}.ID )
-    message ( FATAL_ERROR "Not a test unit: ${TWX_CMD}.R_UNIT => ``${${TWX_CMD}.R_UNIT}''" )
-  endif ()
-  set ( ${TWX_CMD}.KEY "${${${TWX_CMD}.R_UNIT}.ID}/${${TWX_CMD}.R_KEY}.VALUE" )
-  if ( DEFINED ${TWX_CMD}.R_SET )
-    math ( EXPR ${TWX_CMD}.R_SET "${${TWX_CMD}.R_SET}" )
-    twx_global_set ( "${${TWX_CMD}.R_SET}" KEY "${${TWX_CMD}.KEY}" )
-  elseif ( DEFINED ${TWX_CMD}.R_STEP )
-    twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR ${TWX_CMD}.VALUE )
-    math ( EXPR ${TWX_CMD}.VALUE "${${TWX_CMD}.VALUE}+(${${TWX_CMD}.R_STEP})" )
-    twx_global_set ( "${${TWX_CMD}.VALUE}" KEY "${${TWX_CMD}.KEY}" )
-  endif ()
-  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
-    twx_global_get ( KEY "${${TWX_CMD}.KEY}" IN_VAR ${${TWX_CMD}.R_IN_VAR} )
-    if ( NOT DEFINED ${${TWX_CMD}.R_IN_VAR} )
-      set ( ${${TWX_CMD}.R_IN_VAR} 0 )
-    endif ()
-  endif ()
-  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
-endfunction ()
-
-# ANCHOR: twx_test_unit_on_pass
-#[=======[
-*/
-/** @brief Private callback
-  */
-twx_test_unit_on_pass () {}
-/*
-#]=======]
-function ( twx_test_unit_on_pass )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
-  endif ()
-  twx_test_unit_count ( KEY ALL  STEP 1 )
-  twx_test_unit_count ( KEY PASS STEP 1 )
-endfunction ()
-
-# ANCHOR: twx_test_unit_on_fail
-#[=======[
-*/
-/** @brief Private callback
-  */
-twx_test_unit_on_fail () {}
-/*
-#]=======]
-function ( twx_test_unit_on_fail )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
-  endif ()
-  twx_test_unit_count ( KEY ALL  STEP 1 )
-  twx_test_unit_count ( KEY FAIL STEP 1 )
-endfunction ()
+  set ( /TWX/TEST/UNIT.RUN )
+endmacro ( twx_test_unit_pop )
 
 # !SECTION
 # SECTION: Simple
-# ANCHOR: twx_test_simple_start
+# ANCHOR: twx_test_simple_check
 #[=======[
 */
 /** @brief Start a simple test
@@ -1209,48 +1498,52 @@ endfunction ()
   * @param start, the `CHECK_START` like message, in VERBOSE mode only.
   *
   */
-twx_test_simple_start () {}
+twx_test_simple_check () {}
 /*
 #]=======]
-macro ( twx_test_simple_start twx.R_SIMPLE_CHECK )
+macro ( twx_test_simple_check twx.R_SIMPLE_CHECK )
   if ( NOT ${ARGC} EQUAL 1 )
     message ( FATAL_ERROR " Bad usage: ARGN => ``${ARGN}''" )
   endif ()
-  if ( DEFINED TWX_TEST_SIMPLE_CHECK )
+  if ( DEFINED /TWX/TEST/SIMPLE_CHECK )
     message ( FATAL_ERROR "No nested simple tests" )
   endif ()
   twx_fatal_clear ()
-  set ( TWX_TEST_SIMPLE_CHECK "${twx.R_SIMPLE_CHECK}" )
+  set ( /TWX/TEST/SIMPLE_CHECK "${twx.R_SIMPLE_CHECK}" )
 endmacro ()
 
-# ANCHOR: twx_test_simple_assert_pass
+# ANCHOR: twx_test_simple_pass
 #[=======[
 */
 /** @brief Simple test pass assertion
   *
   */
-twx_test_simple_assert_pass () {}
+twx_test_simple_pass () {}
 /*
 #]=======]
-macro ( twx_test_simple_assert_pass )
+macro ( twx_test_simple_pass )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
   block ()
-  if ( NOT TWX_TEST_SIMPLE_MESSAGE_CONTEXT_SHOW )
+  if ( NOT /TWX/TEST/SIMPLE_MESSAGE_CONTEXT_SHOW )
     set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
   endif ()
   set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
   twx_fatal_assert_pass (
-    VERBOSE "${TWX_TEST_SIMPLE_CHECK}"
-    ON_PASS twx_test_simple_on_pass
-    ON_FAIL twx_test_simple_on_fail
+    VERBOSE "${/TWX/TEST/SIMPLE_CHECK}"
+    ON_PASS twx_test_on EVENT PASS UNIT
+    ON_FAIL twx_test_on EVENT FAIL UNIT
   )
+  twx_global_get__ ( KEY /TWX/TEST/EMERGENCY_STOP )
+  if ( /TWX/TEST/EMERGENCY_STOP )
+    message ( FATAL_ERROR "EMERGENCY" )
+  endif ()
   endblock ()
-  set ( TWX_TEST_SIMPLE_CHECK )
+  set ( /TWX/TEST/SIMPLE_CHECK )
 endmacro ()
 
-# ANCHOR: twx_test_simple_assert_fail
+# ANCHOR: twx_test_simple_fail
 #[=======[
 */
 /** @brief Simple test fail assertion
@@ -1259,58 +1552,48 @@ endmacro ()
 twx_test_simple_fail () {}
 /*
 #]=======]
-macro ( twx_test_simple_assert_fail )
+macro ( twx_test_simple_fail )
   if ( NOT ${ARGC} EQUAL 0 )
     message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
   endif ()
   block ()
-  if ( NOT TWX_TEST_SIMPLE_MESSAGE_CONTEXT_SHOW )
+  if ( NOT /TWX/TEST/SIMPLE_MESSAGE_CONTEXT_SHOW )
     set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
   endif ()
   twx_fatal_assert_fail (
-    VERBOSE "${TWX_TEST_SIMPLE_CHECK}"
-    ON_PASS twx_test_simple_on_pass
-    ON_FAIL twx_test_simple_on_fail
+    VERBOSE "${/TWX/TEST/SIMPLE_CHECK}"
+    ON_PASS twx_test_on EVENT PASS UNIT
+    ON_FAIL twx_test_on EVENT FAIL UNIT
   )
+  twx_global_get__ ( KEY /TWX/TEST/EMERGENCY_STOP )
+  if ( /TWX/TEST/EMERGENCY_STOP )
+    message ( FATAL_ERROR "EMERGENCY STOP" )
+  endif ()
   endblock ()
-  set ( TWX_TEST_SIMPLE_CHECK )
+  set ( /TWX/TEST/SIMPLE_CHECK )
 endmacro ()
 
-# ANCHOR: twx_test_simple_on_pass
+# ANCHOR: twx_test_stop
 #[=======[
 */
-/** @brief Private callback
+/** @brief Stop the flow.
+  *
+  * Convenient method for debugging. Raises.
   */
-twx_test_unit_on_pass () {}
+twx_test_stop() {}
 /*
 #]=======]
-function ( twx_test_simple_on_pass )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
-  endif ()
-  twx_test_unit_count ( KEY ALL  STEP 1 )
-  twx_test_unit_count ( KEY PASS STEP 1 )
-endfunction ()
+macro ( twx_test_stop )
+  foreach ( V ${ARGV} )
+    twx_var_log ( ${V} )
+  endforeach ()
+  message ( FATAL_ERROR "*****" )
+endmacro ()
 
-# ANCHOR: twx_test_simple_on_fail
-#[=======[
-*/
-/** @brief Private callback
-  */
-twx_test_simple_on_fail () {}
-/*
-#]=======]
-function ( twx_test_simple_on_fail )
-  if ( NOT ${ARGC} EQUAL 0 )
-    message ( FATAL_ERROR " Bad usage: ARGV => ``${ARGV}''" )
-  endif ()
-  twx_test_unit_count ( KEY ALL  STEP 1 )
-  twx_test_unit_count ( KEY FAIL STEP 1 )
-endfunction ()
 
-twx_lib_require ( Format Global TEST OFF )
+twx_lib_require ( Format Global NO_TEST )
 
-if ( TWX_FORMAT_NIGHT_SHIFT )
+if ( /TWX/FORMAT/NIGHT_SHIFT )
   twx_format_define ( ID Test/Domain UNDERLINE BOLD BACK_COLOR 94 )
   twx_format_define ( ID Test/Suite UNDERLINE BOLD BACK_COLOR 22 )
   twx_format_define ( ID Test/Unit UNDERLINE BOLD BACK_COLOR 19 )

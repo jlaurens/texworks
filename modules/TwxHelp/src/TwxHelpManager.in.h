@@ -31,7 +31,7 @@ namespace Const {
 }
 namespace Help {
 
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 /** \file TwxHelpManager.h
  	*	\brief Help manager.
  	*
@@ -43,8 +43,8 @@ class Manager: public QObject
 public:
   static bool open(const QString & helpDirName);
 
-@TWX_CFG_include_TwxHelpManager_private_h@
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxHelpManager_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Help

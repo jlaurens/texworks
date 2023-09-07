@@ -20,7 +20,7 @@ if ( TARGET test_TwxHelp )
   return ()
 endif ()
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
 	cmake_minimum_required ( VERSION 3.25 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Base/TwxBase.cmake"
@@ -40,7 +40,7 @@ twx_module_setup ( Help )
 
 set ( TwxHelpLib_DIR "${PROJECT_BINARY_DIR}/TwxModules/TwxHelp" )
 
-set ( TWX_TEST ON )
+set ( /TWX/TESTING ON )
 enable_testing ()
 
 add_executable (
@@ -53,7 +53,7 @@ add_executable (
 twx_module_includes ( Help IN_TARGETS test_TwxHelp )
 target_compile_definitions (
 	test_TwxHelp
-	PRIVATE TWX_TEST TwxHelp_TEST
+	PRIVATE /TWX/TESTING TwxHelp_TEST
 )
 twx_Qt_link_libraries ( TARGETS test_TwxHelp )
 

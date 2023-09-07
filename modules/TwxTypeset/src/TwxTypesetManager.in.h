@@ -28,7 +28,7 @@
 namespace Twx {
 namespace Typeset {
 
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 /** \file TwxTypesetManager.h
  	*	\brief Typeset manager.
  	*
@@ -74,8 +74,8 @@ private:
 	Manager(Manager&& other) = delete;
   void operator=(const Manager&) = delete;
   void operator=(const Manager&&) = delete;
-@TWX_CFG_include_TwxTypesetManager_private_h@
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxTypesetManager_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Typeset

@@ -34,7 +34,7 @@ namespace Twx {
 
 namespace Core {
 
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 
 /**
  	* \brief Collects various information
@@ -158,7 +158,7 @@ public:
 	static const QString macOSVersionString();
 #endif
 
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Core

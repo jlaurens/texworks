@@ -32,46 +32,46 @@ namespace Twx {
 
 namespace Core {
 
-const QString Info::name = QString::fromUtf8("@TWX_CFG_NAME@");
-const QString Info::domain = QStringLiteral("@TWX_CFG_DOMAIN@");
-const QString Info::authors = QString::fromUtf8("@TWX_CFG_AUTHORS@");
-const QString Info::copyrightYears = QString::fromUtf8("@TWX_CFG_COPYRIGHT_YEARS@");
-const QString Info::copyrightHolders = QString::fromUtf8("@TWX_CFG_COPYRIGHT_HOLDERS@");
-const QString Info::organizationDomain = QStringLiteral("@TWX_CFG_ORGANIZATION_DOMAIN@");
-const QString Info::organizationName   		= QString::fromUtf8("@TWX_CFG_ORGANIZATION_NAME@");
-const QString Info::organizationShortName = QString::fromUtf8("@TWX_CFG_ORGANIZATION_SHORT_NAME@");
-const QString Info::gitHash = QStringLiteral("@TWX_CFG_GIT_HASH@");
+const QString Info::name = QString::fromUtf8("@/TWX/CFG/NAME@");
+const QString Info::domain = QStringLiteral("@/TWX/CFG/DOMAIN@");
+const QString Info::authors = QString::fromUtf8("@/TWX/CFG/AUTHORS@");
+const QString Info::copyrightYears = QString::fromUtf8("@/TWX/CFG/COPYRIGHT_YEARS@");
+const QString Info::copyrightHolders = QString::fromUtf8("@/TWX/CFG/COPYRIGHT_HOLDERS@");
+const QString Info::organizationDomain = QStringLiteral("@/TWX/CFG/ORGANIZATION_DOMAIN@");
+const QString Info::organizationName   		= QString::fromUtf8("@/TWX/CFG/ORGANIZATION_NAME@");
+const QString Info::organizationShortName = QString::fromUtf8("@/TWX/CFG/ORGANIZATION_SHORT_NAME@");
+const QString Info::gitHash = QStringLiteral("@/TWX/CFG/GIT_HASH@");
 const QDateTime Info::gitDate = QDateTime::fromString(
-	QStringLiteral("@TWX_CFG_GIT_DATE@"),
+	QStringLiteral("@/TWX/CFG/GIT_DATE@"),
 	Qt::ISODate
 ).toUTC();
-const QString Info::gitBranch = QStringLiteral("@TWX_CFG_GIT_BRANCH@");
+const QString Info::gitBranch = QStringLiteral("@/TWX/CFG/GIT_BRANCH@");
 
 
-const QString Info::buildId = QStringLiteral("@TWX_CFG_BUILD_ID@");
+const QString Info::buildId = QStringLiteral("@/TWX/CFG/BUILD_ID@");
 
-int Info::versionMNP = @TWX_CFG_VERSION_MAJOR@ << 16
-	     	| @TWX_CFG_VERSION_MINOR@ << 8
-			 	| @TWX_CFG_VERSION_PATCH@;
+int Info::versionMNP = @/TWX/CFG/VERSION_MAJOR@ << 16
+	     	| @/TWX/CFG/VERSION_MINOR@ << 8
+			 	| @/TWX/CFG/VERSION_PATCH@;
 
-int Info::versionMNPT = @TWX_CFG_VERSION_MAJOR@ << 24
-	     	| @TWX_CFG_VERSION_MINOR@ << 16
-			 	| @TWX_CFG_VERSION_PATCH@ << 8
-				| @TWX_CFG_VERSION_TWEAK@;
+int Info::versionMNPT = @/TWX/CFG/VERSION_MAJOR@ << 24
+	     	| @/TWX/CFG/VERSION_MINOR@ << 16
+			 	| @/TWX/CFG/VERSION_PATCH@ << 8
+				| @/TWX/CFG/VERSION_TWEAK@;
 
-int Info::versionMajor = @TWX_CFG_VERSION_MAJOR@;
+int Info::versionMajor = @/TWX/CFG/VERSION_MAJOR@;
 
-int Info::versionMinor = @TWX_CFG_VERSION_MINOR@;
+int Info::versionMinor = @/TWX/CFG/VERSION_MINOR@;
 
-int Info::versionBugfix = @TWX_CFG_VERSION_PATCH@;
+int Info::versionBugfix = @/TWX/CFG/VERSION_PATCH@;
 
-int Info::versionPatch = @TWX_CFG_VERSION_PATCH@;
+int Info::versionPatch = @/TWX/CFG/VERSION_PATCH@;
 
-int Info::versionTweak = @TWX_CFG_VERSION_TWEAK@;
+int Info::versionTweak = @/TWX/CFG/VERSION_TWEAK@;
 
-const QString Info::version = QStringLiteral("@TWX_CFG_VERSION@");
+const QString Info::version = QStringLiteral("@/TWX/CFG/VERSION@");
 
-const QString Info::versionFull = @TWX_CFG_GIT_OK@
+const QString Info::versionFull = @/TWX/CFG/GIT_OK@
 	? QStringLiteral(
 		"%1 (%2) [r.%3, %4]"
 	).arg(
@@ -90,7 +90,7 @@ const QString Info::versionFull = @TWX_CFG_GIT_OK@
 
 void Info::initApplication (QCoreApplication * application)
 {
-// #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN) || defined (TWX_TEST)
+// #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN) || defined (/TWX/TESTING)
 // #else
 //   Q_UNUSED(application);
 // #endif

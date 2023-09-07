@@ -33,7 +33,7 @@ twx_state_key_add (
   TWX_FACTORY_INI
 )
 
-twx_cfg_ini_required_key_add (
+twx_cfg_ini_keys_add (
   VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK
   COPYRIGHT_YEARS COPYRIGHT_HOLDERS AUTHORS
   ORGANIZATION_DOMAIN ORGANIZATION_NAME ORGANIZATION_SHORT_NAME
@@ -49,12 +49,12 @@ macro ( TwxInclude_Cfg_task_git )
   set ( GIT_OK )
   foreach ( key_ GIT_HASH GIT_DATE )
     # We assume that both keys are defined
-    if ( DEFINED TWX_CFG_${key_} )
-      if ( TWX_CFG_${key_} MATCHES "\\$Format:.*\\$" )
+    if ( DEFINED /TWX/CFG/${key_} )
+      if ( /TWX/CFG/${key_} MATCHES "\\$Format:.*\\$" )
         twx_cfg_set ( "${key_}" "" )
       else ()
-        twx_cfg_set ( "${key_}" "${TWX_CFG_${key_}}" )
-        set ( GIT_OK "${GIT_OK}${TWX_CFG_${key_}}" )
+        twx_cfg_set ( "${key_}" "${/TWX/CFG/${key_}}" )
+        set ( GIT_OK "${GIT_OK}${/TWX/CFG/${key_}}" )
       endif ()
     else ()
       message (
@@ -77,21 +77,21 @@ twx_cfg_register_hooked ( TwxInclude_Cfg_hooked_version )
 macro ( TwxInclude_Cfg_hooked_version )
   twx_cfg_set (
     VERSION_LONG "\
-  ${TWX_CFG_VERSION_MAJOR}.\
-  ${TWX_CFG_VERSION_MINOR}.\
-  ${TWX_CFG_VERSION_PATCH}.\
-  ${TWX_CFG_VERSION_TWEAK}"
+  ${/TWX/CFG/VERSION_MAJOR}.\
+  ${/TWX/CFG/VERSION_MINOR}.\
+  ${/TWX/CFG/VERSION_PATCH}.\
+  ${/TWX/CFG/VERSION_TWEAK}"
   )
   twx_cfg_set (
     VERSION "\
-  ${TWX_CFG_VERSION_MAJOR}.\
-  ${TWX_CFG_VERSION_MINOR}.\
-  ${TWX_CFG_VERSION_PATCH}"
+  ${/TWX/CFG/VERSION_MAJOR}.\
+  ${/TWX/CFG/VERSION_MINOR}.\
+  ${/TWX/CFG/VERSION_PATCH}"
   )
   twx_cfg_set (
     VERSION_SHORT "\
-  ${TWX_CFG_VERSION_MAJOR}.\
-  ${TWX_CFG_VERSION_MINOR}"
+  ${/TWX/CFG/VERSION_MAJOR}.\
+  ${/TWX/CFG/VERSION_MINOR}"
   )
 endmacro ()
 
@@ -124,25 +124,25 @@ twx_cfg_register_hooked ( TwxInclude_Cfg_hooked_misc )
 
 # ANCHOR: MISC
 macro ( TwxInclude_Cfg_hooked_misc )
-  twx_cfg_set ( DOMAIN "${TWX_NAME}.${TWX_CFG_ORGANIZATION_DOMAIN}" )
-  string ( REPLACE "." ";" niamod "${TWX_CFG_ORGANIZATION_DOMAIN}" )
+  twx_cfg_set ( DOMAIN "${TWX_NAME}.${/TWX/CFG/ORGANIZATION_DOMAIN}" )
+  string ( REPLACE "." ";" niamod "${/TWX/CFG/ORGANIZATION_DOMAIN}" )
   list ( REVERSE niamod )
   string ( REPLACE ";" "." niamod "${niamod}" )
   twx_cfg_set ( APPLICATION_ID "${niamod}.${TWX_COMMAND}" )
   twx_cfg_set ( ASSEMBLY_IDENTITY "TUG.${TWX_NAME}.${TWX_NAME}" )
 endmacro ()
 
-# ANCHOR: TWX_DEV
+# ANCHOR: /TWX/DEV
 #[=======[*/
 /** @brief Whether in developer mode
   *
   * Initially unset.
   * See @ref TWX_NAME.
   */
-TWX_DEV;
+/TWX/DEV;
 /*#]=======]
 
-option ( TWX_DEV "To activate developer mode" )
+option ( /TWX/DEV "To activate developer mode" )
 
 # ANCHOR: TWX_NAME
 #[=======[*/
@@ -160,7 +160,7 @@ option ( TWX_DEV "To activate developer mode" )
   *   an existing release version.
   *
   * Set to `TeXworks` in normal mode but to `TeXworks-dev`
-  * when `TWX_DEV` is set.
+  * when `/TWX/DEV` is set.
   * In developer mode, use for example
   *
   *   cmake ... -DTWX_DEV=ON ...
@@ -183,7 +183,7 @@ TWX_NAME;
 TWX_COMMAND;
 /*#]=======]
 if ( "${TWX_NAME}" STREQUAL "" )
-  if ( TWX_DEV )
+  if ( /TWX/DEV )
     set ( TWX_NAME TeXworks-dev )
   else ()
     set ( TWX_NAME TeXworks )

@@ -14,7 +14,7 @@ Includes Test as a subdirectory.
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
 	cmake_minimum_required ( VERSION 3.25 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Base/TwxBase.cmake"

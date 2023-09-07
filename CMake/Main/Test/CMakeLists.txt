@@ -25,7 +25,7 @@ project ( TwxCMakeMainTest )
 set ( CMAKE_MESSAGE_CONTEXT_SHOW ON )
 
 twx_test_domain_push ()
-if ( TWX_TEST_DOMAIN.RUN )
+if ( /TWX/TEST/DOMAIN.RUN )
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxMain.cmake" )
 
 # All the test that we did not list in `TwxBase.cmake`.

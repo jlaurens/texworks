@@ -1,31 +1,32 @@
 #[===============================================[/*
 This is part of TWX build and test system.
 https://github.com/TeXworks/texworks
-*//**
-@file
-@brief TwxCore/Test Cmake file
-
-Defines a test suite for the Core module.
-
-The test suite highly relies on the shape of the working directory.
-In particular, changing names as well as removing folders can have dramatic consequences
-if you do not exactly know what you are doing.
-
-Input:
-- `TwxCore_SOURCES`
-- `TwxCore_HEADERS`
-
-Output state:
-- `TWX_MODULE`
-- `TWX_MODULE_NAME`
-- `TWX_MODULE_TEST`
 */
+/**
+	* @file
+	* @brief Core/Test Cmake file
+	*
+	* Defines a test suite for the Core module.
+	*
+	* The test suite highly relies on the shape of the working directory.
+	* In particular, changing names as well as removing folders can have dramatic consequences
+	* if you do not exactly know what you are doing.
+	*
+	* Input:
+	* - `TwxCore_SOURCES`
+	* - `TwxCore_HEADERS`
+	*
+	* Output state:
+	* - `TWX_MODULE`
+	* - `TWX_MODULE_NAME`
+	* - `TWX_MODULE_TEST`
+	*/
 /*
 #]===============================================]
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
 	cmake_minimum_required ( VERSION 3.25 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Base/TwxBase.cmake"
@@ -34,6 +35,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 endif ()
 
 include ( TwxModuleLib )
+
 twx_module_guess ()
 
 if ( TARGET test_${TWX_MODULE} )
@@ -43,6 +45,7 @@ endif ()
 set ( TWX_MODULE_TEST ${TWX_MODULE}Test )
 
 project ( ${TWX_MODULE_TEST} )
+
 twx_base_after_project ()
 twx_module_after_project ()
 

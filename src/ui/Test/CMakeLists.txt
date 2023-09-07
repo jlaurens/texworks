@@ -39,7 +39,7 @@ NB: The transition to Twx is not complete
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
 	# This file is primary
 	cmake_minimum_required ( VERSION 3.25 )
 	include (
@@ -51,7 +51,7 @@ endif ()
 project ( TwxUI_Test )
 twx_base_after_project ()
 
-set ( TWX_TEST ON	)
+set ( /TWX/TESTING ON	)
 set ( TwxUI_TEST ON	)
 set ( TwxUI_TEST_IS_ROOT ON )
 
@@ -73,7 +73,7 @@ twx_target_include_src ( test_TwxUI )
 
 target_compile_definitions (
 	test_TwxUI
-	PRIVATE TWX_TEST TwxUI_TEST
+	PRIVATE /TWX/TESTING TwxUI_TEST
 )
 
 target_link_libraries (

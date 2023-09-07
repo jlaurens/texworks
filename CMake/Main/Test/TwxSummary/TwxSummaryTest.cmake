@@ -23,7 +23,7 @@ twx_cfg_update_factory ()
 twx_cfg_update_git ()
 
 twx_test_unit_push ( CORE ... )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   message ( "NO TEST YET" )
   endblock ()

@@ -78,7 +78,7 @@ QDir Locate::applicationDir()
   return QDir(path);
 }
 
-TWX_CONST QStringList Locate::listPATHFactory = QStringLiteral("@TWX_CFG_FACTORY_PATH@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
+TWX_CONST QStringList Locate::listPATHFactory = QStringLiteral("@/TWX/CFG/FACTORY_PATH@").split(QDir::listSeparator(), Qt::SkipEmptyParts);
 
 void Locate::setListPATH(const QStringList &paths)
 {

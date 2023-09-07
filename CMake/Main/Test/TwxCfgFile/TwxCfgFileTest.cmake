@@ -16,7 +16,7 @@ block ()
 
 # ANCHOR: POC
 twx_test_unit_push ( NAME POC )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   function ( twx_test_unit_push_POC )
     cmake_parse_arguments (
@@ -37,7 +37,7 @@ twx_test_unit_pop ()
 
 # ANCHOR: name_out
 twx_test_unit_push ( CORE name_out )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   set ( x )
   twx_cfg_file_name_out ( "a/b.in" IN_VAR x )
@@ -57,7 +57,7 @@ twx_test_unit_pop ()
 
 # ANCHOR: Balance
 twx_test_unit_push ( CORE begin_1 )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   twx_cfg_file_begin ( ID twx_test_unit_push.foo )
   twx_cfg_file_begin ( ID twx_test_unit_push.foo )
@@ -70,7 +70,7 @@ twx_test_unit_pop ()
 
 # ANCHOR: Normal usage
 twx_test_unit_push ( NAME Normal )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   twx_cfg_file_begin ( ID twx_test_unit_push.foo )
   twx_cfg_file_begin ( ID twx_test_unit_push.foo )
@@ -83,7 +83,7 @@ twx_test_unit_pop ()
 
 # ANCHOR: add
 twx_test_unit_push ( CORE add )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   twx_cfg_file_add ()
   twx_fatal_assert_fail ()
@@ -96,9 +96,9 @@ if ( TWX_TEST_UNIT.RUN )
   twx_fatal_assert_pass ()
   twx_ans_expose ()
   # twx_ans_log ()
-  twx_expect ( TWX_TEST_BRANCH_1 OTHER )
-  twx_expect_list ( TWX_TEST_in FILE.in FILE.in.txt FILE.private.in )
-  twx_expect_list ( TWX_TEST_out FILE FILE.txt FILE.private )
+  twx_expect ( /TWX/TEST/BRANCH_1 OTHER )
+  twx_expect_list ( /TWX/TEST/in FILE.in FILE.in.txt FILE.private.in )
+  twx_expect_list ( /TWX/TEST/out FILE FILE.txt FILE.private )
   twx_fatal_assert_pass ()
 
   twx_cfg_file_begin ( ID twx_test_unit_push.chi )
@@ -110,9 +110,9 @@ if ( TWX_TEST_UNIT.RUN )
   )
   twx_fatal_assert_pass ()
   twx_ans_expose ()
-  twx_expect ( TWX_TEST_BRANCH_1 OTHER )
-  twx_expect_list ( TWX_TEST_in FILE.in FILE.in.txt )
-  twx_expect_list ( TWX_TEST_out FILE FILE.txt )
+  twx_expect ( /TWX/TEST/BRANCH_1 OTHER )
+  twx_expect_list ( /TWX/TEST/in FILE.in FILE.in.txt )
+  twx_expect_list ( /TWX/TEST/out FILE FILE.txt )
   twx_fatal_assert_pass ()
 
   # twx_ans_log ()
@@ -122,7 +122,7 @@ twx_test_unit_pop ()
 
 # ANCHOR: Files
 twx_test_unit_push ( NAME Files )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   twx_cfg_files (
     TYPE		    TEST_TYPE
@@ -144,15 +144,15 @@ twx_test_unit_pop ()
 
 # ANCHOR: POCbuild
 twx_test_unit_push ( NAME POCbuild )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
-  if ( "${CMAKE_BINARY_DIR}" MATCHES "/${TWX_TEST_UNIT.FULL}" )
+  if ( "${CMAKE_BINARY_DIR}" MATCHES "/${/TWX/TEST/UNIT.FULL}" )
     # reentrant call
     message ( "CMAKE_SOURCE_DIR => ``${CMAKE_SOURCE_DIR}''")
     message ( "CMAKE_BINARY_DIR => ``${CMAKE_BINARY_DIR}''")
     message ( FATAL_ERROR "**********" )
   else ()
-    set ( pwd "${CMAKE_BINARY_DIR}/${TWX_TEST_UNIT.FULL}" )
+    set ( pwd "${CMAKE_BINARY_DIR}/${/TWX/TEST/UNIT.FULL}" )
     file ( MAKE_DIRECTORY "${pwd}" )
     twx_state_serialize ()
     execute_process (

@@ -25,20 +25,31 @@ include (
 
 project ( TwxCMakeCoreTest )
 
+include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxLib.cmake" )
+
+twx_lib_require ( Var Cmd Global Format Fatal Assert Expect Dir NO_TEST )
+
 include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxTestLib.cmake" )
 
 set ( CMAKE_MESSAGE_CONTEXT_SHOW ON )
 
 twx_test_domain_push ()
-if ( TWX_TEST_DOMAIN.RUN )
+if ( /TWX/TEST/DOMAIN.RUN )
+  # In testing context
+
+  twx_lib_require ( Var Cmd Global Format Fatal Assert Expect Dir )
+
+  include ( "${CMAKE_CURRENT_LIST_DIR}/POC/TwxPOCTest.cmake" )
+
   include ( "${CMAKE_CURRENT_LIST_DIR}/../TwxCore.cmake" )
 
   # All the test that we did not list in `TwxCore.cmake`.
-  file ( GLOB_RECURSE tests "${CMAKE_CURRENT_LIST_DIR}/*Test.cmake" )
-  foreach ( t ${tests} )
-    include ( ${t} )
+  file ( GLOB_RECURSE twx_test_domain.TESTS "${CMAKE_CURRENT_LIST_DIR}/*Test.cmake" )
+  foreach ( T ${twx_test_domain.TESTS} )
+    include ( ${T} )
   endforeach ()
 endif ()
+
 twx_test_domain_pop ()
 
 #*/

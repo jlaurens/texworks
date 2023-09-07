@@ -15,7 +15,7 @@ twx_test_suite_push ()
 block ()
   
 twx_test_unit_push ( CORE ... )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   message ( "NO TEST YET" )
   endblock ()

@@ -118,7 +118,7 @@ twx_regex_escape(... IN_VAR var ) {}
 set ( twx_regex_escape_RE [=[[]()|?+*[\\.$^-]]=] )
 
 function ( twx_regex_escape .text .IN_VAR .var )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments ( PARSE_ARGV 1 twx.R "" "IN_VAR" "" )
   if ( NOT DEFINED twx.R_IN_VAR )
     twx_fatal ( "Missing IN_VAR argument.")
@@ -174,16 +174,12 @@ TwxTestLib.cmake
 #]=======]
 
 # The order of the library names hereafter almost reflects dependencies
+# Normally, this order should not be important, but it seems not to be the case...
+
 twx_lib_require (
-  "Var"
-  "Fatal"
-  "Assert"
-  "Expect"
-  "Dir"
-  "Format"
-  "Log"
   "Increment"
   "Arg"
+  "Log"
   "Math"
   "Split"
   "Export"

@@ -39,7 +39,7 @@ NB: The transition to Twx is not complete
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
 
 	# This file is primary
 	cmake_minimum_required ( VERSION 3.25 )
@@ -50,7 +50,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 	project ( TwxUI_Test )
 	twx_base_after_project ()
 
-  set ( TWX_TEST ON	)
+  set ( /TWX/TESTING ON	)
   set ( TwxUI_TEST ON	)
 	set ( TwxUI_TEST_IS_ROOT ON )
 	enable_testing ()
@@ -58,7 +58,7 @@ if ( NOT DEFINED TWX_IS_BASED )
 	twx_Qt_fresh ( TEST )
 	include ( TwxDoxydocLib )
   twx_doxydoc ()
-elseif ( TWX_TEST )
+elseif ( /TWX/TESTING )
 	project ( TwxUI_Test )
 	twx_base_after_project ()
   set ( TwxUI_TEST ON	)
@@ -66,7 +66,7 @@ endif ()
 
 include ( SrcTwxUISetup )
 
-if ( NOT TWX_TEST )
+if ( NOT /TWX/TESTING )
 	twx_export ( TwxUI_SOURCES )
 	twx_export ( TwxUI_HEADERS )
 	twx_export ( TwxUI_UIS )

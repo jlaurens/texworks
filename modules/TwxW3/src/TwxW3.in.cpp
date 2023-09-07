@@ -32,11 +32,11 @@ namespace Twx {
 W3::ModeOpenUrl W3::modeOpenUrl = W3::ModeOpenUrl::Normal;
 #endif
 
-const QUrl W3::URL::home 		= QUrl(QStringLiteral("@TWX_CFG_URL_HOME@"));
-const QUrl W3::URL::homeDev	= QUrl(QStringLiteral("@TWX_CFG_URL_HOME_DEV@"));
-const QUrl W3::URL::issues  = QUrl(QStringLiteral("@TWX_CFG_URL_ISSUES@"));
-const QUrl W3::URL::GPL 		= QUrl(QStringLiteral("@TWX_CFG_URL_GPL@"));
-const QString W3::mail_address = QStringLiteral("@TWX_CFG_MAIL_ADDRESS@");
+const QUrl W3::URL::home 		= QUrl(QStringLiteral("@/TWX/CFG/URL_HOME@"));
+const QUrl W3::URL::homeDev	= QUrl(QStringLiteral("@/TWX/CFG/URL_HOME_DEV@"));
+const QUrl W3::URL::issues  = QUrl(QStringLiteral("@/TWX/CFG/URL_ISSUES@"));
+const QUrl W3::URL::GPL 		= QUrl(QStringLiteral("@/TWX/CFG/URL_GPL@"));
+const QString W3::mail_address = QStringLiteral("@/TWX/CFG/MAIL_ADDRESS@");
 
 W3 * W3::emitter ()
 {

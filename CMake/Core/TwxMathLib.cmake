@@ -32,7 +32,7 @@ twx_lib_will_load ()
 twx_math_compare( expression IN_VAR var ) {}
 /*#]=======]
 function ( twx_math_compare expression_ .IN_VAR twx.R_IN_VAR )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   if ( ${ARGC} GREATER "3" )
     twx_fatal ( "Too many arguments." )
   endif ()
@@ -95,7 +95,7 @@ elseif ( expression_ MATCHES "^(.*)<=(.*)$" )
   set ( "${twx.R_IN_VAR}" "${l}" PARENT_SCOPE )
 endfunction ( twx_math_compare )
 
-# ANCHOR: twx_math_not
+# ANCHOR: twx_math_evaluate_not
 #[=======[*/
 /** @brief To add `!` support to `math()`.
   *
@@ -106,9 +106,9 @@ endfunction ( twx_math_compare )
   * @param IN_VAR literally
   * @param ans for the result
   */
-twx_math_not(expression IN_VAR var) {}
+twx_math_evaluate_not(expression IN_VAR var) {}
 /*#]=======]
-function ( twx_math_not expression_ .IN_VAR twx.R_IN_VAR )
+function ( twx_math_evaluate_not expression_ .IN_VAR twx.R_IN_VAR )
   if ( ${ARGC} GREATER "3" )
     twx_fatal ( "Too many arguments:\nARGV => ``${ARGV}''" )
   endif ()
@@ -153,7 +153,7 @@ function ( twx_math_not expression_ .IN_VAR twx.R_IN_VAR )
     # message ( TR@CE "${expression_}" )
   endwhile ()
   set ( ${twx.R_IN_VAR} "${expression_}" PARENT_SCOPE )
-endfunction ( twx_math_not )
+endfunction ( twx_math_evaluate_not )
 
 # ANCHOR: twx_math_evaluate
 #[=======[*/
@@ -167,15 +167,15 @@ endfunction ( twx_math_not )
   */
 twx_math_evaluate(expression IN_VAR var) {}
 /*#]=======]
-function ( twx_math_evaluate expression .IN_VAR twx.R_IN_VAR )
+function ( twx_math_evaluate twx_math_evaluate.R_EXPRESSION twx_math_evaluate.IN_VAR twx_math_evaluate.R_IN_VAR )
   if ( ${ARGC} GREATER "3" )
     message ( FATAL_ERROR "Too many arguments: ARGV => ``${ARGV}''." )
   endif ()
-  twx_arg_assert_keyword ( .IN_VAR )
-  twx_var_assert_name ( "${twx.R_IN_VAR}" )
-  twx_math_not ( "${expression}" IN_VAR expression )
-  twx_math_compare ( "${expression}" IN_VAR expression )
-  set ( "${twx.R_IN_VAR}" "${expression}" PARENT_SCOPE )
+  twx_arg_assert_keyword ( twx_math_evaluate.IN_VAR )
+  twx_var_assert_name ( "${twx_math_evaluate.R_IN_VAR}" )
+  twx_math_evaluate_not ( "${twx_math_evaluate.R_EXPRESSION}" IN_VAR twx_math_evaluate.R_EXPRESSION )
+  twx_math_compare ( "${twx_math_evaluate.R_EXPRESSION}" IN_VAR twx_math_evaluate.R_EXPRESSION )
+  set ( "${twx_math_evaluate.R_IN_VAR}" "${twx_math_evaluate.R_EXPRESSION}" PARENT_SCOPE )
 endfunction ( twx_math_evaluate )
 
 # ANCHOR: twx_math
@@ -193,7 +193,7 @@ endfunction ( twx_math_evaluate )
 twx_math(EXPR ans expression [OUTPUT_FORMAT format]) {}
 /*#]=======]
 function ( twx_math .EXPR twx.R_IN_VAR expression_ )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_arg_assert_keyword ( .EXPR )
   twx_var_assert_name ( "${twx.R_IN_VAR}" )
   while ( expression_ MATCHES "^(.*[^!-]|)(!*)(-)?\\(([^)]+)\\)(.*)$" )

@@ -41,7 +41,7 @@ See https://github.com/TeXworks/texworks
   */
 /*#]===============================================]
 
-if ( TWX_TEST_DOMAIN.Core.RUN )
+if ( /TWX/TEST/DOMAIN.Core.RUN )
   include (
     "${CMAKE_CURRENT_LIST_DIR}/../Core/Test/CMakeLists.txt"
     NO_POLICY_SCOPE
@@ -54,7 +54,7 @@ else ()
   include (
     "${CMAKE_CURRENT_LIST_DIR}/../Core/TwxTestLib.cmake"
   )
-  set ( TWX_TEST_DOMAIN.Core.SUITE_RE_NO ".*" )
+  set ( /TWX/TEST/DOMAIN.Core.SUITE_RE_NO ".*" )
 endif ()
 
 include (
@@ -109,15 +109,15 @@ function ( twx_base_prettify )
       twx_increment_and_assert ( VAR i == ${ARGC} )
       break ()
     endif ()
-    string ( REPLACE "${TWX_CHAR_SOH}"  "<SOH/>"  v "${v}" )
-    string ( REPLACE "${TWX_CHAR_STX}"  "<STX/>"  v "${v}" )
-    string ( REPLACE "${TWX_CHAR_ETX}"  "<ETX/>"  v "${v}" )
-    string ( REPLACE "${TWX_CHAR_EM}"   "<EM/>"   v "${v}" )
-    string ( REPLACE "${TWX_CHAR_SUB}"  "<SUB/>"  v "${v}" )
-    string ( REPLACE "${TWX_CHAR_FS}"   "<FS/>"   v "${v}" )
-    string ( REPLACE "${TWX_CHAR_GS}"   "<GS/>"   v "${v}" )
-    string ( REPLACE "${TWX_CHAR_RS}"   "<RS/>"   v "${v}" )
-    string ( REPLACE "${TWX_CHAR_US}"   "<US/>"   v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/SOH}"  "<SOH/>"  v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/STX}"  "<STX/>"  v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/ETX}"  "<ETX/>"  v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/EM}"   "<EM/>"   v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/SUB}"  "<SUB/>"  v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/FS}"   "<FS/>"   v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/GS}"   "<GS/>"   v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/RS}"   "<RS/>"   v "${v}" )
+    string ( REPLACE "${/TWX/CHAR/US}"   "<US/>"   v "${v}" )
     string ( APPEND value_ "${v}" )
     twx_increment_and_assert ( VAR i < ${ARGC} )
   endwhile ()
@@ -157,19 +157,19 @@ macro ( twx_base_after_project )
 
 # Minor changes
   if ( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}" )
-    set ( TWX_PROJECT_IS_ROOT OFF )
+    set ( TWX/PROJECT_IS_ROOT OFF )
   endif ()
   foreach ( f ${TWX_BASE_AFTER_PROJECT} )
     cmake_language ( CALL "${f}" )
   endforeach ()
 endmacro ( twx_base_after_project )
 
-set ( TWX_IS_BASED ON )
+set ( /TWX/IS_BASED ON )
 
 # Next is meant to be run only once per cmake session.
 # However, a different process can run this on its own.
 
-set ( TWX_PROJECT_IS_ROOT ON )
+set ( TWX/PROJECT_IS_ROOT ON )
 
 #[=======[
 TwxCoreLib.cmake
@@ -194,8 +194,6 @@ TwxTestLib.cmake
 
 # The order of the library names hereafter almost reflects dependencies
 twx_lib_require (
-  "Split"
-  "Export"
   "Message"
   "Tree"
   "Hook"
@@ -206,7 +204,7 @@ twx_lib_require (
   "Cfg"
 )
 
-twx_assert_true ( TWX_IS_BASED )
+twx_assert_true ( /TWX/IS_BASED )
 
 if ( COMMAND twx_message_register_prettifier )
   twx_message_register_prettifier ( twx_base )

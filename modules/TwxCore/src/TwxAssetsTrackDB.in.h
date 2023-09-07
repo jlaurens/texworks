@@ -39,7 +39,7 @@
 
 namespace Twx {
 namespace Core {
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 /** \brief Support assets track data structure
   *
 	* md5 was used and then sha256.
@@ -142,8 +142,8 @@ public:
 	* \param factoryDir is the factory reference directory
 	*/
 	void adjust(const QDir & factoryDir);
-@TWX_CFG_include_TwxAssetsTrackDB_private_h@
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxAssetsTrackDB_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Core

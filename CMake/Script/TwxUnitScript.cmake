@@ -18,7 +18,7 @@ Input state:
 - `TWX_TEMPORARY_DIR`
 - `TWX_DESTINATION_DIR`
 - `CMAKE_MESSAGE_LOG_LEVEL`
-- `TWX_TEST`
+- `/TWX/TESTING`
 
 *//*
 #]===============================================]

@@ -19,9 +19,8 @@ https://github.com/TeXworks/texworks
   *//*
 #]===============================================]
 
-OBSOLETE
-
 include_guard ( GLOBAL )
+
 twx_lib_will_load ()
 
 if ( TARGET TwxGlobalLib.cmake )
@@ -31,12 +30,8 @@ elseif ( CMAKE_SCRIPT_MODE_FILE )
   return ()
 endif ()
 
-add_custom_target (
-  TwxGlobalLib.cmake
-)
-
 define_property (
-  TARGET PROPERTY TWX_GLOBAL_TREE/
+  TARGET PROPERTY /TWX/GLOBAL/TREE
 )
 
 # ANCHOR: twx_global_save
@@ -54,16 +49,15 @@ twx_global_save(TREE tree) {}
 /*
 #]=======]
 function ( twx_global_save .TREE twx.R_TREE )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_arg_assert_count ( ${ARGC} == 2 )
-  twx_arg_assert_keyword ( .TREE )
-  twx_tree_assert ( "${twx.R_TREE}" )
-  set_target_properties (
-    TwxGlobalLib.cmake
-    PROPERTIES
-      TWX_GLOBAL_TREE/ "${${twx.R_TREE}}"
+  twx_function_begin ()
+  cmake_parse_arguments (
+    PARSE_ARGV 0 twx.R
+    "" "TREE" ""
   )
-  # twx_tree_prettify ( "${${twx.R_TREE}}" IN_VAR m ) 
+  twx_arg_assert_parsed ()
+  twx_tree_assert ( TREE "${twx.R_TREE}" )
+  twx_global_set__ ( "${${twx.R_TREE}}" KEY /TWX/GLOBAL/TREE )
+  # twx_tree_prettify ( MSG "${${twx.R_TREE}}" IN_VAR m ) 
   # message ( TR@CE "${twx.R_TREE} => ``${m}''" )
 endfunction ()
 
@@ -79,14 +73,10 @@ twx_global_clear() {}
 /*
 #]=======]
 function ( twx_global_clear )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_arg_assert_count ( ${ARGC} == 0 )
-  twx_tree_init ( tree/ )
-  set_target_properties (
-    TwxGlobalLib.cmake
-    PROPERTIES
-      TWX_GLOBAL_TREE/ "${tree/}"
-  )
+  twx_tree_init ( TREE /tree )
+  twx_global_set__ ( "${/tree}" KEY /TWX/GLOBAL/TREE )
 endfunction ()
 
 # ANCHOR: twx_global_restore
@@ -98,25 +88,24 @@ endfunction ()
   * Define properly variables:
   *
   * - `<tree>`
-  * - `TWX_IS_TREE_<tree>` is set to `ON`.
+  * - `/TWX/IS_TREE/<tree>` is set to `ON`.
   *
   */
 twx_global_restore(IN_TREE tree) {}
 /*
 #]=======]
-function ( twx_global_restore .IN_TREE twx.R_IN_TREE )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_arg_assert_count ( ${ARGC} == 2 )
-  twx_arg_assert_keyword ( .IN_TREE )
-  twx_var_assert_name ( "${twx.R_IN_TREE}" )
-  get_target_property (
-    ${twx.R_IN_TREE}
-    TwxGlobalLib.cmake
-    TWX_GLOBAL_TREE/
+function ( twx_global_restore )
+  twx_function_begin ()
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "IN_TREE" ""
   )
+  twx_arg_assert_parsed ( PREFIX )
+  twx_var_assert_name ( "${${TWX_CMD}.R_IN_TREE}" )
+  twx_global_get__ ( IN_VAR ${${TWX_CMD}.R_IN_TREE} KEY /TWX/GLOBAL/TREE )
   twx_export (
-    ${twx.R_IN_TREE}
-    TWX_IS_TREE_${twx.R_IN_TREE}=ON
+    ${${TWX_CMD}.R_IN_TREE}
+    /TWX/IS_TREE/${${TWX_CMD}.R_IN_TREE}=ON
   )
 endfunction ()
 
@@ -130,28 +119,32 @@ endfunction ()
   * @param tree for key IN_TREE, the required name for a tree.
   * @param key for key `KEY`, is the required key.
   *   On return, the variable `<IN_TREE>/<key>` holds the result.
-  *   Moreover, `TWX_IS_TREE_<IN_TREE>/<key>` is set if the result is a tree,
+  *   Moreover, `/TWX/IS_TREE/<IN_TREE>/<key>` is set if the result is a tree,
   *   unset otherwise.
   */
 twx_global_get(IN_TREE tree KEY key) {}
 /*
 #]=======]
-function ( twx_global_get .IN_TREE twx.R_IN_TREE .KEY twx.R_KEY )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_arg_assert_count ( ${ARGC} == 4 )
-  twx_global_restore ( "${.IN_TREE}" "${twx.R_IN_TREE}" )
-  # twx_tree_prettify ( "${${twx.R_IN_TREE}}" IN_VAR m )
-  # message ( TR@CE "${twx.R_IN_TREE} => ``${m}''" )
-  set ( v "${twx.R_IN_TREE}" )
-  twx_dir_complete_var ( v )
-  string ( APPEND v "${twx.R_KEY}" )
-  twx_tree_get (
-    TREE "${twx.R_IN_TREE}"
-    "${.KEY}" "${twx.R_KEY}"
-    IN_VAR "${v}"
+function ( twx_global_tree_get )
+  twx_function_begin ()
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "IN_TREE;KEY" ""
   )
-  # message ( TR@CE "Export: ${v} => ``${${v}}''" )
-  twx_export ( "${v}" "TWX_IS_TREE_${v}" )
+  twx_arg_assert_parsed ( PREFIX )
+  twx_global_restore ( IN_TREE "${${TWX_CMD}.R_IN_TREE}" )
+  # block ()
+  # twx_tree_prettify ( MSG "${${${TWX_CMD}.R_IN_TREE}}" IN_VAR m )
+  # message ( TR@CE "${${TWX_CMD}.R_IN_TREE} => ``${m}''" )
+  # endblock ()
+  set ( ${TWX_CMD}.V "${${TWX_CMD}.R_IN_TREE}/${${TWX_CMD}.R_KEY}" )
+  twx_tree_get (
+    TREE "${${TWX_CMD}.R_IN_TREE}"
+    KEY "${${TWX_CMD}.R_KEY}"
+    IN_VAR "${${TWX_CMD}.V}"
+  )
+  # twx_var_log ( TR@CE ${${TWX_CMD}.V} MSG "Export" )
+  twx_export ( "${${TWX_CMD}.V}" "/TWX/IS_TREE/${${TWX_CMD}.V}" )
 endfunction ()
 
 # ANCHOR: twx_global_set
@@ -168,19 +161,19 @@ endfunction ()
 twx_global_set(...) {}
 /*
 #]=======]
-function ( twx_global_set .kv )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_global_restore ( IN_TREE tree/ )
+function ( twx_global_tree_set .kv )
+  twx_function_begin ()
+  twx_global_restore ( IN_TREE /tree )
   set ( i 0 )
   while ( TRUE )
     twx_tree_set (
-      TREE tree/
+      TREE /tree
       "${ARGV${i}}"
     )
-    # message ( TR@CE "AFTER set: tree/ => ``${tree}''/")
+    # message ( TR@CE "AFTER set: /tree => ``${tree}''/")
     twx_increment_and_break_if ( VAR i >= ${ARGC} )
   endwhile ()
-  twx_global_save ( TREE tree/ )
+  twx_global_save ( TREE /tree )
 endfunction ()
 
 # ANCHOR: twx_global_remove
@@ -197,10 +190,10 @@ twx_global_remove(... ) {}
 /*
 #]=======]
 function ( twx_global_remove .key )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_global_restore ( IN_TREE tree/ )
-  twx_tree_remove ( TREE tree/ KEY ${ARGV} )
-  twx_global_save ( TREE tree/ )
+  twx_function_begin ()
+  twx_global_restore ( IN_TREE /tree )
+  twx_tree_remove ( TREE /tree KEY ${ARGV} )
+  twx_global_save ( TREE /tree )
 endfunction ()
 
 # ANCHOR: twx_global_expose
@@ -209,19 +202,23 @@ endfunction ()
 /** @brief Expose the global state
   *
   * For each top level key value pair,
-  * define the variable named `TWX_GLOBAL_TREE/<key>` to have the value.
+  * define the variable named `/TWX/GLOBAL/TREE<key>` to have the value.
   *
-  * @param tree for key TREE, the required name of a tree.
+  * @param tree for key IN_TREE, the required name of a tree.
   * It is highly recommanded to expose the global tree within a local scope.
   */
-twx_global_expose() {}
+twx_global_expose(IN_TREE tree) {}
 /*
 #]=======]
-macro ( twx_global_expose .IN_TREE twx.R_IN_TREE )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_arg_assert_count ( ${ARGC} == 2 )
-  twx_global_restore ( "${.IN_TREE}" "${twx.R_IN_TREE}" )
-  twx_tree_expose ( TREE "${twx.R_IN_TREE}" )
+macro ( twx_global_expose )
+  cmake_parse_arguments (
+    twx_global_expose.R
+    "" "IN_TREE" ""
+    ${ARGV}
+  )
+  twx_var_assert_name ( "${twx_global_expose.R_IN_TREE}" )
+  twx_global_restore ( IN_TREE "${twx_global_expose.R_IN_TREE}" )
+  twx_tree_expose ( TREE "${twx_global_expose.R_IN_TREE}" )
 endmacro ()
 
 # ANCHOR: twx_global_log
@@ -235,21 +232,20 @@ twx_global_log(tree) {}
 /*
 #]=======]
 function ( twx_global_log )
-  if ( ${ARGC} EQUAL 1 )
-    twx_expect ( ARGV0 STREQUAL "NO_BANNER" )
-    set ( twx.R_NO_BANNER "NO_BANNER" )
-  else ()
-    twx_arg_assert_count ( ${ARGC} == 0 )
-    set ( twx.R_NO_BANNER )
-  endif ()
-  twx_global_restore ( IN_TREE tree/ )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "NO_BANNER" "" ""
+  )
+  twx_arg_assert_parsed ()
+  twx_arg_pass_option ( NO_BANNER )
+  twx_global_restore ( IN_TREE /tree )
   twx_tree_log (
-    TREE tree/
+    TREE /tree
     ${twx.R_NO_BANNER}
   )
 endfunction ()
 
-# ANCHOR: twx_tree_prettify
+# ANCHOR: twx_global_prettify
 #[=======[
 */
 /** @brief Turn a tree content into human readable
@@ -257,25 +253,28 @@ endfunction ()
   * @param message, string to manipulate.
   * @param var for key `IN_VAR` holds the human readable string on return.
   */
-twx_tree_prettify(message IN_VAR var) {}
+twx_global_prettify(IN_VAR var) {}
 /*
 #]=======]
 function ( twx_global_prettify .IN_VAR twx.R_IN_VAR )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
-  twx_arg_assert_count ( ${ARGC} == 2 )
-  twx_arg_assert_keyword ( .IN_VAR )
-  twx_var_assert_name ( "${twx.R_IN_VAR}" )
-  twx_global_restore ( IN_TREE tree_ )
-  twx_tree_prettify ( "${tree_}" "${.IN_VAR}" "${twx.R_IN_VAR}" )
-  twx_export ( "${twx.R_IN_VAR}" )
+  twx_function_begin ()
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "IN_VAR" ""
+  )
+  twx_arg_assert_parsed ( PREFIX )
+  twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+  twx_global_restore ( IN_TREE ${TWX_CMD}.TREE )
+  twx_tree_prettify ( MSG "${${TWX_CMD}.TREE}" IN_VAR "${${TWX_CMD}.R_IN_VAR}" )
+  twx_export ( "${${TWX_CMD}.R_IN_VAR}" )
 endfunction ()
 
-twx_lib_require ( "Expect" "Arg" "Tree" "Export" "Util" "Increment" )
+twx_lib_require ( "Tree" "Util" )
 
 block ()
-twx_tree_init ( tree/ )
-twx_tree_assert ( tree/ )
-twx_global_save ( TREE tree/ )
+twx_tree_init ( TREE /tree )
+twx_tree_assert ( TREE /tree )
+twx_global_save ( TREE /tree )
 endblock ()
 
 twx_lib_did_load ()

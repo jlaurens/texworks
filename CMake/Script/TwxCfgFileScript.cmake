@@ -16,17 +16,17 @@ cmake ... -P .../Script/TwxCfgFileScript.cmake
 ```
 
 Expected input state:
-- `TWX_CFG_INI_DIR` for `TwxCfgLib`
+- `/TWX/CFG/INI/DIR` for `TwxCfgLib`
 - `TWX_IN`, list of relative input paths denoted `<input_k>`
 - `TWX_IN_DIR`, location of the input files
 - `TWX_OUT_DIR`, location of the output files
-- `TWX_CFG_INI_IDS`
+- `/TWX/CFG/INI/IDS`
 - `TWX_ESCAPE_QUOTES` (usual boolean like text)
 - required file: each one of the `TWX_IN` lists.
 
 Reads both `...cfg.ini` files of the `TwxBuildData` folder for
 `<key_i> = <value_i>` mapping. Then replace in any `<input_k>`
-all occurrences of `@TWX_CFG_<key_i>@` by `<value_i>`
+all occurrences of `@/TWX/CFG/<key_i>@` by `<value_i>`
 and store the result in the coresponding `<output_k>`.
 
 Concerning the keys, one level of indirection
@@ -73,7 +73,7 @@ endif ()
 include ( TwxCfgLib )
 include ( TwxCfgFileLib )
 
-twx_cfg_read ( ${TWX_CFG_INI_IDS} ${NO_PRIVATE_args_} ONLY_CONFIGURE )
+twx_cfg_read ( ${/TWX/CFG/INI/IDS} ${NO_PRIVATE_args_} ONLY_CONFIGURE )
 
 # TODO: verify the efficiency of ..._TIMESTAMP_... tech
 # Known timestamps:

@@ -16,7 +16,7 @@ twx_test_suite_push ()
 block ()
 
 twx_test_unit_push ( NAME "..." )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   message ( VERBOSE "NO DEDICATED TEST" )
   endblock ()

@@ -46,7 +46,7 @@ twx_unit_case ( TARGET executable IN_VAR ans ) {}
 /*
 #]=======]
 function ( twx_unit_case )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   # State
   twx_assert_exists ( "${CMAKE_CURRENT_LIST_DIR}/WorkingDirectory/" )
   twx_assert_non_void ( TWX_PROJECT_PRODUCT_DIR )

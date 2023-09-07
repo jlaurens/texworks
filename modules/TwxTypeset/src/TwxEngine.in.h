@@ -56,7 +56,7 @@ namespace Core {
 }
 
 namespace Typeset {
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 
 // specification of an "engine" used to process files
 class Engine
@@ -181,8 +181,8 @@ public:
 	 *  \param settings a mutable `QSettings` instance
 	 */
   void save(QSettings & settings) const;
-@TWX_CFG_include_TwxEngine_private_h@
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxEngine_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 } // namespace Typeset
 } // namespace Twx

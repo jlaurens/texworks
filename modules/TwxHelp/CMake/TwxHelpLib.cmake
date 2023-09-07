@@ -11,7 +11,7 @@ Make a build folder and use cmake ... && cmake --build ...
 
 include_guard ( GLOBAL )
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
   include (
     "${CMAKE_CURRENT_LIST_DIR}/TwxBase.cmake"
     NO_POLICY_SCOPE
@@ -46,10 +46,10 @@ function ( twx_manual_setup )
   include ( TwxCfgLib )
   twx_cfg_setup ()
   twx_cfg_read ( NO_PRIVATE ONLY_CONFIGURE )
-  twx_assert_non_void ( TWX_CFG_MANUAL_HTML_URL )
-  twx_assert_non_void ( TWX_CFG_MANUAL_HTML_SHA256 )
+  twx_assert_non_void ( /TWX/CFG/MANUAL_HTML_URL )
+  twx_assert_non_void ( /TWX/CFG/MANUAL_HTML_SHA256 )
 
-  set ( TWX_MANUAL_URL "${TWX_CFG_MANUAL_HTML_URL}" )
+  set ( TWX_MANUAL_URL "${/TWX/CFG/MANUAL_HTML_URL}" )
   if ( NOT "${TWX_MANUAL_URL}" MATCHES "/(([^/]+)[.]zip)" )
     twx_fatal ( "Unexpected URL ${TWX_MANUAL_URL}" )
     return ()
@@ -62,7 +62,7 @@ function ( twx_manual_setup )
     TWX_MANUAL_BASE
     "${TWX_EXTERNAL_DIR}${CMAKE_MATCH_2}/texworks-help"
   )
-  set ( TWX_MANUAL_SHA256 "${TWX_CFG_MANUAL_HTML_SHA256}" )
+  set ( TWX_MANUAL_SHA256 "${/TWX/CFG/MANUAL_HTML_SHA256}" )
   twx_export (
     TWX_MANUAL_URL
     TWX_MANUAL_SHA256

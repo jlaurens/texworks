@@ -78,7 +78,7 @@ The argument are IO variable names, such that we must name local variables with 
 otherwise there might be a conflict.
 #]=======]
 function ( twx_dir_complete_var twx_dir_complete_var.var )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   set ( twx_dir_complete_var.i 0 )
   while ( TRUE )
     set ( twx_dir_complete_var.v "${ARGV${twx_dir_complete_var.i}}" )
@@ -123,7 +123,7 @@ message ( DEBUG "CMAKE_MODULE_PATH setup DONE" )
 twx_base_after_project() {}
 /*#]=======]
 macro ( twx_dir_after_project )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_expect_compare ( ${ARGC} == 1 )
   twx_expect_unequal_string ( "${PROJECT_NAME}" "" )
   # This has already been included
@@ -149,9 +149,9 @@ TWX_BUILD_DIR;
   * that follows a `project()` declaration.
   */
 TWX_BUILD_DATA_DIR;
-# ANCHOR: TWX_CFG_INI_DIR
+# ANCHOR: /TWX/CFG/INI/DIR
 /** @brief Main build directory: .../TwxBuildData */
-TWX_CFG_INI_DIR;
+/TWX/CFG/INI/DIR;
 # ANCHOR: TWX_PRODUCT_DIR
 /** @brief Main build directory: .../TwxProduct/
   *
@@ -188,7 +188,7 @@ TWX_PACKAGE_DIR;
   * that follows a `project()` declaration.
   */
 TWX_EXTERNAL_DIR;
-# ANCHOR: TWX_TEST_DIR
+# ANCHOR: /TWX/TEST/DIR
 /** @brief Main test directory: .../TwxTest
   *
   * Contains the material related to the manual and popppler data.
@@ -196,7 +196,7 @@ TWX_EXTERNAL_DIR;
   * Set by the very first `include ( TwxCore )`
   * that follows a `project()` declaration.
   */
-TWX_TEST_DIR;
+/TWX/TEST/DIR;
 /*#]=======]
   if ( "${TWX_BUILD_DIR}" STREQUAL "" )
     twx_assert_exists ( "${PROJECT_BINARY_DIR}" )
@@ -308,7 +308,7 @@ macro (
   .VAR_PREFIX
   twx.R_VAR_PREFIX
 )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   twx_expect_equal_string ( "${.BINARY_DIR}" "BINARY_DIR" )
   twx_expect_equal_string ( "${.VAR_PREFIX}" "VAR_PREFIX" )
   twx_expect_unequal_string ( "${twx.R_BINARY_DIR}" "/" )

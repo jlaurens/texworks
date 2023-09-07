@@ -45,7 +45,7 @@ namespace Key {
 	extern const QString defaultEngineName;
 }
 namespace Typeset {
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 // specification of an "engine" used to process files
 class EngineManager: public QObject
 {
@@ -138,8 +138,8 @@ private:
 	EngineManager(EngineManager&& other) = delete;
   void operator=(const EngineManager&) = delete;
   void operator=(const EngineManager&&) = delete;
-@TWX_CFG_include_TwxEngineManager_private_h@
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxEngineManager_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 } // namespace Typeset
 } // namespace Twx

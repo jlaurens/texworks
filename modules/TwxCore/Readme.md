@@ -38,12 +38,12 @@ For example, `TwxLocate.in.h` partly reads
 ```
 namespace Twx {
 namespace Core {
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 class Locate
 {
   [...]
-  @TWX_CFG_include_TwxLocate_private_h@
-  @TWX_CFG_include_TwxFriendTestMain_private_h@
+  @/TWX/CFG/include_TwxLocate_private_h@
+  @/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 } // namespace Core
 } // namespace Twx

@@ -16,7 +16,7 @@ if ( TARGET TwxW3 )
   return ()
 endif ()
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
 	cmake_minimum_required ( VERSION 3.25 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../Cmake/Base/TwxBase.cmake"
@@ -27,7 +27,7 @@ endif ()
 include ( TwxModuleLib )
 twx_module_guess ()
 twx_assert_non_void ( TWX_MODULE )
-set ( TWX_TEST OFF )
+set ( /TWX/TESTING OFF )
 
 project ( ${TWX_MODULE} )
 twx_base_after_project ()

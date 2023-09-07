@@ -10,7 +10,7 @@ Defines a test suite.
 Input:
 - `TwxW3_SOURCES`
 - `TwxW3_HEADERS`
-- `TWX_TEST_NO_OpenUrl`: when set (from the CLI) the tests for `openUrl`
+- `/TWX/TEST/NO_OpenUrl`: when set (from the CLI) the tests for `openUrl`
   are neutralized.
 */
 /*
@@ -22,7 +22,7 @@ if ( TARGET test_TwxW3 )
   return ()
 endif ()
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
 	cmake_minimum_required ( VERSION 3.25 )
 	include (
 		"${CMAKE_CURRENT_LIST_DIR}/../../../Cmake/Base/TwxBase.cmake"
@@ -40,7 +40,7 @@ twx_cfg_setup ()
 include ( TwxModuleLib )
 twx_module_setup ( W3 )
 
-set ( TWX_TEST ON )
+set ( /TWX/TESTING ON )
 enable_testing ()
 
 add_executable ( test_TwxW3 )
@@ -48,10 +48,10 @@ twx_module_includes ( W3 INTERFACE_COMPILE_DEFINITIONS_TARGETS test_TwxW3 )
 
 target_compile_definitions (
 	test_TwxW3
-	PRIVATE TWX_TEST TwxW3_TEST
+	PRIVATE /TWX/TESTING TwxW3_TEST
 )
 
-if ( TWX_TEST_NO_OpenUrl )
+if ( /TWX/TEST/NO_OpenUrl )
 	target_compile_definitions (
 		test_TwxW3
 		PRIVATE TwxW3_TEST_NO_openUrl

@@ -15,7 +15,7 @@ twx_test_suite_push ()
 block ()
 
 twx_test_unit_push ()
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   twx_doxydoc ( SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}" )
   message ( [[
@@ -28,7 +28,7 @@ twx_test_unit_pop ()
 
 
 twx_test_unit_push ( CORE 2 )
-if ( TWX_TEST_UNIT.RUN )
+if ( /TWX/TEST/UNIT.RUN )
   block ()
   project ( TwxDoxydocTest.cmake2 )
   twx_doxydoc ( SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}" )

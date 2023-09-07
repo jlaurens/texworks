@@ -39,17 +39,17 @@ twx_lib_will_load ()
 twx_util_timestamp ( path IN_VAR var ) {}
 /*
 #]=======]
-function ( twx_util_timestamp filepath_ .IN_VAR twx.R_IN_VAR )
+function ( twx_util_timestamp filepath_ twx_util_timestamp.IN_VAR twx_util_timestamp.R_IN_VAR )
   twx_arg_assert_count ( ${ARGC} == 3 )
-  twx_arg_assert_keyword ( .IN_VAR )
-  twx_var_assert_name ( "${twx.R_IN_VAR}" )
+  twx_arg_assert_keyword ( twx_util_timestamp.IN_VAR )
+  twx_var_assert_name ( "${twx_util_timestamp.R_IN_VAR}" )
   file (
-    TIMESTAMP "${filepath_}" ts "%S:%M:%H:%j:%Y" UTC
+    TIMESTAMP "${filepath_}" twx_util_timestamp.TS "%S:%M:%H:%j:%Y" UTC
   )
-  if ( ts MATCHES "^([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)$" )
+  if ( twx_util_timestamp.TS MATCHES "^([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)$" )
     math (
       EXPR
-      ts "
+      twx_util_timestamp.TS "
       ${CMAKE_MATCH_1} + 60 * (
         ${CMAKE_MATCH_2} + 60 * (
           ${CMAKE_MATCH_3} + 24 * (
@@ -63,32 +63,32 @@ function ( twx_util_timestamp filepath_ .IN_VAR twx.R_IN_VAR )
     if ( "${CMAKE_MATCH_5}" GREATER "2024" )
       math (
         EXPR
-        ts
-        "${ts} + 86400"
+        twx_util_timestamp.TS
+        "${twx_util_timestamp.TS} + 86400"
       )
     elseif ( "${CMAKE_MATCH_5}" GREATER "2028" )
       math (
         EXPR
-        ts
-        "${ts} + 172800"
+        twx_util_timestamp.TS
+        "${twx_util_timestamp.TS} + 172800"
       )
     elseif ( "${CMAKE_MATCH_5}" GREATER "2032" )
       math (
         EXPR
-        ts
-        "${ts} + 259200"
+        twx_util_timestamp.TS
+        "${twx_util_timestamp.TS} + 259200"
       )
     elseif ( "${CMAKE_MATCH_5}" GREATER "2036" )
       math (
         EXPR
-        ts
-        "${ts} + 345600"
+        twx_util_timestamp.TS
+        "${twx_util_timestamp.TS} + 345600"
       )
     endif ()
   else ()
-    set ( ts 0 )
+    set ( twx_util_timestamp.TS 0 )
   endif ()
-  twx_export ( "${twx.R_IN_VAR}=${ts}" )
+  twx_export ( "${twx_util_timestamp.R_IN_VAR}=${twx_util_timestamp.TS}" )
 endfunction ()
 
 twx_lib_require ( "Arg" "Export" )

@@ -32,7 +32,7 @@ class QProcessEnvironment;
 //TODO: document this class, what is the purpose???
 namespace Twx {
 namespace Core {
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 
 class Settings: public QSettings
 {
@@ -98,7 +98,7 @@ private:
 	*/
 	void setAssetsLibraryLocation(const QString & path);
 
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 
 };
 

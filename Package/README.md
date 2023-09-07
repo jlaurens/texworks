@@ -35,7 +35,7 @@ where `<...>` is replaced with the approriate number of `..` components to indic
 In general, auxiliary `CMakeLists.txt` loaded after an `add_subdirectory(...)` instruction don't need to include `TwxBase.cmake`.
 However, some `CMakeLists.txt`, like in modules, may be either main or auxiliary: we need to differentiate the situation.
 The first time `TwxBase.cmake` is loaded after a `project(...)` instruction,
-the global variable `TWX_PROJECT_IS_ROOT` is set to a truthy value.
+the global variable `TWX/PROJECT_IS_ROOT` is set to a truthy value.
 After any subsequent attempt to load `TwxBase.cmake` after a `project(...)` instruction,
 this global variable is set to false.
 Such `CMakeLists.txt` will start with
@@ -44,7 +44,7 @@ include(
   "${CMAKE_CURRENT_LIST_DIR}/<...>/CMake/Base/TwxBase.cmake"
   NO_POLICY_SCOPE
 )
-if (TWX_PROJECT_IS_ROOT)
+if (TWX/PROJECT_IS_ROOT)
   <do some configuration as main>
 else ()
   <do some configuration as secondary>

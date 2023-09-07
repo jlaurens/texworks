@@ -45,7 +45,7 @@ namespace Twx {
 namespace Core {
 
 class Settings;
-@TWX_CFG_include_TwxNamespaceTestMain_private_h@
+@/TWX/CFG/include_TwxNamespaceTestMain_private_h@
 /** \brief Location manager
   *
   * The main purpose of the location manager is `absoluteProgramPath()`.
@@ -275,8 +275,8 @@ private:
 	Locate(Locate&&) = delete;
 	Locate& operator=(const Locate&) = delete;
 	Locate& operator=(Locate &&) = delete;
-@TWX_CFG_include_TwxLocate_private_h@
-@TWX_CFG_include_TwxFriendTestMain_private_h@
+@/TWX/CFG/include_TwxLocate_private_h@
+@/TWX/CFG/include_TwxFriendTestMain_private_h@
 };
 
 } // namespace Core

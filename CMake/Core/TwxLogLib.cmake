@@ -17,7 +17,7 @@ https://github.com/TeXworks/texworks
   *
   * Turn this off to disable coloring, or switch to windows.
   */
-TWX_FORMAT_NO_COLOR;
+/TWX/FORMAT/NO_COLOR;
 /*
 Output:
 
@@ -197,7 +197,7 @@ twx_log_parse_color( color APPEND_TO format [BACK]) {}
 /*
 #]=======]
 function ( twx_log_parse_color )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   # Avoid possible name conflicts
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_log_parse_color.R
@@ -226,20 +226,20 @@ function ( twx_log_parse_color )
       if ( CMAKE_MATCH_${i} LESS "256" )
         list ( APPEND twx_log_parse_color.PREFIX "${CMAKE_MATCH_${i}}" )
       else ()
-        if ( NOT TWX_FORMAT_NO_WARN )
+        if ( NOT /TWX/FORMAT/NO_WARN )
           message ( WARNING "Unsupported text color ``${twx_log_parse_color.R_COLOR}''")
-          set ( TWX_FORMAT_NO_WARN ON CACHE INTERNAL "Private" )
+          set ( /TWX/FORMAT/NO_WARN ON CACHE INTERNAL "Private" )
         endif ()
         list ( APPEND twx_log_parse_color.PREFIX "255" )
       endif ()
     endforeach ()
   else ()
     set ( twx_log_parse_color.COLORS black red green yellow blue magenta cyan white )
-    list ( INDEX twx_log_parse_color.COLORS "${twx_log_parse_color.R_COLOR}" i )
+    list ( FIND twx_log_parse_color.COLORS "${twx_log_parse_color.R_COLOR}" i )
     if ( i LESS 0 )
-      if ( NOT TWX_FORMAT_NO_WARN )
+      if ( NOT /TWX/FORMAT/NO_WARN )
         message ( WARNING "Unsupported text color ``${twx_log_parse_color.R_COLOR}''")
-        set ( TWX_FORMAT_NO_WARN ON CACHE INTERNAL "Private" )
+        set ( /TWX/FORMAT/NO_WARN ON CACHE INTERNAL "Private" )
       endif ()
       set ( i 1 )
     endif ()
@@ -288,7 +288,7 @@ twx_log_parse_format( [BOLD] [UNDERLINE] [TEXT_COLOR color] [BACK_COLOR bg_color
 /*
 #]=======]
 function ( twx_log_parse_format )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 twx_log_parse_format.R
     "BOLD;UNDERLINE;APPEND" "IN_VAR;TEXT_COLOR;BACK_COLOR" ""
@@ -350,7 +350,7 @@ function ( twx_log )
     message ( ${ARGV} )
     return ()
   endif ()
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   set ( CMAKE_MESSAGE_CONTEXT_SHOW OFF )
   if ( TWX_LOG.section_hidden OR ${ARGC} EQUAL "0" )
     return ()
@@ -386,14 +386,14 @@ function ( twx_log )
   endif ()
   # Hard wrap the remaining material.
   string ( LENGTH "${twx.R_MSG}" length_what_ )
-  string ( LENGTH "${TWX_FORMAT.indentation}" length_indent )
+  string ( LENGTH "${/TWX/FORMAT.indentation}" length_indent )
   math ( EXPR left_char "30 - ${length_what_} - ${length_indent}" )
   set ( blanks_ )
   foreach ( _i RANGE 1 ${left_char} )
     string( APPEND blanks_ " " )
   endforeach ()
   # wrap the value to just more than 80 characters
-  set ( prefix_ "${TWX_FORMAT.indentation}${twx.R_MSG}${blanks_}" )
+  set ( prefix_ "${/TWX/FORMAT.indentation}${twx.R_MSG}${blanks_}" )
   # This is the prefix for the first line
   # for the next lines obtained by hard wrapping
   # this will be a blank string with the same length.
@@ -505,14 +505,14 @@ endfunction ( twx_log_kv )
 twx_log_begin([format] title [VERBOSE|DEBUG|TRACE]) {}
 /*
 Implementation detail:
-* `TWX_FORMAT_stack` keeps track of enclosing section.
+* `/TWX/FORMAT/stack` keeps track of enclosing section.
   It is a list of `+` and `-`, the latter
   means that the section is hidden.
   **NB:** Testing that this list is empty is
   equivalent to testing for its content as string.
 * `TWX_LOG.section_hidden` keeps track of
   the visibility state of the current section
-* `TWX_FORMAT.indentation` is bigger in embedded sections.
+* `/TWX/FORMAT.indentation` is bigger in embedded sections.
 #]=======]
 function ( twx_log_begin )
   twx_log__parse_arguments ( ${ARGN} )
@@ -526,31 +526,31 @@ function ( twx_log_begin )
     set ( TWX_LOG.section_hidden ON )
   endif ()
   if ( TWX_LOG.section_hidden )
-    list ( PUSH_FRONT TWX_FORMAT_stack "-" )
-  elseif ( TWX_FORMAT_stack )
+    list ( PUSH_FRONT /TWX/FORMAT/stack "-" )
+  elseif ( /TWX/FORMAT/stack )
     # Propagate the visibility state: duplicate and insert.
-    list ( GET TWX_FORMAT_stack 0 previous_ )
-    list ( PUSH_FRONT TWX_FORMAT_stack "${previous_}" )
+    list ( GET /TWX/FORMAT/stack 0 previous_ )
+    list ( PUSH_FRONT /TWX/FORMAT/stack "${previous_}" )
   else  ()
-    list ( PUSH_FRONT TWX_FORMAT_stack "+" )
+    list ( PUSH_FRONT /TWX/FORMAT/stack "+" )
   endif ()
   # export the main values
   if ( NOT TWX_LOG.section_hidden )
     block ()
-    set ( m "${TWX_FORMAT.indentation}${twx.R_TITLE}" )
+    set ( m "${/TWX/FORMAT.indentation}${twx.R_TITLE}" )
     twx_log_message ( ${twx.R_FORMAT} IN_VAR m )
     message ( "${m}" )
     endblock ()
   endif ()
   # build the indentation from scratch
-  list ( LENGTH TWX_FORMAT_stack l )
-  string ( REPEAT "  " ${l} TWX_FORMAT.indentation )
+  list ( LENGTH /TWX/FORMAT/stack l )
+  string ( REPEAT "  " ${l} /TWX/FORMAT.indentation )
   if ( twx.R_EOL )
     message ( "" )
   endif ()
   twx_export (
-    TWX_FORMAT.indentation
-    TWX_FORMAT_stack
+    /TWX/FORMAT.indentation
+    /TWX/FORMAT/stack
     TWX_LOG.section_hidden
   )
 endfunction ()
@@ -569,7 +569,7 @@ twx_log_end([NO_EOL]) {}
 /*
 #]=======]
 function ( twx_log_end )
-  if ( NOT TWX_FORMAT_stack )
+  if ( NOT /TWX/FORMAT/stack )
     twx_fatal ( "Missing ``twx_log_begin()''" )
   endif ()
   block ()
@@ -584,29 +584,29 @@ function ( twx_log_end )
     message( "" )
   endif ()
   endblock ()
-  list( POP_FRONT TWX_FORMAT_stack )
-  if( TWX_FORMAT_stack )
-    block ( PROPAGATE TWX_LOG.section_hidden TWX_FORMAT.indentation )
-    list( GET TWX_FORMAT_stack 0 l )
+  list( POP_FRONT /TWX/FORMAT/stack )
+  if( /TWX/FORMAT/stack )
+    block ( PROPAGATE TWX_LOG.section_hidden /TWX/FORMAT.indentation )
+    list( GET /TWX/FORMAT/stack 0 l )
     if( "${l}" STREQUAL "-" )
       set( TWX_LOG.section_hidden ON )
     else  ()
       set ( TWX_LOG.section_hidden OFF )
     endif ()
-    list ( LENGTH TWX_FORMAT_stack l )
-    string ( REPEAT "  " ${l} TWX_FORMAT.indentation )
+    list ( LENGTH /TWX/FORMAT/stack l )
+    string ( REPEAT "  " ${l} /TWX/FORMAT.indentation )
     endblock ()
   else  ()
     set ( TWX_LOG.section_hidden OFF )
-    set( TWX_FORMAT.indentation )
+    set( /TWX/FORMAT.indentation )
   endif ()
   block ()
-  list ( LENGTH TWX_FORMAT_stack l )
+  list ( LENGTH /TWX/FORMAT/stack l )
   twx_log( ">>> HIDDEN: ${TWX_LOG.section_hidden}, DEPTH: ${l}" TRACE )
   endblock ()
   twx_export (
-    TWX_FORMAT_stack
-    TWX_FORMAT.indentation
+    /TWX/FORMAT/stack
+    /TWX/FORMAT.indentation
     TWX_LOG.section_hidden
   )
 endfunction ( twx_log_end )

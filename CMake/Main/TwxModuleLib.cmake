@@ -294,7 +294,7 @@ endfunction ( twx_module_after_project )
   *
   * Input state:
   * - `TWX_FACTORY_INI`: the default factory data
-  * - `TWX_CFG_INI_DIR`: the location of Cfg ini files
+  * - `/TWX/CFG/INI/DIR`: the location of Cfg ini files
   *
   * Output state:
   * - `<module>_<property>`: for properties in `TWX_TARGET_PROPERTIES`
@@ -345,13 +345,13 @@ function ( twx_module_setup )
     TWX_PROJECT_BUILD_DATA_DIR
   )
   twx_cfg_setup ()
-  foreach ( TWX_MODULE ${twx.R_UNPARSED_ARGUMENTS} )
+  foreach ( TWX_MODULE IN LISTS twx.R_UNPARSED_ARGUMENTS )
     twx_module_complete ( "${TWX_MODULE}" )
     twx_message_log ( VERBOSE "twx_module_setup: ${TWX_MODULE_NAME}" "-----------------")
     foreach ( p_ ${TWX_TARGET_PROPERTIES} )
       set ( ${TWX_MODULE}_${p_} )
     endforeach ()
-    set ( ${TWX_MODULE}_CFG_INI_DIR "${TWX_CFG_INI_DIR}" )
+    set ( ${TWX_MODULE}_CFG_INI_DIR "${/TWX/CFG/INI/DIR}" )
     set ( ${TWX_MODULE}_FACTORY_INI "${TWX_FACTORY_INI}" )
     twx_module_src_in_dir ( MODULE ${TWX_MODULE} IN_VAR ${TWX_MODULE}_SRC_IN_DIR )
     twx_assert_non_void ( ${TWX_MODULE}_SRC_IN_DIR )
@@ -507,7 +507,7 @@ function ( twx_module_configure )
     "${TWX_PROJECT_BUILD_DIR}"
     "${TWX_PROJECT_BUILD_DATA_DIR}"
   )
-  twx_message_log ( VERBOSE "DEBUG: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: /TWX/CFG/INI/DIR => ${/TWX/CFG/INI/DIR}" )
   twx_module_guess ()
   twx_assert_non_void (
     "${TWX_MODULE}"
@@ -531,9 +531,9 @@ function ( twx_module_configure )
     "${${TWX_MODULE}_FACTORY_INI"
   )
   twx_message_log ( VERBOSE "DEBUG: ${TWX_MODULE}_DIR => ${${TWX_MODULE}_DIR}" )
-  set ( TWX_CFG_INI_DIR "${${TWX_MODULE}_CFG_INI_DIR}" )
+  set ( /TWX/CFG/INI/DIR "${${TWX_MODULE}_CFG_INI_DIR}" )
   set ( TWX_FACTORY_INI "${${TWX_MODULE}_FACTORY_INI}" )
-  twx_message_log ( VERBOSE "DEBUG: 1: ${TWX_CFG_INI_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: 1: ${/TWX/CFG/INI/DIR}" )
   twx_message_log ( VERBOSE "DEBUG: 1: ${TWX_FACTORY_INI}" )
   add_library (
     ${TWX_MODULE}
@@ -601,10 +601,10 @@ function ( twx_module_configure )
   twx_message_log ( VERBOSE "DEBUG: ${TWX_MODULE}_DIR => ${${TWX_MODULE}_DIR}" )
   twx_export (
     CMAKE_MODULE_PATH
-    TWX_CFG_INI_DIR
+    /TWX/CFG/INI/DIR
   )
   twx_message_log ( VERBOSE "twx_module_configure: ${TWX_MODULE_NAME} DONE" "---------------------" )
-  twx_message_log ( VERBOSE "DEBUG: ${TWX_CFG_INI_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: ${/TWX/CFG/INI/DIR}" )
 endfunction ( twx_module_configure )
 
 # ANCHOR: twx_module_synchronize
@@ -734,7 +734,7 @@ function ( twx_module_load twx.R_name )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "REQUIRED;OPTIONAL" "" "" )
   twx_arg_pass_option ( REQUIRED OPTIONAL )
   set ( already_ )
-  foreach ( m_ ${twx.R_UNPARSED_ARGUMENTS} )
+  foreach ( m_ IN LISTS twx.R_UNPARSED_ARGUMENTS )
     twx_module_complete ( ${m_} )
     if ( TARGET ${TWX_MODULE} )
       set ( ${TWX_MODULE}_IS_MODULE "ON" PARENT_SCOPE )
@@ -827,7 +827,7 @@ function ( twx_module_add )
   twx_arg_pass_option ( TEST )
   set ( modules_to_add_ )
   # change short module names to long ones
-  foreach ( m_ ${twx.R_UNPARSED_ARGUMENTS} )
+  foreach ( m_ IN LISTS twx.R_UNPARSED_ARGUMENTS )
     if ( NOT m_ MATCHES "^Twx" )
       set ( m_ Twx${m_} )
     endif ()
@@ -893,7 +893,7 @@ function ( twx_module_includes )
   cmake_parse_arguments ( PARSE_ARGV 0 twx.R "" "" "IN_TARGETS" )
   foreach ( target_ ${twx.R_IN_TARGETS} )
     twx_assert_target ( "${target_}" )
-    foreach ( module_ ${twx.R_UNPARSED_ARGUMENTS} )
+    foreach ( module_ IN LISTS twx.R_UNPARSED_ARGUMENTS )
       if ( NOT module_ MATCHES "^Twx" )
         set ( module_ Twx${module_} )
       endif ()
@@ -924,7 +924,7 @@ twx_module_test() {}
 /*#]=======]
 macro ( twx_module_test )
   if ( NOT TWX_NO_TEST )
-    set ( TWX_TEST ON )
+    set ( /TWX/TESTING ON )
     enable_testing ()
     add_subdirectory ( Test TwxTest)
   endif ()
@@ -965,7 +965,7 @@ macro ( twx_module_configure_test )
   include ( TwxModuleLib )
   set ( TWX_NO_TEST ON )
   twx_module_load ( ${TWX_MODULE} )
-  set ( TWX_TEST ON )
+  set ( /TWX/TESTING ON )
   enable_testing ()
   set ( TWX_NAME "${TWX_MODULE_TEST}" )
   if ( EXISTS "${CMAKE_CURRENT_LIST_DIR}/${TWX_MODULE_TEST}.ini" )
@@ -997,7 +997,7 @@ macro ( twx_module_configure_test )
   target_compile_definitions (
     test_${TWX_MODULE}
     PRIVATE
-      TWX_TEST
+      /TWX/TESTING
       ${TWX_MODULE}_TEST
   )
   twx_Qt_fresh ( TEST )
@@ -1048,7 +1048,7 @@ function ( twx_module_summary )
     set ( b_ "test suite" )
   endif ()
   message ( "" )
-  twx_message_log ( VERBOSE "DEBUG: TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}" )
+  twx_message_log ( VERBOSE "DEBUG: /TWX/CFG/INI/DIR => ${/TWX/CFG/INI/DIR}" )
   include ( TwxSummaryLib )
   twx_summary_begin (
     BOLD_GREEN

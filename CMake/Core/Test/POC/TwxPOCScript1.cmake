@@ -15,16 +15,24 @@ See https://github.com/TeXworks/texworks
 /*
 #]===============================================]
 
-if ( NOT ARGV0 STREQUAL "ZERO" )
+if ( ARGV0 STREQUAL "ZERO" )
+  message ( STATUS "\n${ARGV0}" )
+else ()
   message ( FATAL_ERROR "Bad ARGV0" )
 endif()
-if ( NOT ARGV1 STREQUAL "O N E" )
+if ( ARGV1 STREQUAL "O N E" )
+  message ( STATUS "\n${ARGV1}" )
+else ()
   message ( FATAL_ERROR "Bad ARGV1" )
 endif()
-if ( NOT ARGV2 STREQUAL "T;W;O" )
+if ( ARGV2 STREQUAL "T;W;O" )
+  message ( STATUS "\n${ARGV2}" )
+else ()
   message ( FATAL_ERROR "Bad ARGV2" )
 endif()
-if ( NOT ARGV3 STREQUAL "T\nH\nR\nE\nE" )
+if ( ARGV3 STREQUAL "T\nH\nR\nE\nE" )
+  message ( STATUS "\n${ARGV3}" )
+else ()
   message ( FATAL_ERROR "Bad ARGV3" )
 endif()
 

@@ -25,12 +25,12 @@ include ( TwxCfgLib )
 twx_cfg_setup ()
 #]==]
 
-set(TWX_CFG_MANUAL_HTML_URL @TWX_CFG_MANUAL_HTML_URL@)
-twx_assert_non_void ( TWX_CFG_MANUAL_HTML_URL )
+set(/TWX/CFG/MANUAL_HTML_URL @/TWX/CFG/MANUAL_HTML_URL@)
+twx_assert_non_void ( /TWX/CFG/MANUAL_HTML_URL )
 
 # TeXworks HTML manual: version, matching hash, and derived variables.
-if ( NOT "${TWX_CFG_MANUAL_HTML_URL}" MATCHES "/(([^/]+)[.]zip$)" )
-  twx_fatal ( "Unexpected URL ${TWX_CFG_MANUAL_HTML_URL}" )
+if ( NOT "${/TWX/CFG/MANUAL_HTML_URL}" MATCHES "/(([^/]+)[.]zip$)" )
+  twx_fatal ( "Unexpected URL ${/TWX/CFG/MANUAL_HTML_URL}" )
   return ()
 endif ()
 set (
@@ -51,12 +51,12 @@ endif ()
 if ( NOT EXISTS "${TWX_PACKAGE_DIR}${manual_archive_}" )
   message (
     STATUS
-    "Downloading TeXworks HTML manual from ${TWX_CFG_MANUAL_HTML_URL}"
+    "Downloading TeXworks HTML manual from ${/TWX/CFG/MANUAL_HTML_URL}"
   )
   file (
-    DOWNLOAD "${TWX_CFG_MANUAL_HTML_URL}"
+    DOWNLOAD "${/TWX/CFG/MANUAL_HTML_URL}"
     "${TWX_PACKAGE_DIR}${manual_archive_}"
-    EXPECTED_HASH SHA256=${TWX_CFG_MANUAL_HTML_SHA256}
+    EXPECTED_HASH SHA256=${/TWX/CFG/MANUAL_HTML_SHA256}
     SHOW_PROGRESS
   )
 else ( )

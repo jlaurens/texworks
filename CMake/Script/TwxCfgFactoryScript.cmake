@@ -14,7 +14,7 @@ cmake ... -P .../CMake/Script/TwxCfgFactoryScript.cmake
 Input:
   - `TWX_NAME`
   - `TWX_FACTORY_INI`
-  - `TWX_CFG_INI_DIR`
+  - `/TWX/CFG/INI/DIR`
 
 Output:
   - an updated factory Cfg data file
@@ -24,8 +24,8 @@ Used by `twx_cfg_setup()`.
 Here is the factory list of recognized keys from `<project name>.ini`.
 Other keys can be used but they must be managed elsewhere.
 For each `<key>` we have both `TWX_<project_name>_<key>` and
-`TWX_CFG_<key>` to store the value.
-Input files will preferably contain `@TWX_CFG_<key>@` placeholders.
+`/TWX/CFG/<key>` to store the value.
+Input files will preferably contain `@/TWX/CFG/<key>@` placeholders.
 
 - General info (static values)
   - `NAME`
@@ -86,7 +86,7 @@ endif ()
 twx_message_log ( VERBOSE "TwxCfgFactoryScript.cmake..." DEEPER )
 twx_message_log ( VERBOSE
   "TWX_NAME        => ${TWX_NAME}"
-  "TWX_CFG_INI_DIR => ${TWX_CFG_INI_DIR}"
+  "/TWX/CFG/INI/DIR => ${/TWX/CFG/INI/DIR}"
 )
 
 # Parse the ini contents
@@ -96,10 +96,10 @@ twx_cfg_write_begin ( ID "factory" )
 # verify the expectations
 foreach (
   key_
-  ${TWX_CFG_INI_REQUIRED_KEYS}
+  ${/TWX/CFG/INI/REQUIRED_KEYS}
 )
-  if ( DEFINED TWX_CFG_${key_} )
-    twx_cfg_set ( "${key_}=${TWX_CFG_${key_}}" )
+  if ( DEFINED /TWX/CFG/${key_} )
+    twx_cfg_set ( "${key_}=${/TWX/CFG/${key_}}" )
   else ()
     twx_fatal (
       "Missing value for key_ ${key_} in TWX_FACTORY_INI (${TWX_FACTORY_INI})"
@@ -108,7 +108,7 @@ foreach (
   endif ()
 endforeach ()
 
-foreach ( task_ ${TWX_CFG_FACTORY_TASKS} )
+foreach ( task_ ${/TWX/CFG/FACTORY_TASKS} )
   cmake_language ( CALL "${task_}" )
 endforeach ()
 

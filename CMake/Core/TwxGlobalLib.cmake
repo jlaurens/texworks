@@ -27,56 +27,86 @@ twx_lib_will_load ()
 /** @brief Set some global value.
   *
   * @param key for key `KEY`, identifier of the value to modify.
-  * @param ..., list of values concatenated in one string.
+  * @param value, list of values concatenated in one list.
+  * @param var for key `IN_VAR`, optional identifier of the var that will contain the result on return.
   *
   */
-twx_global_set(... KEY key){}
+twx_global_set(value KEY key [IN_VAR var]){}
 /*
 #]=======]
-function ( twx_global_set )
+function ( twx_global_set__ )
+  twx_function_begin ()
   # NO: list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx.R
-    "" "KEY" ""
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "KEY;IN_VAR" ""
   )
-  twx_var_assert_name ( "${twx.R_KEY}" )
-  set ( value_ )
-  foreach ( v ${twx.R_UNPARSED_ARGUMENTS})
-    string ( APPEND value_ "${v}" )
-  endforeach ()
-  set_property (
-    GLOBAL
-    PROPERTY "${twx.R_KEY}" ${value_}
-  )
-endfunction ( twx_global_set )
+  twx_var_assert_name ( "${${TWX_CMD}.R_KEY}" )
+  if ( ${TWX_CMD}.R_UNPARSED_ARGUMENTS STREQUAL "" )
+    set_property (
+      GLOBAL
+      PROPERTY "${${TWX_CMD}.R_KEY}" "${/TWX/PLACEHOLDER/EMPTY_STRING}"
+    )
+  elseif ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS AND "${${TWX_CMD}.R_UNPARSED_ARGUMENTS}" STREQUAL "" )
+    set_property (
+      GLOBAL
+      PROPERTY "${${TWX_CMD}.R_KEY}" "${/TWX/PLACEHOLDER/EMPTY_STRING}"
+    )
+  else ()
+    set_property (
+      GLOBAL
+      PROPERTY "${${TWX_CMD}.R_KEY}" ${${TWX_CMD}.R_UNPARSED_ARGUMENTS}
+    )
+  endif ()
+  if ( DEFINED ${TWX_CMD}.R_IN_VAR )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    set ( ${${TWX_CMD}.R_IN_VAR} ${${TWX_CMD}.R_UNPARSED_ARGUMENTS} PARENT_SCOPE )
+  endif ()
+endfunction ( twx_global_set__ )
+macro ( twx_global_set )
+  twx_global_set__ ( ${ARGV} ) 
+endmacro ( twx_global_set )
 
 # ANCHOR: twx_global_increment
 #[=======[
 */
-/** @brief Set some global value.
+/** @brief Increment some global value.
+  *
+  * All values are meant to be integers.
+  * The initial value is 0.
   *
   * @param key for key `KEY`, identifier of the value to modify.
+  * @param step for key `STEP`, optional step, defaults to 1.
+  * @param var for key `IN_VAR`, identifier of the var that will contain the result on return.
   *
   */
-twx_global_increment(KEY key){}
+twx_global_increment(KEY key [STEP step] [IN_VAR var]){}
 /*
 #]=======]
 function ( twx_global_increment )
   # NO: list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
   cmake_parse_arguments (
     PARSE_ARGV 0 twx.R
-    "" "KEY" ""
+    "" "KEY;STEP;IN_VAR" ""
   )
   if ( DEFINED twx.R_UNPARSED_ARGUMENTS )
     message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${twx.R_UNPARSED_ARGUMENTS}''" )
   endif ()
-  twx_global_get ( KEY ${twx.R_KEY} IN_VAR v )
-  if ( DEFINED v )
-    math ( EXPR v "${v}+1" )
-  else ()
-    set ( v 1 )
+  if ( NOT DEFINED twx.R_STEP )
+    set ( twx.R_STEP 1 )
   endif ()
-  twx_global_set ( "${v}" KEY ${twx.R_KEY} )
+  twx_global_get__ ( KEY ${twx.R_KEY} IN_VAR v )
+  if ( DEFINED v )
+    math ( EXPR v "${v}+(${twx.R_STEP})" )
+  else ()
+    math ( EXPR v "${twx.R_STEP}" )
+  endif ()
+  twx_global_set__ ( "${v}" KEY ${twx.R_KEY} )
+  if ( DEFINED twx.R_IN_VAR )
+    twx_var_assert_name ( "${twx.R_IN_VAR}" )
+    set ( ${twx.R_IN_VAR} "${v}" )
+    return ( PROPAGATE ${twx.R_IN_VAR} )
+  endif ()
 endfunction ( twx_global_increment )
 
 # ANCHOR: twx_global_get
@@ -88,11 +118,11 @@ endfunction ( twx_global_increment )
   * @param var for key `IN_VAR`, identifier of the var that will contain the result on return.
   *
   */
-twx_global_get(IN_VAR var KEY key){}
+twx_global_get([IN_VAR var] [KEY key]){}
 /*
 #]=======]
-function ( twx_global_get )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+function ( twx_global_get__ )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 ${TWX_CMD}.R
     "" "KEY;IN_VAR" ""
@@ -100,68 +130,133 @@ function ( twx_global_get )
   if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
     message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${${TWX_CMD}.R_UNPARSED_ARGUMENTS}''" )
   endif ()
-  if ( NOT DEFINED ${TWX_CMD}.R_KEY AND NOT DEFINED ${TWX_CMD}.R_IN_VAR )
-    message ( FATAL_ERROR "Missing argument for key `KEY` or `IN_VAR`" )
-  endif ()
   if ( NOT DEFINED ${TWX_CMD}.R_IN_VAR )
     set ( ${TWX_CMD}.R_IN_VAR ${${TWX_CMD}.R_KEY} )
   elseif ( NOT DEFINED ${TWX_CMD}.R_KEY )
     set ( ${TWX_CMD}.R_KEY ${${TWX_CMD}.R_IN_VAR} )
   endif ()
-  twx_var_assert_name ( "${${TWX_CMD}.R_KEY}" )
-  twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
-  get_property (
-    ${${TWX_CMD}.R_IN_VAR}
-    GLOBAL
-    PROPERTY "${${TWX_CMD}.R_KEY}"
-  )
-  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
-endfunction ( twx_global_get )
-
+  if ( DEFINED ${TWX_CMD}.R_KEY )
+    twx_var_assert_name ( "${${TWX_CMD}.R_KEY}" )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    get_property (
+      ${${TWX_CMD}.R_IN_VAR}
+      GLOBAL
+      PROPERTY "${${TWX_CMD}.R_KEY}"
+    )
+    if ( ${${TWX_CMD}.R_IN_VAR} STREQUAL "" )
+      set ( ${${TWX_CMD}.R_IN_VAR} )
+    elseif ( DEFINED ${${TWX_CMD}.R_IN_VAR} )
+      twx_const_empty_string_decode ( VAR ${${TWX_CMD}.R_IN_VAR} )
+    endif ()
+    return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
+  else ()
+    message ( FATAL_ERROR "Missing argument for key `KEY` or `IN_VAR`" )
+  endif ()
+endfunction ( twx_global_get__ )
+macro ( twx_global_get )
+  twx_global_get__ ( ${ARGV} )
+endmacro ( twx_global_get )
 
 # ANCHOR: twx_global_append
 #[=======[
 */
 /** @brief Append some values to a global list.
   *
-  * @param key for key `KEY`, identifier of the list to modify.
-  * @param REQUIRED, optional flag, raises when set and the property does not exist.
-  * @param msg for key `DUPLICATE`, optional message. When provided,
-  *   raises with the given message when the list contain duplicate entries before the return statement.
   * @param ..., list of values.
+  * @param key for key `KEY`, identifier of the list to modify.
+  * @param NO_DUPLICATE, optional flag, raises the element is already in the list.
+  * @param msg for key `ERROR_MSG`, optional message. More specific error message used when raising.
+  * @param var for key `IN_LIST`, optional name of a variable where the resulting list
+  *   is stored.
   *
   */
-twx_global_append(... KEY key [REQUIRED] [DUPLICATE msg]){}
+twx_global_append(... KEY key [NO_DUPLICATE] [ERROR_MSG msg] [IN_LIST var]){}
 /*
 #]=======]
 function ( twx_global_append )
+  twx_function_begin ()
   # NO: list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
   cmake_parse_arguments (
-    PARSE_ARGV 0 twx.R
-    "" "KEY;DUPLICATE" ""
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "KEY;NO_DUPLICATE;ERROR_MSG;IN_LIST" ""
   )
-  twx_var_assert_name ( "${twx.R_KEY}" )
-  get_property (
-    list_
-    GLOBAL
-    PROPERTY "${twx.R_KEY}"
+  twx_var_assert_name ( "${${TWX_CMD}.R_KEY}" )
+  twx_global_get__ (
+    IN_VAR ${TWX_CMD}.LIST
+    KEY "${${TWX_CMD}.R_KEY}"
   )
-  if ( DEFINED twx.R_DUPLICATE )
-    foreach ( item_ ${twx.R_UNPARSED_ARGUMENTS} )
-      if ( item_ IN_LIST list_ )
-        message ( FATAL_ERROR "${twx.R_CIRCULAR}" )
+  if ( DEFINED ${TWX_CMD}.R_NO_DUPLICATE )
+    foreach ( X IN LISTS ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
+      if ( X IN_LIST ${TWX_CMD}.LIST )
+        if ( DEFINED ${TWX_CMD}.R_ERROR_MSG )
+          message ( FATAL_ERROR "${${TWX_CMD}.R_ERROR_MSG}" )
+        else ()
+          message ( FATAL_ERROR "No duplicate: ${X}" )
+        endif ()
       else ()
-        list ( APPEND list_ "${item_}" )
+        list ( APPEND ${TWX_CMD}.LIST "${X}" )
       endif ()
     endforeach ()
-  elseif ( DEFINED twx.R_UNPARSED_ARGUMENTS )
-    list ( APPEND list_ ${twx.R_UNPARSED_ARGUMENTS} )
+  elseif ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
+    list ( APPEND ${TWX_CMD}.LIST ${${TWX_CMD}.R_UNPARSED_ARGUMENTS} )
   endif ()
-  set_property (
-    GLOBAL
-    PROPERTY "${twx.R_KEY}" "${list_}"
+  twx_global_set__ (
+    "${${TWX_CMD}.LIST}"
+    KEY "${${TWX_CMD}.R_KEY}"
   )
+  if ( DEFINED ${TWX_CMD}.R_IN_LIST )
+    set ( ${${TWX_CMD}.R_IN_LIST} "${${TWX_CMD}.LIST}" PARENT_SCOPE )
+  endif ()
 endfunction ( twx_global_append )
+
+# ANCHOR: twx_global_remove
+#[=======[
+*/
+/** @brief Remove some values from a global list.
+  *
+  * @param ..., list of values to remove.
+  * @param key for key `KEY`, identifier of the list to modify.
+  * @param var for key `IN_LIST`, optional name of a variable where the resulting list
+  *   is stored.
+  *
+  */
+twx_global_remove(... KEY key [IN_LIST var]){}
+/*
+#]=======]
+function ( twx_global_remove )
+  twx_function_begin ()
+  # NO: list ( APPEND CMAKE_MESSAGE_CONTEXT "twx_fatal" )
+  cmake_parse_arguments (
+    PARSE_ARGV 0 ${TWX_CMD}.R
+    "" "KEY;IN_LIST" ""
+  )
+  twx_var_assert_name ( "${${TWX_CMD}.R_KEY}" )
+  twx_global_get__ (
+    IN_VAR ${TWX_CMD}.LIST
+    KEY "${${TWX_CMD}.R_KEY}"
+  )
+  foreach ( X IN LISTS ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
+    list ( REMOVE_ITEM ${TWX_CMD}.LIST ${X} )
+  endforeach ()
+  if ( DEFINED ${TWX_CMD}.LIST )
+    twx_global_set__ (
+      "${${TWX_CMD}.LIST}"
+      KEY "${${TWX_CMD}.R_KEY}"
+    )
+  else ()
+    twx_global_set__ (
+      KEY "${${TWX_CMD}.R_KEY}"
+    )
+  endif ()
+
+  twx_global_get__ (
+    IN_VAR ${TWX_CMD}.X
+    KEY "${${TWX_CMD}.R_KEY}"
+  )
+  if ( DEFINED ${TWX_CMD}.R_IN_LIST )
+    set ( ${${TWX_CMD}.R_IN_LIST} ${${TWX_CMD}.LIST} PARENT_SCOPE )
+  endif ()
+endfunction ( twx_global_remove )
 
 # ANCHOR: twx_global_get_back
 #[=======[
@@ -171,36 +266,50 @@ endfunction ( twx_global_append )
   * @param key for key `KEY`, identifier of the list to modify.
   * @param var for key `IN_VAR`, identifier of the var that will contain the result on return.
   * @param REQUIRED, optional flag, raises when set and the property does not exist.
+  * @param list for key `IN_LIST`, optional name of a variable where the whole list
+  *   is stored.
   *
   */
-twx_global_get_back(IN_VAR var KEY key [REQUIRED]){}
+twx_global_get_back([IN_VAR var] [KEY key] [REQUIRED] [IN_LIST list]){}
 /*
 #]=======]
 function ( twx_global_get_back )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 ${TWX_CMD}.R
-    "REQUIRED" "KEY;IN_VAR" ""
+    "REQUIRED" "KEY;IN_VAR;IN_LIST" ""
   )
   if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
     message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${${TWX_CMD}.R_UNPARSED_ARGUMENTS}''" )
   endif ()
-  twx_var_assert_name ( "${${TWX_CMD}.R_KEY}" )
-  twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
-  get_property (
-    ${TWX_CMD}.LIST
-    GLOBAL
-    PROPERTY "${${TWX_CMD}.R_KEY}"
-  )
-  if ( "${${TWX_CMD}.LIST}" STREQUAL "" )
-    if ( ${TWX_CMD}.R_REQUIRED )
-      message ( FATAL_ERROR "Missing global ``${${TWX_CMD}.R_KEY}''" )
-    endif ()
-    set ( ${${TWX_CMD}.R_IN_VAR} )
-  else ()
-    list ( GET ${TWX_CMD}.LIST -1 ${${TWX_CMD}.R_IN_VAR} )
+  if ( NOT DEFINED ${TWX_CMD}.R_IN_VAR )
+    set ( ${TWX_CMD}.R_IN_VAR ${${TWX_CMD}.R_KEY} )
+  elseif ( NOT DEFINED ${TWX_CMD}.R_KEY )
+    set ( ${TWX_CMD}.R_KEY ${${TWX_CMD}.R_IN_VAR} )
   endif ()
-  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
+  if ( DEFINED ${TWX_CMD}.R_KEY )
+    twx_var_assert_name ( "${${TWX_CMD}.R_KEY}" )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_VAR}" )
+    twx_global_get__ (
+      IN_VAR ${TWX_CMD}.LIST
+      KEY "${${TWX_CMD}.R_KEY}"
+    )
+    if ( "${${TWX_CMD}.LIST}" STREQUAL "" )
+      if ( ${TWX_CMD}.R_REQUIRED )
+        message ( FATAL_ERROR "Missing global ``${${TWX_CMD}.R_KEY}''" )
+      endif ()
+      set ( ${${TWX_CMD}.R_IN_VAR} )
+    else ()
+      list ( GET ${TWX_CMD}.LIST -1 ${${TWX_CMD}.R_IN_VAR} )
+    endif ()
+    if ( DEFINED ${TWX_CMD}.R_IN_LIST )
+      twx_var_assert_name ( "${${TWX_CMD}.R_IN_LIST}" )
+      set ( ${${TWX_CMD}.R_IN_LIST} "${TWX_CMD}.LIST" )
+    endif ()
+    return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} ${${TWX_CMD}.R_IN_LIST} )
+  else ()
+    message ( FATAL_ERROR "Missing argument for key `KEY` or `IN_VAR`" )
+  endif ()
 endfunction ( twx_global_get_back )
 
 # ANCHOR: twx_global_pop_back
@@ -211,22 +320,24 @@ endfunction ( twx_global_get_back )
   * @param key for key `KEY`, identifier of the list to retrieve.
   * @param var for key `IN_VAR`, identifier of the var that will contain the result on return.
   * @param REQUIRED, optional flag, raises when set and the property does not exist.
+  * @param list for key `IN_LIST`, optional name of a variable where the whole list
+  *   is stored.
   *
   */
 twx_global_pop_back(IN_VAR var KEY key [REQUIRED]){}
 /*
 #]=======]
 function ( twx_global_pop_back )
-  twx_cmd_begin ( ${CMAKE_CURRENT_FUNCTION} )
+  twx_function_begin ()
   cmake_parse_arguments (
     PARSE_ARGV 0 ${TWX_CMD}.R
-    "REQUIRED" "KEY;IN_VAR" ""
+    "REQUIRED" "KEY;IN_VAR;IN_LIST" ""
   )
   if ( DEFINED ${TWX_CMD}.R_UNPARSED_ARGUMENTS )
     message ( FATAL_ERROR "Bad usage: UNPARSED_ARGUMENTS -> ``${${TWX_CMD}.R_UNPARSED_ARGUMENTS}''" )
   endif ()
   twx_var_assert_name ( "${${TWX_CMD}.R_KEY}" )
-  twx_global_get (
+  twx_global_get__ (
     IN_VAR ${TWX_CMD}.LIST
     KEY "${${TWX_CMD}.R_KEY}"
   )
@@ -244,11 +355,15 @@ function ( twx_global_pop_back )
     endif ()
     list ( POP_BACK ${TWX_CMD}.LIST ${${TWX_CMD}.R_IN_VAR} )
   endif ()
-  twx_global_set (
+  twx_global_set__ (
     "${${TWX_CMD}.LIST}"
     KEY "${${TWX_CMD}.R_KEY}"
   )
-  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} )
+  if ( DEFINED ${TWX_CMD}.R_IN_LIST )
+    twx_var_assert_name ( "${${TWX_CMD}.R_IN_LIST}" )
+    set ( ${${TWX_CMD}.R_IN_LIST} "${TWX_CMD}.LIST" )
+  endif ()
+  return ( PROPAGATE ${${TWX_CMD}.R_IN_VAR} ${${TWX_CMD}.R_IN_LIST} )
 endfunction ( twx_global_pop_back )
 
 twx_lib_require ( Var Cmd )

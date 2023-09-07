@@ -1,0 +1,6 @@
+;READ ONLY
+;This file was generated automatically by the TWX build system
+[TwxCMakeBaseTest inner informations]
+TEST_KEY_2 = TEST_VALUE_2
+TEST_KEY_3 = TEST_VALUE_3
+TEST_KEY_1 = TEST_VALUE_1

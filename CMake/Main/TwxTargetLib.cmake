@@ -319,10 +319,10 @@ define_property (
   * Directory containing the Cfg ini files.
   * Absolute path.
   */
-TWX_CFG_INI_DIR;
+/TWX/CFG/INI/DIR;
 /*#]=======]
 define_property (
-  TARGET PROPERTY TWX_CFG_INI_DIR
+  TARGET PROPERTY /TWX/CFG/INI/DIR
 )
 # ANCHOR: FACTORY_INI
 #[=======[*/

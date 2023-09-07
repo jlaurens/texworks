@@ -16,7 +16,7 @@ include_guard ( GLOBAL )
 # Packaging Tasks
 # ===============
 
-if ( NOT DEFINED TWX_IS_BASED )
+if ( NOT DEFINED /TWX/IS_BASED )
 	cmake_minimum_required ( VERSION 3.25 )
   include (
 		"${CMAKE_CURRENT_LIST_DIR}/../CMake/Base/TwxBase.cmake"
@@ -90,8 +90,8 @@ if ( WIN32 )
 	include ( ExternalProject )
 	ExternalProject_Add (
 		poppler-data
-		URL "${TWX_CFG_POPPLER_DATA_URL}"
-		URL_HASH SHA256=${TWX_CFG_POPPLER_DATA_SHA256}
+		URL "${/TWX/CFG/POPPLER_DATA_URL}"
+		URL_HASH SHA256=${/TWX/CFG/POPPLER_DATA_SHA256}
 		CMAKE_CACHE_ARGS -DCMAKE_INSTALL_PREFIX:STRING=${TWX_BUILD_DATA_DIR}
 		DOWNLOAD_DIR "${TWX_EXTERNAL_DIR}"
 	)
@@ -115,8 +115,8 @@ if ( WIN32 )
 	)
 	ExternalProject_Add (
 		texworks-help
-		URL "${TWX_CFG_MANUAL_HTML_URL}"
-		URL_HASH SHA256=${TWX_CFG_MANUAL_HTML_SHA256}
+		URL "${/TWX/CFG/MANUAL_HTML_URL}"
+		URL_HASH SHA256=${/TWX/CFG/MANUAL_HTML_SHA256}
 		DOWNLOAD_DIR "${TWX_EXTERNAL_DIR}"
 		CONFIGURE_COMMAND ""
 		BUILD_COMMAND ""
@@ -135,8 +135,8 @@ elseif (APPLE)
 	include ( ExternalProject )
 	ExternalProject_Add (
 		poppler-data
-		URL "${TWX_CFG_POPPLER_DATA_URL}"
-		URL_HASH SHA256=${TWX_CFG_POPPLER_DATA_SHA256}
+		URL "${/TWX/CFG/POPPLER_DATA_URL}"
+		URL_HASH SHA256=${/TWX/CFG/POPPLER_DATA_SHA256}
 		PREFIX "${TWX_BUILD_DIR}poppler-data/"
 		CMAKE_CACHE_ARGS -DCMAKE_INSTALL_PREFIX:STRING=${Contents_DIR}/
 	)
@@ -146,8 +146,8 @@ elseif (APPLE)
 	set ( manual_Dir_twx "${prefix_Dir_twx}/src/${target_twx}/" )
 	ExternalProject_Add (
 		${target_twx}
-		URL "${TWX_CFG_MANUAL_HTML_URL}"
-		URL_HASH SHA256=${TWX_CFG_MANUAL_HTML_SHA256}
+		URL "${/TWX/CFG/MANUAL_HTML_URL}"
+		URL_HASH SHA256=${/TWX/CFG/MANUAL_HTML_SHA256}
 		PREFIX "${prefix_Dir_twx}/"
 		CONFIGURE_COMMAND ""
 		BUILD_COMMAND ""
@@ -160,7 +160,7 @@ elseif (APPLE)
 	set ( pfb_DIR_tws "${prefix_DIR_tws}/src/urw35-fonts/pfb" )
 	ExternalProject_Add (
 		urw35-fonts
-		URL "${TWX_CFG_URW35_FONTS_URL}"
+		URL "${/TWX/CFG/URW35_FONTS_URL}"
 		PREFIX "${prefix_DIR_tws}/"
 		CONFIGURE_COMMAND ""
 		BUILD_COMMAND ""
@@ -191,10 +191,10 @@ elseif (APPLE)
 endif ()
 
 # Set CPack variables.
-set ( CPACK_PACKAGE_VERSION_MAJOR ${TWX_CFG_VERSION_MAJOR} )
-set ( CPACK_PACKAGE_VERSION_MINOR ${TWX_CFG_VERSION_MINOR} )
-set ( CPACK_PACKAGE_VERSION_PATCH ${TWX_CFG_VERSION_PATCH} )
-set ( CPACK_PACKAGE_VERSION ${TWX_CFG_VERSION} )
+set ( CPACK_PACKAGE_VERSION_MAJOR ${/TWX/CFG/VERSION_MAJOR} )
+set ( CPACK_PACKAGE_VERSION_MINOR ${/TWX/CFG/VERSION_MINOR} )
+set ( CPACK_PACKAGE_VERSION_PATCH ${/TWX/CFG/VERSION_PATCH} )
+set ( CPACK_PACKAGE_VERSION ${/TWX/CFG/VERSION} )
 
 set ( CPACK_PACKAGE_NAME ${TWX_NAME} )
 
