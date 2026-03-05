@@ -2096,7 +2096,7 @@ Voulez-vous sauvegrader vos changements ?</translation>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="876"></location>
         <source>Do you want to discard all changes to the document &quot;%1&quot;, and revert to the last saved version?</source>
-        <translation>Voulez-vous annuler tous les changements apportés au document &quot;%1&quot;, et retourner à la dernière version sauvegardée ?</translation>
+        <translation>Voulez-vous abandonner tous les changements apportés au document &quot;%1&quot;, et revenir à la dernière version sauvegardée ?</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="878"></location>
